@@ -1878,6 +1878,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                     <hr style="border: 0; border-top: 1px solid var(--border-color);">
                     <a href="#" id="exportPngSequenceMenu">Exportar Sequência PNG</a>
                     <a href="#" id="exportPngSequenceTransparentMenu">Exportar Sequência PNG (Transparente)</a>
+                    <a href="#" id="exportGifMenu" title="GIF animado em até 960×540, aproximadamente 24 FPS, sem áudio">Exportar como GIF</a>
                     <a href="#" id="exportVideoMenu">Exportar Vídeo</a>
                     <a href="#" id="exportVideoTransparentMenu">Exportar Vídeo (Transparente)</a>
                     <hr style="border: 0; border-top: 1px solid var(--border-color);">
@@ -1888,6 +1889,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                     <a href="#" id="saveProjectMenu">Salvar Projeto</a>
                     <a href="#" id="loadProjectMenu">Carregar Projeto</a>
                     <hr style="border: 0; border-top: 1px solid var(--border-color);">
+                    <a href="#" id="exportLibraryMenu">Exportar Biblioteca Inteira</a>
+                    <a href="#" id="importLibraryMenu" title="Adicionar pastas e itens de uma biblioteca sem apagar os atuais">Importar Biblioteca Inteira</a>
+                    <hr style="border: 0; border-top: 1px solid var(--border-color);">
                     <a href="#" id="copy360PromptMenu" title="Copiar prompt para gerar panorama 3D equiretangular">Copiar Prompt 3D 360°</a>
                     <hr style="border: 0; border-top: 1px solid var(--border-color);">
                     <a href="#" id="enterFullscreenMenu">Maximizar tela</a>
@@ -1896,6 +1900,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             </div>
             <input type="file" id="importInput" accept="image/*" style="display: none;">
             <input type="file" id="projectInput" accept=".json" style="display: none;">
+            <input type="file" id="libraryFileInput" accept=".json,application/json" style="display: none;" aria-label="Importar biblioteca inteira">
             <div class="fps-control">
                 <span>FPS: <span id="fpsValue">4</span></span>
                 <input type="range" id="fpsSlider" min="1" max="24" value="4">
@@ -2415,12 +2420,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         let cachedOpacity = 100;
         let currentStrokePoints = [];
         let strokeMoved = false;
-        let artStrokePoints = [];
-        // false = pincéis novos desenham só o trecho novo (leve, sem atraso);
-        // true = motor antigo que redesenha o traço inteiro (pesado).
-        const ART_ENGINE = false;
-        let artStrokeDirty = false;
-
         // ===== PINCÉIS NATIVOS DO SOFTWARE =====
         const brushPresets = [{ id: 'default', name: 'Pincel padrão', type: 'default', tip: null }];
         let selectedBrushId = 'default';
@@ -2431,94 +2430,273 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             return brushPresets.find(brush => brush.id === selectedBrushId) || brushPresets[0];
         }
 
-        function makeHbBrushTip() {
-            const size = 128, canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
-            const tipCtx = canvas.getContext('2d'); const imageData = tipCtx.createImageData(size, size);
-            let seed = 0x48425045; // textura determinística: "HBPE"
-            const random = () => { seed = Math.imul(seed ^ seed >>> 15, 1 | seed); seed ^= seed + Math.imul(seed ^ seed >>> 7, 61 | seed); return ((seed ^ seed >>> 14) >>> 0) / 4294967296; };
-            for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
-                const nx = (x + .5 - size / 2) / (size * .44), ny = (y + .5 - size / 2) / (size * .38);
-                const radius = Math.sqrt(nx * nx + ny * ny);
-                const edge = Math.max(0, Math.min(1, (1 - radius) * 5));
-                const paperGrain = .52 + random() * .48;
-                const graphite = random() > .14 ? paperGrain : paperGrain * .28;
-                const alpha = Math.round(255 * edge * graphite);
-                const offset = (y * size + x) * 4;
-                imageData.data[offset] = imageData.data[offset + 1] = imageData.data[offset + 2] = 255;
-                imageData.data[offset + 3] = alpha;
-            }
-            tipCtx.putImageData(imageData, 0, 0); return canvas;
+        // ===== MOTOR DE PINCÉIS 2: forma, grão, fluxo e pressão por distância =====
+        // Somente pincéis especiais. Pincel padrão e borracha mantêm o caminho original.
+        const artBrushProfiles = {
+            hb: { name: 'HB', min: .16, power: .82, flow: .13, spacing: .10, grain: .76, softness: .12, aspect: .72, tilt: 1.9 },
+            '6b': { name: '6B', min: .23, power: .65, flow: .23, spacing: .085, grain: .56, softness: .16, aspect: .80, tilt: 2.3 },
+            crayon: { name: 'Giz de cera', min: .38, power: .72, flow: .30, spacing: .12, grain: .82, softness: .10, aspect: .87 },
+            watercolor: { name: 'Aquarela', min: .35, power: .65, flow: .095, spacing: .09, grain: .24, softness: .23, aspect: .86, wet: .4, charge: 55 },
+            light: { name: 'Luz', min: .25, power: .70, flow: .50, spacing: .08, grain: 0, softness: 1, halo: 2.0, luminous: true },
+            spray: { name: 'Spray', min: .65, power: .65, flow: .40, spacing: .16, grain: 0, softness: 1 },
+            airbrush: { name: 'Aerógrafo suave', min: .55, power: .80, flow: .045, spacing: .07, grain: 0, softness: 1, halo: 1.25 },
+            'wc-wet': { name: 'Aquarela úmida', min: .45, power: .60, flow: .065, spacing: .075, grain: .13, softness: .42, aspect: .91, wet: .75, charge: 38 },
+            'wc-dry': { name: 'Aquarela seca', min: .24, power: .80, flow: .21, spacing: .11, grain: .92, softness: .20, aspect: .72, wet: .10, charge: 16 },
+            pastel: { name: 'Giz pastel', min: .38, power: .65, flow: .25, spacing: .11, grain: .90, softness: .25, aspect: .85 },
+            neon: { name: 'Neon', min: .20, power: .66, flow: .85, spacing: .065, grain: 0, softness: 1, halo: 2.4, luminous: true },
+            glow: { name: 'Brilho suave', min: .5, power: .70, flow: .065, spacing: .09, grain: 0, softness: 1, halo: 3.2, luminous: true }
+        };
+        for (const [kind, profile] of Object.entries(artBrushProfiles)) {
+            brushPresets.push({ id: `builtin-${kind}`, name: profile.name, type: 'stamp',
+                brushKind: kind, pencilKind: kind === 'hb' || kind === '6b' ? kind : undefined });
         }
-
-        const hbBrushTip = makeHbBrushTip();
-        brushPresets.push({ id: 'builtin-hb', name: 'HB', type: 'stamp', tip: hbBrushTip, spacing: .09, pressureOpacity: true, pencilGrade: 0, pencilKind: 'hb' });
-        brushPresets.push({ id: 'builtin-6b', name: '6B', type: 'stamp', tip: hbBrushTip, spacing: .055, pressureOpacity: true, pencilGrade: 6, pencilKind: '6b' });
-        brushPresets.push({ id: 'builtin-crayon', name: 'Giz de cera', type: 'stamp', brushKind: 'crayon' });
-        brushPresets.push({ id: 'builtin-watercolor', name: 'Aquarela', type: 'stamp', brushKind: 'watercolor' });
-        brushPresets.push({ id: 'builtin-light', name: 'Luz', type: 'stamp', brushKind: 'light' });
-        brushPresets.push({ id: 'builtin-spray', name: 'Spray', type: 'stamp', brushKind: 'spray' });
-        brushPresets.push({ id: 'builtin-airbrush', name: 'Aerógrafo suave', type: 'stamp', brushKind: 'airbrush' });
-        brushPresets.push({ id: 'builtin-wc-wet', name: 'Aquarela úmida', type: 'stamp', brushKind: 'wc-wet' });
-        brushPresets.push({ id: 'builtin-wc-dry', name: 'Aquarela seca', type: 'stamp', brushKind: 'wc-dry' });
-        brushPresets.push({ id: 'builtin-pastel', name: 'Giz pastel', type: 'stamp', brushKind: 'pastel' });
-        brushPresets.push({ id: 'builtin-neon', name: 'Neon', type: 'stamp', brushKind: 'neon' });
-        brushPresets.push({ id: 'builtin-glow', name: 'Brilho suave', type: 'stamp', brushKind: 'glow' });
-
-        function makeProceduralGrain(kind) {
-            const size = 128, tile = document.createElement('canvas');
-            tile.width = tile.height = size;
-            const tileCtx = tile.getContext('2d');
-            const pixels = tileCtx.createImageData(size, size);
-            let seed = kind === 'hb' ? 0x48424752 : kind === '6b' ? 0x36424752 : kind === 'crayon' ? 0x43524159 : 0x57415452;
-            const random = () => {
-                seed |= 0; seed = seed + 0x6D2B79F5 | 0;
-                let value = Math.imul(seed ^ seed >>> 15, 1 | seed);
-                value = value + Math.imul(value ^ value >>> 7, 61 | value) ^ value;
-                return ((value ^ value >>> 14) >>> 0) / 4294967296;
-            };
-            for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
-                const fine = random();
-                const cloud = .5 + Math.sin(x * .115 + Math.sin(y * .071) * 1.8) * .2 + Math.sin(y * .163 - x * .037) * .16;
-                const fiber = Math.abs(Math.sin(x * .42 + y * .067 + Math.sin(y * .19) * 2.2));
-                let alpha;
-                if (kind === 'hb') {
-                    alpha = fine < .12 ? .06 : .34 + fine * .42 + cloud * .16;
-                    if (fiber < .09) alpha *= .28;
-                } else if (kind === '6b') {
-                    alpha = fine < .045 ? .22 : .66 + fine * .24 + cloud * .1;
-                    if (fiber < .055) alpha *= .62;
-                } else if (kind === 'crayon') {
-                    const wax = fine * .58 + cloud * .42;
-                    alpha = wax < .38 ? .05 : .26 + wax * .72;
-                    if (fiber < .14) alpha *= .16;
+        async function restoreProjectBrushes(_savedBrushes, savedSelectedBrushId) {
+            selectedBrushId = brushPresets.some(brush => brush.id === savedSelectedBrushId) ? savedSelectedBrushId : 'default';
+            renderBrushList();
+        }
+        const artTipCache = new Map();
+        const artPatternCaches = new WeakMap();
+        let artStroke = null;
+        function artHash(x, y, salt = 0) {
+            let n = Math.imul(x ^ salt, 374761393) ^ Math.imul(y, 668265263);
+            n = Math.imul(n ^ (n >>> 13), 1274126177);
+            return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+        }
+        function artPaperNoise(x,y,salt) {
+            const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
+            const sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
+            const top=artHash(ix,iy,salt)*(1-sx)+artHash(ix+1,iy,salt)*sx;
+            const bottom=artHash(ix,iy+1,salt)*(1-sx)+artHash(ix+1,iy+1,salt)*sx;
+            return top*(1-sy)+bottom*sy;
+        }
+        function artRandom(state) {
+            let x = state.seed; x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
+            state.seed = x >>> 0; return state.seed / 4294967296;
+        }
+        function artPressure(event, fallback = 1) {
+            return event && event.pointerType === 'pen'
+                ? Math.max(.025, Math.min(1, Number.isFinite(event.pressure) ? event.pressure : fallback)) : 1;
+        }
+        function artInput(event, pos, fallback = 1) {
+            const tx = Number(event && event.tiltX) || 0, ty = Number(event && event.tiltY) || 0;
+            return { x: pos.x, y: pos.y, p: artPressure(event, fallback),
+                tilt: Math.min(1, Math.hypot(tx, ty) / 75), angle: Math.atan2(ty, tx) };
+        }
+        function artTip(kind, pressure, color) {
+            const bucket = Math.round(pressure * 10), key = `${kind}:${bucket}:${color}`;
+            if (artTipCache.has(key)) return artTipCache.get(key);
+            const profile = artBrushProfiles[kind], size = 128;
+            const canvas = document.createElement('canvas'); canvas.width = canvas.height = size;
+            const c = canvas.getContext('2d'), data = c.createImageData(size, size);
+            const rgb = [1,3,5].map(index => parseInt(color.slice(index,index+2), 16) || 0);
+            const p = bucket / 10;
+            const smooth = value => { const t = Math.max(0, Math.min(1, value)); return t*t*(3-2*t); };
+            for (let y=0; y<size; y++) for (let x=0; x<size; x++) {
+                const nx=(x+.5-size/2)/(size*.49), ny=(y+.5-size/2)/(size*.49);
+                const r=Math.hypot(nx,ny), angle=Math.atan2(ny,nx);
+                const fine=artHash(x,y,917), coarse=artHash(x>>2,y>>2,177);
+                let alpha=0, highlight=0;
+                if (profile.halo) {
+                    if (kind === 'neon') {
+                        alpha=.23*Math.exp(-r*r*5)+.65*Math.exp(-r*r*60);
+                        highlight=.97*Math.exp(-r*r*180);
+                    } else if (kind === 'light') {
+                        alpha=.28*Math.exp(-r*r*5)+.70*Math.exp(-r*r*55);
+                        highlight=.65*Math.exp(-r*r*95);
+                    } else alpha=Math.exp(-r*r*(kind==='glow'?5:4))*.88;
+                    // Queda contínua até zero, sem discos visíveis na borda.
+                    alpha*=smooth((1-r)*7);
                 } else {
-                    alpha = .48 + cloud * .34 + fine * .14;
-                    if (fine < .065) alpha *= .2;
+                    const irregular=1+.022*Math.sin(angle*7)+.016*Math.sin(angle*13+1.2);
+                    const edge=smooth((irregular-r)/Math.max(.045,profile.softness));
+                    let grain=1;
+                    if (kind==='hb' || kind==='6b') {
+                        const tooth=.60*fine+.40*coarse;
+                        grain=smooth((tooth-(.48-p*.28))*(kind==='hb'?3.8:5));
+                        grain=.06+grain*.94;
+                    } else if (kind==='crayon') {
+                        grain=(fine*.35+coarse*.65 > .28+(1-p)*.24) ? .40+.60*fine : .025;
+                    } else if (kind==='pastel') {
+                        grain=(fine*.55+coarse*.45 > .31+(1-p)*.20) ? .24+.76*fine : .015;
+                    } else if (kind==='wc-dry') {
+                        const fiber=artHash(x>>1,y>>3,93);
+                        grain=smooth((fine*.35+fiber*.65-(.43+(1-p)*.18))*6);
+                    } else {
+                        grain=1-profile.grain*(.4*fine+.6*coarse);
+                    }
+                    alpha=edge*grain;
+                    if (profile.wet) {
+                        const pigment=.76+.24*Math.sin(nx*8+ny*11+coarse*2);
+                        const rim=Math.exp(-Math.pow((r-.81)/.10,2));
+                        alpha*=pigment*(.80+profile.wet*.26*rim);
+                    }
                 }
-                const index = (y * size + x) * 4;
-                pixels.data[index] = pixels.data[index + 1] = pixels.data[index + 2] = 255;
-                pixels.data[index + 3] = Math.max(0, Math.min(255, Math.round(alpha * 255)));
+                const offset=(y*size+x)*4;
+                for(let k=0;k<3;k++)data.data[offset+k]=Math.round(rgb[k]+(255-rgb[k])*highlight);
+                data.data[offset+3]=Math.round(Math.max(0,Math.min(1,alpha))*255);
             }
-            tileCtx.putImageData(pixels, 0, 0);
-            return tile;
+            c.putImageData(data,0,0);
+            if(artTipCache.size>=48)artTipCache.delete(artTipCache.keys().next().value);
+            artTipCache.set(key,canvas); return canvas;
+        }
+        function artPaperPattern(c, kind, pressure, color) {
+            const bucket=Math.round(pressure*10), key=`paper:${kind}:${bucket}:${color}`;
+            let patterns=artPatternCaches.get(c);
+            if(!patterns){patterns=new Map();artPatternCaches.set(c,patterns);}
+            if(patterns.has(key))return patterns.get(key);
+            let tile=artTipCache.get(key);
+            if(!tile) {
+                const size=192;tile=document.createElement('canvas');tile.width=tile.height=size;
+                const tc=tile.getContext('2d'), image=tc.createImageData(size,size);
+                const rgb=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)||0),p=bucket/10;
+                for(let y=0;y<size;y++)for(let x=0;x<size;x++) {
+                    const fine=artHash(x,y,701), coarse=artPaperNoise(x/2.3,y/2.3,302);
+                    const fiber=artPaperNoise(x/1.4,y/3.8,99);
+                    let tooth,threshold;
+                    if(kind==='hb'||kind==='6b') {
+                        tooth=.65*fine+.35*coarse;threshold=(kind==='hb'?.50:.43)-p*.24;
+                    } else if(kind==='crayon') {
+                        tooth=.60*fine+.40*coarse;threshold=.43+(1-p)*.12;
+                    } else if(kind==='pastel') {
+                        tooth=.55*fine+.45*coarse;threshold=.43+(1-p)*.12;
+                    } else {tooth=.48*fine+.52*fiber;threshold=.52+(1-p)*.12;}
+                    const cover=tooth>threshold ? .25+.75*Math.min(1,(tooth-threshold)*5) : 0;
+                    const i=(y*size+x)*4;
+                    image.data[i]=rgb[0];image.data[i+1]=rgb[1];image.data[i+2]=rgb[2];image.data[i+3]=Math.round(cover*255);
+                }
+                tc.putImageData(image,0,0);
+                if(artTipCache.size>=48)artTipCache.delete(artTipCache.keys().next().value);
+                artTipCache.set(key,tile);
+            }
+            const pattern=c.createPattern(tile,'repeat');
+            if(patterns.size>=48)patterns.delete(patterns.keys().next().value);
+            patterns.set(key,pattern);return pattern;
+        }
+        function createArtStroke(kind, size, color, point) {
+            return {kind, size, color, point:{...point}, remain:0, distance:0, seed:0x6d2b79f5,
+                count:0, lastStamp:null};
+        }
+        function artDab(c, state, point, direction) {
+            const profile=artBrushProfiles[state.kind], p=Math.max(.025,point.p);
+            const tilt=profile.tilt ? point.tilt||0 : 0;
+            const diameter=Math.max(.8,state.size*(profile.min+(1-profile.min)*Math.pow(p,profile.power))*(1+tilt*(profile.tilt||0)));
+            const r=diameter/2;
+            const load=profile.charge ? .28+.72*Math.exp(-state.distance/Math.max(10,state.size*profile.charge)) : 1;
+            const alpha=profile.flow*(.12+.88*Math.pow(p,.8))*load;
+            c.save();
+            c.globalAlpha*=alpha;
+            if(profile.luminous)c.globalCompositeOperation='lighter';
+            if(state.kind==='spray') {
+                c.fillStyle=state.color;
+                const n=Math.min(90,Math.max(6,Math.round(diameter*1.35)));
+                for(let i=0;i<n;i++) {
+                    const angle=artRandom(state)*Math.PI*2;
+                    const radius=Math.sqrt(-2*Math.log(Math.max(.00001,artRandom(state))))*r*.30;
+                    if(radius>r)continue;
+                    const dot=Math.max(.24,state.size*(.004+.012*artRandom(state)));
+                    c.beginPath();c.arc(point.x+Math.cos(angle)*radius,point.y+Math.sin(angle)*radius,dot,0,Math.PI*2);c.fill();
+                }
+            } else if(['hb','6b','crayon','pastel','wc-dry'].includes(state.kind)) {
+                // O grão fica fixo no papel, não gira nem preenche seus vazios a cada carimbo.
+                const rotation=tilt>.12?point.angle:direction;
+                const aspect=profile.aspect||1;
+                c.fillStyle=artPaperPattern(c,state.kind,p,state.color);
+                c.beginPath();
+                if(state.kind==='crayon'||state.kind==='wc-dry') {
+                    const cos=Math.cos(rotation),sin=Math.sin(rotation);
+                    for(let i=0;i<=24;i++) {
+                        const a=i/24*Math.PI*2,rough=1+.05*Math.sin(a*7)+.035*Math.sin(a*11);
+                        const x=Math.cos(a)*r*rough,y=Math.sin(a)*r*aspect*rough;
+                        if(i===0)c.moveTo(point.x+x*cos-y*sin,point.y+x*sin+y*cos);
+                        else c.lineTo(point.x+x*cos-y*sin,point.y+x*sin+y*cos);
+                    }
+                    c.closePath();
+                } else c.ellipse(point.x,point.y,r,r*aspect,rotation,0,Math.PI*2);
+                c.fill();
+            } else {
+                const tip=artTip(state.kind,p,state.color);
+                const rotation=profile.halo?0:(tilt>.12?point.angle:direction+(artRandom(state)-.5)*.30);
+                const halo=profile.halo||1;
+                c.translate(point.x,point.y);c.rotate(rotation);
+                const aspect=profile.aspect||1;
+                c.drawImage(tip,-r*halo,-r*halo*aspect,diameter*halo,diameter*halo*aspect);
+            }
+            c.restore();state.count++;state.lastStamp={...point};
+            return Math.max(.45,diameter*profile.spacing);
+        }
+        function advanceArtStroke(c,state,point) {
+            const from=state.point, dx=point.x-from.x,dy=point.y-from.y,dist=Math.hypot(dx,dy);
+            if(dist<.00001){state.point={...point};return;}
+            const direction=Math.atan2(dy,dx);
+            let d=state.remain;
+            while(d<=dist) {
+                const t=d/dist, stamp={x:from.x+dx*t,y:from.y+dy*t,p:from.p+(point.p-from.p)*t,
+                    tilt:(from.tilt||0)+((point.tilt||0)-(from.tilt||0))*t,
+                    angle:from.angle||0};
+                const oldDistance=state.distance;
+                state.distance=oldDistance+d;
+                const step=artDab(c,state,stamp,direction);
+                state.distance=oldDistance;
+                d+=step;
+            }
+            state.remain=d-dist;state.distance+=dist;state.point={...point};
+        }
+        function finishArtStroke(c,state,point) {
+            if(point)advanceArtStroke(c,state,point);
+            // Não duplica o último carimbo no pointerup.
+            const last=state.lastStamp;
+            if(last && Math.hypot(state.point.x-last.x,state.point.y-last.y)>.6*state.remain)
+                artDab(c,state,state.point,0);
+        }
+        function beginAdvancedBrush(event,pos) {
+            const brush=selectedBrushPreset(), point=artInput(event,pos);
+            snapCtx.globalCompositeOperation='source-over';
+            snapCtx.clearRect(0,0,snapshotCanvas.width,snapshotCanvas.height);snapCtx.drawImage(mainCanvas,0,0);
+            dCtx.globalCompositeOperation='source-over';dCtx.globalAlpha=1;
+            dCtx.clearRect(0,0,drawingCanvas.width,drawingCanvas.height);
+            artStroke=createArtStroke(brush.brushKind,cachedSize,cachedColor,point);
+            artStroke.remain=artDab(dCtx,artStroke,point,0);
+            triggerRenderLiveStroke();
+        }
+        function moveAdvancedBrush(events) {
+            if(!artStroke)return;
+            for(const event of events) {
+                const raw=artInput(event,getMousePos(event),artStroke.point.p);
+                // Pressão filtrada, sem modificar o caminho do pincel padrão.
+                raw.p=artStroke.point.p+(raw.p-artStroke.point.p)*.72;
+                advanceArtStroke(dCtx,artStroke,raw);
+                lastX=raw.x;lastY=raw.y;
+            }
+            triggerRenderLiveStroke();
+        }
+        function endAdvancedBrush(event) {
+            if(!artStroke)return false;
+            if(renderPending){cancelAnimationFrame(strokeRafId);renderPending=false;}
+            if(event && event.type==='pointercancel') {
+                ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,mainCanvas.width,mainCanvas.height);ctx.drawImage(snapshotCanvas,0,0);
+            } else {
+                const point=event?artInput(event,getMousePos(event),artStroke.point.p):artStroke.point;
+                // Eventos sem pressão ao levantar não criam um ponto grosso no fim.
+                if(event && event.pointerType==='pen' && !event.pressure)point.p=Math.min(.05,artStroke.point.p);
+                finishArtStroke(dCtx,artStroke,point);forceRenderLiveStroke();
+            }
+            dCtx.clearRect(0,0,drawingCanvas.width,drawingCanvas.height);
+            artStroke=null;isDrawing=false;activePointerId=null;currentStrokePoints=[];
+            if(!event || event.type!=='pointercancel')saveFrameState(currentFrameIndex);
+            return true;
+        }
+        // Entradas auxiliares usadas para amostras e operações pontuais.
+        function stampImportedBrush(c,x,y,size,_erasing,pressure=1) {
+            const kind=selectedBrushPreset().brushKind;if(!artBrushProfiles[kind])return;
+            const p={x,y,p:pressure,tilt:0,angle:0}, state=createArtStroke(kind,size/(.2+.8*pressure),cachedColor,p);
+            artDab(c,state,p,0);
+        }
+        function stampImportedSegment(c,fx,fy,tx,ty,size,_erasing,_start=false,pressure=1) {
+            const kind=selectedBrushPreset().brushKind;if(!artBrushProfiles[kind])return;
+            const state=createArtStroke(kind,size/(.2+.8*pressure),cachedColor,{x:fx,y:fy,p:pressure,tilt:0,angle:0});
+            advanceArtStroke(c,state,{x:tx,y:ty,p:pressure,tilt:0,angle:0});
         }
 
-        const brushGrains = {};
-
-        const grainPatternCache = new WeakMap();
-        function applyStaticGrain(targetCtx, grain) {
-            let contextPatterns = grainPatternCache.get(targetCtx);
-            if (!contextPatterns) { contextPatterns = new Map(); grainPatternCache.set(targetCtx, contextPatterns); }
-            let pattern = contextPatterns.get(grain);
-            if (!pattern) { pattern = targetCtx.createPattern(grain, 'repeat'); contextPatterns.set(grain, pattern); }
-            if (!pattern) return;
-            targetCtx.save();
-            targetCtx.globalCompositeOperation = 'destination-in';
-            targetCtx.globalAlpha = 1;
-            targetCtx.fillStyle = pattern;
-            targetCtx.fillRect(0, 0, targetCtx.canvas.width, targetCtx.canvas.height);
-            targetCtx.restore();
-        }
         function renderBrushList() {
             brushList.replaceChildren();
             for (const brush of brushPresets) {
@@ -2541,539 +2719,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 };
                 brushList.appendChild(item);
             }
-        }
-
-        async function restoreProjectBrushes(_savedBrushes, savedSelectedBrushId) {
-            // Projetos antigos podem conter pincéis importados, mas esta versão
-            // aceita somente os três pincéis nativos do software.
-            selectedBrushId = brushPresets.some(b => b.id === savedSelectedBrushId) ? savedSelectedBrushId : 'default';
-            renderBrushList();
-        }
-
-        function hbNoise(value) {
-            const x = Math.sin(value * 12.9898 + 78.233) * 43758.5453;
-            return x - Math.floor(x);
-        }
-
-        function selectedPencilProfile() {
-            if (selectedBrushPreset().pencilKind === '6b' || selectedBrushPreset().pencilGrade === 6) {
-                return {
-                    widthBase: .2, widthPressure: .78, widthCurve: .72,
-                    alphaBase: .13, alphaPressure: .5, alphaCurve: .68,
-                    dotBase: .14, dotPressure: .38,
-                    grainCutoff: .12, grainBase: .07, grainPressure: .19,
-                    grainSize: .07, spreadBase: .14, spreadLight: .2
-                };
-            }
-            return {
-                widthBase: .1, widthPressure: .48, widthCurve: .86,
-                alphaBase: .055, alphaPressure: .21, alphaCurve: .8,
-                dotBase: .08, dotPressure: .23,
-                grainCutoff: .48, grainBase: .025, grainPressure: .075,
-                grainSize: .035, spreadBase: .045, spreadLight: .1
-            };
-        }
-
-        function drawHbDot(targetCtx, x, y, size, pressure) {
-            const p = Math.max(.02, Math.min(1, pressure));
-            const profile = selectedPencilProfile();
-            const baseSize = size / (.2 + .8 * p);
-            const radius = Math.max(.28, baseSize * (profile.dotBase + profile.dotPressure * Math.pow(p, .74)));
-            const largeBlend = Math.max(0, Math.min(1, (baseSize - 7) / 25));
-            const previousAlpha = targetCtx.globalAlpha;
-            targetCtx.fillStyle = currentTool === 'eraser' ? '#000' : cachedColor;
-            const dotAlpha = profile.alphaBase + profile.alphaPressure * Math.pow(p, profile.alphaCurve);
-            targetCtx.globalAlpha = previousAlpha * dotAlpha * (1 - largeBlend * .68);
-            targetCtx.beginPath(); targetCtx.arc(x, y, radius, 0, Math.PI * 2); targetCtx.fill();
-            if (largeBlend > 0) {
-                const particles = Math.min(140, Math.max(12, Math.round(radius * radius * .22)));
-                for (let i = 0; i < particles; i++) {
-                    const angle = hbNoise(x * 17 + y * 31 + i) * Math.PI * 2;
-                    const radial = Math.sqrt(hbNoise(x * 43 - y * 19 + i * 3.1)) * radius;
-                    const grain = hbNoise(i * 7.7 + x - y);
-                    targetCtx.globalAlpha = previousAlpha * largeBlend * dotAlpha * (.22 + grain * .42);
-                    targetCtx.beginPath();
-                    targetCtx.arc(x + Math.cos(angle) * radial, y + Math.sin(angle) * radial, Math.max(.2, Math.min(1.05, baseSize * (.012 + grain * .014))), 0, Math.PI * 2);
-                    targetCtx.fill();
-                }
-            }
-            targetCtx.globalAlpha = previousAlpha;
-        }
-
-        function drawHbSegment(targetCtx, fromX, fromY, toX, toY, size, pressure) {
-            const dx = toX - fromX, dy = toY - fromY, distance = Math.hypot(dx, dy);
-            if (distance < .01) { drawHbDot(targetCtx, toX, toY, size, pressure); return; }
-            const p = Math.max(.02, Math.min(1, pressure));
-            const profile = selectedPencilProfile();
-            const baseSize = size / (.2 + .8 * p);
-            const largeBlend = Math.max(0, Math.min(1, (baseSize - 7) / 25));
-            const nx = -dy / distance, ny = dx / distance;
-            const previousAlpha = targetCtx.globalAlpha;
-            const color = currentTool === 'eraser' ? '#000' : cachedColor;
-            // Cada pointermove desenha um novo trecho. Com pontas redondas e
-            // transparência, as duas pontas se somavam em toda emenda e o
-            // lápis parecia uma fileira de bolinhas. "butt" encosta os trechos
-            // sem duplicar tinta; o toque isolado continua redondo em drawHbDot.
-            targetCtx.lineCap = 'butt'; targetCtx.lineJoin = 'round'; targetCtx.strokeStyle = color;
-
-            // Mina contínua: fina nas pressões leves e escura sem ficar opaca demais.
-            const strokeAlpha = profile.alphaBase + profile.alphaPressure * Math.pow(p, profile.alphaCurve);
-            const strokeWidth = Math.max(.35, baseSize * (profile.widthBase + profile.widthPressure * Math.pow(p, profile.widthCurve)));
-            targetCtx.globalAlpha = previousAlpha * strokeAlpha * (1 - largeBlend * .76);
-            targetCtx.lineWidth = strokeWidth;
-            targetCtx.beginPath(); targetCtx.moveTo(fromX, fromY); targetCtx.lineTo(toX, toY); targetCtx.stroke();
-
-            // Em tamanhos grandes a mina encosta no papel por vários pontos,
-            // não como uma faixa digital sólida. As fibras paralelas mantêm
-            // vazios de papel e crescem em quantidade com a largura.
-            if (largeBlend > 0) {
-                const fibers = Math.min(30, Math.max(5, Math.ceil(strokeWidth / 2.2)));
-                for (let fiber = 0; fiber < fibers; fiber++) {
-                    const normalized = fibers === 1 ? 0 : fiber / (fibers - 1) * 2 - 1;
-                    const jitter = (hbNoise(fiber * 91.7 + Math.round(fromX * .25) + Math.round(fromY * .25)) - .5) * strokeWidth / fibers;
-                    const offset = normalized * strokeWidth * .46 + jitter;
-                    const fiberGrain = hbNoise(fiber * 37.1 + Math.round(toX + toY));
-                    targetCtx.globalAlpha = previousAlpha * largeBlend * strokeAlpha * (.1 + fiberGrain * .17);
-                    targetCtx.lineWidth = Math.max(.35, Math.min(1.35, strokeWidth / fibers * (.42 + fiberGrain * .5)));
-                    targetCtx.beginPath();
-                    targetCtx.moveTo(fromX + nx * offset, fromY + ny * offset);
-                    targetCtx.lineTo(toX + nx * offset, toY + ny * offset);
-                    targetCtx.stroke();
-                }
-            }
-
-            // Depósito irregular de grafite nas bordas, calculado no tamanho
-            // final do canvas para continuar visível mesmo em 2–5 px.
-            const step = Math.max(.55, Math.min(1.35, baseSize * (selectedBrushPreset().pencilKind === '6b' ? .14 : .22)));
-            const count = Math.max(1, Math.ceil(distance / step));
-            targetCtx.fillStyle = color;
-            for (let i = 1; i <= count; i++) {
-                const t = i / count;
-                const key = (Math.round((fromX + dx * t) * 8) * 73856093) ^ (Math.round((fromY + dy * t) * 8) * 19349663);
-                const grain = hbNoise(key + i), side = hbNoise(key * .37 - i) * 2 - 1;
-                if (grain < profile.grainCutoff) continue;
-                const spread = side * baseSize * (profile.spreadBase + profile.spreadLight * (1 - p));
-                const gx = fromX + dx * t + nx * spread, gy = fromY + dy * t + ny * spread;
-                const grainRadius = Math.max(.16, Math.min(.85, baseSize * (profile.grainSize * (.55 + grain))));
-                targetCtx.globalAlpha = previousAlpha * (profile.grainBase + profile.grainPressure * p) * (.5 + .5 * grain);
-                targetCtx.beginPath(); targetCtx.arc(gx, gy, grainRadius, 0, Math.PI * 2); targetCtx.fill();
-            }
-            targetCtx.globalAlpha = previousAlpha;
-        }
-
-        // ===== PINCÉIS EXTRAS: carimbos espaçados ao longo do traço =====
-        const extraBrushSpacing = { spray: .12, airbrush: .08, 'wc-wet': .2, 'wc-dry': .15, pastel: .12, neon: .15, glow: .2 };
-        let extraBrushRemain = 0;
-
-        function stampExtraBrush(c, kind, x, y, size, p) {
-            const r = Math.max(.5, size / 2), A = c.globalAlpha, R = extraRand, T = Math.PI * 2;
-            const oldComp = c.globalCompositeOperation;
-            c.fillStyle = cachedColor; c.strokeStyle = cachedColor;
-            const disc = (cx, cy, rad, a) => { c.globalAlpha = A * a; c.beginPath(); c.arc(cx, cy, rad, 0, T); c.fill(); };
-            if (kind === 'spray') {
-                const n = Math.min(70, Math.round(4 + r * r * .14));
-                for (let i = 0; i < n; i++) {
-                    const a = R() * T, d = r * Math.abs(R() + R() + R() - 1.5) / 1.5;
-                    disc(x + Math.cos(a) * d, y + Math.sin(a) * d, Math.max(.4, size * .022 * (.5 + R())), (.18 + .5 * p) * (.4 + .6 * R()));
-                }
-            } else if (kind === 'airbrush') {
-                for (let i = 0; i < 6; i++) disc(x, y, r * (1 - i * .15), .012 + .03 * p);
-            } else if (kind === 'wc-wet') {
-                for (let i = 0; i < 4; i++) disc(x + (R() - .5) * r * .12, y + (R() - .5) * r * .12, r * (1 - i * .04), .016 + .02 * p);
-                c.lineWidth = Math.max(.6, size * .035); c.globalAlpha = A * (.05 + .05 * p);
-                c.beginPath(); c.arc(x, y, r * .97, 0, T); c.stroke();
-            } else if (kind === 'wc-dry') {
-                disc(x, y, r, .01);
-                const n = Math.min(90, Math.round(6 + r * r * .45));
-                for (let i = 0; i < n; i++) {
-                    if (R() < .38) continue;
-                    const a = R() * T, d = r * Math.sqrt(R());
-                    disc(x + Math.cos(a) * d, y + Math.sin(a) * d, .5 + R() * 1.1, .07 + .16 * p * R());
-                }
-            } else if (kind === 'pastel') {
-                disc(x, y, r * .9, .035 + .07 * p);
-                const n = Math.min(120, Math.round(8 + r * r * .7));
-                for (let i = 0; i < n; i++) {
-                    if (R() < .25) continue;
-                    const a = R() * T, d = r * 1.05 * Math.sqrt(R());
-                    disc(x + Math.cos(a) * d, y + Math.sin(a) * d, .45 + R() * .9, .14 + .3 * p * R());
-                }
-            } else if (kind === 'neon') {
-                c.globalCompositeOperation = 'lighter';
-                disc(x, y, Math.min(90, r * 1.5), .05 * (.5 + p));
-                disc(x, y, r * .7, .18 * (.5 + p));
-                c.fillStyle = '#fff'; disc(x, y, Math.max(.5, r * .22), .85 * (.5 + .5 * p));
-            } else if (kind === 'glow') {
-                c.globalCompositeOperation = 'lighter';
-                const rs = [3, 2.1, 1.3, .6], as = [.012, .025, .05, .1];
-                for (let i = 0; i < 4; i++) disc(x, y, Math.min(140, r * rs[i]), as[i] * (.5 + p));
-            }
-            c.globalAlpha = A; c.globalCompositeOperation = oldComp;
-        }
-
-        function drawExtraBrush(c, kind, fx, fy, tx, ty, size, p) {
-            const spacing = Math.max(1, size * extraBrushSpacing[kind]);
-            const dx = tx - fx, dy = ty - fy, dist = Math.hypot(dx, dy);
-            if (dist < .01) { stampExtraBrush(c, kind, tx, ty, size, p); extraBrushRemain = spacing; return; }
-            let d = extraBrushRemain;
-            for (; d <= dist; d += spacing) stampExtraBrush(c, kind, fx + dx * d / dist, fy + dy * d / dist, size, p);
-            extraBrushRemain = d - dist;
-        }
-
-
-        // Sorteio com semente fixa: o traço é redesenhado a cada frame e não pode tremer.
-        let extraSeed = 1;
-        function extraRand() { extraSeed = (Math.imul(extraSeed, 1664525) + 1013904223) >>> 0; return extraSeed / 4294967296; }
-        const extraStrokeCache = { canvas: null, ctx: null, n: 0, first: null };
-        function renderExtraStroke(targetCtx, points, kind) {
-            const c = extraStrokeCache, w = targetCtx.canvas.width, h = targetCtx.canvas.height;
-            if (!c.canvas) { c.canvas = document.createElement('canvas'); c.ctx = c.canvas.getContext('2d'); c.n = 0; }
-            if (c.canvas.width !== w || c.canvas.height !== h) { c.canvas.width = w; c.canvas.height = h; c.n = 0; }
-            if (c.n === 0 || c.n > points.length || c.first !== points[0]) {
-                c.ctx.clearRect(0, 0, w, h); c.n = 0; c.first = points[0]; extraSeed = 0x9e3779b9; extraBrushRemain = 0;
-            }
-            c.ctx.globalAlpha = 1; c.ctx.globalCompositeOperation = 'source-over';
-            for (let i = c.n; i < points.length; i++) {
-                const pt = points[i], prev = i > 0 ? points[i - 1] : pt;
-                const p = Math.max(.05, Math.min(1, pt.p));
-                drawExtraBrush(c.ctx, kind, prev.x, prev.y, pt.x, pt.y, cachedSize * (.2 + .8 * p), p);
-            }
-            c.n = points.length;
-            targetCtx.drawImage(c.canvas, 0, 0);
-        }
-
-        function drawNativeArtDot(targetCtx, x, y, size, pressure, erasing) {
-            const brush = selectedBrushPreset();
-            const kind = brush.brushKind;
-            const p = Math.max(.05, Math.min(1, pressure));
-            if (extraBrushSpacing[kind]) { drawExtraBrush(targetCtx, kind, x, y, x, y, size, p); return; }
-            const radius = Math.max(.5, size / 2);
-            const oldAlpha = targetCtx.globalAlpha;
-            const oldComposite = targetCtx.globalCompositeOperation;
-            targetCtx.fillStyle = erasing ? '#000' : cachedColor;
-
-            if (kind === 'light') {
-                if (!erasing) targetCtx.globalCompositeOperation = 'lighter';
-                // Halo em camadas: evita shadowBlur, que bloqueia a GPU em
-                // canvases grandes e causava travamento em tablets.
-                const radii = [1.85, .95, .3];
-                const alphas = erasing ? [.08, .22, .78] : [.035, .12, .62];
-                for (let pass = 0; pass < radii.length; pass++) {
-                    targetCtx.globalAlpha = oldAlpha * alphas[pass] * (.45 + p * .55);
-                    targetCtx.beginPath(); targetCtx.arc(x, y, Math.min(90, radius * radii[pass]), 0, Math.PI * 2); targetCtx.fill();
-                }
-            } else if (kind === 'watercolor') {
-                for (let pass = 0; pass < 5; pass++) {
-                    const angle = hbNoise(x * 3 + y * 7 + pass) * Math.PI * 2;
-                    const drift = radius * .16 * pass;
-                    targetCtx.globalAlpha = oldAlpha * (erasing ? .3 : .022 + p * .028);
-                    targetCtx.beginPath();
-                    targetCtx.arc(x + Math.cos(angle) * drift, y + Math.sin(angle) * drift, radius * (1.08 - pass * .055), 0, Math.PI * 2);
-                    targetCtx.fill();
-                }
-            } else if (kind === 'crayon') {
-                const grains = Math.min(90, Math.max(14, Math.round(radius * radius * .65)));
-                for (let i = 0; i < grains; i++) {
-                    const angle = hbNoise(i * 17.1 + x) * Math.PI * 2;
-                    const spreadNoise = hbNoise(i * 31.7 + y);
-                    const spread = Math.pow(spreadNoise, .68) * radius * 1.18;
-                    const grain = hbNoise(i * 47.3 + x - y);
-                    if (grain < .18 || (spreadNoise > .82 && grain < .58)) continue;
-                    const edgeFade = Math.max(.2, 1.2 - spread / radius);
-                    targetCtx.globalAlpha = oldAlpha * (erasing ? .65 : (.16 + p * .38) * (.5 + grain * .5) * edgeFade);
-                    targetCtx.beginPath();
-                    targetCtx.arc(x + Math.cos(angle) * spread, y + Math.sin(angle) * spread, Math.max(.25, Math.min(1.25, radius * (.035 + grain * .035))), 0, Math.PI * 2);
-                    targetCtx.fill();
-                }
-            }
-            targetCtx.globalAlpha = oldAlpha;
-            targetCtx.globalCompositeOperation = oldComposite;
-        }
-
-        function drawNativeArtSegment(targetCtx, fromX, fromY, toX, toY, size, pressure, erasing) {
-            const kind = selectedBrushPreset().brushKind;
-            const dx = toX - fromX, dy = toY - fromY, distance = Math.hypot(dx, dy);
-            if (distance < .01) { drawNativeArtDot(targetCtx, toX, toY, size, pressure, erasing); return; }
-            const p = Math.max(.05, Math.min(1, pressure));
-            if (extraBrushSpacing[kind]) { drawExtraBrush(targetCtx, kind, fromX, fromY, toX, toY, size, p); return; }
-            const nx = -dy / distance, ny = dx / distance;
-            const oldAlpha = targetCtx.globalAlpha;
-            const oldComposite = targetCtx.globalCompositeOperation;
-            targetCtx.strokeStyle = erasing ? '#000' : cachedColor;
-            targetCtx.fillStyle = erasing ? '#000' : cachedColor;
-            // Evita círculos escuros nas emendas dos trechos translúcidos.
-            // Um simples toque ainda é tratado por drawNativeArtDot.
-            targetCtx.lineCap = 'butt'; targetCtx.lineJoin = 'round';
-
-            if (kind === 'crayon') {
-                // Cobertura central muito leve une os segmentos sem criar uma
-                // borda geométrica dura.
-                targetCtx.globalAlpha = oldAlpha * (erasing ? .28 : .045 + p * .075);
-                targetCtx.lineWidth = Math.max(.7, size * .7);
-                targetCtx.beginPath(); targetCtx.moveTo(fromX, fromY); targetCtx.lineTo(toX, toY); targetCtx.stroke();
-
-                // Fibras desalinhadas e com largura variável. Elas ultrapassam
-                // levemente a largura nominal para quebrar o recorte lateral.
-                const fibers = Math.min(16, Math.max(5, Math.ceil(size / 3)));
-                for (let i = 0; i < fibers; i++) {
-                    const fiberNoise = hbNoise(i * 83.1 + Math.round(fromX + fromY));
-                    const lane = (fiberNoise * 2 - 1) * size * .58;
-                    const broken = hbNoise(i * 47.9 + Math.round(toX - toY));
-                    if (broken < .12) continue;
-                    targetCtx.globalAlpha = oldAlpha * (erasing ? .62 : (.1 + p * .23) * (.55 + broken * .55));
-                    targetCtx.lineWidth = Math.max(.35, size / fibers * (.32 + broken * .55));
-                    const endJitter = (hbNoise(i * 19.3 + distance) - .5) * Math.min(size * .24, distance * .35);
-                    const tx = dx / distance, ty = dy / distance;
-                    targetCtx.beginPath();
-                    targetCtx.moveTo(fromX + nx * lane - tx * endJitter, fromY + ny * lane - ty * endJitter);
-                    targetCtx.lineTo(toX + nx * lane + tx * endJitter, toY + ny * lane + ty * endJitter);
-                    targetCtx.stroke();
-                }
-
-                // Farelos nas duas bordas eliminam o aspecto de faixa cortada.
-                const grainStep = Math.max(1.1, size * .12);
-                const grains = Math.min(36, Math.ceil(distance / grainStep));
-                for (let i = 1; i <= grains; i++) {
-                    const t = i / grains;
-                    const grain = hbNoise(i * 61.7 + fromX * .3 + fromY * .7);
-                    if (grain < .3) continue;
-                    const side = hbNoise(i * 97.3 + toX) < .5 ? -1 : 1;
-                    const spread = side * size * (.38 + grain * .28);
-                    const along = (hbNoise(i * 23.1 + toY) - .5) * grainStep;
-                    const tx = dx / distance, ty = dy / distance;
-                    targetCtx.globalAlpha = oldAlpha * (erasing ? .4 : (.08 + p * .2) * grain);
-                    targetCtx.beginPath();
-                    targetCtx.arc(fromX + dx * t + nx * spread + tx * along, fromY + dy * t + ny * spread + ty * along, Math.max(.22, Math.min(1.15, size * (.018 + grain * .025))), 0, Math.PI * 2);
-                    targetCtx.fill();
-                }
-            } else if (kind === 'watercolor') {
-                const washes = 7;
-                for (let i = 0; i < washes; i++) {
-                    const drift = (hbNoise(i * 71.9 + fromX - toY) - .5) * size * .3;
-                    targetCtx.globalAlpha = oldAlpha * (erasing ? .12 : .018 + p * .021);
-                    targetCtx.lineWidth = size * (1.02 - i * .045);
-                    targetCtx.beginPath(); targetCtx.moveTo(fromX + nx * drift, fromY + ny * drift); targetCtx.lineTo(toX + nx * drift, toY + ny * drift); targetCtx.stroke();
-                }
-                const step = Math.max(3, size * .32);
-                for (let d = step; d < distance; d += step) {
-                    const t = d / distance, bloom = hbNoise(d * 5.3 + fromX);
-                    if (bloom < .55) continue;
-                    targetCtx.globalAlpha = oldAlpha * (.012 + p * .018);
-                    targetCtx.beginPath(); targetCtx.arc(fromX + dx * t + nx * (bloom - .5) * size * .45, fromY + dy * t + ny * (bloom - .5) * size * .45, size * (.38 + bloom * .22), 0, Math.PI * 2); targetCtx.fill();
-                }
-            } else if (kind === 'light') {
-                if (!erasing) targetCtx.globalCompositeOperation = 'lighter';
-                // Três faixas translúcidas produzem brilho sem filtros de
-                // desfoque; o limite impede áreas gigantes por movimento.
-                const widths = [2.05, .9, .26];
-                const alphas = erasing ? [.08, .25, .82] : [.032, .14, .66];
-                for (let i = 0; i < widths.length; i++) {
-                    targetCtx.globalAlpha = oldAlpha * alphas[i] * (.45 + p * .55);
-                    targetCtx.lineWidth = Math.max(.55, Math.min(180, size * widths[i]));
-                    targetCtx.beginPath(); targetCtx.moveTo(fromX, fromY); targetCtx.lineTo(toX, toY); targetCtx.stroke();
-                }
-            }
-            targetCtx.globalAlpha = oldAlpha;
-            targetCtx.globalCompositeOperation = oldComposite;
-        }
-
-        // Motor contínuo dos pincéis artísticos. Os eventos do ponteiro chegam
-        // em distâncias irregulares; primeiro eles são suavizados e reamostrados
-        // em passos fixos. Depois a pincelada inteira é redesenhada como uma só
-        // curva, portanto nenhuma emenda recebe tinta duas vezes.
-        function addArtStrokePoint(x, y, pressure) {
-            const p = Math.max(.03, Math.min(1, pressure));
-            if (!artStrokePoints.length) {
-                artStrokePoints.push({ x, y, p });
-                artStrokeDirty = true;
-                return;
-            }
-            const last = artStrokePoints[artStrokePoints.length - 1];
-            const rawDistance = Math.hypot(x - last.x, y - last.y);
-            if (rawDistance < .12) return;
-            // Pouca latência em movimentos rápidos e mais estabilização nos lentos.
-            const follow = Math.max(.48, Math.min(.86, .48 + rawDistance / 34));
-            const endX = last.x + (x - last.x) * follow;
-            const endY = last.y + (y - last.y) * follow;
-            const endP = last.p + (p - last.p) * .58;
-            const distance = Math.hypot(endX - last.x, endY - last.y);
-            const spacing = Math.max(.8, Math.min(2.5, cachedSize * .04));
-            const steps = Math.max(1, Math.ceil(distance / spacing));
-            for (let i = 1; i <= steps; i++) {
-                const t = i / steps;
-                artStrokePoints.push({
-                    x: last.x + (endX - last.x) * t,
-                    y: last.y + (endY - last.y) * t,
-                    p: last.p + (endP - last.p) * t
-                });
-            }
-            // Limite de segurança para pinceladas extremamente longas em celular.
-            if (artStrokePoints.length > 6000) artStrokePoints.splice(0, artStrokePoints.length - 6000);
-            artStrokeDirty = true;
-        }
-
-        function traceSmoothStroke(targetCtx, points, offsetScale = 0, seed = 0) {
-            if (!points.length) return;
-            const shifted = points.map((point, index) => {
-                if (!offsetScale) return point;
-                const prev = points[Math.max(0, index - 1)], next = points[Math.min(points.length - 1, index + 1)];
-                const dx = next.x - prev.x, dy = next.y - prev.y, length = Math.hypot(dx, dy) || 1;
-                const wobble = (hbNoise(seed * 101 + index * .173) - .5) * offsetScale;
-                return { x: point.x - dy / length * wobble, y: point.y + dx / length * wobble, p: point.p };
-            });
-            targetCtx.beginPath();
-            targetCtx.moveTo(shifted[0].x, shifted[0].y);
-            if (shifted.length === 1) return;
-            for (let i = 1; i < shifted.length - 1; i++) {
-                const point = shifted[i], next = shifted[i + 1];
-                targetCtx.quadraticCurveTo(point.x, point.y, (point.x + next.x) / 2, (point.y + next.y) / 2);
-            }
-            const last = shifted[shifted.length - 1];
-            targetCtx.lineTo(last.x, last.y);
-        }
-
-        function renderPencilStroke(targetCtx, points) {
-            const profile = selectedPencilProfile();
-            if (points.length === 1) {
-                drawHbDot(targetCtx, points[0].x, points[0].y, cachedSize * (.2 + .8 * points[0].p), points[0].p);
-                applyStaticGrain(targetCtx, brushGrains[selectedBrushPreset().pencilKind === '6b' ? '6b' : 'hb']);
-                return;
-            }
-            const left = [], right = [];
-            let pressureSum = 0;
-            for (let i = 0; i < points.length; i++) {
-                const point = points[i]; pressureSum += point.p;
-                const prev = points[Math.max(0, i - 1)], next = points[Math.min(points.length - 1, i + 1)];
-                const dx = next.x - prev.x, dy = next.y - prev.y, length = Math.hypot(dx, dy) || 1;
-                const width = Math.max(.45, cachedSize * (profile.widthBase + profile.widthPressure * Math.pow(point.p, profile.widthCurve)));
-                const nx = -dy / length, ny = dx / length, radius = width / 2;
-                left.push({ x: point.x + nx * radius, y: point.y + ny * radius });
-                right.push({ x: point.x - nx * radius, y: point.y - ny * radius });
-            }
-            const averagePressure = pressureSum / points.length;
-            const is6B = selectedBrushPreset().pencilKind === '6b';
-            targetCtx.fillStyle = cachedColor;
-            targetCtx.globalAlpha = is6B
-                ? .22 + .62 * Math.pow(averagePressure, .66)
-                : .12 + .4 * Math.pow(averagePressure, .82);
-            targetCtx.beginPath();
-            targetCtx.moveTo(left[0].x, left[0].y);
-            for (let i = 1; i < left.length; i++) targetCtx.lineTo(left[i].x, left[i].y);
-            // Semicírculo verdadeiro integrado ao mesmo contorno: não cria
-            // buracos, pontas angulares nem sobreposição de transparência.
-            const end = points.length - 1;
-            const endDx = points[end].x - points[end - 1].x, endDy = points[end].y - points[end - 1].y;
-            const endLength = Math.hypot(endDx, endDy) || 1;
-            const endRadius = Math.hypot(left[end].x - right[end].x, left[end].y - right[end].y) / 2;
-            const endAngle = Math.atan2(endDy / endLength, endDx / endLength);
-            targetCtx.arc(points[end].x, points[end].y, endRadius, endAngle + Math.PI / 2, endAngle - Math.PI / 2, true);
-            for (let i = right.length - 1; i >= 0; i--) targetCtx.lineTo(right[i].x, right[i].y);
-            const startDx = points[1].x - points[0].x, startDy = points[1].y - points[0].y;
-            const startLength = Math.hypot(startDx, startDy) || 1;
-            const startRadius = Math.hypot(left[0].x - right[0].x, left[0].y - right[0].y) / 2;
-            const startAngle = Math.atan2(startDy / startLength, startDx / startLength);
-            targetCtx.arc(points[0].x, points[0].y, startRadius, startAngle - Math.PI / 2, startAngle + Math.PI / 2, true);
-            targetCtx.closePath();
-            targetCtx.fill();
-
-            // Filamentos longitudinais: variação direcional típica de uma mina.
-            targetCtx.globalCompositeOperation = 'source-over';
-            targetCtx.strokeStyle = cachedColor;
-            targetCtx.lineCap = 'round'; targetCtx.lineJoin = 'round';
-            const fibers = is6B ? 5 : 7;
-            for (let fiber = 0; fiber < fibers; fiber++) {
-                targetCtx.globalAlpha = (is6B ? .075 : .052) * (.65 + hbNoise(fiber * 17.4) * .7);
-                targetCtx.lineWidth = Math.max(.28, Math.min(1.15, cachedSize * (is6B ? .035 : .026)));
-                traceSmoothStroke(targetCtx, points, cachedSize * (is6B ? .5 : .42), fiber + (is6B ? 90 : 60));
-                targetCtx.stroke();
-            }
-
-            // Partículas nas bordas e nos sulcos do papel.
-            targetCtx.fillStyle = cachedColor;
-            targetCtx.globalAlpha = profile.grainBase + profile.grainPressure * averagePressure;
-            targetCtx.beginPath();
-            const grainEvery = Math.max(2, Math.round(3.8 - Math.min(2, cachedSize * .04)));
-            for (let i = 0; i < points.length; i += grainEvery) {
-                const point = points[i], grain = hbNoise(i * 7.31 + point.x * .17 + point.y * .29);
-                if (grain < profile.grainCutoff) continue;
-                const prev = points[Math.max(0, i - 1)], next = points[Math.min(points.length - 1, i + 1)];
-                const dx = next.x - prev.x, dy = next.y - prev.y, length = Math.hypot(dx, dy) || 1;
-                const spread = (hbNoise(i * 13.7) * 2 - 1) * cachedSize * (profile.spreadBase + profile.spreadLight * (1 - point.p));
-                const radius = Math.max(.16, Math.min(.72, cachedSize * profile.grainSize * (.45 + grain)));
-                targetCtx.moveTo(point.x - dy / length * spread + radius, point.y + dx / length * spread);
-                targetCtx.arc(point.x - dy / length * spread, point.y + dx / length * spread, radius, 0, Math.PI * 2);
-            }
-            targetCtx.fill();
-            applyStaticGrain(targetCtx, brushGrains[is6B ? '6b' : 'hb']);
-            targetCtx.globalAlpha = 1;
-        }
-
-        function renderNativeContinuousStroke(targetCtx, points, kind) {
-            if (extraBrushSpacing[kind]) { renderExtraStroke(targetCtx, points, kind); return; }
-            const averagePressure = points.reduce((sum, point) => sum + point.p, 0) / points.length;
-            targetCtx.strokeStyle = cachedColor; targetCtx.fillStyle = cachedColor;
-            targetCtx.lineCap = 'round'; targetCtx.lineJoin = 'round';
-            if (points.length === 1) {
-                drawNativeArtDot(targetCtx, points[0].x, points[0].y, cachedSize * (.2 + .8 * points[0].p), points[0].p, false);
-                if (kind === 'crayon') applyStaticGrain(targetCtx, brushGrains.crayon);
-                else if (kind === 'watercolor') applyStaticGrain(targetCtx, brushGrains.watercolor);
-                return;
-            }
-            if (kind === 'crayon') {
-                targetCtx.globalAlpha = .18 + averagePressure * .34;
-                targetCtx.lineWidth = Math.max(.8, cachedSize * .82);
-                traceSmoothStroke(targetCtx, points); targetCtx.stroke();
-                const fibers = Math.min(16, Math.max(7, Math.ceil(cachedSize / 3)));
-                for (let i = 0; i < fibers; i++) {
-                    targetCtx.globalAlpha = (.08 + averagePressure * .2) * (.55 + hbNoise(i * 9.7) * .55);
-                    targetCtx.lineWidth = Math.max(.4, cachedSize / fibers * (.4 + hbNoise(i * 3.1) * .72));
-                    traceSmoothStroke(targetCtx, points, cachedSize * .72, i + 1); targetCtx.stroke();
-                }
-                applyStaticGrain(targetCtx, brushGrains.crayon);
-            } else if (kind === 'watercolor') {
-                // Pigmento leve no miolo e concentração mais escura na borda úmida.
-                for (let i = 0; i < 6; i++) {
-                    targetCtx.globalAlpha = .016 + averagePressure * .026;
-                    targetCtx.lineWidth = cachedSize * (1.05 - i * .055);
-                    traceSmoothStroke(targetCtx, points, cachedSize * .22, i + 20); targetCtx.stroke();
-                }
-                targetCtx.globalAlpha = .035 + averagePressure * .045;
-                targetCtx.lineWidth = cachedSize * 1.08;
-                traceSmoothStroke(targetCtx, points, cachedSize * .12, 77); targetCtx.stroke();
-                applyStaticGrain(targetCtx, brushGrains.watercolor);
-            } else if (kind === 'light') {
-                targetCtx.globalCompositeOperation = 'lighter';
-                const widths = [2.35, 1.35, .68, .22], alphas = [.018, .052, .17, .72];
-                for (let i = 0; i < widths.length; i++) {
-                    targetCtx.globalAlpha = alphas[i] * (.45 + averagePressure * .55);
-                    targetCtx.lineWidth = Math.max(.55, Math.min(180, cachedSize * widths[i]));
-                    traceSmoothStroke(targetCtx, points); targetCtx.stroke();
-                }
-            }
-            targetCtx.globalAlpha = 1; targetCtx.globalCompositeOperation = 'source-over';
-        }
-
-        function renderArtStroke(targetCtx) {
-            targetCtx.save();
-            targetCtx.globalCompositeOperation = 'source-over';
-            targetCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-            const brush = selectedBrushPreset();
-            if (Number.isFinite(brush.pencilGrade)) renderPencilStroke(targetCtx, artStrokePoints);
-            else renderNativeContinuousStroke(targetCtx, artStrokePoints, brush.brushKind);
-            targetCtx.restore();
-            artStrokeDirty = false;
-        }
-
-        function stampImportedBrush(targetCtx, x, y, size, _erasing, pressure = 1) {
-            const brush = selectedBrushPreset();
-            if (Number.isFinite(brush.pencilGrade)) drawHbDot(targetCtx, x, y, size, pressure);
-            else if (brush.brushKind) drawNativeArtDot(targetCtx, x, y, size, pressure, _erasing);
-        }
-
-        function stampImportedSegment(targetCtx, fromX, fromY, toX, toY, size, _erasing, _includeStart = false, pressure = 1) {
-            const brush = selectedBrushPreset();
-            if (Number.isFinite(brush.pencilGrade)) drawHbSegment(targetCtx, fromX, fromY, toX, toY, size, pressure);
-            else if (brush.brushKind) drawNativeArtSegment(targetCtx, fromX, fromY, toX, toY, size, pressure, _erasing);
         }
 
         brushesBtn.addEventListener('click', event => {
@@ -3574,6 +3219,107 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             return normalized;
         }
 
+        // Arquivo portátil: todas as pastas e imagens ficam no próprio JSON.
+        const LIBRARY_FILE_FORMAT = 'desenhar-project-library';
+        let isLibraryImporting = false;
+        const libraryFileInput = document.getElementById('libraryFileInput');
+
+        function parsePortableAssetLibrary(data) {
+            if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                throw new Error('Selecione um arquivo de biblioteca válido');
+            }
+            if (data.format != null && data.format !== LIBRARY_FILE_FORMAT) {
+                throw new Error('Formato de biblioteca não reconhecido');
+            }
+            if (data.format === LIBRARY_FILE_FORMAT && data.version !== 1) {
+                throw new Error('Versão de biblioteca não compatível');
+            }
+            // Também aceita a biblioteca de um projeto salvo ou um JSON de pastas.
+            const source = data.assetLibrary || data;
+            if (!Array.isArray(source.folders)) throw new Error('O arquivo não contém uma biblioteca');
+            if (source.version != null && source.version !== 1) {
+                throw new Error('Versão de biblioteca não compatível');
+            }
+            return { version: 1, folders: source.folders.map((folder, folderIndex) => {
+                if (!folder || typeof folder !== 'object' || !Array.isArray(folder.items)) {
+                    throw new Error('Pasta inválida na biblioteca');
+                }
+                return {
+                    id: makeAssetId('folder'),
+                    name: typeof folder.name === 'string' ? folder.name : `Pasta ${folderIndex + 1}`,
+                    items: folder.items.map((item, itemIndex) => {
+                        if (!item || typeof item !== 'object' ||
+                            (item.image != null && (typeof item.image !== 'string' ||
+                                !/^data:image\/[a-z0-9.+-]+[;,]/i.test(item.image)))) {
+                            throw new Error('Item inválido: as imagens precisam estar incluídas no arquivo');
+                        }
+                        return {
+                            id: makeAssetId('item'),
+                            name: typeof item.name === 'string' ? item.name : `Item ${itemIndex + 1}`,
+                            image: item.image == null ? null : item.image
+                        };
+                    })
+                };
+            }) };
+        }
+
+        function exportEntireAssetLibrary() {
+            menuDropdown.classList.remove('show');
+            try {
+                const payload = {
+                    format: LIBRARY_FILE_FORMAT, version: 1,
+                    assetLibrary: { version: 1, folders: assetLibrary.folders }
+                };
+                const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url; anchor.download = 'biblioteca_projeto.json';
+                document.body.appendChild(anchor);
+                try { anchor.click(); } finally {
+                    anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000);
+                }
+                showNotification('Biblioteca inteira exportada com pastas e imagens');
+            } catch (error) {
+                console.error(error); showNotification('Erro ao exportar biblioteca: ' + error.message);
+            }
+        }
+
+        document.getElementById('exportLibraryMenu').addEventListener('click', event => {
+            event.preventDefault(); exportEntireAssetLibrary();
+        });
+        document.getElementById('importLibraryMenu').addEventListener('click', event => {
+            event.preventDefault(); menuDropdown.classList.remove('show');
+            if (isLibraryImporting) { showNotification('Aguarde a importação da biblioteca'); return; }
+            libraryFileInput.value = ''; libraryFileInput.click();
+        });
+        libraryFileInput.addEventListener('change', async event => {
+            const file = event.target.files && event.target.files[0];
+            if (!file || isLibraryImporting) { event.target.value = ''; return; }
+            isLibraryImporting = true;
+            try {
+                const imported = parsePortableAssetLibrary(JSON.parse(await file.text()));
+                if (!imported.folders.length) { showNotification('Esta biblioteca está vazia'); return; }
+                // Valida tudo antes de modificar a biblioteca do projeto.
+                let itemCount = 0;
+                for (const folder of imported.folders) {
+                    for (const item of folder.items) {
+                        if (item.image) await imageFromDataURL(item.image);
+                        itemCount++;
+                    }
+                }
+                assetLibrary.folders.push(...imported.folders);
+                selectedLibraryFolderId = imported.folders[0].id;
+                selectedLibraryAssetId = imported.folders[0].items[0] ? imported.folders[0].items[0].id : null;
+                layersDropdown.classList.remove('show');
+                renderAssetLibrary(); assetLibraryDropdown.classList.add('show');
+                showNotification(`Biblioteca importada: ${imported.folders.length} pasta(s), ${itemCount} item(ns). Itens anteriores preservados.`);
+            } catch (error) {
+                console.error(error); showNotification('Não foi possível importar a biblioteca: ' + (error.message || 'Imagem inválida'));
+            } finally {
+                isLibraryImporting = false; event.target.value = '';
+            }
+        });
+
         function currentLibraryFolder() {
             return assetLibrary.folders.find(folder => folder.id === selectedLibraryFolderId) || null;
         }
@@ -4046,8 +3792,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 // Segundo dedo/palma enquanto já desenha: ignora.
                 if (e.pointerType === 'touch' && e.isPrimary === false) return;
                 // Caso contrário o traço anterior ficou "preso" (pointerup perdido): destrava.
+                if (artStroke) endAdvancedBrush(null);
                 isDrawing = false; activePointerId = null; strokeMoved = false;
-                currentStrokePoints = []; artStrokePoints = [];
+                currentStrokePoints = [];
                 if (renderPending) { cancelAnimationFrame(strokeRafId); renderPending = false; }
             }
             
@@ -4125,11 +3872,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             if (e.pointerType === 'pen' && pressure === 0) pressure = selectedBrushPreset().type === 'stamp' ? .28 : .05;
             let currentSize = cachedSize * (0.2 + 0.8 * pressure);
 
-            const isDirectDraw = cachedOpacity == 100;
-            const isArtStroke = ART_ENGINE && selectedBrushPreset().type === 'stamp';
-            const targetCtx = isArtStroke ? dCtx : (isDirectDraw ? ctx : dCtx);
+            if (selectedBrushPreset().type === 'stamp') { beginAdvancedBrush(e, pos); return; }
 
-            if (!isDirectDraw || isArtStroke) {
+            const isDirectDraw = cachedOpacity == 100;
+            const targetCtx = isDirectDraw ? ctx : dCtx;
+
+            if (!isDirectDraw) {
                 if (snapshotCanvas.width !== mainCanvas.width) snapshotCanvas.width = mainCanvas.width;
                 if (snapshotCanvas.height !== mainCanvas.height) snapshotCanvas.height = mainCanvas.height;
                 snapCtx.globalCompositeOperation = 'source-over';
@@ -4139,14 +3887,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 currentStrokePoints = [pos];
                 dCtx.globalCompositeOperation = 'source-over';
                 dCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-            }
-
-            if (isArtStroke) {
-                artStrokePoints = [];
-                addArtStrokePoint(pos.x, pos.y, pressure);
-                stampImportedBrush(dCtx, pos.x, pos.y, currentSize, false, pressure);
-                triggerRenderLiveStroke();
-                return;
             }
 
             targetCtx.globalCompositeOperation = (isDirectDraw && currentTool === 'eraser') ? 'destination-out' : 'source-over';
@@ -4235,24 +3975,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 return;
             }
 
-            if (ART_ENGINE && selectedBrushPreset().type === 'stamp') {
-                let previewChanged = false;
-                for (const event of events) {
-                    const pos = getMousePos(event);
-                    if (Math.hypot(pos.x - lastX, pos.y - lastY) < .35) continue;
-                    let pressure = (event.pointerType === 'pen' && event.pressure !== undefined) ? event.pressure : 1;
-                    if (event.pointerType === 'pen' && pressure === 0) pressure = artStrokePoints.length ? artStrokePoints[artStrokePoints.length - 1].p : .28;
-                    const before = artStrokePoints.length;
-                    addArtStrokePoint(pos.x, pos.y, pressure);
-                    if (artStrokePoints.length > before) strokeMoved = true;
-                    stampImportedSegment(dCtx, lastX, lastY, pos.x, pos.y,
-                        cachedSize * (.2 + .8 * pressure), false, false, pressure);
-                    lastX = pos.x; lastY = pos.y;
-                    previewChanged = true;
-                }
-                if (previewChanged) triggerRenderLiveStroke();
-                return;
-            }
+            if (artStroke && selectedBrushPreset().type === 'stamp') { moveAdvancedBrush(events); return; }
 
             const isDirectDraw = cachedOpacity == 100;
             
@@ -4351,7 +4074,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
             ctx.drawImage(snapshotCanvas, 0, 0);
             ctx.save(); ctx.globalAlpha = cachedOpacity / 100;
-            ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+            ctx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out'
+                : (artStroke && artBrushProfiles[artStroke.kind].luminous ? 'lighter' : 'source-over');
             ctx.drawImage(drawingCanvas, 0, 0); ctx.restore();
             hasUnsavedChanges = true;
         }
@@ -4384,29 +4108,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 return;
             }
 
-            const handledArtStroke = ART_ENGINE && selectedBrushPreset().type === 'stamp' &&
-                currentTool !== 'lasso' && currentTool !== 'perspective' && currentTool !== 'warp' &&
-                currentTool !== 'headSphere' && currentTool !== 'bucket';
-            if (handledArtStroke) {
-                if (renderPending) { cancelAnimationFrame(strokeRafId); renderPending = false; }
-                if (e && e.type === 'pointercancel') {
-                    ctx.globalCompositeOperation = 'source-over';
-                    ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-                    ctx.drawImage(snapshotCanvas, 0, 0);
-                } else if (e) {
-                    const pos = getMousePos(e);
-                    let pressure = (e.pointerType === 'pen' && e.pressure !== undefined) ? e.pressure : 1;
-                    if (e.pointerType === 'pen' && pressure === 0) pressure = artStrokePoints.length ? artStrokePoints[artStrokePoints.length - 1].p : .28;
-                    const lastArtPoint = artStrokePoints[artStrokePoints.length - 1];
-                    if (!lastArtPoint || Math.hypot(pos.x - lastArtPoint.x, pos.y - lastArtPoint.y) > .35) addArtStrokePoint(pos.x, pos.y, pressure);
-                    renderArtStroke(dCtx);
-                    forceRenderLiveStroke();
-                }
-                dCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-                artStrokePoints = []; artStrokeDirty = false;
-            }
+            if (artStroke && endAdvancedBrush(e)) { strokeMoved = false; drawingPointerRect = null; return; }
 
-            if (!handledArtStroke && currentTool !== 'lasso' && currentTool !== 'perspective' && currentTool !== 'warp' && currentTool !== 'headSphere' && currentTool !== 'bucket' && e && e.type !== 'pointercancel') {
+            if (currentTool !== 'lasso' && currentTool !== 'perspective' && currentTool !== 'warp' && currentTool !== 'headSphere' && currentTool !== 'bucket' && e && e.type !== 'pointercancel') {
                 const isDirectDraw = cachedOpacity == 100;
                 
                 if (isDirectDraw) {
@@ -4451,7 +4155,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                     dCtx.globalCompositeOperation = 'source-over';
                     dCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
                 }
-            } else if (!handledArtStroke && e && e.type === 'pointercancel') {
+            } else if (e && e.type === 'pointercancel') {
                 if (cachedOpacity != 100) {
                     if (renderPending) { cancelAnimationFrame(strokeRafId); renderPending = false; }
                     ctx.globalCompositeOperation = 'source-over';
@@ -5764,6 +5468,147 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             setTimeout(() => URL.revokeObjectURL(link.href), 10000);
             showNotification("Todas as camadas do frame atual foram salvas em PNG!");
         }
+
+        // GIF89a offline: paleta RGB de 256 cores, compressão LZW e loop infinito.
+        function createProjectGifEncoder(width, height) {
+            const parts = [];
+            let byteCount = 0;
+            const append = bytes => {
+                byteCount += bytes.length;
+                if (byteCount > 120 * 1024 * 1024) throw new Error('GIF muito grande. Reduza a duração da animação');
+                parts.push(new Uint8Array(bytes));
+            };
+            const word = value => [value & 255, (value >> 8) & 255];
+            const palette = [];
+            for (let i = 0; i < 256; i++) palette.push(
+                Math.round(((i >> 5) & 7) * 255 / 7),
+                Math.round(((i >> 2) & 7) * 255 / 7),
+                Math.round((i & 3) * 255 / 3));
+            append([71,73,70,56,57,97, ...word(width), ...word(height), 247,0,0, ...palette,
+                33,255,11,78,69,84,83,67,65,80,69,50,46,48,3,1,0,0,0]);
+            return {
+                addFrame(rgba, delay) {
+                    const indices = new Uint8Array(width * height);
+                    for (let i = 0; i < indices.length; i++) {
+                        const p = i * 4;
+                        indices[i] = (Math.round(rgba[p] * 7 / 255) << 5) |
+                            (Math.round(rgba[p + 1] * 7 / 255) << 2) | Math.round(rgba[p + 2] * 3 / 255);
+                    }
+                    const compressed = [];
+                    let bits = 0, bitCount = 0, codeSize = 9, nextCode = 258;
+                    let dictionary = new Map();
+                    const emit = code => {
+                        bits |= code << bitCount; bitCount += codeSize;
+                        while (bitCount >= 8) { compressed.push(bits & 255); bits >>>= 8; bitCount -= 8; }
+                    };
+                    emit(256);
+                    let prefix = indices[0];
+                    for (let i = 1; i < indices.length; i++) {
+                        const value = indices[i], key = prefix * 256 + value;
+                        const found = dictionary.get(key);
+                        if (found !== undefined) { prefix = found; continue; }
+                        emit(prefix);
+                        if (nextCode < 4096) {
+                            dictionary.set(key, nextCode++);
+                            if (nextCode > (1 << codeSize) && codeSize < 12) codeSize++;
+                        } else {
+                            emit(256); dictionary = new Map(); nextCode = 258; codeSize = 9;
+                        }
+                        prefix = value;
+                    }
+                    emit(prefix); emit(257);
+                    if (bitCount) compressed.push(bits & 255);
+                    append([33,249,4,4, ...word(delay), 0,0, 44,0,0,0,0,
+                        ...word(width), ...word(height), 0,8]);
+                    // Sub-blocos GIF de até 255 bytes.
+                    const blocks = new Uint8Array(compressed.length + Math.ceil(compressed.length / 255) + 1);
+                    let offset = 0;
+                    for (let i = 0; i < compressed.length; i += 255) {
+                        const length = Math.min(255, compressed.length - i);
+                        blocks[offset++] = length;
+                        for (let j = 0; j < length; j++) blocks[offset++] = compressed[i + j];
+                    }
+                    append(blocks);
+                },
+                finish() { append([59]); return new Blob(parts, { type: 'image/gif' }); }
+            };
+        }
+
+        async function exportProjectGif() {
+            if (!frames.length) { showNotification('Nenhum frame para exportar'); return; }
+            if (isExporting || isProjectSaving) { showNotification('Aguarde a operação atual'); return; }
+            isExporting = true;
+            menuDropdown.classList.remove('show');
+            const overlay = document.getElementById('exportOverlay');
+            const title = overlay.querySelector('.export-title');
+            const oldTitle = title.textContent;
+            const progress = document.getElementById('progressBar');
+            const text = document.getElementById('progressText');
+            const cancel = document.getElementById('cancelExportBtn');
+            const canvas = document.createElement('canvas');
+            let cancelled = false;
+            cancel.onclick = () => { cancelled = true; cancel.textContent = 'Cancelando...'; };
+            cancel.textContent = 'Cancelar Exportação';
+            overlay.style.display = 'flex'; title.textContent = 'Exportando GIF...';
+            progress.style.width = '0%'; text.textContent = 'Preparando animação...';
+            try {
+                if (isPlaying) await toggleAnimation();
+                await finishSelection(); await saveFrameState(currentFrameIndex);
+                if (hasUnsavedChanges) throw new Error('Não foi possível salvar o frame atual');
+                // GIF em até 960×540, amostrado a 24 FPS; atrasos em centésimos.
+                const scale = Math.min(1, 960 / sharedUtilCanvas.width, 540 / sharedUtilCanvas.height);
+                canvas.width = Math.max(1, Math.round(sharedUtilCanvas.width * scale));
+                canvas.height = Math.max(1, Math.round(sharedUtilCanvas.height * scale));
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                const encoder = createProjectGifEncoder(canvas.width, canvas.height);
+                const drawingFps = Math.max(1, Number(fps) || 24);
+                const starts = [];
+                let totalTicks = 0;
+                for (const frame of frames) { starts.push(totalTicks); totalTicks += Math.max(1, Number(frame.duration) || 1); }
+                const durationCs = Math.max(1, Math.round(totalTicks * 100 / drawingFps));
+                const exportFps = 24;
+                const count = Math.max(1, Math.ceil(durationCs * exportFps / 100));
+                let frameIndex = 0;
+                for (let i = 0; i < count; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                    if (cancelled) { showNotification('Exportação GIF cancelada'); return; }
+                    const elapsedSeconds = i / exportFps;
+                    const tick = elapsedSeconds * drawingFps;
+                    while (frameIndex + 1 < frames.length && starts[frameIndex + 1] <= tick) frameIndex++;
+                    sharedUtilCtx.globalCompositeOperation = 'source-over'; sharedUtilCtx.globalAlpha = 1;
+                    sharedUtilCtx.fillStyle = '#fff'; sharedUtilCtx.fillRect(0, 0, sharedUtilCanvas.width, sharedUtilCanvas.height);
+                    if (window.has3DBackground && window.has3DBackground()) {
+                        if (window.render3DBackgroundForExport) window.render3DBackgroundForExport(frameIndex, tick, elapsedSeconds);
+                        else if (window.render3DBackgroundForPlayback) window.render3DBackgroundForPlayback(frameIndex, tick);
+                        sharedUtilCtx.drawImage(bgCanvas, 0, 0, sharedUtilCanvas.width, sharedUtilCanvas.height);
+                    }
+                    compositeFrameLayers(sharedUtilCtx, frameIndex);
+                    ctx.drawImage(sharedUtilCanvas, 0, 0, canvas.width, canvas.height);
+                    const startCs = Math.round(i * 100 / exportFps);
+                    const endCs = Math.min(durationCs, Math.round((i + 1) * 100 / exportFps));
+                    if (endCs > startCs) encoder.addFrame(ctx.getImageData(0, 0, canvas.width, canvas.height).data, endCs - startCs);
+                    const percent = Math.round((i + 1) * 100 / count);
+                    progress.style.width = percent + '%'; text.textContent = `${percent}% — quadro ${i + 1} de ${count}`;
+                }
+                await new Promise(resolve => setTimeout(resolve, 0));
+                if (cancelled) { showNotification('Exportação GIF cancelada'); return; }
+                const url = URL.createObjectURL(encoder.finish());
+                const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'minha_animacao.gif';
+                document.body.appendChild(anchor);
+                try { anchor.click(); } finally { anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }
+                showNotification(`GIF exportado: ${canvas.width}×${canvas.height}, aproximadamente 24 FPS`);
+            } catch (error) {
+                console.error(error); showNotification('Erro ao exportar GIF: ' + (error.message || error));
+            } finally {
+                canvas.width = 1; canvas.height = 1;
+                isExporting = false; overlay.style.display = 'none'; title.textContent = oldTitle;
+                cancel.onclick = null; cancel.textContent = 'Cancelar Exportação';
+                if (window.render3DBackgroundForFrame) window.render3DBackgroundForFrame(currentFrameIndex);
+            }
+        }
+        document.getElementById('exportGifMenu').addEventListener('click', event => {
+            event.preventDefault(); exportProjectGif();
+        });
 
         async function exportPngSequence(withTransparency = false) {
             if (!frames.length) { showNotification('Nenhum frame para exportar'); return; }
