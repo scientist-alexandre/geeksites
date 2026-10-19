@@ -18,6 +18,13 @@
             box-shadow: 0 0 3px rgba(255,255,255,0.4);
         }
 
+        main > *, #oneStringArpeggios, #osControls, #osBoard { min-width: 0; max-width: 100%; }
+        #osControls select, #osShape { min-width: 0; max-width: 100%; }
+        #fingerboardContainer { min-width: 0 !important; }
+        #osBoard svg { width: 100%; height: auto; display: block; }
+        #osSequence { max-height: 220px; overflow-y: auto; }
+        #osSequence > div { flex-wrap: wrap; max-width: 100%; }
+        #osSequence span { font-size: 10px; }
         .music-score { background: #faf7ef; border: 1px solid rgba(245,158,11,.25); }
         .music-score svg { width: 100%; height: auto; display: block; }
         .score-note.active { filter: drop-shadow(0 0 5px rgba(245,158,11,.95)); }
@@ -211,6 +218,46 @@
             <div id="pieceChips" class="flex flex-wrap gap-1.5"></div>
             <p class="text-[10px] text-slate-500">Sugestões de estudo pela tonalidade e pelo tipo de passagem da obra. Toque em uma sugestão para carregá-la no app.</p>
         </div>
+
+
+        <!-- Complemento independente: arpejos com uma nota por corda -->
+        <section id="oneStringArpeggios" class="lg:col-span-2 bg-slate-900/60 border border-amber-500/30 rounded-2xl p-3.5 shadow-xl space-y-3">
+            <h2 class="text-sm font-semibold text-amber-400">Arpejos / Acordes — uma nota em cada corda</h2>
+            <p class="text-xs text-slate-400">Uma nota por corda e um desenho por inversão. Braço em uma oitava (0 a 12 semitons), com o som e o padrão do software.</p>
+            <div id="osControls" class="grid grid-cols-1 gap-3"></div>
+            <p id="osFormula" class="text-xs text-amber-200"></p>
+            <p id="osCount" role="status" aria-live="polite" class="text-xs text-slate-400"></p>
+            <div class="space-y-2">
+                <h3 class="text-xs font-semibold text-amber-400">Cordas soltas</h3>
+                <div id="osOpenStrings" class="grid grid-cols-4 gap-2"></div>
+            </div>
+            <div id="osBoard" class="overflow-hidden rounded-xl fingerboard-bg border-2 border-amber-900/40 shadow-2xl"></div>
+            <div id="osNotes" class="grid grid-cols-2 md:grid-cols-4 gap-2"></div>
+            <div id="osSequence" class="flex flex-wrap gap-2 text-xs text-amber-200" aria-label="Sequência do exercício"></div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" id="osPlay" class="bg-amber-600 text-slate-950 font-semibold rounded-xl px-4 py-2 text-xs">Ouvir desenho</button>
+                <button type="button" id="osDownload" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl px-4 py-2 text-xs">Baixar áudio</button>
+                <button type="button" id="osStop" class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs">Parar</button>
+                <span id="osOrderLabel" class="text-xs text-slate-400"></span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">Os números indicam semitons acima da corda solta (0 = solta), não dedos. Planeje os dedos e as mudanças de posição. Esta seção usa acordes de até quatro notas.</p>
+        </section>
+
+
+        <section id="violinTuner" class="lg:col-span-2 bg-slate-900/60 border border-slate-800 rounded-2xl p-3.5 shadow-xl space-y-3">
+            <h2 class="text-sm font-semibold text-amber-400">Afinador — notas de referência</h2>
+            <p class="text-xs text-slate-400">Toque em uma corda para ouvir sua nota e afinar de ouvido. Lá = 440 Hz.</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <button type="button" data-tuner-midi="55" aria-pressed="false" class="bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-amber-200">Sol3 · 196 Hz</button>
+                <button type="button" data-tuner-midi="62" aria-pressed="false" class="bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-amber-200">Ré4 · 293,66 Hz</button>
+                <button type="button" data-tuner-midi="69" aria-pressed="false" class="bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-amber-200">Lá4 · 440 Hz</button>
+                <button type="button" data-tuner-midi="76" aria-pressed="false" class="bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-amber-200">Mi5 · 659,26 Hz</button>
+            </div>
+            <div class="flex items-center gap-3">
+                <button type="button" id="tunerStop" class="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs">Parar som</button>
+                <span id="tunerStatus" role="status" aria-live="polite" class="text-xs text-slate-400">Escolha uma nota.</span>
+            </div>
+        </section>
 
     </main>
 
@@ -951,7 +998,7 @@
                 }`;
                 stringBtn.innerHTML = `
                     <span class="text-[9px] font-bold uppercase tracking-wider">${str.label} (${str.name})</span>
-                    <div class="w-2.5 h-2.5 rounded-full mt-1 ${isMatch ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800'}"></div>
+                    <span class="text-[9px] mt-1">${isMatch ? 'Solta' : '—'}</span>
                 `;
                 openContainer.appendChild(stringBtn);
             });
@@ -963,7 +1010,7 @@
                 d.className = 'w-px h-full ' + (i === 11 ? 'bg-amber-400/60' : 'bg-amber-900/20');
                 fretLines.appendChild(d);
             }
-            document.getElementById('fingerboardContainer').style.minWidth = (56 + maxFret * 17) + 'px';
+            document.getElementById('fingerboardContainer').style.minWidth = '0';
             document.getElementById('fretRangeLabel').textContent = maxFret > 12
                 ? `Casas 1 a ${maxFret} (linha dourada = casa 12; além dela, posições altas)`
                 : 'Casas 1 a 12 (2 Oitavas)';
@@ -1230,5 +1277,247 @@
             }, completePlaySequence.length * noteDuration * 1000 + 200);
         }
     </script>
+
+    <script>
+    // Seção adicional isolada: não altera as escalas, a partitura ou o áudio originais.
+    (() => {
+        const $ = id => document.getElementById(id);
+        const strings = [...violinStrings].reverse();
+        const chords = baseScaleTypes.filter(c => c.id.startsWith('arp_') && c.category !== 'Arpejos — Inversões' && new Set(c.intervals.map(n => n % 12)).size <= 4);
+        let shapes = [], nodes = [], timers = [], context = null;
+        function control(id, title, options, value) {
+            const label = document.createElement('label');
+            label.className = 'text-xs text-slate-400 space-y-1 block';
+            const text = document.createElement('span'); text.textContent = title; label.append(text);
+            const select = document.createElement('select'); select.id = id;
+            select.className = 'block w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-2 text-xs text-slate-200';
+            options.forEach(([v,t]) => select.add(new Option(t,v)));
+            if(value !== undefined) select.value = value;
+            label.append(select); $('osControls').append(label);
+            return select;
+        }
+        control('osTone','Tom',tones.map(t => [t.name,t.label]),'G');
+        control('osChord','Arpejo',chords.map((c,i) => [i,c.name]));
+        control('osShape','Inversões', []);
+        function exerciseGroups() {
+            const base = [0,1,2,3], groups = [];
+            for(let i=0;i+PATTERN_GROUP_SIZE<=base.length;i++) groups.push(base.slice(i,i+PATTERN_GROUP_SIZE));
+            for(let i=base.length-1;i>=PATTERN_GROUP_SIZE-1;i--) groups.push(Array.from({length:PATTERN_GROUP_SIZE},(_,k)=>base[i-k]));
+            return groups;
+        }
+        function drawBoard() {
+            const shape = shapes[+$('osShape').value]; if(!shape) return;
+            const x=f=>36+(f-1)*25.4;
+            let svg=`<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Braço do violino: bolinhas apenas nas notas pressionadas" viewBox="0 0 340 176">`;
+            svg+='<rect x="27" y="0" width="3" height="176" fill="#fde68a" opacity=".9"/>';
+            for(let f=1;f<=12;f++) svg+=`<line x1="${x(f)}" y1="0" x2="${x(f)}" y2="176" stroke="${f===12?'#fbbf24':'#78350f'}" opacity="${f===12?'.6':'.2'}"/>`;
+            [3,2,1,0].forEach((i,row)=>{
+                const y=18+row*42, fret=shape.frets[i];
+                svg+=`<text x="3" y="${y+3}" fill="#fcd34d" font-size="8" font-weight="700">${strings[i].label}</text><line x1="28" y1="${y}" x2="336" y2="${y}" stroke="#cbd5e1" stroke-width="${[1.5,1,1,.7][row]}"/><g data-os-string="${i}">`;
+                if(fret>0) svg+=`<circle data-os-fret="${fret}" cx="${x(fret)}" cy="${y}" r="4.5" fill="#fbbf24"/><text x="${Math.max(54,Math.min(307,x(fret)))}" y="${y+16}" fill="#fde68a" text-anchor="middle" font-size="8" font-weight="600">${name(shape.notes[i])}</text>`;
+                svg+='</g>';
+            });
+            svg+='<text x="35" y="172" fill="#94a3b8" font-size="7">1</text><text x="310" y="172" fill="#94a3b8" font-size="7">12</text>';
+            $('osBoard').innerHTML=svg+'</svg>';
+            $('osOpenStrings').replaceChildren();
+            strings.forEach((str,i)=>{
+                const open=shape.frets[i]===0, card=document.createElement('div');
+                card.dataset.osString=String(i);
+                card.className='p-2 rounded-xl border text-center text-[10px] '+(open?'bg-amber-500/20 border-amber-500 text-amber-300':'bg-slate-950/40 border-slate-800 text-slate-500');
+                card.textContent=open?`${str.label} · ${name(str.midi)} · Solta`:`${str.label} · —`;
+                $('osOpenStrings').append(card);
+            });
+        }
+        const sharp = ['Dó','Dó♯','Ré','Ré♯','Mi','Fá','Fá♯','Sol','Sol♯','Lá','Lá♯','Si'];
+        const flat = ['Dó','Ré♭','Ré','Mi♭','Mi','Fá','Sol♭','Sol','Lá♭','Lá','Si♭','Si'];
+        function name(midi) { return (['F','Bb','Eb','Ab'].includes($('osTone').value) ? flat : sharp)[midi % 12] + (Math.floor(midi / 12)-1); }
+        function stop() {
+            timers.forEach(clearTimeout); timers = [];
+            nodes.forEach(n => {try {n.stop();} catch(e) {}}); nodes = [];
+            document.querySelectorAll('#oneStringArpeggios [data-os-string]').forEach(n => n.style.opacity = '1');
+            document.querySelectorAll('#osSequence [data-os-step]').forEach(el => {el.style.background = ''; el.style.color = '';});
+            $('osPlay').textContent = 'Ouvir desenho';
+        }
+        function generate(resetBass = false) {
+            stop();
+            const chord = chords[+$('osChord').value];
+            const root = noteNameToSemitone[$('osTone').value];
+            const pcs = [...new Set(chord.intervals.map(n => (n+root)%12))];
+            const min = 0, max = 12, span = 12;
+            const candidates = strings.map(s => Array.from({length:max-min+1},(_,i) => min+i).filter(f => pcs.includes((s.midi+f)%12)));
+            shapes = [];
+            function walk(frets) {
+                if(frets.length === 4) {
+                    const notes = frets.map((f,i) => strings[i].midi+f);
+                    if(Math.max(...notes)-Math.min(...notes)>24) return;
+                    if(pcs.some(p => !notes.some(n => n%12 === p))) return;
+                    if(notes.some((n,i) => i && n <= notes[i-1])) return;
+                    const pressed = frets.filter(f => f > 0);
+                    const width = pressed.length ? Math.max(...pressed)-Math.min(...pressed) : 0;
+                    if(width > span) return;
+                    shapes.push({frets,notes,width}); return;
+                }
+                candidates[frets.length].forEach(f => walk([...frets,f]));
+            }
+            walk([]);
+            shapes.sort((a,b) => a.width-b.width || Math.max(...a.frets)-Math.max(...b.frets) || a.frets.join(',').localeCompare(b.frets.join(','),undefined,{numeric:true}));
+            // Mantém um único desenho compacto para cada nota do acorde na corda Sol.
+            const choices = new Map();
+            shapes.forEach(shape => {
+                const bass = shape.notes[0] % 12;
+                if(!choices.has(bass)) choices.set(bass, shape);
+            });
+            shapes = pcs.filter(pc => choices.has(pc)).map(pc => choices.get(pc));
+            const inversionName = shape => {
+                const index = pcs.indexOf(shape.notes[0] % 12);
+                return index === 0 ? 'Estado fundamental' : `${index}ª inversão`;
+            };
+            $('osShape').replaceChildren();
+            const fragment = document.createDocumentFragment();
+            shapes.forEach((s,i) => fragment.append(new Option(inversionName(s),i)));
+            $('osShape').append(fragment);
+            $('osFormula').textContent = chord.description;
+            render();
+        }
+        function render() {
+            stop();
+            const shape = shapes[+$('osShape').value];
+            const index = +$('osShape').value || 0;
+            $('osCount').textContent = shapes.length ? `${shapes.length} desenho(s) · um por inversão. Exibindo ${index+1} de ${shapes.length}.` : 'Nenhum desenho disponível para este acorde.';
+            ['osPlay','osShape'].forEach(id => { $(id).disabled = !shape; $(id).style.opacity = shape ? '1' : '.4'; });
+            $('osBoard').replaceChildren(); $('osOpenStrings').replaceChildren(); $('osNotes').replaceChildren(); $('osSequence').replaceChildren();
+            if(!shape) return;
+            drawBoard();
+            shape.notes.forEach((n,i) => {
+                const card = document.createElement('div');
+                card.className = 'rounded-xl border border-slate-700 bg-slate-950 p-2 text-xs';
+                card.textContent = `${strings[i].label}: ${name(n)} · ${shape.frets[i] === 0 ? 'Corda solta' : 'Pressionada · +'+shape.frets[i]+' semitons'}`;
+                $('osNotes').append(card);
+            });
+            const groups = exerciseGroups();
+            let stepIndex = 0;
+            groups.forEach(group => {
+                const wrap = document.createElement('div');
+                wrap.className = 'flex gap-1 rounded-xl bg-slate-950 border border-slate-700 p-1';
+                group.forEach(i => {
+                    const pill = document.createElement('span');
+                    pill.dataset.osStep = String(stepIndex++);
+                    pill.className = 'rounded-lg px-2 py-1';
+                    pill.textContent = `${strings[i].label}: ${name(shape.notes[i])}`;
+                    wrap.append(pill);
+                });
+                $('osSequence').append(wrap);
+            });
+            $('osOrderLabel').textContent = '123 · 234 · 432 · 321 · som e velocidade do software';
+        }
+        function scheduleArpeggioNote(ctx,midi,t,duration) {
+            const osc=ctx.createOscillator(), gain=ctx.createGain(), vibrato=ctx.createOscillator(), filter=ctx.createBiquadFilter();
+            const freq=440*2**((midi-69)/12);
+            osc.type='sawtooth'; osc.frequency.setValueAtTime(freq,t);
+            vibrato.frequency.setValueAtTime(5.5,t); vibrato.connect(osc.frequency);
+            filter.type='lowpass'; filter.frequency.setValueAtTime(3200,t);
+            gain.gain.setValueAtTime(0,t); gain.gain.linearRampToValueAtTime(.15,t+.03);
+            gain.gain.setValueAtTime(.13,t+duration-.04); gain.gain.exponentialRampToValueAtTime(.001,t+duration);
+            osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+            osc.start(t); vibrato.start(t); osc.stop(t+duration); vibrato.stop(t+duration);
+            return [osc,vibrato];
+        }
+        async function download() {
+            const shape=shapes[+$('osShape').value]; if(!shape) return;
+            const button=$('osDownload'); button.disabled=true; button.textContent='Preparando…';
+            try {
+                const sequence=exerciseGroups().flat().map(i=>shape.notes[i]);
+                const rate=44100, duration=.16, start=.05;
+                const Offline=window.OfflineAudioContext || window.webkitOfflineAudioContext;
+                const offline=new Offline(1,Math.ceil((start+sequence.length*duration+.05)*rate),rate);
+                sequence.forEach((midi,i)=>scheduleArpeggioNote(offline,midi,start+i*duration,duration));
+                const rendered=await offline.startRendering(), samples=rendered.getChannelData(0);
+                const bytes=new ArrayBuffer(44+samples.length*2), view=new DataView(bytes);
+                const word=(offset,text)=>{for(let i=0;i<text.length;i++) view.setUint8(offset+i,text.charCodeAt(i));};
+                word(0,'RIFF');view.setUint32(4,36+samples.length*2,true);word(8,'WAVE');word(12,'fmt ');
+                view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,rate,true);
+                view.setUint32(28,rate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);
+                word(36,'data');view.setUint32(40,samples.length*2,true);
+                for(let i=0;i<samples.length;i++){const n=Math.max(-1,Math.min(1,samples[i]));view.setInt16(44+i*2,Math.round(n*(n<0?32768:32767)),true);}
+                const chord=chords[+$('osChord').value];
+                const filename=`${$('osTone').value}_${chord.id}_${$('osShape').value}.wav`;
+                const url=URL.createObjectURL(new Blob([bytes],{type:'audio/wav'}));
+                const link=document.createElement('a');link.href=url;link.download=filename;
+                document.body.appendChild(link);link.click();link.remove();
+                setTimeout(()=>URL.revokeObjectURL(url),10000);
+            } catch(e) {$('osOrderLabel').textContent='Não foi possível baixar o áudio neste navegador.';}
+            finally {button.disabled=false;button.textContent='Baixar áudio';}
+        }
+        async function play() {
+            stop(); stopScaleAudio();
+            const shape = shapes[+$('osShape').value]; if(!shape) return;
+            try {
+                context ||= new (window.AudioContext || window.webkitAudioContext)();
+                await context.resume();
+                const order = exerciseGroups().flat();
+                const duration = 0.16, start = context.currentTime+.05;
+                $('osPlay').textContent = 'Reproduzindo…';
+                order.forEach((s,i) => {
+                    const t = start+i*duration;
+                    nodes.push(...scheduleArpeggioNote(context,shape.notes[s],t,duration));
+                    timers.push(setTimeout(() => document.querySelectorAll('#osSequence [data-os-step]').forEach(el => {
+                        const active = +el.dataset.osStep === i;
+                        el.style.background = active ? '#f59e0b' : '';
+                        el.style.color = active ? '#020617' : '';
+                    }),(t-context.currentTime)*1000));
+                    timers.push(setTimeout(() => document.querySelectorAll('#oneStringArpeggios [data-os-string]').forEach(el => el.style.opacity = +el.dataset.osString === s ? '1' : '.25'),(t-context.currentTime)*1000));
+                });
+                timers.push(setTimeout(stop,(.05+order.length*duration)*1000));
+            } catch(e) { stop(); $('osOrderLabel').textContent = 'Áudio indisponível neste navegador.'; }
+        }
+        ['osTone','osChord'].forEach(id => $(id).addEventListener('change',() => generate(true)));
+        $('osShape').addEventListener('change',render);
+        $('osDownload').onclick = download;
+        document.addEventListener('tuner-start',stop);
+        $('osPlay').onclick = play; $('osStop').onclick = stop;
+        $('playButton').addEventListener('click',stop);
+        window.addEventListener('pagehide',stop);
+        generate(true);
+    })();
+    </script>
+
+
+    <script>
+    (()=>{
+        const buttons=[...document.querySelectorAll('[data-tuner-midi]')];
+        let ctx=null,osc=null,gain=null,vibrato=null,selected=null;
+        const status=document.getElementById('tunerStatus');
+        function stop(){
+            if(osc){const old=osc;try{gain.gain.cancelScheduledValues(ctx.currentTime);gain.gain.setTargetAtTime(0,ctx.currentTime,.02);old.stop(ctx.currentTime+.12);if(vibrato)vibrato.stop(ctx.currentTime+.12);}catch(e){}osc=null;gain=null;vibrato=null;}
+            selected=null;buttons.forEach(b=>{b.setAttribute('aria-pressed','false');b.style.background='';b.style.borderColor='';});
+            status.textContent='Escolha uma nota.';
+        }
+        buttons.forEach(button=>button.addEventListener('click',async()=>{
+            const midi=+button.dataset.tunerMidi, wasSelected=selected===midi;
+            stop();if(wasSelected)return;
+            stopScaleAudio();document.dispatchEvent(new Event('tuner-start'));
+            selected=midi;
+            try {
+                ctx ||= new (window.AudioContext||window.webkitAudioContext)();
+                await ctx.resume();if(selected!==midi)return;
+                osc=ctx.createOscillator();gain=ctx.createGain();
+                // Mesmo timbre do software, sustentado para afinar de ouvido.
+                osc.type='sawtooth';osc.frequency.setValueAtTime(440*2**((midi-69)/12),ctx.currentTime);
+                vibrato=ctx.createOscillator();vibrato.frequency.setValueAtTime(5.5,ctx.currentTime);vibrato.connect(osc.frequency);
+                const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.setValueAtTime(3200,ctx.currentTime);
+                gain.gain.setValueAtTime(0,ctx.currentTime);gain.gain.linearRampToValueAtTime(.15,ctx.currentTime+.03);
+                gain.gain.linearRampToValueAtTime(.13,ctx.currentTime+.12);
+                osc.connect(filter);filter.connect(gain);gain.connect(ctx.destination);osc.start();vibrato.start();
+                button.setAttribute('aria-pressed','true');button.style.background='#78350f';button.style.borderColor='#fbbf24';
+                status.textContent='Tocando '+button.textContent+'. Toque novamente ou use Parar som.';
+            }catch(e){stop();status.textContent='Não foi possível iniciar o som neste navegador.';}
+        }));
+        document.getElementById('tunerStop').addEventListener('click',stop);
+        ['osPlay','playButton'].forEach(id=>document.getElementById(id).addEventListener('click',stop));
+        window.addEventListener('pagehide',stop);
+        document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+    })();
+    </script>
+
 </body>
 </html>
