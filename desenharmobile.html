@@ -1576,7 +1576,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         #selectionBtn.active { color: #ffcc00; text-shadow: 0 0 5px rgba(255,204,0,0.5); }
         #perspectiveBtn.active { color: #ff3b30; text-shadow: 0 0 5px rgba(255,59,48,0.5); }
         #warpBtn.active { color: #5ac8fa; text-shadow: 0 0 5px rgba(90,200,250,0.5); }
-        #headSphereBtn.active { color: #af52de; text-shadow: 0 0 5px rgba(175,82,222,0.55); }
         #bucketBtn { color: #5ac8fa; }
         #bucketBtn.active { background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 12px rgba(90, 200, 250, 0.55); }
         #eraserBtn.active { color: inherit; background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
@@ -1989,7 +1988,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             <button class="icon-btn" id="selectAllBtn" title="Selecionar Tudo">⛶</button>
             <button class="icon-btn" id="perspectiveBtn" title="Perspectiva">📐</button>
             <button class="icon-btn" id="warpBtn" title="Push — empurrar pixels">🌀</button>
-            <button class="icon-btn" id="headSphereBtn" title="3D: contorne o desenho e arraste para girar" style="font-size:12px;font-weight:800;min-width:34px;">3D</button>
+            <button class="icon-btn" id="puppetBtn" title="Pins — deformar desenho">📌</button>
             <button class="icon-btn" id="flipHBtn" title="Inverter Horizontal">↔️</button>
             <button class="icon-btn" id="flipVBtn" title="Inverter Vertical">↕️</button>
             <button class="icon-btn" id="copyBtn" title="Copiar">📑</button>
@@ -2367,7 +2366,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
         const mobileToolLabels = new Map([
             ['selectionBtn', 'Seleção'], ['selectAllBtn', 'Selecionar tudo'],
-            ['perspectiveBtn', 'Perspectiva'], ['warpBtn', 'Push'], ['headSphereBtn', '3D'],
+            ['puppetBtn', 'Pins / Puppet'], ['perspectiveBtn', 'Perspectiva'], ['warpBtn', 'Push'],
             ['flipHBtn', 'Inverter H'], ['flipVBtn', 'Inverter V'],
             ['copyBtn', 'Copiar'], ['cutBtn', 'Recortar'], ['pasteBtn', 'Colar'],
             ['durationToFramesBtn', 'Dur → Frames']
@@ -2893,11 +2892,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const selectAllBtn = document.getElementById('selectAllBtn');
         const perspectiveBtn = document.getElementById('perspectiveBtn');
         const warpBtn = document.getElementById('warpBtn');
-        const headSphereBtn = document.getElementById('headSphereBtn');
         const flipHBtn = document.getElementById('flipHBtn');
         const flipVBtn = document.getElementById('flipVBtn');
 
         function setTool(tool) {
+            if (currentTool === 'puppet') endPuppet();
             if (currentTool === tool && (tool === 'lasso' || tool === 'perspective' || tool === 'warp' || tool === 'headSphere')) {
                 finishSelection(); currentTool = 'brush';
             } else {
@@ -2957,14 +2956,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         selectionBtn.onclick = () => setTool('lasso');
         perspectiveBtn.onclick = () => setTool('perspective');
         warpBtn.onclick = () => setTool(currentTool === 'push' ? 'brush' : 'push');
-        headSphereBtn.onclick = () => setTool('headSphere');
-        headSphereBtn.ondblclick = (event) => {
-            event.preventDefault();
-            if (currentTool === 'headSphere' && isTransforming) {
-                headSphereYaw = 0; headSpherePitch = 0; updateHeadSphereMesh(); drawTransformUI();
-            }
-        };
-
         document.getElementById('multiSelectBtn').addEventListener('click', (e) => {
             isMultiSelectMode = !isMultiSelectMode;
             e.target.classList.toggle('active', isMultiSelectMode);
@@ -3018,6 +3009,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         };
 
         function updateToolUI() {
+            document.getElementById('puppetBtn').classList.toggle('active', currentTool === 'puppet');
+            document.getElementById('puppetControls').hidden = currentTool !== 'puppet';
             brushBtn.classList.toggle('active', currentTool === 'brush');
             eraserBtn.classList.toggle('active', currentTool === 'eraser');
             cloneBtn.classList.toggle('active', currentTool === 'clone');
@@ -3025,11 +3018,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             selectionBtn.classList.toggle('active', currentTool === 'lasso');
             perspectiveBtn.classList.toggle('active', currentTool === 'perspective');
             warpBtn.classList.toggle('active', currentTool === 'push');
-            headSphereBtn.classList.toggle('active', currentTool === 'headSphere');
             document.getElementById('bucketBtn').classList.toggle('active', currentTool === 'bucket');
             document.getElementById('eyedropperBtn').classList.toggle('active', currentTool === 'eyedropper');
             document.getElementById('brushOpacity').closest('.slider-container').querySelector('span').textContent = currentTool === 'push' ? 'Força' : 'Opac';
-            if (currentTool === 'clone') drawCloneSourceIndicator();
+            if (currentTool === 'puppet') drawPuppetPins();
+            else if (currentTool === 'clone') drawCloneSourceIndicator();
             else uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
         }
 
@@ -3039,6 +3032,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             // Antes, saveFrameState() era chamado com o "buraco" do recorte ainda aberto.
             if (isTransforming) await finishSelection();
             if (!isHistoryAction && hasUnsavedChanges) await saveFrameState(currentFrameIndex); 
+            endPuppet();
             activeLayerIndex = index;
             ctx.globalCompositeOperation = 'source-over'; 
             ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
@@ -3955,6 +3949,221 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             queuePushPreview();drawPushCursor(pos);
         }
 
+
+        // Puppet: moving least squares, rigid local rotations over a texture mesh.
+        // The immutable source avoids repeatedly resampling pixels on each drag.
+        let puppet = null, puppetRAF = 0, puppetDelete = false;
+        const puppetControls = document.createElement('div');
+        puppetControls.id = 'puppetControls'; puppetControls.hidden = true;
+        puppetControls.style.cssText = 'position:static;width:100%;box-sizing:border-box;background:#202127;color:white;border:1px solid #555;border-radius:10px;padding:10px;margin-bottom:9px;font:12px sans-serif;';
+        puppetControls.innerHTML = '<div style="margin-bottom:8px" id="puppetHint">Toque para criar pins. Arraste um pin para deformar.</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="puppetRemove">Apagar pin: OFF</button><button type="button" id="puppetReset">Restaurar pose</button><button type="button" id="puppetClear">Limpar pins</button><button type="button" id="puppetApply">Aplicar ✓</button></div>';
+        mobileEditPanel.insertBefore(puppetControls,mobileEditGrid);
+        puppetControls.querySelectorAll('button').forEach(b => b.style.cssText = 'background:#383a45;color:white;border:1px solid #777;border-radius:7px;min-height:36px;padding:6px 9px;');
+        document.getElementById('puppetBtn').onclick = async () => {
+            if (isDrawing || isSaving || isPlaying || isExporting || isProjectSaving) return;
+            if (currentTool === 'puppet') { endPuppet(); currentTool = 'brush'; updateToolUI(); return; }
+            await finishSelection();
+            if (hasUnsavedChanges) await saveFrameState(currentFrameIndex);
+            currentTool = 'puppet'; puppetDelete = false;
+            document.getElementById('puppetRemove').textContent = 'Apagar pin: OFF';
+            closeMobileEditPanel(); updateToolUI();
+            showNotification('Pins: toque para adicionar • arraste para mover • outros pins seguram o desenho');
+        };
+        document.getElementById('puppetRemove').onclick = () => {
+            puppetDelete = !puppetDelete;
+            document.getElementById('puppetRemove').textContent = 'Apagar pin: ' + (puppetDelete ? 'ON' : 'OFF');
+            closeMobileEditPanel();
+        };
+        document.getElementById('puppetApply').onclick = () => { if (!isDrawing) { setTool('brush'); closeMobileEditPanel(); } };
+        document.getElementById('puppetClear').onclick = () => { if (!isDrawing) { endPuppet(); closeMobileEditPanel(); } };
+        document.getElementById('puppetReset').onclick = () => {
+            if (!puppet || isDrawing || isSaving) return;
+            puppet.source.getContext('2d').clearRect(0,0,puppet.source.width,puppet.source.height);
+            puppet.source.getContext('2d').drawImage(puppet.original,0,0);puppet.sourceData=null;
+            puppet.pins=[]; puppet.bounds=getOpaqueBounds(puppet.source,0)||puppet.bounds;
+            renderPuppet(); hasUnsavedChanges=true; saveFrameState(currentFrameIndex); closeMobileEditPanel();
+        };
+        function puppetRadius() {
+            return 13 * mainCanvas.width / Math.max(1, mainCanvas.getBoundingClientRect().width);
+        }
+        function endPuppet() {
+            if (puppetRAF) { cancelAnimationFrame(puppetRAF); puppetRAF=0; if(puppet) renderPuppet(); }
+            if (puppet && puppet.drag !== null) { isDrawing=false; activePointerId=null; }
+            puppet=null;
+            if (currentTool === 'puppet') uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+        }
+        function initPuppet() {
+            const bounds=getOpaqueBounds(mainCanvas,0);
+            if (!bounds) { showNotification('Desenhe ou importe uma imagem nesta camada primeiro'); return false; }
+            const source=document.createElement('canvas'); source.width=mainCanvas.width; source.height=mainCanvas.height;
+            source.getContext('2d').drawImage(mainCanvas,0,0);
+            const original=document.createElement('canvas'); original.width=source.width; original.height=source.height; original.getContext('2d').drawImage(source,0,0);
+            const preview=document.createElement('canvas'); preview.width=source.width; preview.height=source.height;
+            puppet={source,original,preview,bounds,pins:[],drag:null,changed:false,frame:frames[currentFrameIndex],layer:activeLayerIndex};
+            return true;
+        }
+        function drawPuppetPins() {
+            uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+            if (!puppet) return;
+            const r=puppetRadius()*.5;
+            uiCtx.save(); uiCtx.font=`bold ${r*1.1}px sans-serif`;uiCtx.textAlign='center';uiCtx.textBaseline='middle';
+            puppet.pins.forEach((p,i)=>{
+                uiCtx.beginPath();uiCtx.arc(p.x,p.y,r,0,Math.PI*2);
+                uiCtx.fillStyle=i===puppet.drag?'rgba(255,255,255,.30)':'rgba(255,204,50,.16)';uiCtx.fill();
+                uiCtx.lineWidth=r*.15;uiCtx.strokeStyle='rgba(90,65,0,.60)';uiCtx.stroke();
+                uiCtx.fillStyle='rgba(70,45,0,.65)';uiCtx.fillText(String(i+1),p.x,p.y);
+            });uiCtx.restore();
+            document.getElementById('puppetHint').textContent=`${puppet.pins.length} pins • Toque para adicionar. Arraste para mover.`;
+        }
+        // Rebind the current pose before changing the set of constraints.
+        function rebasePuppet() {
+            if(puppetRAF) {cancelAnimationFrame(puppetRAF);puppetRAF=0;renderPuppet();}
+            puppet.source.getContext('2d').clearRect(0,0,puppet.source.width,puppet.source.height);
+            puppet.source.getContext('2d').drawImage(mainCanvas,0,0);puppet.sourceData=null;
+            puppet.bounds=getOpaqueBounds(puppet.source,0)||puppet.bounds;
+            puppet.pins.forEach(p=>{p.ox=p.x;p.oy=p.y;});
+        }
+        function startPuppet(pos) {
+            if (isSaving) {isDrawing=false;activePointerId=null;return;}
+            if (puppet && (puppet.frame!==frames[currentFrameIndex] || puppet.layer!==activeLayerIndex)) endPuppet();
+            if (!puppet && !initPuppet()) {isDrawing=false;activePointerId=null;return;}
+            const radius=puppetRadius();let hit=-1, best=radius;
+            puppet.pins.forEach((p,i)=>{const d=Math.hypot(p.x-pos.x,p.y-pos.y);if(d<best){best=d;hit=i;}});
+            if(puppetDelete) {
+                if(hit>=0){rebasePuppet();puppet.pins.splice(hit,1);}
+                isDrawing=false;activePointerId=null;drawPuppetPins();return;
+            }
+            if(hit<0){rebasePuppet();puppet.pins.push({ox:pos.x,oy:pos.y,x:pos.x,y:pos.y});hit=puppet.pins.length-1;}
+            puppet.drag=hit;puppet.before={x:puppet.pins[hit].x,y:puppet.pins[hit].y};
+            puppet.offset={x:pos.x-puppet.before.x,y:pos.y-puppet.before.y};puppet.changed=false;drawPuppetPins();
+        }
+        function movePuppet(pos) {
+            if (!puppet || puppet.drag===null) return;
+            const p=puppet.pins[puppet.drag],before={x:p.x,y:p.y};
+            const tx=Math.max(0,Math.min(mainCanvas.width,pos.x-puppet.offset.x)),ty=Math.max(0,Math.min(mainCanvas.height,pos.y-puppet.offset.y));
+            // Keep the mesh inside the page and prevent folded/collapsed faces.
+            let factor=1;
+            for(let attempt=0;attempt<12;attempt++){
+                p.x=before.x+(tx-before.x)*factor;p.y=before.y+(ty-before.y)*factor;
+                if(puppetMeshIsValid(buildPuppetGrid()))break;
+                factor*=.5;
+                if(attempt===11){p.x=before.x;p.y=before.y;}
+            }
+            puppet.changed=Math.hypot(p.x-puppet.before.x,p.y-puppet.before.y)>.01;
+            if(!puppetRAF)puppetRAF=requestAnimationFrame(()=>{puppetRAF=0;renderPuppet(true);});
+        }
+        function stopPuppet(event) {
+            if(puppet && puppet.drag!==null){
+                if(event?.type==='pointercancel')Object.assign(puppet.pins[puppet.drag],puppet.before);
+                else if(event)movePuppet(getMousePos(event));
+                if(puppetRAF){cancelAnimationFrame(puppetRAF);puppetRAF=0;}
+                renderPuppet();const changed=puppet.changed && event?.type!=='pointercancel';
+                puppet.drag=null;drawPuppetPins();
+                if(changed){hasUnsavedChanges=true;saveFrameState(currentFrameIndex);}
+            }
+            isDrawing=false;activePointerId=null;
+        }
+        function puppetMap(x,y,pins) {
+            if(!pins.length)return {x,y,ox:x,oy:y};
+            let sw=0,px=0,py=0,qx=0,qy=0;const weights=[];
+            for(const p of pins){const d=(p.ox-x)**2+(p.oy-y)**2;
+                if(d<1e-8)return {x:p.x,y:p.y,ox:x,oy:y};
+                const w=1/(d*d+1e-6);weights.push(w);sw+=w;px+=w*p.ox;py+=w*p.oy;qx+=w*p.x;qy+=w*p.y;}
+            px/=sw;py/=sw;qx/=sw;qy/=sw;
+            let a=0,b=0;
+            pins.forEach((p,i)=>{const sx=p.ox-px,sy=p.oy-py,tx=p.x-qx,ty=p.y-qy,w=weights[i];a+=w*(sx*tx+sy*ty);b+=w*(sx*ty-sy*tx);});
+            const norm=Math.hypot(a,b);if(norm>1e-10){a/=norm;b/=norm;}else{a=1;b=0;}
+            return {x:qx+a*(x-px)-b*(y-py),y:qy+b*(x-px)+a*(y-py),ox:x,oy:y};
+        }
+        function rasterPuppetTriangle(p0,p1,p2,pixels,ow,oh,source) {
+            // Each destination pixel samples the original texture exactly once.
+            // No clipped canvas triangles, overlapping alpha or visible grid seams.
+            const scaleX=ow/mainCanvas.width,scaleY=oh/mainCanvas.height;
+            const ax=p0.x*scaleX,ay=p0.y*scaleY,bx=p1.x*scaleX,by=p1.y*scaleY,cx=p2.x*scaleX,cy=p2.y*scaleY;
+            const det=(bx-ax)*(cy-ay)-(by-ay)*(cx-ax);
+            if(det<=1e-9)return;
+            const x0=Math.max(0,Math.ceil(Math.min(ax,bx,cx)-.5)),x1=Math.min(ow-1,Math.floor(Math.max(ax,bx,cx)-.5));
+            const y0=Math.max(0,Math.ceil(Math.min(ay,by,cy)-.5)),y1=Math.min(oh-1,Math.floor(Math.max(ay,by,cy)-.5));
+            const sw=source.width,sh=source.height,tex=source.data;
+            for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
+                const dx=x+.5-ax,dy=y+.5-ay;
+                const u=(dx*(cy-ay)-dy*(cx-ax))/det,v=((bx-ax)*dy-(by-ay)*dx)/det;
+                if(u < -1e-7 || v < -1e-7 || u+v > 1.0000001)continue;
+                const sx=Math.max(0,Math.min(sw-1,p0.ox+u*(p1.ox-p0.ox)+v*(p2.ox-p0.ox)-.5));
+                const sy=Math.max(0,Math.min(sh-1,p0.oy+u*(p1.oy-p0.oy)+v*(p2.oy-p0.oy)-.5));
+                const ix=Math.floor(sx),iy=Math.floor(sy),fx=sx-ix,fy=sy-iy;
+                const i00=(iy*sw+ix)*4,i10=(iy*sw+Math.min(sw-1,ix+1))*4;
+                const i01=(Math.min(sh-1,iy+1)*sw+ix)*4,i11=(Math.min(sh-1,iy+1)*sw+Math.min(sw-1,ix+1))*4;
+                // Interpolate premultiplied color to retain smooth transparent edges.
+                const w00=(1-fx)*(1-fy)*tex[i00+3],w10=fx*(1-fy)*tex[i10+3];
+                const w01=(1-fx)*fy*tex[i01+3],w11=fx*fy*tex[i11+3];
+                const alpha=w00+w10+w01+w11,index=(y*ow+x)*4;
+                pixels[index+3]=alpha;
+                if(alpha>0){
+                    pixels[index]=(tex[i00]*w00+tex[i10]*w10+tex[i01]*w01+tex[i11]*w11)/alpha;
+                    pixels[index+1]=(tex[i00+1]*w00+tex[i10+1]*w10+tex[i01+1]*w01+tex[i11+1]*w11)/alpha;
+                    pixels[index+2]=(tex[i00+2]*w00+tex[i10+2]*w10+tex[i01+2]*w01+tex[i11+2]*w11)/alpha;
+                }
+            }
+        }
+        function buildPuppetGrid() {
+            const w=mainCanvas.width,h=mainCanvas.height,cols=32,rows=Math.max(12,Math.min(48,Math.ceil(32*h/w)));
+            // Anchor the page perimeter. With no boundary constraints, even one
+            // pin translated the entire picture beyond the canvas and cut it off.
+            const anchors=[];
+            for(let i=0;i<=4;i++){
+                anchors.push({ox:w*i/4,oy:0,x:w*i/4,y:0},{ox:w*i/4,oy:h,x:w*i/4,y:h});
+                if(i>0&&i<4)anchors.push({ox:0,oy:h*i/4,x:0,y:h*i/4},{ox:w,oy:h*i/4,x:w,y:h*i/4});
+            }
+            const pins=puppet.pins.concat(anchors),grid=[];
+            // Cover the FULL source, including faint strokes and page edges.
+            for(let j=0;j<=rows;j++){
+                const row=[];
+                for(let i=0;i<=cols;i++){
+                    const x=w*i/cols,y=h*j/rows;
+                    const p=(i===0||j===0||i===cols||j===rows)?{x,y,ox:x,oy:y}:puppetMap(x,y,pins);
+                    row.push(p);
+                }
+                grid.push(row);
+            }
+            return grid;
+        }
+        function puppetMeshIsValid(grid) {
+            for(let j=0;j<grid.length-1;j++)for(let i=0;i<grid[0].length-1;i++){
+                const a=grid[j][i],b=grid[j][i+1],c=grid[j+1][i],d=grid[j+1][i+1];
+                const minimum=(b.ox-a.ox)*(c.oy-a.oy)*.03;
+                if((b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x)<minimum ||
+                   (d.x-b.x)*(c.y-b.y)-(d.y-b.y)*(c.x-b.x)<minimum)return false;
+            }
+            return true;
+        }
+        function renderPuppet(fastPreview = false) {
+            if(!puppet)return;
+            // Build a complete preview before replacing the displayed picture.
+            // The original session image stays available to restore at any time.
+            const ratio=fastPreview?Math.min(1,720/Math.max(mainCanvas.width,mainCanvas.height)):1;
+            const ow=Math.max(1,Math.round(mainCanvas.width*ratio)),oh=Math.max(1,Math.round(mainCanvas.height*ratio));
+            if(puppet.preview.width!==ow)puppet.preview.width=ow;
+            if(puppet.preview.height!==oh)puppet.preview.height=oh;
+            const target=puppet.preview.getContext('2d');
+            target.setTransform(1,0,0,1,0,0);target.globalAlpha=1;target.globalCompositeOperation='source-over';
+            target.clearRect(0,0,puppet.preview.width,puppet.preview.height);
+            const pins=puppet.pins;
+            if(!pins.some(p=>Math.hypot(p.x-p.ox,p.y-p.oy)>.001))target.drawImage(puppet.source,0,0,ow,oh);
+            else {
+                const grid=buildPuppetGrid();
+                const source=puppet.sourceData||(puppet.sourceData=puppet.source.getContext('2d').getImageData(0,0,puppet.source.width,puppet.source.height));
+                const output=target.createImageData(ow,oh);
+                for(let j=0;j<grid.length-1;j++)for(let i=0;i<grid[0].length-1;i++){
+                    const a=grid[j][i],b=grid[j][i+1],c=grid[j+1][i],d=grid[j+1][i+1];
+                    rasterPuppetTriangle(a,b,c,output.data,ow,oh,source);rasterPuppetTriangle(b,d,c,output.data,ow,oh,source);
+                }
+                target.putImageData(output,0,0);
+            }
+            ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='copy';
+            ctx.drawImage(puppet.preview,0,0,mainCanvas.width,mainCanvas.height);ctx.restore();drawPuppetPins();
+        }
+
         function startDrawing(e) {
             if (isExporting || isProjectSaving) return;
             if (isPlaying) return;
@@ -3966,6 +4175,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             try { mainCanvas.setPointerCapture(e.pointerId); } catch(err) {}
 
             const pos = getMousePos(e); 
+            if (currentTool === 'puppet') { startPuppet(pos); return; }
             if (currentTool === 'push') {
                 if (isTransforming) finishSelection();
                 pushSource=document.createElement('canvas');pushSource.width=mainCanvas.width;pushSource.height=mainCanvas.height;pushSource.getContext('2d').drawImage(mainCanvas,0,0);
@@ -4068,6 +4278,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             if (!isDrawing || isPlaying) return;
             if (e.pointerId !== activePointerId) return; // ignora outros toques (ex: palma) enquanto desenha
             if (isPalmTouch(e)) return;
+            if (currentTool === 'puppet') { movePuppet(getMousePos(e)); return; }
             const events = (e.getCoalescedEvents && e.getCoalescedEvents().length > 0) ? e.getCoalescedEvents() : [e];
 
             if (currentTool === 'clone') {
@@ -4229,6 +4440,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             if (e && activePointerId !== null && e.pointerId !== activePointerId) return; // não deixa a palma encerrar o traço da caneta/dedo
             if (e && e.pointerId) { try { mainCanvas.releasePointerCapture(e.pointerId); } catch(err) {} }
 
+            if (currentTool === 'puppet') { stopPuppet(e); return; }
             if (currentTool === 'push') {
                 if(e && e.type !== 'pointercancel') pushTo(getMousePos(e));
                 if(e && e.type === 'pointercancel') {if(pushPreviewRAF)cancelAnimationFrame(pushPreviewRAF);pushPreviewRAF=0;ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='copy';ctx.drawImage(pushSource,0,0);ctx.restore();}
@@ -5013,6 +5225,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }
 
         async function finishSelection() {
+            endPuppet();
             if (isTransforming) {
                 if (warpRenderRafId !== null) {
                     cancelAnimationFrame(warpRenderRafId);
@@ -5151,6 +5364,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }
 
         async function loadFrame(index) {
+            endPuppet();
             if ((isExporting || isProjectSaving) && !isHistoryAction) return;
             if (index < 0 || index >= frames.length) return;
             await finishSelection(); 
@@ -6653,7 +6867,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             tCtx.globalAlpha = 1;
         }
 
-        document.getElementById('clearBtn').addEventListener('click', () => { ctx.globalCompositeOperation = 'source-over'; ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height); hasUnsavedChanges = true; saveFrameState(currentFrameIndex); });
+        document.getElementById('clearBtn').addEventListener('click', () => { endPuppet(); ctx.globalCompositeOperation = 'source-over'; ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height); hasUnsavedChanges = true; saveFrameState(currentFrameIndex); });
         document.getElementById('deleteCurrentFrameBtn').addEventListener('click', () => deleteFrame(currentFrameIndex)); document.getElementById('addFrameBtn').addEventListener('click', addBlankFrame); document.getElementById('reverseSelectedFramesBtn').addEventListener('click', reverseSelectedFrames); document.getElementById('duplicateFrameBtn').addEventListener('click', duplicateFrame); document.getElementById('copyBtn').onclick = handleCopy; document.getElementById('cutBtn').onclick = handleCut; document.getElementById('pasteBtn').onclick = handlePaste; document.getElementById('undoBtn').onclick = undo; document.getElementById('redoBtn').onclick = redo;
 
         window.addEventListener('keydown', (e) => {
