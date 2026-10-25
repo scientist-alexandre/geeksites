@@ -5293,7 +5293,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             const resized = document.createElement('canvas');
             resized.width = mainCanvas.width; resized.height = mainCanvas.height;
             resized.getContext('2d').drawImage(image, 0, 0, resized.width, resized.height);
-            return createImageBitmap(resized);
+            try { return await createImageBitmap(resized); }
+            finally { resized.width=1;resized.height=1; }
         }
 
         function updateLayerIndicators() {
@@ -7378,25 +7379,72 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             showNotification('Projeto 3D salvo com sucesso!');
         };
 
+        let isProjectLoading=false;
+        async function decodeProjectLayer(encoded){
+            const image=new Image();
+            try{
+                await new Promise((resolve,reject)=>{
+                    image.onload=resolve;image.onerror=()=>reject(new Error('Uma imagem do projeto está corrompida ou não pôde ser carregada por falta de memória.'));
+                    image.src=encoded;
+                });
+                return await normalizeLayerBitmap(image);
+            } finally {image.onload=null;image.onerror=null;image.src='';}
+        }
+
         projectInput.onchange = async (event) => {
             const file = event.target.files[0]; if (!file) return;
+            if(isExporting || (typeof isProjectSaving!=='undefined' && isProjectSaving) || isProjectLoading){event.target.value='';return;}
+            isProjectLoading=true;
+            const overlay=document.getElementById('exportOverlay'),progress=document.getElementById('progressBar');
+            const text=document.getElementById('progressText'),cancel=document.getElementById('cancelExportBtn');
+            const cancelDisplay=cancel.style.display;
+            overlay.style.display='flex';cancel.style.display='none';progress.style.width='0%';text.textContent='Lendo projeto...';
+            let replacing=false;
+            const loadedFrames=[];
             try {
+                await new Promise(resolve=>setTimeout(resolve,0));
                 const data = JSON.parse(await file.text());
+                if(!Array.isArray(data.frames) || !data.frames.length || data.frames.some(frame=>!frame || !Array.isArray(frame.layers) || frame.layers.some(layer=>layer!==null && typeof layer!=='string')))
+                    throw new Error('O projeto não contém frames válidos');
+                if(isPlaying)await toggleAnimation();
+                await finishSelection();
+                await currentSavePromise;
+                // O novo projeto substitui o anterior: libera cada bitmap uma única vez.
+                const oldBitmaps=new Set(frames.flatMap(frame=>frame.layers).filter(Boolean));
+                for(const action of [...undoStack,...redoStack])if(action.data)oldBitmaps.add(action.data);
+                oldBitmaps.forEach(bitmap=>{try{bitmap.close?.();}catch(_){}});oldBitmaps.clear();
+                undoStack=[];redoStack=[];selectedFrames.clear();endPuppet();
+                hasUnsavedChanges=false;currentFrameIndex=0;
+                frames=[{layers:makeEmptyLayersArray(),duration:1}];replacing=true;
+                timeline.innerHTML='';backgroundTimeline.innerHTML='';
+                backgroundTextureCache.forEach(texture=>{try{texture.dispose();}catch(_){}});backgroundTextureCache.clear();
+                clearActivePanorama();backgroundSources={};
+                for(const clip of audioClips){clip.audio.pause();clip.audio.removeAttribute('src');clip.audio.load();}
+                audioClips=[];selectedAudioClipId=null;
                 fps = data.fps || 6; fpsSlider.value = fps; fpsValue.textContent = fps; updateGlobalFrameDurationControl();
                 if (data.layersMeta) { layersMeta = data.layersMeta.map((m, i) => ({ opacity: m.opacity != null ? m.opacity : 1, visible: m.visible !== false, name: m.name || `Camada ${i + 1}` })); }
                 else if (data.layerVisibility) { layersMeta = data.layerVisibility.map((v, i) => ({ opacity: 1, visible: v, name: `Camada ${i + 1}` })); }
                 else { layersMeta = [{ opacity: 1, visible: true, name: 'Camada 1' }]; }
                 assetLibrary = normalizeAssetLibrary(data.assetLibrary); selectedLibraryFolderId = null; selectedLibraryAssetId = null;
-                frames = await Promise.all(data.frames.map(async frame => {
-                    const layers = await Promise.all(frame.layers.map(async layer => {
-                        if (!layer) return null; const image = new Image(); image.src = layer; await new Promise(resolve => image.onload = resolve); return normalizeLayerBitmap(image);
-                    }));
-                    while (layers.length < layersMeta.length) layers.push(null);
-                    while (layers.length > layersMeta.length) layers.pop();
-                    const loadedFrame = { layers, duration: frame.duration || 1, camera3D: frame.camera3D ? { ...frame.camera3D } : { ...DEFAULT_CAMERA }, camera3DKeyframe: frame.camera3DKeyframe != null ? frame.camera3DKeyframe : true, camera3DInterpolation: frame.camera3DInterpolation !== false };
-                    if (Object.prototype.hasOwnProperty.call(frame, 'background3DSource')) loadedFrame.background3DSource = frame.background3DSource;
-                    return loadedFrame;
-                }));
+                for(let index=0;index<data.frames.length;index++){
+                    const frame=data.frames[index];
+                    const layers=[];
+                    const loadedFrame={layers,duration:frame.duration || 1,camera3D:frame.camera3D ? {...frame.camera3D} : {...DEFAULT_CAMERA},camera3DKeyframe:frame.camera3DKeyframe!=null ? frame.camera3DKeyframe : true,camera3DInterpolation:frame.camera3DInterpolation!==false};
+                    if(Object.prototype.hasOwnProperty.call(frame,'background3DSource'))loadedFrame.background3DSource=frame.background3DSource;
+                    loadedFrames.push(loadedFrame);
+                    // Não decodifica todos os frames/camadas simultaneamente.
+                    for(let layerIndex=0;layerIndex<layersMeta.length;layerIndex++){
+                        const encoded=frame.layers[layerIndex];
+                        layers.push(encoded ? await decodeProjectLayer(encoded) : null);
+                        frame.layers[layerIndex]=null;
+                    }
+                    frame.layers.length=0;data.frames[index]=null;
+                    progress.style.width=Math.round((index+1)/data.frames.length*100)+'%';
+                    text.textContent=`Carregando frame ${index+1} de ${data.frames.length}...`;
+                    await new Promise(resolve=>setTimeout(resolve,0));
+                }
+                frames=loadedFrames;
+                data.frames=null;
                 if (activeLayerIndex >= layersMeta.length) activeLayerIndex = layersMeta.length - 1;
                 syncLayerCanvases();
                 backgroundTextureCache.forEach(texture => { try { texture.dispose(); } catch (_) {} });
@@ -7408,8 +7456,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                     if (frames[0] && !Object.prototype.hasOwnProperty.call(frames[0], 'background3DSource')) frames[0].background3DSource = 'legacy_background';
                 }
                 activeBackgroundSourceId = undefined; requestedBackgroundSourceId = undefined;
-                await preloadBackgroundTextures();
-                ensureBackgroundSourceForFrame(0);
+                // Carrega somente o fundo inicial; os demais são abertos quando usados.
+                await activateBackgroundSource(getBackgroundSourceIdAtFrame(0),0);
                 audioClips.forEach(clip => clip.audio.pause()); audioClips = []; selectedAudioClipId = null;
                 if (Array.isArray(data.audioClips)) {
                     for (const savedClip of data.audioClips) await addTimelineAudio(savedClip.dataURL, savedClip.name || 'Áudio', savedClip);
@@ -7420,8 +7468,19 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 await restoreProjectBrushes(data.brushes, data.selectedBrushId);
                 undoStack = []; redoStack = []; isHistoryAction = true; await loadFrame(0); isHistoryAction = false; renderTimeline(true);
                 showNotification('Projeto 3D carregado');
-            } catch (error) { console.error(error); showNotification('Arquivo de projeto inválido'); }
-            event.target.value = '';
+            } catch (error) {
+                console.error(error);
+                if(replacing){
+                    const failedBitmaps=new Set(loadedFrames.flatMap(frame=>frame.layers).filter(Boolean));
+                    failedBitmaps.forEach(bitmap=>{try{bitmap.close?.();}catch(_){}});
+                    frames=[{layers:makeEmptyLayersArray(),duration:1}];currentFrameIndex=0;hasUnsavedChanges=false;
+                    isHistoryAction=true;
+                    try{await loadFrame(0);}finally{isHistoryAction=false;}
+                }
+                alert('Não foi possível abrir o projeto. '+(error.message || 'Memória insuficiente para carregar as imagens.'));
+            } finally {
+                isHistoryAction=false;isProjectLoading=false;overlay.style.display='none';cancel.style.display=cancelDisplay;event.target.value='';
+            }
         };
 
         document.addEventListener('keydown', (event) => {
