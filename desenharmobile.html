@@ -2560,7 +2560,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             // width/height vêm da geometria de contato reportada pelo touchscreen (em CSS px).
             const w = e.width || 0;
             const h = e.height || 0;
-            return Math.max(w, h) > PALM_REJECTION_SIZE;
+            // O laço e os pins precisam aceitar a área de contato normal de um dedo.
+            const limit = currentTool === 'puppet' ? Math.max(50, PALM_REJECTION_SIZE) : PALM_REJECTION_SIZE;
+            return Math.max(w, h) > limit;
         }
         let lastX = 0, lastY = 0;
         let lastMidX = 0, lastMidY = 0;
@@ -3937,38 +3939,54 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const puppetControls = document.createElement('div');
         puppetControls.id = 'puppetControls'; puppetControls.hidden = true;
         puppetControls.style.cssText = 'position:static;width:100%;box-sizing:border-box;background:#202127;color:white;border:1px solid #555;border-radius:10px;padding:10px;margin-bottom:9px;font:12px sans-serif;';
-        puppetControls.innerHTML = '<div style="margin-bottom:8px" id="puppetHint">Toque para criar pins. Arraste um pin para deformar.</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="puppetCreateMode" aria-pressed="true">Criar pins</button><button type="button" id="puppetDragMode" aria-pressed="false">Arrastar pins</button><button type="button" id="puppetRemove">Apagar pin: OFF</button><button type="button" id="puppetReset">Restaurar pose</button><button type="button" id="puppetClear">Limpar pins</button><button type="button" id="puppetApply">Aplicar ✓</button></div>';
+        puppetControls.innerHTML = '<div style="margin-bottom:8px" id="puppetHint">Toque para criar pins. Arraste um pin para deformar.</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="puppetCreateMode" aria-pressed="true">Criar pins</button><button type="button" id="puppetDragMode" aria-pressed="false">Arrastar pins</button><button type="button" id="puppetMaskMode" aria-pressed="false">Máscara: laço livre</button><button type="button" id="puppetMaskClear">Remover máscara</button><button type="button" id="puppetRemove">Apagar pin: OFF</button><button type="button" id="puppetReset">Restaurar pose</button><button type="button" id="puppetClear">Limpar pins</button><button type="button" id="puppetApply">Aplicar ✓</button></div>';
         mobileEditPanel.insertBefore(puppetControls,mobileEditGrid);
         puppetControls.querySelectorAll('button').forEach(b => b.style.cssText = 'background:#383a45;color:white;border:1px solid #777;border-radius:7px;min-height:36px;padding:6px 9px;');
         function syncPuppetMode() {
-            for(const [id,mode] of [['puppetCreateMode','create'],['puppetDragMode','drag']]){
+            for(const [id,mode] of [['puppetCreateMode','create'],['puppetDragMode','drag'],['puppetMaskMode','mask']]){
                 const button=document.getElementById(id),active=puppetMode===mode;
                 button.setAttribute('aria-pressed',String(active));
                 button.style.background=active?'#155b80':'#383a45';
                 button.style.borderColor=active?'#65caff':'#777';
             }
+            if(puppetMode==='mask'){document.getElementById('puppetHint').textContent='Laço livre: contorne com o dedo a parte que poderá mover. Solte para fechar.';return;}
             document.getElementById('puppetHint').textContent=puppetMode==='create'
                 ?'Criar pins: toque no desenho para adicionar. Para mover, escolha Arrastar pins.'
                 :'Arrastar pins: arraste um ponto existente. Toques fora dos pins não criam pontos.';
         }
         function setPuppetMode(mode) {
             if(isDrawing)return;
-            puppetMode=mode;puppetDelete=false;
+            // A ferramenta Pan intercepta pointerdown antes do canvas.
+            isViewportPanning=false;
+            viewportPanBtn.classList.remove('active');viewportPanBtn.setAttribute('aria-pressed','false');
+            workspace.classList.remove('viewport-panning');
+            puppetMode=mode==='create' && !puppet?.mask ? 'mask' : mode;puppetDelete=false;
             document.getElementById('puppetRemove').textContent='Apagar pin: OFF';
             syncPuppetMode();drawPuppetPins();closeMobileEditPanel();
         }
         document.getElementById('puppetCreateMode').onclick=()=>setPuppetMode('create');
         document.getElementById('puppetDragMode').onclick=()=>setPuppetMode('drag');
+        document.getElementById('puppetMaskMode').onclick=()=>setPuppetMode('mask');
+        document.getElementById('puppetMaskClear').onclick=()=>{
+            if(!puppet || isDrawing || isSaving)return;
+            rebasePuppet();
+            const sourceCtx=puppet.source.getContext('2d');
+            sourceCtx.clearRect(0,0,puppet.source.width,puppet.source.height);
+            sourceCtx.drawImage(mainCanvas,0,0);
+            puppet.sourceData=null;puppet.background=null;puppet.foreground=null;puppet.mask=null;puppet.maskOutline=null;puppet.pins=[];
+            setPuppetMode('create');
+        };
         syncPuppetMode();
         document.getElementById('puppetBtn').onclick = async () => {
             if (isDrawing || isSaving || isPlaying || isExporting || isProjectSaving) return;
             if (currentTool === 'puppet') { endPuppet(); currentTool = 'brush'; updateToolUI(); return; }
             await finishSelection();
             if (hasUnsavedChanges) await saveFrameState(currentFrameIndex);
-            currentTool = 'puppet'; puppetDelete = false;
+            currentTool = 'puppet'; puppetMode = 'mask'; puppetDelete = false;
+            isViewportPanning=false;viewportPanBtn.classList.remove('active');viewportPanBtn.setAttribute('aria-pressed','false');workspace.classList.remove('viewport-panning');
             document.getElementById('puppetRemove').textContent = 'Apagar pin: OFF';
             syncPuppetMode();closeMobileEditPanel(); updateToolUI();
-            showNotification(puppetMode==='create'?'Criar pins: toque para adicionar. Mude para Arrastar pins no menu Editar.':'Arrastar pins: arraste os pontos existentes.');
+            showNotification('Primeiro contorne a máscara. Ao fechar o laço, toque para criar os pins.');
         };
         document.getElementById('puppetRemove').onclick = () => {
             puppetDelete = !puppetDelete;
@@ -3981,6 +3999,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             if (!puppet || isDrawing || isSaving) return;
             puppet.source.getContext('2d').clearRect(0,0,puppet.source.width,puppet.source.height);
             puppet.source.getContext('2d').drawImage(puppet.original,0,0);puppet.sourceData=null;
+            puppet.background=null;puppet.foreground=null;puppet.mask=null;puppet.maskOutline=null;puppet.maskPath=null;
             puppet.pins=[]; puppet.bounds=getOpaqueBounds(puppet.source,0)||puppet.bounds;
             renderPuppet(); hasUnsavedChanges=true; saveFrameState(currentFrameIndex); closeMobileEditPanel();
         };
@@ -3989,8 +4008,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }
         function endPuppet() {
             if (puppetRAF) { cancelAnimationFrame(puppetRAF); puppetRAF=0; if(puppet) renderPuppet(); }
-            if (puppet && puppet.drag !== null) { isDrawing=false; activePointerId=null; }
+            if (puppet && (puppet.drag !== null || puppet.maskPath)) { isDrawing=false; activePointerId=null; }
             puppet=null;
+            if(puppetMode==='mask')puppetMode='create';
             if (currentTool === 'puppet') uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
         }
         function initPuppet() {
@@ -4007,6 +4027,13 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
             syncPuppetMode();
             if (!puppet) return;
+            const outline=puppet.maskPath || puppet.maskOutline?.map(p=>puppetMap(p.x,p.y,puppet.pins));
+            if(outline?.length){
+                uiCtx.save();uiCtx.beginPath();
+                outline.forEach((p,i)=>i?uiCtx.lineTo(p.x,p.y):uiCtx.moveTo(p.x,p.y));
+                uiCtx.closePath();uiCtx.fillStyle='rgba(30,170,255,.22)';uiCtx.fill();
+                uiCtx.strokeStyle='#19bfff';uiCtx.lineWidth=puppetRadius()*.15;uiCtx.stroke();uiCtx.restore();
+            }
             const r=puppetRadius()*.5;
             uiCtx.save(); uiCtx.font=`bold ${r*1.1}px sans-serif`;uiCtx.textAlign='center';uiCtx.textBaseline='middle';
             puppet.pins.forEach((p,i)=>{
@@ -4015,20 +4042,45 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 uiCtx.lineWidth=r*.15;uiCtx.strokeStyle='rgba(90,65,0,.60)';uiCtx.stroke();
                 uiCtx.fillStyle='rgba(70,45,0,.65)';uiCtx.fillText(String(i+1),p.x,p.y);
             });uiCtx.restore();
-            document.getElementById('puppetHint').textContent=`${puppet.pins.length} pins • ${puppetDelete?'Apagar: toque no pin.':puppetMode==='create'?'Criar: toque para adicionar.':'Arrastar: mova um pin existente.'}`;
+            if(puppetMode==='mask')return;
+            document.getElementById('puppetHint').textContent=`${puppet.mask?'Máscara ativa • ':''}${puppet.pins.length} pins • ${puppetDelete?'Apagar: toque no pin.':puppetMode==='create'?'Criar: toque para adicionar.':'Arrastar: mova um pin existente.'}`;
         }
         // Rebind the current pose before changing the set of constraints.
         function rebasePuppet() {
             if(puppetRAF) {cancelAnimationFrame(puppetRAF);puppetRAF=0;renderPuppet();}
             puppet.source.getContext('2d').clearRect(0,0,puppet.source.width,puppet.source.height);
-            puppet.source.getContext('2d').drawImage(mainCanvas,0,0);puppet.sourceData=null;
+            puppet.source.getContext('2d').drawImage(puppet.background ? puppet.foreground : mainCanvas,0,0);puppet.sourceData=null;
             puppet.bounds=getOpaqueBounds(puppet.source,0)||puppet.bounds;
+            if(puppet.maskOutline)puppet.maskOutline=puppet.maskOutline.map(p=>puppetMap(p.x,p.y,puppet.pins));
             puppet.pins.forEach(p=>{p.ox=p.x;p.oy=p.y;});
+        }
+        function applyPuppetMask(path) {
+            if(path.length<3)return false;
+            let area=0;
+            path.forEach((p,i)=>{const q=path[(i+1)%path.length];area+=p.x*q.y-q.x*p.y;});
+            if(Math.abs(area)<8)return false;
+            // Partition the current layer so the unselected pixels never enter the deformation.
+            const mask=document.createElement('canvas');mask.width=mainCanvas.width;mask.height=mainCanvas.height;
+            const mc=mask.getContext('2d');mc.beginPath();
+            path.forEach((p,i)=>i?mc.lineTo(p.x,p.y):mc.moveTo(p.x,p.y));mc.closePath();mc.fill();
+            const data=mc.getImageData(0,0,mask.width,mask.height);
+            for(let i=3;i<data.data.length;i+=4)data.data[i]=data.data[i]>=128?255:0;
+            mc.putImageData(data,0,0);
+            const background=document.createElement('canvas');background.width=mask.width;background.height=mask.height;
+            const bc=background.getContext('2d');bc.drawImage(mainCanvas,0,0);
+            bc.globalCompositeOperation='destination-out';bc.drawImage(mask,0,0);bc.globalCompositeOperation='source-over';
+            const sc=puppet.source.getContext('2d');sc.clearRect(0,0,mask.width,mask.height);sc.drawImage(mainCanvas,0,0);
+            sc.globalCompositeOperation='destination-in';sc.drawImage(mask,0,0);sc.globalCompositeOperation='source-over';
+            puppet.maskOutline=path.map(p=>({x:p.x,y:p.y}));
+            puppet.mask=mask;puppet.background=background;puppet.sourceData=null;puppet.pins=[];
+            renderPuppet();return true;
         }
         function startPuppet(pos) {
             if (isSaving) {isDrawing=false;activePointerId=null;return;}
             if (puppet && (puppet.frame!==frames[currentFrameIndex] || puppet.layer!==activeLayerIndex)) endPuppet();
             if (!puppet && !initPuppet()) {isDrawing=false;activePointerId=null;return;}
+            if(puppetMode==='create' && !puppet.mask)puppetMode='mask';
+            if(puppetMode==='mask'){puppet.maskPath=[pos];drawPuppetPins();return;}
             const radius=puppetRadius();let hit=-1, best=radius;
             puppet.pins.forEach((p,i)=>{const d=Math.hypot(p.x-pos.x,p.y-pos.y);if(d<best){best=d;hit=i;}});
             if(puppetDelete) {
@@ -4036,7 +4088,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 isDrawing=false;activePointerId=null;drawPuppetPins();return;
             }
             if(puppetMode==='create'){
-                if(hit<0){rebasePuppet();puppet.pins.push({ox:pos.x,oy:pos.y,x:pos.x,y:pos.y});}
+                if(hit<0){
+                    rebasePuppet();puppet.pins.push({ox:pos.x,oy:pos.y,x:pos.x,y:pos.y});}
                 isDrawing=false;activePointerId=null;drawPuppetPins();return;
             }
             if(hit<0){isDrawing=false;activePointerId=null;return;}
@@ -4044,6 +4097,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             puppet.offset={x:pos.x-puppet.before.x,y:pos.y-puppet.before.y};puppet.changed=false;drawPuppetPins();
         }
         function movePuppet(pos) {
+            if(puppet?.maskPath){
+                const last=puppet.maskPath[puppet.maskPath.length-1];
+                if(Math.hypot(pos.x-last.x,pos.y-last.y)>1){puppet.maskPath.push(pos);drawPuppetPins();}
+                return;
+            }
             if (!puppet || puppet.drag===null) return;
             const p=puppet.pins[puppet.drag];
             // Follow the actual pointer without the former mesh-validity brake.
@@ -4053,6 +4111,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             if(!puppetRAF)puppetRAF=requestAnimationFrame(()=>{puppetRAF=0;renderPuppet(true);});
         }
         function stopPuppet(event) {
+            if(puppet?.maskPath){
+                const path=puppet.maskPath;puppet.maskPath=null;
+                if(event?.type!=='pointercancel'){
+                    if(event)path.push(getMousePos(event));
+                    if(applyPuppetMask(path))puppetMode='create';
+                }
+                isDrawing=false;activePointerId=null;drawPuppetPins();return;
+            }
             if(puppet && puppet.drag!==null){
                 if(event?.type==='pointercancel')Object.assign(puppet.pins[puppet.drag],puppet.before);
                 else if(event)movePuppet(getMousePos(event));
@@ -4143,7 +4209,13 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 }
                 target.putImageData(output,0,0);
             }
+            if(puppet.background){
+                if(!puppet.foreground)puppet.foreground=document.createElement('canvas');
+                puppet.foreground.width=mainCanvas.width;puppet.foreground.height=mainCanvas.height;
+                puppet.foreground.getContext('2d').drawImage(puppet.preview,0,0,mainCanvas.width,mainCanvas.height);
+            }
             ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='copy';
+            if(puppet.background){ctx.drawImage(puppet.background,0,0);ctx.globalCompositeOperation='source-over';}
             ctx.drawImage(puppet.preview,0,0,mainCanvas.width,mainCanvas.height);ctx.restore();drawPuppetPins();
         }
 
