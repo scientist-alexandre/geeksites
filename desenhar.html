@@ -5268,7 +5268,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         async function reverseSelectedFrames() {
             if (isPlaying) return;
             if (selectedFrames.size < 2) { showNotification('Selecione pelo menos 2 frames'); return; }
-            finishSelection(); await saveFrameState(currentFrameIndex);
+            await finishSelection(); await saveFrameState(currentFrameIndex);
+            if (hasUnsavedChanges) return;
             const positions = Array.from(selectedFrames).filter(index => index >= 0 && index < frames.length).sort((a, b) => a - b);
             if (positions.length < 2) { showNotification('Selecione pelo menos 2 frames'); return; }
             const activeFrame = frames[currentFrameIndex];
@@ -6318,6 +6319,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 fragment.appendChild(thumb);
             });
             timeline.appendChild(fragment);
+            // Recria as miniaturas com o conteúdo da nova ordem da timeline.
+            frames.forEach((_, index) => updateSingleThumbnail(index));
 
             backgroundTimeline.innerHTML = '';
             const backgroundFragment = document.createDocumentFragment();
