@@ -2207,27 +2207,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         let isMultiSelectMode = false;
         let selectedFrames = new Set();
 
-        function showNotification(msg) {
-            const notification = document.createElement('div');
-            notification.textContent = msg;
-            notification.style.position = 'fixed';
-            notification.style.bottom = '100px';
-            notification.style.left = '50%';
-            notification.style.transform = 'translateX(-50%)';
-            notification.style.background = 'rgba(0,0,0,0.85)';
-            notification.style.color = '#fff';
-            notification.style.padding = '10px 20px';
-            notification.style.borderRadius = '30px';
-            notification.style.zIndex = '3000';
-            notification.style.pointerEvents = 'none';
-            notification.style.fontSize = '14px';
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                notification.style.transition = 'opacity 0.5s';
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 500);
-            }, 2500);
-        }
+        // Informational notices stay silent so they never cover the drawing.
+        function showNotification(_msg) {}
 
         const menuBtn = document.getElementById('menuBtn');
         const menuDropdown = document.getElementById('menuDropdown');
@@ -3780,13 +3761,33 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
         // Puppet: moving least squares, rigid local rotations over a texture mesh.
         // The immutable source avoids repeatedly resampling pixels on each drag.
-        let puppet = null, puppetRAF = 0, puppetDelete = false;
+        let puppet = null, puppetRAF = 0, puppetDelete = false, puppetMode = 'create';
         const puppetControls = document.createElement('div');
         puppetControls.id = 'puppetControls'; puppetControls.hidden = true;
         puppetControls.style.cssText = 'position:static;flex:0 0 auto;width:100%;box-sizing:border-box;background:#202127;color:white;border-bottom:1px solid #555;padding:7px 12px;font:12px sans-serif;';
-        puppetControls.innerHTML = '<div style="margin-bottom:8px" id="puppetHint">Clique para criar pins. Arraste um pin para deformar.</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="puppetRemove">Apagar pin: OFF</button><button type="button" id="puppetReset">Restaurar pose</button><button type="button" id="puppetClear">Limpar pins</button><button type="button" id="puppetApply">Aplicar ✓</button></div>';
+        puppetControls.innerHTML = '<div style="margin-bottom:8px" id="puppetHint">Clique para criar pins. Arraste um pin para deformar.</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="puppetCreateMode" aria-pressed="true">Criar pins</button><button type="button" id="puppetDragMode" aria-pressed="false">Arrastar pins</button><button type="button" id="puppetRemove">Apagar pin: OFF</button><button type="button" id="puppetReset">Restaurar pose</button><button type="button" id="puppetClear">Limpar pins</button><button type="button" id="puppetApply">Aplicar ✓</button></div>';
         workspace.parentNode.insertBefore(puppetControls,workspace);
         puppetControls.querySelectorAll('button').forEach(b => b.style.cssText = 'background:#383a45;color:white;border:1px solid #777;border-radius:7px;min-height:36px;padding:6px 9px;');
+        function syncPuppetMode() {
+            for(const [id,mode] of [['puppetCreateMode','create'],['puppetDragMode','drag']]){
+                const button=document.getElementById(id),active=puppetMode===mode;
+                button.setAttribute('aria-pressed',String(active));
+                button.style.background=active?'#155b80':'#383a45';
+                button.style.borderColor=active?'#65caff':'#777';
+            }
+            document.getElementById('puppetHint').textContent=puppetMode==='create'
+                ?'Criar pins: clique no desenho para adicionar. Para mover, escolha Arrastar pins.'
+                :'Arrastar pins: arraste um ponto existente. Cliques fora dos pins não criam pontos.';
+        }
+        function setPuppetMode(mode) {
+            if(isDrawing)return;
+            puppetMode=mode;puppetDelete=false;
+            document.getElementById('puppetRemove').textContent='Apagar pin: OFF';
+            syncPuppetMode();drawPuppetPins();
+        }
+        document.getElementById('puppetCreateMode').onclick=()=>setPuppetMode('create');
+        document.getElementById('puppetDragMode').onclick=()=>setPuppetMode('drag');
+        syncPuppetMode();
         document.getElementById('puppetBtn').onclick = async () => {
             if (isDrawing || isSaving || isPlaying || isExporting) return;
             if (currentTool === 'puppet') { endPuppet(); currentTool = 'brush'; updateToolUI(); return; }
@@ -3794,8 +3795,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             if (hasUnsavedChanges) await saveFrameState(currentFrameIndex);
             currentTool = 'puppet'; puppetDelete = false;
             document.getElementById('puppetRemove').textContent = 'Apagar pin: OFF';
-             updateToolUI();
-            showNotification('Pins: clique para adicionar • arraste para mover • outros pins seguram o desenho');
+            syncPuppetMode(); updateToolUI();
+            showNotification(puppetMode==='create'?'Criar pins: clique para adicionar. Mude para Arrastar pins nas opções acima do desenho.':'Arrastar pins: arraste os pontos existentes.');
         };
         document.getElementById('puppetRemove').onclick = () => {
             puppetDelete = !puppetDelete;
@@ -3832,6 +3833,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }
         function drawPuppetPins() {
             uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
+            syncPuppetMode();
             if (!puppet) return;
             const r=puppetRadius()*.5;
             uiCtx.save(); uiCtx.font=`bold ${r*1.1}px sans-serif`;uiCtx.textAlign='center';uiCtx.textBaseline='middle';
@@ -3841,7 +3843,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 uiCtx.lineWidth=r*.15;uiCtx.strokeStyle='rgba(90,65,0,.60)';uiCtx.stroke();
                 uiCtx.fillStyle='rgba(70,45,0,.65)';uiCtx.fillText(String(i+1),p.x,p.y);
             });uiCtx.restore();
-            document.getElementById('puppetHint').textContent=`${puppet.pins.length} pins • Clique para adicionar. Arraste para mover.`;
+            document.getElementById('puppetHint').textContent=`${puppet.pins.length} pins • ${puppetDelete?'Apagar: clique no pin.':puppetMode==='create'?'Criar: clique para adicionar.':'Arrastar: mova um pin existente.'}`;
         }
         // Rebind the current pose before changing the set of constraints.
         function rebasePuppet() {
@@ -3861,22 +3863,20 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 if(hit>=0){rebasePuppet();puppet.pins.splice(hit,1);}
                 isDrawing=false;activePointerId=null;drawPuppetPins();return;
             }
-            if(hit<0){rebasePuppet();puppet.pins.push({ox:pos.x,oy:pos.y,x:pos.x,y:pos.y});hit=puppet.pins.length-1;}
+            if(puppetMode==='create'){
+                if(hit<0){rebasePuppet();puppet.pins.push({ox:pos.x,oy:pos.y,x:pos.x,y:pos.y});}
+                isDrawing=false;activePointerId=null;drawPuppetPins();return;
+            }
+            if(hit<0){isDrawing=false;activePointerId=null;return;}
             puppet.drag=hit;puppet.before={x:puppet.pins[hit].x,y:puppet.pins[hit].y};
             puppet.offset={x:pos.x-puppet.before.x,y:pos.y-puppet.before.y};puppet.changed=false;drawPuppetPins();
         }
         function movePuppet(pos) {
             if (!puppet || puppet.drag===null) return;
-            const p=puppet.pins[puppet.drag],before={x:p.x,y:p.y};
-            const tx=Math.max(0,Math.min(mainCanvas.width,pos.x-puppet.offset.x)),ty=Math.max(0,Math.min(mainCanvas.height,pos.y-puppet.offset.y));
-            // Keep the mesh inside the page and prevent folded/collapsed faces.
-            let factor=1;
-            for(let attempt=0;attempt<12;attempt++){
-                p.x=before.x+(tx-before.x)*factor;p.y=before.y+(ty-before.y)*factor;
-                if(puppetMeshIsValid(buildPuppetGrid()))break;
-                factor*=.5;
-                if(attempt===11){p.x=before.x;p.y=before.y;}
-            }
+            const p=puppet.pins[puppet.drag];
+            // Follow the actual pointer without the former mesh-validity brake.
+            // Keep all other pins exactly where the user placed them.
+            p.x=pos.x-puppet.offset.x;p.y=pos.y-puppet.offset.y;
             puppet.changed=Math.hypot(p.x-puppet.before.x,p.y-puppet.before.y)>.01;
             if(!puppetRAF)puppetRAF=requestAnimationFrame(()=>{puppetRAF=0;renderPuppet(true);});
         }
@@ -3917,8 +3917,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 const dx=x+.5-ax,dy=y+.5-ay;
                 const u=(dx*(cy-ay)-dy*(cx-ax))/det,v=((bx-ax)*dy-(by-ay)*dx)/det;
                 if(u < -1e-7 || v < -1e-7 || u+v > 1.0000001)continue;
-                const sx=Math.max(0,Math.min(sw-1,p0.ox+u*(p1.ox-p0.ox)+v*(p2.ox-p0.ox)-.5));
-                const sy=Math.max(0,Math.min(sh-1,p0.oy+u*(p1.oy-p0.oy)+v*(p2.oy-p0.oy)-.5));
+                const sourceX=p0.ox+u*(p1.ox-p0.ox)+v*(p2.ox-p0.ox),sourceY=p0.oy+u*(p1.oy-p0.oy)+v*(p2.oy-p0.oy);
+                if(sourceX<0||sourceX>=sw||sourceY<0||sourceY>=sh)continue;
+                const sx=Math.max(0,Math.min(sw-1,sourceX-.5)),sy=Math.max(0,Math.min(sh-1,sourceY-.5));
                 const ix=Math.floor(sx),iy=Math.floor(sy),fx=sx-ix,fy=sy-iy;
                 const i00=(iy*sw+ix)*4,i10=(iy*sw+Math.min(sw-1,ix+1))*4;
                 const i01=(Math.min(sh-1,iy+1)*sw+ix)*4,i11=(Math.min(sh-1,iy+1)*sw+Math.min(sw-1,ix+1))*4;
@@ -3935,35 +3936,17 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             }
         }
         function buildPuppetGrid() {
-            const w=mainCanvas.width,h=mainCanvas.height,cols=32,rows=Math.max(12,Math.min(48,Math.ceil(32*h/w)));
-            // Anchor the page perimeter. With no boundary constraints, even one
-            // pin translated the entire picture beyond the canvas and cut it off.
-            const anchors=[];
-            for(let i=0;i<=4;i++){
-                anchors.push({ox:w*i/4,oy:0,x:w*i/4,y:0},{ox:w*i/4,oy:h,x:w*i/4,y:h});
-                if(i>0&&i<4)anchors.push({ox:0,oy:h*i/4,x:0,y:h*i/4},{ox:w,oy:h*i/4,x:w,y:h*i/4});
-            }
-            const pins=puppet.pins.concat(anchors),grid=[];
-            // Cover the FULL source, including faint strokes and page edges.
-            for(let j=0;j<=rows;j++){
-                const row=[];
-                for(let i=0;i<=cols;i++){
-                    const x=w*i/cols,y=h*j/rows;
-                    const p=(i===0||j===0||i===cols||j===rows)?{x,y,ox:x,oy:y}:puppetMap(x,y,pins);
-                    row.push(p);
-                }
-                grid.push(row);
-            }
-            return grid;
-        }
-        function puppetMeshIsValid(grid) {
-            for(let j=0;j<grid.length-1;j++)for(let i=0;i<grid[0].length-1;i++){
-                const a=grid[j][i],b=grid[j][i+1],c=grid[j+1][i],d=grid[j+1][i+1];
-                const minimum=(b.ox-a.ox)*(c.oy-a.oy)*.03;
-                if((b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x)<minimum ||
-                   (d.x-b.x)*(c.y-b.y)-(d.y-b.y)*(c.x-b.x)<minimum)return false;
-            }
-            return true;
+            const w=mainCanvas.width,h=mainCanvas.height,cols=40,rows=Math.max(16,Math.min(64,Math.ceil(40*h/w)));
+            const xs=[],ys=[];
+            for(let i=0;i<=cols;i++)xs.push(w*i/cols);
+            for(let j=0;j<=rows;j++)ys.push(h*j/rows);
+            // Add exact control-point coordinates so every visible pin samples
+            // its original pixel, even between regular mesh vertices.
+            for(const p of puppet.pins){if(p.x>0&&p.x<w)xs.push(p.x);if(p.y>0&&p.y<h)ys.push(p.y);}
+            const unique=values=>values.sort((a,b)=>a-b).filter((v,i,array)=>i===0||v-array[i-1]>.00001);
+            const xx=unique(xs),yy=unique(ys);
+            const inverse=puppet.pins.map(p=>({ox:p.x,oy:p.y,x:p.ox,y:p.oy}));
+            return yy.map(y=>xx.map(x=>{const source=puppetMap(x,y,inverse);return {x,y,ox:source.x,oy:source.y};}));
         }
         function renderPuppet(fastPreview = false) {
             if(!puppet)return;
