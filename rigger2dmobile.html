@@ -3185,6 +3185,41 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         updateLayersUI();
       }
 
+      function toggleFolderMode(folderUid) {
+        const folder = layers.find(l => l.uid === folderUid && l.isFolder);
+        if (!folder) return;
+        if (isPlaying) togglePlay();
+        syncActiveLayer();
+        const common = folder.folderMode !== "common";
+        const children = layers.filter(l => l.parentId === folder.uid && !l.isFolder);
+        const chosen = children.find(l => l.uid === folder.switchChildUid) ||
+          children.find(l => l.visible !== false) || children[0];
+        folder.folderMode = common ? "common" : "switch";
+        // O tipo pertence à pasta inteira. Converte também a visibilidade
+        // gravada, para a troca continuar funcionando ao percorrer a timeline.
+        keyframes.forEach(kf => {
+          const members = children.filter(l => {
+            const state = kf.layerStates?.[layers.indexOf(l)];
+            return state && (state.parentId === undefined ? l.parentId : state.parentId) === folder.uid;
+          });
+          const visible = members.filter(l => kf.layerStates[layers.indexOf(l)].visible !== false);
+          const pick = visible.find(l => l === chosen) || visible[0] ||
+            members.find(l => l === chosen) || members[0];
+          members.forEach(l => { kf.layerStates[layers.indexOf(l)].visible = common || l === pick; });
+        });
+        children.forEach(l => { l.visible = common || l === chosen; });
+        folder.switchChildUid = chosen?.uid || null;
+        layerLibrarySelectionUid = folder.uid;
+        selectedFolderUid = folder.uid;
+        refreshActiveLayerForFrame();
+        // A atualização da camada ativa pode apontar para uma subpasta.
+        selectedFolderUid = folder.uid;
+        updateLayersUI();
+        updateFolderSwitcher();
+        draw();
+        showNotice(common ? "Pasta comum: camadas exibidas juntas." : "Pasta switch: uma camada por vez.");
+      }
+
       function addAssetToLayer(layerIdx) {
         const input = document.getElementById("asset-upload");
         input.onchange = (e) => {
@@ -3673,6 +3708,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           }
 
           if (l.isFolder) {
+            const modeButton = document.createElement("button");
+            modeButton.type = "button";
+            modeButton.className = "btn-import-small";
+            modeButton.textContent = l.folderMode === "common" ? "Comum" : "Switch";
+            modeButton.title = l.folderMode === "common" ? "Trocar para pasta Switch" : "Trocar para pasta Comum";
+            modeButton.setAttribute("aria-label", modeButton.title);
+            modeButton.onclick = e => { e.stopPropagation(); toggleFolderMode(l.uid); };
+            controls.appendChild(modeButton);
             folderRenameInput = document.createElement("input");
             folderRenameInput.type = "text";
             folderRenameInput.value = l.name;
@@ -9959,11 +10002,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   <strong id="drawing-title">Desenhar</strong><input id="drawing-name" aria-label="Nome do desenho ou switch" value="Desenho">
   
   <div class="drawing-layer-controls" aria-label="Camadas do desenho"><button id="drawing-line" class="active" aria-pressed="true">🖊 Traço</button><button id="drawing-paint" aria-pressed="false">🎨 Pintura</button></div><button id="drawing-select" title="Contorne uma área para selecionar, mover e redimensionar">◌ Selecionar</button><button id="drawing-warp" title="Push: arraste para empurrar pixels. Tam = área; Força = intensidade" aria-pressed="false">🌀 Push</button><button id="drawing-3d" title="3D: contorne o desenho e arraste para girar" aria-pressed="false" style="font-size:12px;font-weight:800;min-width:34px">3D</button><button id="drawing-copy-direction">Copiar</button><button id="drawing-paste-direction">Colar</button><button id="drawing-flip-direction" title="Espelhar camada horizontalmente">↔ Flip H</button><button id="drawing-flip-vertical" title="Espelhar camada verticalmente">↕ Flip V</button><button id="drawing-background" title="Mostrar ou esconder o fundo branco" aria-pressed="true">Fundo</button><button id="drawing-eyedropper" title="Conta-gotas: toque no desenho para copiar a cor" aria-label="Conta-gotas" aria-pressed="false">💧</button>
-  <div id="drawing-colors"><button id="drawing-swatch" title="Paleta de cores" aria-label="Paleta de cores" aria-expanded="false"></button><div id="drawing-palette"><div id="drawing-sb"><span id="drawing-color-cursor"></span></div><input id="drawing-hue" aria-label="Matiz" type="range" min="0" max="360" value="0"><input id="drawing-native" type="color" value="#000000" tabindex="-1" aria-hidden="true"></div></div><button id="drawing-undo" title="Desfazer (Ctrl+Z)">↶</button><button id="drawing-redo" title="Refazer (Ctrl+Shift+Z)">↷</button><button id="drawing-cancel">Cancelar</button><button id="drawing-done">Confirmar ✓</button><button id="drawing-layers-menu" aria-label="Menu de camadas" aria-expanded="false" aria-controls="drawing-directions" title="Camadas">☰</button>
+  <div id="drawing-colors"><button id="drawing-swatch" title="Paleta de cores" aria-label="Paleta de cores" aria-expanded="false"></button><div id="drawing-palette"><div id="drawing-sb"><span id="drawing-color-cursor"></span></div><input id="drawing-hue" aria-label="Matiz" type="range" min="0" max="360" value="0"><input id="drawing-native" type="color" value="#000000" tabindex="-1" aria-hidden="true"></div></div><button id="drawing-undo" title="Desfazer (Ctrl+Z)">↶</button><button id="drawing-redo" title="Refazer (Ctrl+Shift+Z)">↷</button><button id="drawing-cancel">Cancelar</button><button id="drawing-done">Confirmar ✓</button><button id="drawing-layers-menu" aria-label="Menu de camadas" aria-expanded="false" aria-controls="drawing-directions" title="Camadas e nomes">☰ Camadas</button>
  </div>
 
  <div id="drawing-directions" class="drawing-directions" hidden aria-label="Camadas livres">
   <button id="drawing-add-layer">+ Nova camada</button>
+  <small style="color:#ccc;margin:6px 0">Toque no nome da camada para renomear. Confirme em Salvar edição.</small>
   <div id="drawing-layer-list"></div>
   <label id="drawing-switch-option" hidden><input id="drawing-as-switch" type="checkbox"> Salvar edição como switch</label>
   <label id="drawing-new-layer-option" hidden><input id="drawing-save-copy" type="checkbox"> Salvar edição como nova camada</label>
@@ -10858,6 +10902,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
    const retained=new Set(prepared.map(item=>item.original?.layer));
    for(const item of prepared){
     if(item.original){
+     item.original.layer.name=item.name;
      if(asSwitch){
       const layer=item.original.layer,base=item.name+' · switch',used=new Set(layer.assets.map(a=>a.name));let name=base,n=2;while(used.has(name))name=base+' '+n++;
       item.image._r2dTextureVersion=1;layer.assets.push({name,img:item.image});layer.activeAssetIndex=layer.assets.length-1;try{skinBindingCache.delete(layer);if(layer.mesh)skinBindingCache.delete(layer.mesh);}catch(_){}updateDeform(layer);invalidateShapeWarp();
@@ -10948,6 +10993,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
      selectLayer(index, true);
      activateLayerVariant(targetLayer, targetLayer.assets.length-1);
     }else{
+     targetLayer.name=DIRECTION_NAMES[0].trim()||targetLayer.name;
      targetAsset.name=name;
      applyLayerAssetImage(targetLayer, targetAsset, image);
      revealLayerInSwitchFolder(targetLayer);
@@ -10982,8 +11028,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
  el('save-copy').onchange=()=>{if(el('save-copy').checked)el('as-switch').checked=false;};
  el('as-switch').onchange=()=>{if(el('as-switch').checked)el('save-copy').checked=false;};
  window.openSelectedDrawing=()=>{
-  // Switch é por camada: se há uma camada de imagem selecionada, edita somente
-  // ela, mesmo dentro de uma pasta. A pasta inteira abre pelo 🖊 da própria pasta.
+  // Selecionar uma pasta ativa um filho para manipular o rig. A escolha
+  // explícita da linha mantém a pasta como alvo do botão Editar.
+  const selectedIndex=layers.findIndex(l=>l.uid===layerLibrarySelectionUid);
+  if(selectedIndex>=0&&layers[selectedIndex].isFolder)return openDrawingLayer(selectedIndex);
   const active=Number.isInteger(activeLayerIndex)?layers[activeLayerIndex]:null;
   if(active&&!active.isFolder)return openDrawingLayer(activeLayerIndex);
   const folderIndex=layers.findIndex(l=>l.isFolder&&l.uid===selectedFolderUid);
@@ -11019,7 +11067,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
    el('done').textContent=target?'Salvar edição':'Confirmar ✓';
    el('switch-option').hidden=!target;el('as-switch').checked=false;
    el('new-layer-option').hidden=!target;el('save-copy').checked=false;
-   el('directions').hidden=true;el('layers-menu').setAttribute('aria-expanded','false');el('use-folder').checked=false;el('use-folder').parentElement.hidden=!!folder;if(target&&!folder)DIRECTION_NAMES[0]=target.name;renderDrawingLayers();
+   el('directions').hidden=!target;el('layers-menu').setAttribute('aria-expanded',String(!!target));el('use-folder').checked=false;el('use-folder').parentElement.hidden=!!folder;if(target&&!folder)DIRECTION_NAMES[0]=target.name;renderDrawingLayers();
    setDrawingBackground(true);
    dialog.classList.add('open');closeDrawingPalette();
    busy=false;selectDirection(0);selectDrawingLayer(1);updateOnionSkin();historyUI();resize();el('brush').focus();
