@@ -299,6 +299,78 @@ button:active{background:#444}
 }
 #aiHelpPrompt{min-height:62vh;white-space:pre;overflow:auto}
 </style>
+<style>
+/* Compact desktop workspace. Screen styles keep exported sheets unchanged. */
+@media screen {
+  :root{--bg:#181c20;--panel:#23282d;--panel2:#292f35;--cell:#20252a;--line:#363c42;--text:#edf1f3;--muted:#a5afb8;--head:#282e34;--accent:#62cea1}
+  html,body{font-size:13px;color-scheme:dark}
+  button{min-height:28px;padding:3px 8px;background:#30373e;border-color:#414a53;border-radius:5px;cursor:pointer;transition:background .12s,border-color .12s}
+  button:hover{background:#3a454e;border-color:#6a7d8b}
+  button:active{background:#42534e}
+  button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .tabs{height:40px;flex-basis:40px;align-items:center;gap:3px;padding:0 10px;background:#1c2428;border-color:#3b454b;scrollbar-width:thin}
+  .app-name{height:28px;font-size:14px;letter-spacing:-.2px;padding:0 14px 0 2px;margin-right:5px;border-color:#3c484c;color:#b0f0cf}
+  .tabs button{height:40px;padding:0 12px;font-size:13px;color:#bac4cc;border-bottom-width:3px}
+  .tabs button:hover{color:#fff;background:#29343a}
+  .tabs button.active{color:#effff7;background:#293b35;border-bottom-color:var(--accent)}
+  .offline-badge{margin-left:auto;border:0;background:#273c32;color:#a0ddbb;font-size:9px;letter-spacing:.6px;padding:4px 8px}
+  .ribbon{height:108px;flex-basis:108px;padding:8px 10px 6px;gap:0;background:var(--panel);border-color:#3b444c;scrollbar-width:thin;scrollbar-color:#56616a #23282d}
+  .group{height:88px;min-width:0;padding:0 10px;gap:4px;border-color:#3b444c;justify-content:flex-start}
+  .group:first-child{padding-left:0}
+  .group:last-child{border:0}
+  .group-title{margin-top:auto;font-size:10px;line-height:15px;color:#a5b1b9;letter-spacing:.15px}
+  .ribbon button,.ribbon input,.ribbon select{font-size:12px;height:28px;min-height:28px}
+  .ribbon input,.ribbon select{background:#1c2227;border-color:#424d56;padding:0 6px}
+  .ribbon .row{gap:4px;min-height:28px}
+  #fontFamily{width:112px}#fontSize{width:48px}#numberFormat{width:108px}
+  .color{width:28px!important;cursor:pointer}
+  .ribbon[data-tab="inicio"] .group:nth-child(1)>.row{display:grid;grid-template-columns:auto auto}
+  .ribbon[data-tab="inicio"] .group:nth-child(1) [data-a="clear"]{grid-column:1 / -1}
+  .ribbon[data-tab="inicio"] .group:nth-child(4)>.row{display:grid;grid-template-columns:1fr 1fr}
+  .ribbon[data-tab="inicio"] #numberFormat{grid-column:1 / -1;width:100%}
+  .ribbon[data-tab="inicio"] .group:nth-child(5)>.row{display:grid;grid-template-columns:1fr 1fr}
+  .ribbon[data-tab="inicio"] [data-a="left"]{grid-column:1 / -1}
+  .ribbon[data-tab="inicio"] .group:nth-child(6)>.row{display:grid;grid-template-columns:repeat(3,auto)}
+  .ribbon[data-tab="inicio"] [data-a="autoFitCol"]{grid-column:1 / -1}
+  .ribbon[data-tab="inicio"] [data-a="resetAllCols"],.ribbon[data-tab="inicio"] [data-a="resetAllRows"]{grid-column:auto}
+  .ribbon[data-tab="inicio"] .group:nth-child(6)>.row{grid-template-columns:repeat(4,auto)}
+  .popup{background:#252d33;border-color:#52606b;border-radius:8px;padding:5px;box-shadow:0 12px 32px #0007}
+  .popup button{height:auto;min-height:30px;background:transparent;border:0}
+  .popup button:hover{background:#3a454e}
+  .mathbar{height:36px;flex-basis:36px;padding:4px 10px;gap:3px;background:#1d2328;border-color:#384149;scrollbar-width:thin}
+  .mathbar button{height:27px;min-height:27px;min-width:30px;padding:2px 7px;font-size:12px;font-weight:500;background:#293139;border-color:#3d4851}
+  .mathbar button[data-key="="]{color:#9ee3bf;background:#294238;margin-right:5px}
+  .mathbar button[data-key="+"]{margin-left:5px}
+  .mathbar button[data-act="commit"]{background:#315e49;border-color:#51886b;color:#e5ffef;margin-left:3px}
+  .formulabar{height:36px;flex-basis:36px;grid-template-columns:78px 36px minmax(0,1fr);background:#1c2227;border-color:#46515a}
+  .namebox,.formula{font-size:13px;background:#1c2227;padding:0 10px}
+  .namebox{font-weight:600;color:#c2ebd6;border-color:#3b454d}
+  .fx{font-family:Georgia,serif;font-size:16px;color:#8ebba6;border-color:#3b454d}
+  .formula:focus{background:#242f2b;box-shadow:inset 0 -2px var(--accent)}
+  .sheetwrap{background:var(--bg);scrollbar-width:thin;scrollbar-color:#59656d #20262b}
+  .sheet th{color:#b4bfc8}
+  .sheet td.selected{outline:2px solid var(--accent);background:#2c3c35}
+  .sheet td.range{background:#293a34}
+  .handle{width:10px;height:10px;border:2px solid #20252a;border-radius:2px;background:var(--accent);box-shadow:none;cursor:crosshair}
+  .handle:after{content:"";position:absolute;inset:-7px}
+  .bottom{height:34px;flex-basis:34px;background:#1c2429;border-color:#3c454d;color:#aebbc3;padding:0 12px 0 8px;gap:12px;font-size:11px}
+  .sheet-tabs{gap:4px;align-self:stretch;align-items:stretch}
+  .sheet-tab{height:33px;min-height:0;background:transparent;font-size:12px;border-radius:0;padding:0 16px;color:#aebbc3}
+  .sheet-tab.active{background:#2a3c34;border-bottom-color:var(--accent);color:#dcffed}
+  .sheet-add{height:28px;min-height:0;align-self:center;border-radius:4px;background:transparent;color:#91c6ad;font-size:20px}
+  #status{margin-left:auto}#zoomText{padding-left:14px;border-left:1px solid #3c454d;font-variant-numeric:tabular-nums}
+  .formula-help,.formula-help-group{height:88px}
+  .formula-help-group{padding-top:0}
+  .formula-chip{background:#1c252a;border-color:#42515a;color:#d7e8df}
+  @media(max-width:1100px){
+    .tabs button{padding-left:9px;padding-right:9px;font-size:12px}
+    .group{padding-left:7px;padding-right:7px}
+    .ribbon button{padding-left:6px;padding-right:6px;font-size:11px}
+    .app-name{padding-right:9px;font-size:13px}
+  }
+  @media(pointer:coarse){.handle{width:20px;height:20px;border-radius:50%}.mathbar{height:42px;flex-basis:42px}.mathbar button{height:32px;min-width:34px}}
+}
+</style>
 <style id="dynamicPrintStyle"></style>
 </head>
 <body>
@@ -2603,8 +2675,8 @@ sheet.select("A3");</textarea>
     const w=wrap.getBoundingClientRect();
 
     handle.style.display='block';
-    handle.style.left=(a.right-w.left+wrap.scrollLeft-15)+'px';
-    handle.style.top=(a.bottom-w.top+wrap.scrollTop-15)+'px';
+    handle.style.left=(a.right-w.left+wrap.scrollLeft-handle.offsetWidth/2)+'px';
+    handle.style.top=(a.bottom-w.top+wrap.scrollTop-handle.offsetHeight/2)+'px';
   }
 
   handle.addEventListener('pointerdown',e=>{
@@ -2668,7 +2740,7 @@ sheet.select("A3");</textarea>
     <div class="group"><div class="row"><div class="menu-wrap"><button data-menu="border">Bordas ▾</button><div class="popup" id="border"><button data-border="top">Superior</button><button data-border="bottom">Inferior</button><button data-border="left">Esquerda</button><button data-border="right">Direita</button><button data-border="outer">Externas</button><button data-border="all">Todas</button><button data-border="none">Sem borda</button></div></div></div><div class="group-title">Bordas</div></div>
     <div class="group"><div class="row"><select id="numberFormat"><option value="general">Geral</option><option value="number">Número</option><option value="thousands">Milhares</option><option value="scientific">Científico</option></select><button data-a="decDown">← ,0</button><button data-a="decUp">,00 →</button></div><div class="group-title">Número</div></div>
     <div class="group"><div class="row"><button data-a="left">Esquerda</button><button data-a="center">Centro</button><button data-a="right">Direita</button></div><div class="group-title">Alinhamento</div></div>
-    <div class="group"><div class="row"><button data-a="autoFitCol">Autoajustar coluna</button><button data-a="resetCol">Resetar coluna</button><button data-a="resetRow">Resetar linha</button><button data-a="resetAllCols">Resetar colunas</button><button data-a="resetAllRows">Resetar linhas</button></div><div class="group-title">Tamanho</div></div>`,
+    <div class="group"><div class="row"><button data-a="autoFitCol">Autoajustar coluna</button><button data-a="resetCol" title="Resetar coluna">Coluna</button><button data-a="resetRow" title="Resetar linha">Linha</button><button data-a="resetAllCols" title="Resetar colunas">Colunas</button><button data-a="resetAllRows" title="Resetar linhas">Linhas</button></div><div class="group-title">Tamanho</div></div>`,
 
     arquivo:`<div class="group"><div class="row"><button data-a="new">Novo</button><button data-a="save">Salvar</button><button data-a="open">Abrir</button><button data-a="full">Maximizar</button></div><div class="group-title">Arquivo</div></div><div class="group"><div class="row"><select id="lang"><option value="pt-BR">Português (Brasil)</option><option value="en">English</option></select></div><div class="group-title">Idioma</div></div><div class="group"><div class="row"><button data-a="print">PDF / Imprimir</button></div><div class="group-title">Exportar</div></div>`,
 
@@ -2781,6 +2853,7 @@ sheet.select("A3");</textarea>
   }
 
   function renderRibbon(){
+    ribbon.dataset.tab=state.tab;
     if(state.tab==='formulaHelp'){
       renderFormulaHelp();
       return;
