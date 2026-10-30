@@ -1347,16 +1347,20 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         /* --- BIBLIOTECA DE ASSETS DO PROJETO --- */
         .asset-library-menu { position: relative; display: flex; align-items: center; }
         .asset-library-dropdown {
-            display: none; position: absolute; top: 45px; right: 0; width: min(370px, calc(100vw - 18px));
-            max-height: 78vh; overflow-y: auto; padding: 10px; flex-direction: column; gap: 8px;
+            display: none; position: fixed; top: 54px; right: 9px; width: min(370px, calc(100vw - 18px));
+            max-height: min(78vh, calc(100dvh - 72px)); overflow: hidden;
+            touch-action: pan-y; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin; scrollbar-color: #777 #292929;
+            padding: 10px; flex-direction: column; gap: 8px;
             background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 9px;
             box-shadow: 0 10px 28px rgba(0,0,0,.55); z-index: 1003;
         }
         .asset-library-dropdown.show { display: flex; }
+        .asset-library-dropdown > * { flex-shrink: 0; }
         .asset-library-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
         .asset-library-title { color: #fff; font-size: 12px; font-weight: 800; letter-spacing: .04em; }
         .asset-library-subtitle { color: #888; font-size: 9px; }
-        .asset-folder-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 3px; scrollbar-width: thin; }
+        .asset-folder-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 3px; scrollbar-width: thin; touch-action: pan-x; }
         .asset-folder-tab { flex: 0 0 auto; padding: 6px 8px; border: 1px solid #454545; border-radius: 999px; color: #bbb; background: #303030; font-size: 10px; cursor: pointer; }
         .asset-folder-tab.active { border-color: #5daeff; color: #fff; background: #0a67b7; }
         .asset-current-folder { display: none; grid-template-columns: 1fr auto auto; gap: 6px; align-items: center; }
@@ -1375,7 +1379,15 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             color: #ddd; background: rgba(255,255,255,.08); font-size: 10px; cursor: pointer;
         }
         .asset-library-toolbar button:active, .asset-detail-actions button:active { background: rgba(255,255,255,.18); }
-        .asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; min-height: 74px; }
+        .asset-library-dropdown > .asset-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px;
+            flex: 0 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden;
+            align-content: start; touch-action: pan-y; overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #777 #292929;
+        }
+        .asset-grid::-webkit-scrollbar { width: 8px; }
+        .asset-grid::-webkit-scrollbar-track { background: #292929; }
+        .asset-grid::-webkit-scrollbar-thumb { background: #777; border-radius: 4px; }
         .asset-empty { grid-column: 1 / -1; padding: 20px 8px; border: 1px dashed #484848; border-radius: 7px; color: #777; text-align: center; font-size: 10px; }
         .asset-card { min-width: 0; padding: 5px; border: 1px solid #444; border-radius: 7px; color: #ddd; background: #303030; cursor: pointer; }
         .asset-card.active { border-color: #70b8ff; background: rgba(10,132,255,.22); box-shadow: 0 0 0 1px rgba(10,132,255,.25); }
@@ -1449,9 +1461,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             max-height: 95%; overflow-y: auto; overflow-x: hidden;
         }
         .sidebar-left::-webkit-scrollbar { display: none; }
-        .presets-container { display: flex; flex-direction: column; justify-content: space-between; height: 100px; margin-right: 6px; }
-        .preset-dot { width: 6px; height: 6px; background: #444; border-radius: 50%; cursor: pointer; transition: 0.2s; border: 1px solid #666; }
-        .preset-dot:hover { background: var(--active-blue); transform: scale(1.5); }
         .slider-container { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 12px; color: #aaa; }
         .slider-row { display: flex; align-items: center; }
         .slider-value { font-size: 10px; color: var(--active-blue); font-weight: bold; margin-bottom: -2px; }
@@ -1837,8 +1846,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 direction: rtl; -webkit-appearance: auto; appearance: auto;
                 touch-action: none; accent-color: var(--active-blue);
             }
-            .presets-container { height: 64px; }
-            .preset-dot { width: 10px; height: 10px; }
             .viewport-controls {
                 right: 4px; top: 4px; bottom: 4px; transform: none;
                 padding: 4px 5px; gap: 3px; justify-content: space-around;
@@ -2029,19 +2036,13 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         <div class="sidebar-left">
             <div class="slider-container" title="Tamanho do Pincel">
                 <div style="display: flex; align-items: center; gap: 5px; transform: translateX(6px);">
-                    <input class="brush-default-input" id="brushDefaultSize" type="number" min="1" value="3" title="Tamanho para o botão resetar">
+                    <input class="brush-default-input" id="brushDefaultSize" type="number" min="1" value="7" title="Tamanho para o botão resetar">
                     <button id="resetBrushSizeBtn" style="background: none; border: none; color: #666; cursor: pointer; font-size: 14px; padding: 0; line-height: 1; transition: 0.2s;" onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#666'" title="Voltar ao tamanho padrão">↺</button>
                 </div>
                 <div class="slider-row">
-                    <div class="presets-container">
-                        <div class="preset-dot" title="5px" onclick="setBrushSize(5)"></div>
-                        <div class="preset-dot" title="15px" onclick="setBrushSize(15)"></div>
-                        <div class="preset-dot" title="30px" onclick="setBrushSize(30)"></div>
-                        <div class="preset-dot" title="60px" onclick="setBrushSize(60)"></div>
-                    </div>
-                    <input type="range" id="brushSize" min="1" max="100" value="3">
+                    <input type="range" id="brushSize" min="1" max="100" value="7">
                 </div>
-                <span>Tam <output id="sizeValDisplay" for="brushSize">3</output></span>
+                <span>Tam <output id="sizeValDisplay" for="brushSize">7</output></span>
             </div>
 
             <button class="icon-btn active" id="brushBtn" title="Pincel">🖊️</button>
@@ -5336,31 +5337,38 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
         async function addBlankFrame() { if (isPlaying) return; finishSelection(); await saveFrameState(currentFrameIndex); frames.splice(currentFrameIndex + 1, 0, { layers: makeEmptyLayersArray(), duration: 1, camera3D: cameraCopyFromFrame(currentFrameIndex), camera3DKeyframe: false, camera3DInterpolation: true }); await loadFrame(currentFrameIndex + 1); }
 
+        let isReversingFrames = false;
+
         async function reverseSelectedFrames() {
-            if (isPlaying) return;
-            if (selectedFrames.size < 2) { showNotification('Selecione pelo menos 2 frames'); return; }
-            await finishSelection(); await saveFrameState(currentFrameIndex);
-            if (hasUnsavedChanges) return;
-            const positions = Array.from(selectedFrames).filter(index => index >= 0 && index < frames.length).sort((a, b) => a - b);
+            if (isPlaying || isReversingFrames) return;
+            const positions = Array.from(selectedFrames)
+                .filter(index => Number.isInteger(index) && index >= 0 && index < frames.length)
+                .sort((a, b) => a - b);
             if (positions.length < 2) { showNotification('Selecione pelo menos 2 frames'); return; }
-            const activeFrame = frames[currentFrameIndex];
-            const reversed = positions.map(index => frames[index]).reverse();
-            positions.forEach((position, index) => { frames[position] = reversed[index]; });
-            if (frames[0]) frames[0].camera3DKeyframe = true;
-            // O canvas já foi salvo antes da troca. Não salve novamente no índice antigo,
-            // pois isso sobrescreveria o primeiro frame depois da reversão.
-            hasUnsavedChanges = false;
-            const newActiveIndex = Math.max(0, frames.indexOf(activeFrame));
-            isHistoryAction = true; await loadFrame(newActiveIndex); isHistoryAction = false;
 
-            // A inversão não desmarca a seleção.
-            selectedFrames = new Set(positions);
-            if (isMultiSelectMode) {
-                document.getElementById('multiSelectBtn').classList.add('active');
+            isReversingFrames = true;
+            const button = document.getElementById('reverseSelectedFramesBtn');
+            button.disabled = true;
+            try {
+                await finishSelection();
+                await saveFrameState(currentFrameIndex);
+                if (hasUnsavedChanges) return;
+
+                // Mantém o cursor na mesma posição da timeline. O canvas deve
+                // mostrar o novo conteúdo dessa posição depois da inversão.
+                const displayIndex = currentFrameIndex;
+                const reversed = positions.map(index => frames[index]).reverse();
+                positions.forEach((position, index) => { frames[position] = reversed[index]; });
+                if (frames[0]) frames[0].camera3DKeyframe = true;
+                selectedFrames = new Set(positions);
+                hasUnsavedChanges = false;
+                await loadFrame(displayIndex);
+                renderTimeline();
+                showNotification(`${positions.length} frames invertidos e mantidos selecionados`);
+            } finally {
+                button.disabled = false;
+                isReversingFrames = false;
             }
-
-            renderTimeline();
-            showNotification(`${positions.length} frames invertidos e mantidos selecionados`);
         }
 
         let isDuplicatingFrames = false;
@@ -5803,7 +5811,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
         async function exportProjectGif() {
             if (!frames.length) { showNotification('Nenhum frame para exportar'); return; }
-            if (isExporting || isProjectSaving) { showNotification('Aguarde a operação atual'); return; }
+            if (isExporting || (typeof isProjectSaving !== 'undefined' && isProjectSaving)) { showNotification('Aguarde a operação atual'); return; }
             isExporting = true;
             menuDropdown.classList.remove('show');
             const overlay = document.getElementById('exportOverlay');
