@@ -1578,6 +1578,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }
 
         #selectionBtn.active { color: #ffcc00; text-shadow: 0 0 5px rgba(255,204,0,0.5); }
+        #headSphereBtn.active { color: #af52de; text-shadow: 0 0 5px rgba(175,82,222,.55); }
         #perspectiveBtn.active { color: #ff3b30; text-shadow: 0 0 5px rgba(255,59,48,0.5); }
         #warpBtn.active { color: #5ac8fa; text-shadow: 0 0 5px rgba(90,200,250,0.5); }
         #bucketBtn { color: #5ac8fa; }
@@ -1907,8 +1908,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             <input type="file" id="projectInput" accept=".json" style="display: none;">
             <input type="file" id="libraryFileInput" accept=".json,application/json" style="display: none;" aria-label="Importar biblioteca inteira">
             <div class="fps-control">
-                <span>FPS: <span id="fpsValue">4</span></span>
-                <input type="range" id="fpsSlider" min="1" max="24" value="4">
+                <span>FPS: <span id="fpsValue">12</span></span>
+                <input type="range" id="fpsSlider" min="1" max="24" value="12">
             </div>
             <div class="onion-control">
                 <span>Onion <input type="checkbox" id="onionToggle" checked></span>
@@ -1926,6 +1927,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             <button class="icon-btn" id="selectionBtn" title="Seleção Lasso">◌</button>
             <button class="icon-btn" id="selectAllBtn" title="Selecionar Tudo">⛶</button>
             <button class="icon-btn" id="perspectiveBtn" title="Perspectiva">📐</button>
+            <button class="icon-btn" id="headSphereBtn" title="3D livre: contorne uma área e arraste dentro para girar" aria-label="3D livre" aria-pressed="false">3D</button>
             <button class="icon-btn" id="warpBtn" title="Push — empurrar pixels">🌀</button>
             <button class="icon-btn" id="puppetBtn" title="Pins / Puppet — adicionar e mover pontos">📌</button>
             <button class="icon-btn" id="flipHBtn" title="Inverter Horizontal">↔️</button>
@@ -2393,7 +2395,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         let lastX = 0, lastY = 0;
         let lastMidX = 0, lastMidY = 0;
         let isPlaying = false;
-        let fps = 6;
+        let fps = 12;
         let currentTool = 'brush'; 
         
         let cachedSize = 3;
@@ -2741,6 +2743,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const selectionBtn = document.getElementById('selectionBtn');
         const selectAllBtn = document.getElementById('selectAllBtn');
         const perspectiveBtn = document.getElementById('perspectiveBtn');
+        const headSphereBtn = document.getElementById('headSphereBtn');
         const warpBtn = document.getElementById('warpBtn');
         const flipHBtn = document.getElementById('flipHBtn');
         const flipVBtn = document.getElementById('flipVBtn');
@@ -2763,6 +2766,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         document.getElementById('eyedropperBtn').onclick = () => setTool('eyedropper');
         selectionBtn.onclick = () => setTool('lasso');
         perspectiveBtn.onclick = () => setTool('perspective');
+        headSphereBtn.onclick = () => {
+            if (isPlaying) return;
+            setTool('headSphere');
+            if (currentTool === 'headSphere') showNotification('3D livre: contorne o desenho e arraste dentro do laço para girar. Clique fora ou em outra ferramenta para aplicar.');
+        };
         warpBtn.onclick = () => setTool(currentTool === 'push' ? 'brush' : 'push');
         document.getElementById('multiSelectBtn').addEventListener('click', (e) => {
             isMultiSelectMode = !isMultiSelectMode;
@@ -2796,6 +2804,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             if (isTransforming) {
                 flipCanvas(selectionCanvas, horizontal);
                 updateSelectionColorAlpha(); // Atualiza a máscara após flip
+                if (currentTool === 'headSphere') initLightweightHead3D();
                 drawTransformUI();
             } else {
                 flipCanvas(mainCanvas, horizontal);
@@ -2824,6 +2833,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             canvasContainer.classList.toggle('clone-tool-active', currentTool === 'clone');
             selectionBtn.classList.toggle('active', currentTool === 'lasso');
             perspectiveBtn.classList.toggle('active', currentTool === 'perspective');
+            headSphereBtn.classList.toggle('active', currentTool === 'headSphere');
+            headSphereBtn.setAttribute('aria-pressed', String(currentTool === 'headSphere'));
             warpBtn.classList.toggle('active', currentTool === 'push');
             document.getElementById('bucketBtn').classList.toggle('active', currentTool === 'bucket');
             document.getElementById('eyedropperBtn').classList.toggle('active', currentTool === 'eyedropper');
@@ -4103,6 +4114,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                         dragStart = { x: pos.x, y: pos.y, startYaw: headSphereYaw, startPitch: headSpherePitch };
                         return;
                     }
+                    finishSelection();
+                    isDrawing = false; activePointerId = null;
+                    return;
                 }
                 if (isTransforming && currentTool === 'warp') {
                     const margin = 20;
@@ -4530,7 +4544,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 // Preserva o laço ORIGINAL. Ele é a forma do objeto 3D.
                 headSphereFreePath = selectionPath.map(p => ({ x: p.x, y: p.y }));
                 initLightweightHead3D();
-                showNotification('3D livre: o laço recorta sem mover nem redimensionar o desenho');
+                showNotification(headSphereObject ? '3D livre: arraste dentro do laço para girar; clique fora para aplicar.' : '3D indisponível neste navegador. O recorte foi preservado.');
             }
 
             hasUnsavedChanges = true;
@@ -4846,7 +4860,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             try {
                 /*
                  * REGRA PRINCIPAL:
-                 * selectionBox = limites do LAÇO.
+                 * selection = limites do LAÇO.
                  * headSphereContentBounds = limites dos PIXELS REAIS.
                  *
                  * Portanto um laço maior não altera tamanho, centro ou posição
@@ -4940,10 +4954,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 positions.needsUpdate = true;
                 geometry.computeVertexNormals();
 
-                const textureUrl = headSphereTextureCanvas.toDataURL('image/png');
-                headSphereTexture = new THREE.TextureLoader().load(textureUrl, () => {
-                    if (currentTool === 'headSphere' && isTransforming) drawTransformUI();
-                });
+                headSphereTexture = new THREE.CanvasTexture(headSphereTextureCanvas);
                 headSphereTexture.flipY = false;
                 if ('colorSpace' in headSphereTexture && THREE.SRGBColorSpace) {
                     headSphereTexture.colorSpace = THREE.SRGBColorSpace;
@@ -5010,7 +5021,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             }
             if (headSphereTexture) headSphereTexture.dispose();
             if (headSphereRenderer) {
-                try { headSphereRenderer.dispose(); } catch (error) {}
+                try { headSphereRenderer.dispose(); headSphereRenderer.forceContextLoss(); } catch (error) {}
             }
             headSphereRenderer = null;
             headSphereScene = null;
@@ -5022,6 +5033,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             headSphereContentBounds = null;
             headSphereFreePath = [];
         }
+
 
         function drawMeshTriangle(targetCtx, img, p0, p1, p2) {
             const u0 = p0.ox - selectionBox.x, v0 = p0.oy - selectionBox.y; 
@@ -6025,7 +6037,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             // A duração do arquivo vem EXCLUSIVAMENTE da timeline do projeto.
             // O FPS do desenho NÃO controla o FPS de amostragem do fundo/câmera.
             // Vídeo e sequência de imagens são exportados em 24 FPS; o desenho
-            // mantém seu FPS próprio (6 por padrão) para controlar a timeline.
+            // mantém seu FPS próprio (12 por padrão) para controlar a timeline.
             const drawingFps = Math.max(1, Number(fps) || 24);
             const exportFps = 24;
             const width = sharedUtilCanvas.width;
@@ -6261,7 +6273,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         projectInput.onchange = async (e) => {
             const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
             reader.onload = async (event) => {
-                const data = JSON.parse(event.target.result); fps = data.fps || 6; document.getElementById('fpsSlider').value = fps; document.getElementById('fpsValue').textContent = fps;
+                const data = JSON.parse(event.target.result); fps = data.fps || 12; document.getElementById('fpsSlider').value = fps; document.getElementById('fpsValue').textContent = fps;
                 if (data.layersMeta) { layersMeta = data.layersMeta; }
                 else if (data.layerVisibility) { layersMeta = data.layerVisibility.map((v, i) => ({ opacity: 1, visible: v, name: `Camada ${i + 1}` })); }
                 const bgImg = new Image(); bgImg.onload = () => { bgCtx.globalCompositeOperation = 'source-over'; bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height); bgCtx.drawImage(bgImg, 0, 0); }; bgImg.src = data.background;
@@ -7429,7 +7441,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 clearActivePanorama();backgroundSources={};
                 for(const clip of audioClips){clip.audio.pause();clip.audio.removeAttribute('src');clip.audio.load();}
                 audioClips=[];selectedAudioClipId=null;
-                fps = data.fps || 6; fpsSlider.value = fps; fpsValue.textContent = fps; updateGlobalFrameDurationControl();
+                fps = data.fps || 12; fpsSlider.value = fps; fpsValue.textContent = fps; updateGlobalFrameDurationControl();
                 if (data.layersMeta) { layersMeta = data.layersMeta.map((m, i) => ({ opacity: m.opacity != null ? m.opacity : 1, visible: m.visible !== false, name: m.name || `Camada ${i + 1}` })); }
                 else if (data.layerVisibility) { layersMeta = data.layerVisibility.map((v, i) => ({ opacity: 1, visible: v, name: `Camada ${i + 1}` })); }
                 else { layersMeta = [{ opacity: 1, visible: true, name: 'Camada 1' }]; }
