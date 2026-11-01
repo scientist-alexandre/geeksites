@@ -1302,10 +1302,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         <button id="g-scale" class="btn-global" onclick="setMode('g-scale')">
           Escalar
         </button>
-        <label style="display:flex;align-items:center;gap:5px;white-space:nowrap;padding:0 4px;font-size:10px;">Virar imagem
-          <input id="image-turn" type="range" min="-100" max="100" step="1" value="0" style="width:90px;" aria-label="Virar a imagem inteira em perspectiva" title="Esquerda / frente / direita. Duplo clique para zerar.">
-          <output id="image-turn-value" style="min-width:28px;text-align:right;">0°</output>
-        </label>
       </div>
       <div class="toolbar-white-group" aria-label="Grupo de ordem">
         <button
@@ -2343,7 +2339,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const pin = source?.pins?.[pinIndex];
         const matrix = source && pin ? getLayerCanvasMatrix(source) : null;
         if (!pin || !matrix) return null;
-        const point = new DOMPoint(layerTurnPoint(source,pin).x,layerTurnPoint(source,pin).y).matrixTransform(matrix);
+        const point = new DOMPoint(pin.x, pin.y).matrixTransform(matrix);
         const sourceScale = Math.abs(Number(source.gScale)) > 1e-8 ? Number(source.gScale) : 1;
         return {
           x: point.x,
@@ -2545,7 +2541,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           const matrix = getLayerCanvasMatrix(source);
           if (!matrix) return;
           (source.pins || []).forEach((pin, pinIndex) => {
-            const point = new DOMPoint(layerTurnPoint(source,pin).x,layerTurnPoint(source,pin).y).matrixTransform(matrix);
+            const point = new DOMPoint(pin.x, pin.y).matrixTransform(matrix);
             const distance = Math.hypot(point.x - rawX, point.y - rawY);
             if (distance <= 22 && (!chosen || distance < chosen.distance))
               chosen = { source, pinIndex, point, distance };
@@ -6252,6 +6248,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         let videoEncoder = null;
 
         try {
+          await window.preparePanoramaGifExport?.();
           const exportCanvas = document.createElement("canvas");
           exportCanvas.width = FW;
           exportCanvas.height = FH;
@@ -7094,7 +7091,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         let interactionMatrix = getGlobalMatrix();
         const pt = new DOMPoint(rawX, rawY).matrixTransform(interactionMatrix.inverse());
 
-        return layerTurnPoint(getSelectedImageLayer(),pt,true);
+        return { x: pt.x, y: pt.y };
       }
 
 
@@ -7112,7 +7109,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         ['mouthL','Canto esquerdo da boca'],['mouthR','Canto direito da boca']
       ];
       const FACE_CONTROLS = [
-        ['imageYaw','Imagem 3/4',-100,100],
         ['headX','Virar horizontal',-100,100],['headY','Virar vertical',-100,100],
         ['roll','Inclinar cabeça',-100,100],
         ['smile','Boca',-100,100],['width','Largura boca',-100,100],['open','Abrir boca',0,100],
@@ -7166,8 +7162,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       function faceReset() {
         const l=faceLayer();if(!l||faceMarking)return;
         if(isPlaying)togglePlay();
-        const imageYaw=ensureFaceRig(l).values.imageYaw;
-        ensureFaceRig(l).values={...interpolateFaceRigValues(),imageYaw};faceAutoKey();
+        ensureFaceRig(l).values=interpolateFaceRigValues();faceAutoKey();
       }
       function faceToggleMark() {
         const l=faceLayer();if(!l){showNotice('Selecione uma camada de imagem.');return;}
@@ -7191,9 +7186,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         showNotice('Refaça os pontos no desenho, começando pelo contorno esquerdo. O centro é automático.');
       }
       function updateFaceRigUI() {
-        const imageLayer=faceLayer(),turn=document.getElementById('image-turn');
-        if(turn){turn.value=imageLayer?.faceRig?.values?.imageYaw||0;turn.disabled=!imageLayer||faceMarking||!!shapeWarpSession;
-          document.getElementById('image-turn-value').textContent=Math.round(Number(turn.value)*.45)+'°';}
         const tab=document.getElementById('face-rig-tab');if(!tab?.classList.contains('open'))return;
         const l=faceLayer(),uid=l?.uid||null;
         if(uid!==faceUILayer){faceUILayer=uid;faceMarking=false;faceDrag=null;}
@@ -7253,39 +7245,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
       function faceHeadUsesGeometry(layer) {
         return !!layer?.faceRig && normalizeInfluenceMasks(layer).length>0;
-      }
-      function layerTurnProjection(layer) {
-        const value=Number(layer?.faceRig?.values?.imageYaw||0);
-        if(!value||!layer||layer.isFolder)return null;
-        if((faceMarking&&layer===faceLayer())||shapeWarpSession?.layerUid===layer.uid||
-          ((influenceMaskToolActive||shapeWarpToolActive)&&layer===getSelectedImageLayer()))return null;
-        const image=layer.assets?.[layer.activeAssetIndex||0]?.img;
-        if(!image?.width||!image?.height)return null;
-        const angle=faceClamp(value)/100*Math.PI/4;
-        const c=Math.cos(angle),k=Math.sin(angle)/(image.width*2.8);
-        const cx=image.width/2,cy=image.height/2;
-        return {forward:(x,y)=>{const dx=x-cx,den=Math.max(.15,1-dx*k);return {x:cx+dx*c/den,y:cy+(y-cy)/den};},
-          inverse:(x,y)=>{const dx=(x-cx)/(c+(x-cx)*k);return {x:cx+dx,y:cy+(y-cy)*(1-dx*k)};}};
-      }
-      function layerTurnPoint(layer,point,inverse=false) {
-        const projection=layerTurnProjection(layer);
-        return projection?(inverse?projection.inverse(point.x,point.y):projection.forward(point.x,point.y)):point;
-      }
-      const layerTurnGeometryCache=new WeakMap();
-      function buildLayerTurnGeometry(layer,geometry) {
-        const projection=layerTurnProjection(layer);
-        if(!projection)return geometry;
-        let view=layerTurnGeometryCache.get(layer);
-        if(!view||view.source!==geometry.mesh||view.triangles!==geometry.triangles){
-          view={source:geometry.mesh,mesh:geometry.mesh.map(v=>({...v})),triangles:geometry.triangles,
-            adaptive:geometry.adaptive,signature:geometry.signature+'|image-turn'};
-          layerTurnGeometryCache.set(layer,view);
-        }
-        for(let i=0;i<geometry.mesh.length;i++){
-          const v=geometry.mesh[i],p=projection.forward(v.x,v.y);
-          view.mesh[i].x=p.x;view.mesh[i].y=p.y;
-        }
-        return view;
       }
       const rigDepthMetaCache=new WeakMap();
       function buildRigDepthMeta(layer,geometry) {
@@ -7777,26 +7736,36 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           const {center,tangent,normal,halfWidth,gap}=lidEye,{mask,plate,width,height,ox,oy}=patch;
           const top=oy+lids.top,bottom=oy+lidEye.down-lidEye.gap*lids.lower;
           const apertureTop=lids.upper>.001?top:0,apertureBottom=lids.lower>.001?bottom:height;
+          const left=patch.contentLeft??ox-halfWidth,right=patch.contentRight??ox+halfWidth;
+          // Shallow U on the upper lid and inverted U on the lower lid.
+          // The same contour clips the original pixels and draws the lid line.
+          const curveDepth=Math.min((right-left)*.045,lidEye.gap*.12);
+          let upperCurve=curveDepth*Math.sin(Math.PI*Math.min(1,lids.upper/.96));
+          let lowerCurve=curveDepth*Math.sin(Math.PI*Math.min(1,lids.lower/.96));
+          const room=Math.max(0,(bottom-top)*.42),curveSum=upperCurve+lowerCurve;
+          if(curveSum>room&&curveSum>0){upperCurve*=room/curveSum;lowerCurve*=room/curveSum;}
+          const middle=(left+right)/2;
           dc.save();
           dc.beginPath();eye.quad.forEach((p,i)=>{if(i===0)dc.moveTo(p.x,p.y);else dc.lineTo(p.x,p.y);});dc.closePath();dc.clip();
           dc.transform(tangent.x,tangent.y,normal.x,normal.y,center.x-tangent.x*ox-normal.x*oy,center.y-tangent.y*ox-normal.y*oy);
           if(!patch.hasSkin){dc.globalCompositeOperation='destination-out';dc.drawImage(mask,0,0);}
           dc.globalCompositeOperation='source-over';dc.drawImage(plate,0,0);
-          // The eye/iris stays at its exact original coordinates. Eyelids only
-          // hide pixels behind a straight horizontal aperture: no compression,
-          // vertical remapping, curved strips or moving eyeball texture.
+          // Keep the iris and source image fixed; only the lid contour changes.
           if(lids.total<.94&&apertureBottom>apertureTop){
-            dc.save();dc.beginPath();dc.rect(0,apertureTop,width,apertureBottom-apertureTop);dc.clip();
+            dc.save();dc.beginPath();dc.moveTo(0,apertureTop);dc.lineTo(left,apertureTop);
+            dc.quadraticCurveTo(middle,apertureTop+2*upperCurve,right,apertureTop);
+            dc.lineTo(width,apertureTop);dc.lineTo(width,apertureBottom);dc.lineTo(right,apertureBottom);
+            dc.quadraticCurveTo(middle,apertureBottom-2*lowerCurve,left,apertureBottom);
+            dc.lineTo(0,apertureBottom);dc.closePath();dc.clip();
             dc.setTransform(1,0,0,1,0,0);dc.drawImage(source,0,0);dc.restore();
           }
-          const left=patch.contentLeft??ox-halfWidth,right=patch.contentRight??ox+halfWidth;
           dc.strokeStyle=faceEyeInk(source,eye);dc.lineCap='round';
           dc.lineWidth=Math.max(1.1,Math.min(gap*.065,halfWidth*.045));
-          const line=(y,alpha)=>{dc.globalAlpha=alpha;dc.beginPath();dc.moveTo(left,y);dc.lineTo(right,y);dc.stroke();};
+          const line=(y,alpha,curve=0)=>{dc.globalAlpha=alpha;dc.beginPath();dc.moveTo(left,y);dc.quadraticCurveTo(middle,y+2*curve,right,y);dc.stroke();};
           if(lids.total>=.94)line((top+bottom)/2,1);
           else{
-            if(lids.upper>.001)line(top,Math.min(1,lids.upper*8));
-            if(lids.lower>.001)line(bottom,Math.min(1,lids.lower*8));
+            if(lids.upper>.001)line(top,Math.min(1,lids.upper*8),upperCurve);
+            if(lids.lower>.001)line(bottom,Math.min(1,lids.lower*8),-lowerCurve);
           }
           dc.restore();
         }
@@ -7806,10 +7775,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       function getFaceRigRenderImage(l,source) {
         if(!l.faceRig || (faceMarking&&l===faceLayer()) || shapeWarpSession?.layerUid===l.uid)return source;
         const r=ensureFaceRig(l),headOnMesh=faceHeadUsesGeometry(l);
-        const rasterActive=Object.entries(r.values).some(([id,value])=>id!=='imageYaw'&&Math.abs(value)>.001&&(!headOnMesh||!['headX','headY','roll'].includes(id)));
+        const rasterActive=Object.entries(r.values).some(([id,value])=>Math.abs(value)>.001&&(!headOnMesh||!['headX','headY','roll'].includes(id)));
         if(!Object.keys(r.points).length||!rasterActive)return source;
-        const {imageYaw,...expressionValues}=r.values;
-        const signature=JSON.stringify([r.points,expressionValues,source.width,source.height,source._r2dTextureVersion||0,headOnMesh]);
+        const signature=JSON.stringify([r.points,r.values,source.width,source.height,source._r2dTextureVersion||0,headOnMesh]);
         let cache=faceRenderCache.get(l);
         if(cache?.signature===signature&&cache.source===source)return cache.canvas;
         if(!cache){cache={canvas:document.createElement('canvas'),version:0};faceRenderCache.set(l,cache);}
@@ -7860,8 +7828,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
       function faceScreenPoint(l,p,m,transform) {
         const q=faceMeshPoint(l,transform?transform(p.x,p.y):p);
-        const turned=layerTurnPoint(l,q);
-        return new DOMPoint(turned.x,turned.y).matrixTransform(m);
+        return new DOMPoint(q.x,q.y).matrixTransform(m);
       }
       function drawFaceRigOverlay(l,m,target) {
         if(!faceMarking || !document.getElementById('face-rig-tab').classList.contains('open') || !l.faceRig)return;
@@ -7892,7 +7859,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const rect=canvas.getBoundingClientRect(),m=getLayerCanvasMatrix(l);
         if(!m)return null;
         const a=new DOMPoint((e.clientX-rect.left)*FW/rect.width,(e.clientY-rect.top)*FH/rect.height).matrixTransform(m.inverse());
-        return faceMeshPoint(l,layerTurnPoint(l,a,true),true);
+        return faceMeshPoint(l,a,true);
       }
       canvas.addEventListener('pointerdown',e=>{
         if(!faceMarking||isDrawingEditorOpen()||canvasViewPanMode||e.button!==0)return;
@@ -7929,10 +7896,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
       canvas.addEventListener('pointerup',faceEndDrag,true);canvas.addEventListener('pointercancel',faceEndDrag,true);
       document.getElementById('face-point-choice').addEventListener('change',()=>{updateFaceRigUI();draw();});
-      const imageTurnSlider=document.getElementById('image-turn');
-      imageTurnSlider.addEventListener('input',()=>faceSetValue('imageYaw',imageTurnSlider.value));
-      imageTurnSlider.addEventListener('dblclick',()=>faceSetValue('imageYaw',0));
-      for(const [id,label,min,max] of FACE_CONTROLS.filter(([id])=>!['imageYaw','headX','headY','roll'].includes(id))){
+      for(const [id,label,min,max] of FACE_CONTROLS.filter(([id])=>!['headX','headY','roll'].includes(id))){
         const row=document.createElement('label');row.className='face-slider';
         const text=document.createElement('span');text.textContent=label;const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.value=0;input.step=1;input.dataset.faceControl=id;
         const out=document.createElement('output');out.textContent='0';input.addEventListener('input',()=>faceSetValue(id,input.value));row.append(text,input,out);document.getElementById('face-slider-list').appendChild(row);
@@ -9060,9 +9024,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           return false;
 
         let visualMatrix = getGlobalMatrix();
-        const pt = layerTurnPoint(l,new DOMPoint(rawX, rawY).matrixTransform(
+        const pt = new DOMPoint(rawX, rawY).matrixTransform(
           visualMatrix.inverse(),
-        ),true);
+        );
         return (
           pt.x >= 0 &&
           pt.x <= currentImg.width &&
@@ -9823,7 +9787,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           // Masks filter the body bones only. Facial head motion is added to a
           // render-only mesh after that masked pose, without changing its bind.
           updateInfluenceMaskRenderPose(l,bodyGeometry);
-          const geometry=buildLayerTurnGeometry(l,buildFaceRigRenderGeometry(l,bodyGeometry,baseImg));
+          const geometry=buildFaceRigRenderGeometry(l,bodyGeometry,baseImg);
           renderLayers.push({
             l,
             idx,
@@ -9947,7 +9911,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 }),
               );
               if (visiblePins.size)
-                drawUI(l.pins, gMat, targetCtx, visiblePins, l);
+                drawUI(l.pins, gMat, targetCtx, visiblePins);
             }
           });
         }
@@ -9976,14 +9940,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         gMat,
         targetCtx = ctx,
         visiblePins = new Set(lPins),
-        layer = null,
       ) {
-        const projection=layerTurnProjection(layer);
-        if(projection){
-          const projected=lPins.map(p=>({...p,...projection.forward(p.x,p.y),_original:p}));
-          visiblePins=new Set(projected.filter(p=>visiblePins.has(p._original)));
-          lPins=projected;
-        }
         targetCtx.save();
         targetCtx.strokeStyle = "rgba(255, 255, 255, 0.2)";
         targetCtx.lineWidth = 2;
@@ -9996,7 +9953,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
               const dx=p.x-parent.x,dy=p.y-parent.y,length=Math.hypot(dx,dy)||1;
               const nx=-dy/length,ny=dx/length,width=Math.min(7,length*.15);
               const sx=parent.x+dx*.22,sy=parent.y+dy*.22;
-              const active=selectedPins.includes(p._original||p)||(p._original||p)===hoveredPin;
+              const active=selectedPins.includes(p)||p===hoveredPin;
               targetCtx.strokeStyle=active?'#ffffff':'#5ac8fa';
               targetCtx.fillStyle=active?'rgba(90,200,250,.7)':'rgba(90,200,250,.25)';
               targetCtx.lineWidth=active?2.5:1.5;
@@ -10024,13 +9981,13 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         });
         lPins.forEach((p) => {
           if (!visiblePins.has(p)) return;
-          const isSelected = selectedPins.includes(p._original||p);
+          const isSelected = selectedPins.includes(p);
           targetCtx.strokeStyle = isSelected
             ? "#ffffff"
-            : (p._original||p) === hoveredPin
+            : p === hoveredPin
               ? "#bbbbbb"
               : "#666666";
-          targetCtx.lineWidth = isSelected || (p._original||p) === hoveredPin ? 4 : 2;
+          targetCtx.lineWidth = isSelected || p === hoveredPin ? 4 : 2;
 
           const z = p.z || 0;
           if (z > 0) targetCtx.fillStyle = "#007bff";
@@ -10314,6 +10271,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       let threeLookTarget = null;
       let panoramaData = null, panoramaImage = null;
       let panoramaGifFrames = [], panoramaGifFrameIndex = -1;
+      let panoramaGifFrameEnds = [], panoramaGifDuration = 0;
       let panoramaIsGif = false, panoramaGifPlaybackActive = false;
       let panoramaGifPlaybackStartedAt = 0, panoramaGifElapsedMs = 0;
       let panoramaGifExportSeconds = null;
@@ -10342,6 +10300,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         panoramaGifExportSeconds = null;
         panoramaGifFrames.forEach((frame) => { try { frame?.close?.(); } catch (_) {} });
         panoramaGifFrames = [];
+        panoramaGifFrameEnds = []; panoramaGifDuration = 0;
         panoramaGifFrameIndex = -1;
         panoramaIsGif = false;
       }
@@ -10368,8 +10327,13 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
       function setDecodedPanoramaGifFrameAt(seconds) {
         if (!panoramaGifFrames.length) return false;
-        const index = Math.floor(Math.max(0, seconds) * PANORAMA_GIF_FPS)
-          % panoramaGifFrames.length;
+        let index;
+        if(panoramaGifDuration>0&&panoramaGifFrameEnds.length===panoramaGifFrames.length){
+          const time=((Math.max(0,seconds)%panoramaGifDuration)+1e-9)%panoramaGifDuration;
+          let lo=0,hi=panoramaGifFrameEnds.length-1;
+          while(lo<hi){const mid=(lo+hi)>>1;if(time<panoramaGifFrameEnds[mid])hi=mid;else lo=mid+1;}
+          index=lo;
+        }else index = Math.floor(Math.max(0, seconds) * PANORAMA_GIF_FPS)%panoramaGifFrames.length;
         if (index === panoramaGifFrameIndex) return false;
         panoramaGifFrameIndex = index;
         drawNormalizedPanoramaGifFrame(panoramaGifFrames[index]);
@@ -10382,6 +10346,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         panoramaGifExportSeconds = Number.isFinite(seconds)
           ? Math.max(0, Number(seconds))
           : null;
+        if(panoramaGifExportSeconds!==null)setDecodedPanoramaGifFrameAt(panoramaGifExportSeconds);
         // Ao terminar, devolve ao editor exatamente o quadro em que o GIF
         // estava pausado, sem deixá-lo preso no último frame exportado.
         if (wasExporting && panoramaGifExportSeconds === null && panoramaIsGif) {
@@ -10389,24 +10354,124 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }
       };
 
+      // Offline GIF89a fallback: LZW, local palettes, interlace and disposal.
+      // Unlike an animated <img>, these snapshots can be sought during export.
+      async function decodeCompatibleGif(bytes) {
+        const data=new Uint8Array(bytes);let pos=0;
+        const byte=()=>{if(pos>=data.length)throw new Error('GIF incompleto.');return data[pos++];};
+        const word=()=>byte()|(byte()<<8);
+        const table=count=>{const out=data.slice(pos,pos+count*3);pos+=count*3;if(out.length!==count*3)throw new Error('Paleta GIF incompleta.');return out;};
+        const blocks=()=>{const parts=[];let length=0,n;while((n=byte())){if(pos+n>data.length)throw new Error('Bloco GIF incompleto.');parts.push(data.subarray(pos,pos+n));length+=n;pos+=n;}const out=new Uint8Array(length);let at=0;for(const part of parts){out.set(part,at);at+=part.length;}return out;};
+        const header=String.fromCharCode(...data.subarray(0,6));pos=6;
+        if(header!=='GIF89a'&&header!=='GIF87a')throw new Error('GIF inválido.');
+        const width=word(),height=word(),packed=byte(),background=byte();byte();
+        if(!width||!height)throw new Error('Dimensões GIF inválidas.');
+        const globalTable=packed&128?table(1<<((packed&7)+1)):null;
+        const pixels=new Uint8ClampedArray(width*height*4),frames=[],ends=[];
+        let duration=0,gce={disposal:0,delay:10,transparent:-1},initialized=false;
+        const surface=document.createElement('canvas');surface.width=width;surface.height=height;
+        const dc=surface.getContext('2d');
+        function backgroundRect(x,y,w,h,transparent){
+          for(let yy=Math.max(0,y);yy<Math.min(height,y+h);yy++)for(let xx=Math.max(0,x);xx<Math.min(width,x+w);xx++){
+            const at=(yy*width+xx)*4;
+            if(transparent||!globalTable)pixels.fill(0,at,at+4);
+            else{pixels[at]=globalTable[background*3];pixels[at+1]=globalTable[background*3+1];pixels[at+2]=globalTable[background*3+2];pixels[at+3]=255;}
+          }
+        }
+        function lzw(input,minCode,count){
+          if(minCode<2||minCode>8)throw new Error('Código LZW GIF inválido.');
+          const clear=1<<minCode,end=clear+1,prefix=new Uint16Array(4096),suffix=new Uint8Array(4096),stack=new Uint8Array(4097),out=new Uint8Array(count);
+          for(let i=0;i<clear;i++)suffix[i]=i;
+          let bits=0,size=minCode+1,next=end+1,old=-1,first=0,at=0;
+          while(at<count){
+            if(bits+size>input.length*8)break;
+            let code=0;for(let j=0;j<size;j++)code|=((input[(bits+j)>>3]>>((bits+j)&7))&1)<<j;bits+=size;
+            if(code===clear){size=minCode+1;next=end+1;old=-1;continue;}
+            if(code===end)break;
+            const current=code;let top=0;
+            if(old<0){if(code>=clear)throw new Error('Início LZW GIF inválido.');out[at++]=suffix[code];first=suffix[code];old=code;continue;}
+            if(code===next){stack[top++]=first;code=old;}else if(code>next)throw new Error('Sequência LZW GIF inválida.');
+            while(code>=clear){if(code>=next||top>=4096)throw new Error('Dicionário LZW GIF inválido.');stack[top++]=suffix[code];code=prefix[code];}
+            first=suffix[code];stack[top++]=first;
+            while(top&&at<count)out[at++]=stack[--top];
+            if(next<4096){prefix[next]=old;suffix[next]=first;next++;if(next===(1<<size)&&size<12)size++;}
+            old=current;
+          }
+          if(at<count)throw new Error('Pixels GIF incompletos.');return out;
+        }
+        try{
+          while(pos<data.length){
+            const marker=byte();if(marker===0x3b)break;
+            if(marker===0x21){const label=byte(),extension=blocks();
+              if(label===0xf9){if(extension.length<4)throw new Error('Controle GIF inválido.');gce={disposal:(extension[0]>>2)&7,delay:extension[1]|(extension[2]<<8),transparent:extension[0]&1?extension[3]:-1};}
+              if(label===0x01)gce={disposal:0,delay:10,transparent:-1};
+              continue;
+            }
+            if(marker!==0x2c)throw new Error('Estrutura GIF inválida.');
+            const x=word(),y=word(),w=word(),h=word(),flags=byte();
+            const palette=flags&128?table(1<<((flags&7)+1)):globalTable;
+            if(!palette||!w||!h)throw new Error('Quadro GIF inválido.');
+            const minCode=byte(),indices=lzw(blocks(),minCode,w*h);
+            if(!initialized){backgroundRect(0,0,width,height,gce.transparent>=0);initialized=true;}
+            const previous=gce.disposal===3?pixels.slice():null;
+            const rows=[];if(flags&64){for(const [start,step] of [[0,8],[4,8],[2,4],[1,2]])for(let row=start;row<h;row+=step)rows.push(row);}else for(let row=0;row<h;row++)rows.push(row);
+            let at=0;for(const row of rows)for(let col=0;col<w;col++){
+              const index=indices[at++],xx=x+col,yy=y+row;
+              if(index===gce.transparent||xx>=width||yy>=height)continue;
+              const target=(yy*width+xx)*4,color=index*3;
+              pixels[target]=palette[color];pixels[target+1]=palette[color+1];pixels[target+2]=palette[color+2];pixels[target+3]=255;
+            }
+            const image=dc.createImageData(width,height);image.data.set(pixels);dc.putImageData(image,0,0);
+            if(typeof createImageBitmap==='function')frames.push(await createImageBitmap(surface));
+            else{const copy=document.createElement('canvas');copy.width=width;copy.height=height;copy.getContext('2d').putImageData(image,0,0);frames.push(copy);}
+            duration+=Math.max(.02,(gce.delay||10)/100);ends.push(duration);
+            if(gce.disposal===2)backgroundRect(x,y,w,h,gce.transparent>=0);
+            else if(previous)pixels.set(previous);
+            gce={disposal:0,delay:10,transparent:-1};
+            if((frames.length&15)===0)await new Promise(resolve=>setTimeout(resolve,0));
+          }
+          if(!frames.length)throw new Error('GIF sem quadros.');return {frames,ends,duration};
+        }catch(error){frames.forEach(frame=>frame?.close?.());throw error;}
+      }
+      async function installCompatiblePanoramaGif(bytes) {
+        const result=await decodeCompatibleGif(bytes);
+        clearPanoramaGifFrames();panoramaGifFrames=result.frames;
+        panoramaGifFrameEnds=result.ends;panoramaGifDuration=result.duration;
+        panoramaGifFrameIndex=0;drawNormalizedPanoramaGifFrame(result.frames[0]);
+        startPanoramaGifPlayer();return true;
+      }
+      window.preparePanoramaGifExport=async()=>{
+        if(!panoramaIsGif||panoramaGifFrames.length)return;
+        const elapsed=panoramaGifElapsedMs;
+        const response=await fetch(panoramaData);
+        await installCompatiblePanoramaGif(await response.arrayBuffer());
+        panoramaGifElapsedMs=elapsed;
+        uploadActivePanoramaTexture(panoramaImage,true);
+      };
+
       async function decodePanoramaGif(dataUrl) {
-        if (!("ImageDecoder" in window)) return false;
         const response = await fetch(dataUrl);
         const bytes = await response.arrayBuffer();
+        if (!("ImageDecoder" in window))return installCompatiblePanoramaGif(bytes);
         const decoder = new ImageDecoder({ data: bytes, type: "image/gif" });
         await decoder.tracks.ready;
         const count = decoder.tracks.selectedTrack?.frameCount || 0;
         if (!count) { decoder.close(); return false; }
         const frames = [];
+        const ends = []; let duration = 0;
         try {
           for (let i = 0; i < count; i++) {
             const decoded = await decoder.decode({ frameIndex: i, completeFramesOnly: true });
             frames.push(await createImageBitmap(decoded.image));
+            duration+=Math.max(.02,Number(decoded.image.duration)/1000000||1/PANORAMA_GIF_FPS);
+            ends.push(duration);
             decoded.image.close();
           }
-        } finally { decoder.close(); }
+        } catch(error){frames.forEach(frame=>frame?.close?.());return installCompatiblePanoramaGif(bytes);}
+        finally { decoder.close(); }
         clearPanoramaGifFrames();
         panoramaGifFrames = frames;
+        panoramaGifFrameEnds = ends; panoramaGifDuration = duration;
         panoramaGifFrameIndex = 0;
         drawNormalizedPanoramaGifFrame(frames[0]);
         startPanoramaGifPlayer();
@@ -10414,8 +10479,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
 
       function syncPanoramaGifFrame() {
-        if (!panoramaIsGif || document.hidden) return;
         const exporting = Number.isFinite(panoramaGifExportSeconds);
+        if (!panoramaIsGif || (document.hidden&&!exporting)) return;
         if (!exporting && !panoramaGifPlaybackActive) return;
         if (!panoramaGifFrames.length) {
           // Fallback nativo: o quadro só é copiado enquanto o Play está ativo.
@@ -10731,7 +10796,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             if (await decodePanoramaGif(dataUrl)) {
               const gpuReady = uploadActivePanoramaTexture(panoramaImage);
               showNotice(gpuReady
-                ? "GIF 360° carregado. Ele roda no Play a 24 FPS."
+                ? "GIF 360° carregado. Ele roda no Play."
                 : "GIF 360° carregado para rodar no Play no modo compatível.");
               draw();
               return;
