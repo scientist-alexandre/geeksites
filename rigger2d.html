@@ -1103,6 +1103,24 @@
         .dropdown-panel {max-height:calc(100dvh - 50px);overflow-y:auto;box-sizing:border-box;}
       }
 
+
+
+      #face-rig-tab {display:none;grid-column:1;grid-row:2;min-height:0;overflow:auto;padding:3px;}
+      #face-rig-tab.open {display:block;}
+      #face-rig-tab p {font-size:11px;line-height:1.5;color:#aaa;margin:7px 0;}
+      #face-rig-tab h3 {font-size:12px;color:#f1b95b;margin:12px 0 8px;}
+      #face-rig-tab select {width:100%;background:#222;color:#eee;padding:7px;border:1px solid #555;}
+      .face-actions {display:flex;flex-wrap:wrap;gap:5px;margin:8px 0;}
+      .face-actions button {flex:1;padding:6px;font-size:10px;}
+      #face-mark-btn.active {background:#51402a;border-color:#f1b95b;}
+      #face-joystick {width:128px;height:128px;margin:10px auto;position:relative;border:1px solid #666;border-radius:50%;background:radial-gradient(circle,#333,#151515);touch-action:none;cursor:grab;outline-offset:3px;}
+      #face-joystick::before {content:'';position:absolute;left:50%;top:0;height:100%;border-left:1px solid #555;}
+      #face-joystick::after {content:'';position:absolute;top:50%;left:0;width:100%;border-top:1px solid #555;}
+      #face-stick {position:absolute;z-index:1;width:24px;height:24px;left:50%;top:50%;border-radius:50%;background:#f1b95b;box-shadow:0 1px 8px #0008;transform:translate(-50%,-50%);pointer-events:none;}
+      .face-slider {display:grid;grid-template-columns:95px minmax(0,1fr) 32px;align-items:center;gap:5px;margin:10px 0;font-size:10px;}
+      .face-slider input {width:100%;min-width:0;accent-color:#f1b95b;}
+      .face-slider output {text-align:right;font:10px monospace;}
+      #face-rig-tab .face-help {padding:8px;border:1px solid #494033;border-radius:5px;}
     </style>
     <script id="threejs-offline-bundle">
 console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
@@ -1333,6 +1351,17 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           >
             Shape Keys
           </button>
+          <button id="faceRigTabBtn" class="panel-tab" onclick="switchLayerPanelTab('faceRig')">FaceRig</button>
+        </div>
+        <div id="face-rig-tab">
+          <h3 id="face-layer-name">FaceRig manual</h3>
+          <select id="face-point-choice" aria-label="Ponto facial"></select>
+          <div class="face-actions"><button id="face-mark-btn" type="button" onclick="faceToggleMark()">Marcar pontos</button><button type="button" onclick="faceRedoPoints()" title="Refazer pontos">Refazer pontos</button></div>
+          <p id="face-point-status" role="status" aria-live="polite"></p>
+          <h3>Cabeça</h3>
+          <div id="face-joystick" tabindex="0" role="group" aria-label="Joystick da cabeça" title="Cabeça"><span id="face-stick"></span></div>
+          <div id="face-slider-list"></div>
+          <div class="face-actions"><button type="button" onclick="faceReset()">Zerar controles</button></div>
         </div>
         <div id="layers-tab">
           <div
@@ -4767,6 +4796,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const states = layers.map((l) => ({
           pins: (l.pins || []).map((p) => ({ x:p.x, y:p.y, warpAngle:p.warpAngle, z:p.z||0, extraLinks:p.extraLinks?[...p.extraLinks]:[] })),
           shapeKeyValues: l.isFolder ? {} : captureShapeKeyValues(l),
+          faceRigValues: captureFaceRigValues(l),
           z: Number(l.z || 0), visible: l.visible !== false, parentId: l.parentId, assetIndex: Number.isInteger(l.activeAssetIndex) ? l.activeAssetIndex : 0,
         }));
         keyframes = keyframes.filter((k) => k.frame !== frame);
@@ -5167,6 +5197,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         clipboardPose={
           pins:(layer.pins||[]).map((p)=>({x:p.x,y:p.y,warpAngle:p.warpAngle,z:p.z||0,extraLinks:[...(p.extraLinks||[])]})),
           shapeKeyValues:captureShapeKeyValues(layer),
+          faceRigValues:captureFaceRigValues(layer),
           shapeKeySnapshot:ensureShapeKeys2D(layer).map((shape)=>({uid:shape.uid,name:shape.name,value:Math.max(0,Math.min(100,Number(shape.value)||0))})),
           z:Number(layer.z||0), visible:layer.visible!==false, assetIndex:layer.activeAssetIndex||0, parentId:layer.parentId,
         };
@@ -5186,6 +5217,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const l=layers[activeLayerIndex]; if(!l||l.isFolder)return;
         if(l.pins.length!==clipboardPose.pins.length){showNotice("A camada possui um número diferente de pins.");return;}
         clipboardPose.pins.forEach((savedPin,i)=>{ const p=l.pins[i]; p.x=savedPin.x; p.y=savedPin.y; p.warpAngle=savedPin.warpAngle; p.z=savedPin.z||0; });
+        if(l.faceRig) l.faceRig.values=interpolateFaceRigValues(clipboardPose.faceRigValues,clipboardPose.faceRigValues,0);
         l.z=Number(clipboardPose.z||0); l.visible=clipboardPose.visible!==false; l.activeAssetIndex=clipboardPose.assetIndex||0;
         if (clipboardPose.shapeKeyValues || Array.isArray(clipboardPose.shapeKeySnapshot)) {
           const targetShapes=ensureShapeKeys2D(l), copiedShapes=Array.isArray(clipboardPose.shapeKeySnapshot)?clipboardPose.shapeKeySnapshot:[];
@@ -5232,6 +5264,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const layerStates=k1.layerStates.map((l1,i)=>{const l2=k2.layerStates[i]||l1;const it=l1.visible===false&&l2.visible!==false?0:t;return{
           pins:interpolateBonePose(l1.pins,l2.pins,layers[i]?.pins||[],it),
           shapeKeyValues:Object.fromEntries([...new Set([...Object.keys(l1.shapeKeyValues||{}),...Object.keys(l2.shapeKeyValues||{})])].map((uid)=>{const a=Number(l1.shapeKeyValues?.[uid])||0,b=Number(l2.shapeKeyValues?.[uid])||0;return[uid,a+(b-a)*it];})),
+          faceRigValues: interpolateFaceRigValues(l1.faceRigValues,l2.faceRigValues,it),
           z:Number(l1.z||0)+(Number(l2.z||0)-Number(l1.z||0))*it,
           visible:l1.visible!==false,assetIndex:l1.assetIndex||0,parentId:l1.parentId,
         }}); return {layerStates};
@@ -5553,6 +5586,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           let deformChanged=false;
           l.pins.forEach((p,i)=>{const saved=state.pins?.[i];if(!saved)return;const nextX=saved.x,nextY=saved.y,nextAngle=saved.warpAngle,nextZ=saved.z||0;if(p.x!==nextX||p.y!==nextY||p.warpAngle!==nextAngle)deformChanged=true;p.x=nextX;p.y=nextY;p.warpAngle=nextAngle;p.z=nextZ;});
           if(state.shapeKeyValues){let shapeChanged=false;ensureShapeKeys2D(l).forEach((shape)=>{const nextValue=Math.max(0,Math.min(100,Number(state.shapeKeyValues[shape.uid])||0));if(shape.value!==nextValue){shape.value=nextValue;shapeChanged=true;}});if(shapeChanged)invalidateShapeWarp();}
+          if(l.faceRig) l.faceRig.values = interpolateFaceRigValues(state.faceRigValues,state.faceRigValues,0);
           l.gPos={...state.gPos};if(state.gPivot)l.gPivot={...state.gPivot};l.gScale=state.gScale;l.gRotation=state.gRotation;
           l.z=Number(state.z||0);l.visible=state.visible!==false;const savedAssetIdx=Number.isInteger(state.assetIndex)?state.assetIndex:(Number(state.assetIndex)||0);const prevAsset=l.activeAssetIndex;l.activeAssetIndex=l.assets&&l.assets.length>0?Math.min(savedAssetIdx,l.assets.length-1):0;if(deformChanged||prevAsset!==l.activeAssetIndex){if(deformChanged)updateDeform(l);else l._deformVersion=(l._deformVersion||0)+1;invalidateShapeWarp();}
         });
@@ -6400,6 +6434,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           z: Number(l.z || 0),
           savedPoses: JSON.parse(JSON.stringify(l.savedPoses || [])),
           shapeKeys2D: JSON.parse(JSON.stringify(l.shapeKeys2D || [])),
+          faceRig: l.faceRig ? JSON.parse(JSON.stringify(l.faceRig)) : null,
           transformBase: readLayerTransform(l),
           assets: l.isFolder ? [] : await Promise.all(
             (l.assets || []).map(async a => ({
@@ -6537,6 +6572,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 transformBase: lData.transformBase || null,
                 savedPoses: JSON.parse(JSON.stringify(lData.savedPoses || [])),
                 shapeKeys2D: JSON.parse(JSON.stringify(lData.shapeKeys2D || [])),
+                faceRig: lData.faceRig ? JSON.parse(JSON.stringify(lData.faceRig)) : null,
               };
               if (!layer.isFolder && Array.isArray(lData.assets)) {
                 layer.assets = await Promise.all(lData.assets.map(async aData => ({
@@ -6659,6 +6695,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
               transformBase: layerTransformBase(l),
               savedPoses: l.savedPoses || [],
               shapeKeys2D: l.shapeKeys2D || [],
+              faceRig: l.faceRig || null,
               assets: l.isFolder
                 ? []
                 : await Promise.all(
@@ -6787,6 +6824,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                   transformBase: lData.transformBase || null,
                   savedPoses: lData.savedPoses || [],
                   shapeKeys2D: Array.isArray(lData.shapeKeys2D) ? lData.shapeKeys2D : [],
+                  faceRig: lData.faceRig ? JSON.parse(JSON.stringify(lData.faceRig)) : null,
                 };
                 if (!lData.isFolder && Array.isArray(lData.assets)) {
                   layer.assets = await Promise.all(
@@ -7037,6 +7075,614 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
 
       // ---------------------------------------------------------------------
+      // FaceRig manual: pontos em coordenadas da imagem, separado dos ossos.
+      const FACE_POINTS = [
+        ['left','Contorno esquerdo'],['right','Contorno direito'],
+        ['top','Topo da cabeça'],['chin','Queixo'],['nose','Ponta do nariz'],
+        ['eyeLTL','Olho E - canto superior E'],['eyeLTR','Olho E - canto superior D'],
+        ['eyeLBR','Olho E - canto inferior D'],['eyeLBL','Olho E - canto inferior E'],
+        ['eyeRTL','Olho D - canto superior E'],['eyeRTR','Olho D - canto superior D'],
+        ['eyeRBR','Olho D - canto inferior D'],['eyeRBL','Olho D - canto inferior E'],
+        ['browLStart','Sobrancelha E início'],['browLEnd','Sobrancelha E fim'],
+        ['browRStart','Sobrancelha D início'],['browREnd','Sobrancelha D fim'],
+        ['mouthL','Canto esquerdo da boca'],['mouthR','Canto direito da boca']
+      ];
+      const FACE_CONTROLS = [
+        ['headX','Virar horizontal',-100,100],['headY','Virar vertical',-100,100],
+        ['roll','Inclinar cabeça',-100,100],
+        ['smile','Boca',-100,100],['width','Largura boca',-100,100],['open','Abrir boca',0,100],
+        ['blinkL','Piscar esquerdo',0,100],['blinkR','Piscar direito',0,100],
+        ['upperL','Pálpebra sup. E',0,100],['lowerL','Pálpebra inf. E',0,100],
+        ['upperR','Pálpebra sup. D',0,100],['lowerR','Pálpebra inf. D',0,100],
+        ['browL','Sobrancelha E',-100,100],['browR','Sobrancelha D',-100,100]
+      ];
+      let faceMarking = false, faceDrag = null, faceUILayer = null;
+      const faceRenderCache = new WeakMap();
+      const faceEyeInkCache = new WeakMap();
+      function faceLayer() {return Number.isInteger(activeLayerIndex) && !layers[activeLayerIndex]?.isFolder ? layers[activeLayerIndex] : null;}
+      function faceClamp(v,a=-100,b=100) {return Math.max(a,Math.min(b,Number(v)||0));}
+      function ensureFaceRig(l) {
+        if(!l || l.isFolder)return null;
+        if(!l.faceRig || typeof l.faceRig !== 'object')l.faceRig={points:{},values:{},reach:100};
+        const r=l.faceRig;
+        if(!r.points || typeof r.points!=='object')r.points={};
+        if(!r.values || typeof r.values!=='object')r.values={};
+        const pointIds=new Set(FACE_POINTS.map(([id])=>id)),controlIds=new Set(FACE_CONTROLS.map(([id])=>id));
+        for(const id of Object.keys(r.points))if(!pointIds.has(id))delete r.points[id];
+        for(const id of Object.keys(r.values))if(!controlIds.has(id))delete r.values[id];
+        for(const [id,,min,max] of FACE_CONTROLS)r.values[id]=faceClamp(r.values[id],min,max);
+        for(const [id] of FACE_POINTS)if(r.points[id] && (!Number.isFinite(r.points[id].x)||!Number.isFinite(r.points[id].y)))delete r.points[id];
+        return r;
+      }
+      function captureFaceRigValues(l) {return l?.faceRig ? {...ensureFaceRig(l).values} : {};}
+      function interpolateFaceRigValues(a={},b={},t=0) {
+        return Object.fromEntries(FACE_CONTROLS.map(([id,,min,max])=>{const x=faceClamp(a?.[id],min,max),y=faceClamp(b?.[id],min,max);return[id,x+(y-x)*t];}));
+      }
+      function faceAutoKey() {
+        // Usa a mesma captura de ossos e Shape Keys: preserva os demais
+        // controles e substitui o keyframe do frame atual sem duplicá-lo.
+        // Grava já no evento para não cair em outro frame após um seek.
+        if(!faceMarking && !isPlaying && faceLayer()) setKeyframe(false);
+      }
+      function faceSetValue(id,value) {
+        const l=faceLayer();if(!l)return;
+        if(shapeWarpSession){showNotice('Confirme ou cancele a Shape Key antes de usar o FaceRig.');return;}
+        if(faceMarking){showNotice('Clique em Finalizar pontos para usar os controles.');return;}
+        const c=FACE_CONTROLS.find(c=>c[0]===id);if(!c)return;
+        if(id==='open'&&!faceMouthSpec(faceFrame(l,1,1))){showNotice('Marque os dois cantos da boca.');return;}
+        if(isPlaying)togglePlay();
+        if(id.startsWith('brow')&&!faceBrowSpecs(faceFrame(l,1,1),faceEyeSpecs(faceFrame(l,1,1))).some(b=>b.side===id.slice(-1))){showNotice('Marque início e fim desta sobrancelha.');return;}
+        if((id.startsWith('blink')||id.startsWith('upper')||id.startsWith('lower')||id.startsWith('brow'))&&!faceEyeSpecs(faceFrame(l,1,1)).some(e=>e.side===id.slice(-1))){showNotice('Marque os quatro cantos da caixa deste olho para piscar ou mover a sobrancelha com proteção.');return;}
+        const values=ensureFaceRig(l).values,next=faceClamp(value,c[2],c[3]);
+        if(values[id]===next)return;
+        values[id]=next;
+        faceAutoKey();
+      }
+      function faceReset() {
+        const l=faceLayer();if(!l||faceMarking)return;
+        if(isPlaying)togglePlay();
+        ensureFaceRig(l).values=interpolateFaceRigValues();faceAutoKey();
+      }
+      function faceToggleMark() {
+        const l=faceLayer();if(!l){showNotice('Selecione uma camada de imagem.');return;}
+        if(shapeWarpSession){showNotice('Confirme ou cancele a Shape Key antes de marcar o rosto.');return;}
+        if(isPlaying)togglePlay();
+        faceMarking=!faceMarking;faceDrag=null;ensureFaceRig(l);
+        if(faceMarking){const next=FACE_POINTS.find(([id])=>!l.faceRig.points[id]);if(next)document.getElementById('face-point-choice').value=next[0];}
+        updateFaceRigUI();draw();
+        showNotice(faceMarking?'Clique no desenho para posicionar cada ponto. Arraste para corrigir.':'Pontos ocultos. Joystick e sliders gravam automaticamente no frame atual.');
+      }
+      function faceRedoPoints() {
+        const l=faceLayer();if(!l){showNotice('Selecione uma camada de imagem.');return;}
+        if(shapeWarpSession){showNotice('Confirme ou cancele a Shape Key antes de refazer os pontos.');return;}
+        if(isPlaying)togglePlay();
+        if(faceDrag && canvas.hasPointerCapture(faceDrag.pointerId))canvas.releasePointerCapture(faceDrag.pointerId);
+        faceDrag=null;
+        ensureFaceRig(l).points={};
+        faceUILayer=l.uid;faceMarking=true;
+        document.getElementById('face-point-choice').value=FACE_POINTS[0][0];
+        updateFaceRigUI();draw();
+        showNotice('Refaça os pontos no desenho, começando pelo contorno esquerdo. O centro é automático.');
+      }
+      function updateFaceRigUI() {
+        const tab=document.getElementById('face-rig-tab');if(!tab?.classList.contains('open'))return;
+        const l=faceLayer(),uid=l?.uid||null;
+        if(uid!==faceUILayer){faceUILayer=uid;faceMarking=false;faceDrag=null;}
+        document.getElementById('face-layer-name').textContent=l?'FaceRig · '+l.name:'Selecione uma camada de imagem';
+        const r=l?.faceRig,points=r?.points||{},values=r?.values||{};
+        const choice=document.getElementById('face-point-choice');
+        if(!choice.options.length)for(const [id,label] of FACE_POINTS){const opt=document.createElement('option');opt.value=id;opt.textContent=label;choice.appendChild(opt);}
+        for(const opt of choice.options)opt.textContent=(points[opt.value]?'✓ ':'○ ')+FACE_POINTS.find(p=>p[0]===opt.value)[1];
+        const mark=document.getElementById('face-mark-btn');mark.classList.toggle('active',faceMarking);mark.textContent=faceMarking?'Finalizar pontos':FACE_POINTS.some(([id])=>points[id])&&FACE_POINTS.some(([id])=>!points[id])?'Completar pontos':'Marcar pontos';
+        const required=FACE_POINTS;
+        const count=required.filter(([id])=>points[id]).length;
+        document.getElementById('face-point-status').textContent=count+'/'+required.length+(faceMarking?' · '+FACE_POINTS.find(p=>p[0]===choice.value)[1]:'');
+        document.getElementById('face-stick').style.left=(50+faceClamp(values.headX)*.39)+'%';
+        document.getElementById('face-stick').style.top=(50+faceClamp(values.headY)*.39)+'%';
+        tab.querySelectorAll('[data-face-control]').forEach(input=>{const id=input.dataset.faceControl,v=values[id]||0;input.value=v;input.disabled=!l||faceMarking||(id==='open'&&!faceMouthSpec(faceFrame(l,1,1)))||(id.startsWith('brow')&&!faceBrowSpecs(faceFrame(l,1,1),faceEyeSpecs(faceFrame(l,1,1))).some(b=>b.side===id.slice(-1)))||((id.startsWith('blink')||id.startsWith('upper')||id.startsWith('lower')||id.startsWith('brow'))&&!faceEyeSpecs(faceFrame(l,1,1)).some(e=>e.side===id.slice(-1)));input.title=id==='smile'?'Negativo: triste. Positivo: sorriso.':'';input.nextElementSibling.textContent=Math.round(v);});
+        choice.disabled=!l;mark.disabled=!l;
+      }
+      // Head proportions are inferred from the contour points. No camera needed.
+      function faceFrame(l,w,h) {
+        const p=ensureFaceRig(l).points,c={x:((p.left?.x??w*.25)+(p.right?.x??w*.75))/2,y:((p.top?.y??h*.15)+(p.chin?.y??h*.85))/2};
+        return {p,c,rx:Math.max(8,Math.abs((p.right?.x??c.x+w*.25)-(p.left?.x??c.x-w*.25))/2),ry:Math.max(8,Math.abs((p.chin?.y??c.y+h*.35)-(p.top?.y??c.y-h*.35))/2)};
+      }
+      function faceEyeSpecs(frame) {
+        const {p}=frame,eyes=[];
+        for(const side of ['L','R']){
+          const quad=['TL','TR','BR','BL'].map(corner=>p['eye'+side+corner]);
+          if(quad.some(point=>!point))continue;
+          const center={x:quad.reduce((sum,p)=>sum+p.x,0)/4,y:quad.reduce((sum,p)=>sum+p.y,0)/4};
+          const length=Math.max(...quad.map(p=>p.x))-Math.min(...quad.map(p=>p.x));if(length<3)continue;
+          const tangent={x:1,y:0},normal={x:0,y:1};
+          const local=quad.map(q=>({x:(q.x-center.x)*tangent.x+(q.y-center.y)*tangent.y,y:(q.x-center.x)*normal.x+(q.y-center.y)*normal.y}));
+          let sign=0,convex=true;
+          for(let i=0;i<4;i++){
+            const a=local[i],b=local[(i+1)%4],c=local[(i+2)%4],cross=(b.x-a.x)*(c.y-b.y)-(b.y-a.y)*(c.x-b.x);
+            if(Math.abs(cross)<.1){convex=false;break;}
+            if(sign&&Math.sign(cross)!==sign){convex=false;break;}sign=Math.sign(cross);
+          }
+          if(!convex)continue;
+          const minY=Math.min(...local.map(p=>p.y)),maxY=Math.max(...local.map(p=>p.y));
+          const up=Math.max(1,-minY),down=Math.max(1,maxY),gap=up+down;if(gap<3)continue;
+          const halfWidth=Math.max(2,...local.map(p=>Math.abs(p.x))),padding=Math.max(2,Math.min(length*.04,gap*.12));
+          eyes.push({side,kind:'eye-box',quad,local,center,tangent,normal,gap,up,down,padding,halfWidth,outer:Math.max(up,down)+padding,
+            a:{x:center.x-normal.x*up,y:center.y-normal.y*up},b:{x:center.x+normal.x*down,y:center.y+normal.y*down}});
+        }return eyes;
+      }
+      function faceMouthSpec(frame) {
+        const {p}=frame,a=p.mouthL,b=p.mouthR;if(!a||!b)return null;
+        const length=Math.hypot(b.x-a.x,b.y-a.y);if(length<2)return null;
+        const center={x:(a.x+b.x)/2,y:(a.y+b.y)/2},tangent={x:(b.x-a.x)/length,y:(b.y-a.y)/length},normal={x:-tangent.y,y:tangent.x};
+        if(normal.y<0){normal.x=-normal.x;normal.y=-normal.y;}
+        let radius=length*.5;
+        for(const id of ['nose','chin'])if(p[id]){
+          const d=Math.abs((p[id].x-center.x)*normal.x+(p[id].y-center.y)*normal.y);
+          if(d>2)radius=Math.min(radius,d*.82);
+        }
+        return {center,tangent,normal,length,radius:Math.max(2,radius)};
+      }
+      function faceField(l,w,h) {
+        const r=ensureFaceRig(l),f=faceFrame(l,w,h),{p,c,rx,ry}=f,v=r.values;
+        const mouth=faceMouthSpec(f);
+        const smile=(v.smile||0)/100,width=(v.width||0)/100;
+        const smooth=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
+        function mouthOffset(x,y){
+          if(!mouth)return {dx:0,dy:0};
+          const {center,tangent,normal,length,radius}=mouth,px=x-center.x,py=y-center.y;
+          const u=(px*tangent.x+py*tangent.y)/(length*.5),distance=px*normal.x+py*normal.y;
+          const band=Math.abs(distance)/radius;
+          if(Math.abs(u)>=2.2||band>=1)return {dx:0,dy:0};
+          const fade=(1-smooth((Math.abs(u)-1)/1.2))*(1-band*band)**2;
+          const t=Math.max(-1,Math.min(1,u));
+          // Curva parabólica direta: U no sorriso e U invertido na tristeza.
+          const bendScale=Math.min(length,radius/.42);
+          const bend=smile*bendScale*(.045-.19*t*t)*fade;
+          const stretch=width*length*.18*t*fade;
+          return {dx:tangent.x*stretch+normal.x*bend,dy:tangent.y*stretch+normal.y*bend};
+        }
+        function head(x,y){
+          // Approximate a turn in 2D, keeping the neck/outside region anchored.
+          if(!p.left||!p.right||!p.top||!p.chin)return {x,y};
+          const nx=(x-c.x)/rx,ny=(y-c.y)/ry,d=Math.hypot(nx,ny),fade=d<.75?1:Math.max(0,1-(d-.75)/.65),blend=fade*fade*(3-2*fade);
+          const yaw=(v.headX||0)/100*.55,pitch=(v.headY||0)/100*.45,roll=(v.roll||0)/100*.35;
+          const depth=Math.sqrt(Math.max(0,1-Math.min(1,nx*nx+ny*ny)));
+          const xx=(x-c.x)*Math.cos(yaw)+Math.sin(yaw)*rx*depth*.6;
+          const yy=(y-c.y)*Math.cos(pitch)+Math.sin(pitch)*ry*depth*.5;
+          return {x:x+(xx*Math.cos(roll)-yy*Math.sin(roll)+c.x-x)*blend,y:y+(xx*Math.sin(roll)+yy*Math.cos(roll)+c.y-y)*blend};
+        }
+        return (x,y)=>{
+          const m=mouthOffset(x,y);return head(x+m.dx,y+m.dy);
+        };
+      }
+      function faceEyeInk(source,eye) {
+        let entry=faceEyeInkCache.get(source);
+        const key=JSON.stringify([source._r2dTextureVersion||0,eye.a,eye.b]);
+        if(!entry){entry=new Map();faceEyeInkCache.set(source,entry);}
+        if(entry.has(key))return entry.get(key);
+        let color='#29252a';
+        try{
+          const sample=document.createElement('canvas');sample.width=32;sample.height=32;
+          const sampleCtx=sample.getContext('2d',{willReadFrequently:true});
+          const padding=Math.max(2,eye.gap*.22),left=Math.min(eye.a.x,eye.b.x)-padding,top=Math.min(eye.a.y,eye.b.y)-padding;
+          const width=Math.abs(eye.b.x-eye.a.x)+padding*2,height=Math.abs(eye.b.y-eye.a.y)+padding*2;
+          sampleCtx.drawImage(source,left,top,width,height,0,0,32,32);
+          const data=sampleCtx.getImageData(0,0,32,32).data,candidates=[];
+          for(let i=0;i<data.length;i+=4)if(data[i+3]>100)candidates.push([data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722,data[i],data[i+1],data[i+2]]);
+          candidates.sort((a,b)=>a[0]-b[0]);
+          const count=Math.min(12,candidates.length);
+          if(count){const rgb=[0,0,0];for(let i=0;i<count;i++)for(let c=0;c<3;c++)rgb[c]+=candidates[i][c+1]/count;color='rgb('+rgb.map(Math.round).join(',')+')';}
+        }catch(_){}
+        // Only the current samples are retained for mutable Shape Key canvases.
+        if(entry.size>4)entry.clear();entry.set(key,color);return color;
+      }
+      function faceBuildEyePatch(source,eye) {
+        const {center,tangent,normal,up,down,padding,halfWidth,browV}=eye;
+        const width=Math.max(4,Math.ceil(halfWidth*2+padding*2)),height=Math.max(4,Math.ceil(up+down+padding*2));
+        const ox=padding+halfWidth,oy=padding+up;
+        const make=()=>{const c=document.createElement('canvas');c.width=width;c.height=height;return c;};
+        const art=make(),mask=make(),plate=make();
+        const ac=art.getContext('2d',{willReadFrequently:true}),mc=mask.getContext('2d',{willReadFrequently:true}),pc=plate.getContext('2d');
+        ac.setTransform(tangent.x,normal.x,tangent.y,normal.y,ox-center.x*tangent.x-center.y*tangent.y,oy-center.x*normal.x-center.y*normal.y);
+        ac.drawImage(source,0,0);ac.setTransform(1,0,0,1,0,0);
+        if(eye.kind==='brow')mc.drawImage(eye.mask,0,0);
+        else{
+          mc.fillStyle='#fff';mc.beginPath();
+          eye.local.forEach((point,i)=>{if(i===0)mc.moveTo(ox+point.x,oy+point.y);else mc.lineTo(ox+point.x,oy+point.y);});
+          mc.closePath();mc.fill();
+        }
+        let pixels,maskPixels;
+        try{pixels=ac.getImageData(0,0,width,height);maskPixels=mc.getImageData(0,0,width,height).data;}
+        catch(_){return null;}
+        const data=pixels.data,samples=[[],[],[]];let outside=0,opaque=0;
+        for(let i=0;i<data.length;i+=4)if(maskPixels[i+3]<16){
+          outside++;if(data[i+3]>160){opaque++;for(let c=0;c<3;c++)samples[c].push(data[i+c]);}
+        }
+        const median=values=>{values.sort((a,b)=>a-b);return values[Math.floor(values.length/2)]||0;};
+        const background=samples.map(median),hasSkin=opaque>Math.max(2,outside*.35);
+        const fill=pc.createImageData(width,height),out=fill.data;
+        // Four robust skin samples give a smooth clean plate, without
+        // dragging thin ink/shadow columns from the surrounding drawing.
+        function skinCorner(right,bottom){
+          const colors=[[],[],[]];
+          const x0=right?Math.floor(width/2):0,x1=right?width:Math.ceil(width/2);
+          const y0=bottom?Math.floor(height/2):0,y1=bottom?height:Math.ceil(height/2);
+          for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+            const i=(y*width+x)*4;
+            if(maskPixels[i+3]>16||data[i+3]<160)continue;
+            if(Math.hypot(data[i]-background[0],data[i+1]-background[1],data[i+2]-background[2])>35)continue;
+            for(let c=0;c<3;c++)colors[c].push(data[i+c]);
+          }return colors[0].length>=4?colors.map(median):background;
+        }
+        const tl=skinCorner(false,false),tr=skinCorner(true,false),bl=skinCorner(false,true),br=skinCorner(true,true);
+        if(hasSkin)for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+          const i=(y*width+x)*4,u=width>1?x/(width-1):0,v=height>1?y/(height-1):0;
+          for(let c=0;c<3;c++)out[i+c]=(tl[c]*(1-u)+tr[c]*u)*(1-v)+(bl[c]*(1-u)+br[c]*u)*v;
+          out[i+3]=maskPixels[i+3];
+        }
+        pc.putImageData(fill,0,0);
+        ac.globalCompositeOperation='destination-in';ac.drawImage(mask,0,0);ac.globalCompositeOperation='source-over';
+        let contentTop=null,contentBottom=null,contentLeft=null,contentRight=null;
+        if(eye.kind==='eye-box'){
+          const skin=background[0]*.2126+background[1]*.7152+background[2]*.0722,rows=[],cols=[];
+          for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+            const i=(y*width+x)*4,lum=data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722;
+            if(maskPixels[i+3]>100&&data[i+3]>100&&skin-lum>Math.max(25,skin*.12)){rows.push(y+.5);cols.push(x+.5);}
+          }
+          if(rows.length){rows.sort((a,b)=>a-b);contentTop=rows[Math.floor(rows.length*.01)];contentBottom=rows[Math.floor((rows.length-1)*.99)];cols.sort((a,b)=>a-b);contentLeft=cols[Math.floor(cols.length*.01)];contentRight=cols[Math.floor((cols.length-1)*.99)];}
+        }
+        return {art,mask,plate,width,height,ox,oy,hasSkin,contentTop,contentBottom,contentLeft,contentRight};
+      }
+      function faceBrowSpecs(frame,eyes) {
+        const brows=[],nose=frame.p.nose||frame.c;
+        for(const side of ['L','R']){
+          let start=frame.p['brow'+side+'Start'],end=frame.p['brow'+side+'End'];
+          const eye=eyes.find(e=>e.side===side);if(!start||!end||!eye)continue;
+          if(Math.hypot(end.x-nose.x,end.y-nose.y)<Math.hypot(start.x-nose.x,start.y-nose.y))[start,end]=[end,start];
+          const length=Math.hypot(end.x-start.x,end.y-start.y);if(length<3)continue;
+          const center={x:(start.x+end.x)/2,y:(start.y+end.y)/2},tangent={x:(end.x-start.x)/length,y:(end.y-start.y)/length};
+          brows.push({side,start,end,center,tangent,normal:{x:-tangent.y,y:tangent.x},length,eye});
+        }return brows;
+      }
+      function faceBrowPose(brow,patch,value,frame) {
+        const desired=Math.sign(brow.tangent.x||1)*faceClamp(value)/100*.34;
+        const floor=(frame.p.top?.y||0)+2,ceiling=Math.min(...brow.eye.quad.map(p=>p.y))-2;
+        function pose(angle){
+          const cs=Math.cos(angle),sn=Math.sin(angle),t=brow.tangent,n=brow.normal;
+          const tangent={x:t.x*cs-t.y*sn,y:t.x*sn+t.y*cs},normal={x:n.x*cs-n.y*sn,y:n.x*sn+n.y*cs};
+          let top=Infinity,bottom=-Infinity;
+          for(const point of patch.inkPoints){const y=brow.center.y+tangent.y*point.x+normal.y*point.y;top=Math.min(top,y);bottom=Math.max(bottom,y);}
+          const dy=Math.min(0,ceiling-bottom);
+          return {angle,tangent,normal,dy,top:top+dy,bottom:bottom+dy};
+        }
+        let result=pose(desired);
+        if(result.top<floor){
+          let lo=0,hi=1;
+          for(let i=0;i<12;i++){const mid=(lo+hi)/2;if(pose(desired*mid).top>=floor)lo=mid;else hi=mid;}
+          result=pose(desired*lo);
+        }return result;
+      }
+      function faceBuildBrowPatch(source,brow) {
+        const {start,end,center,tangent,normal,length}=brow;
+        const padding=Math.max(3,length*.09),halfWidth=length/2,vertical=Math.max(4,length*.19);
+        const width=Math.ceil(length+padding*2),height=Math.ceil(vertical*2+padding*2),ox=halfWidth+padding,oy=vertical+padding;
+        const sample=document.createElement('canvas');sample.width=width;sample.height=height;
+        const sc=sample.getContext('2d',{willReadFrequently:true});
+        sc.setTransform(tangent.x,normal.x,tangent.y,normal.y,ox-center.x*tangent.x-center.y*tangent.y,oy-center.x*normal.x-center.y*normal.y);
+        sc.drawImage(source,0,0);sc.setTransform(1,0,0,1,0,0);
+        let data;try{data=sc.getImageData(0,0,width,height).data;}catch(_){return null;}
+        const lights=[];for(let i=0;i<data.length;i+=4)if(data[i+3]>160)lights.push(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722);
+        if(!lights.length)return null;lights.sort((a,b)=>a-b);
+        const skin=lights[Math.floor(lights.length*.70)],threshold=skin-Math.max(16,skin*.10);
+        const dark=new Uint8Array(width*height),alongLimit=length/2+Math.max(1.2,Math.min(2.5,length*.025));
+        const eye=brow.eye;
+        const transverseLimit=u=>{const edge=faceClamp((Math.abs(u)/(length/2)-.65)/.35,0,1);return vertical*(1-.70*edge);};
+        function inEye(x,y){
+          let sign=0;
+          for(let i=0;i<4;i++){const a=eye.quad[i],b=eye.quad[(i+1)%4],cross=(b.x-a.x)*(y-a.y)-(b.y-a.y)*(x-a.x);if(Math.abs(cross)<.01)continue;if(sign&&Math.sign(cross)!==sign)return false;sign=Math.sign(cross);}
+          return true;
+        }
+        for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+          const k=y*width+x,i=k*4,u=x-ox,v=y-oy,px=center.x+tangent.x*u+normal.x*v,py=center.y+tangent.y*u+normal.y*v;
+          const lum=data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722;
+          if(data[i+3]>100&&lum<threshold&&Math.abs(u)<=alongLimit&&Math.abs(v)<=transverseLimit(u)&&!inEye(px,py))dark[k]=1;
+        }
+        const grown=new Uint8Array(dark.length);
+        for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(dark[y*width+x]){
+          for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(x+dx>=0&&x+dx<width&&y+dy>=0&&y+dy<height)grown[(y+dy)*width+x+dx]=1;
+        }
+        // Seed the whole marked segment, including disconnected tips, instead of
+        // extracting a fixed-width fragment around one central marker.
+        const visited=new Uint8Array(dark.length),queue=[];
+        for(let s=0;s<=12;s++){
+          const targetX=padding+length*s/12,targetY=oy;let seed=-1,best=Infinity;
+          for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(dark[y*width+x]){
+            const d=(x-targetX)**2+(y-targetY)**2;if(d<best){best=d;seed=y*width+x;}
+          }
+          if(seed>=0&&best<=vertical*vertical&&!visited[seed]){visited[seed]=1;queue.push(seed);}
+        }
+        if(!queue.length)return null;
+        for(let q=0;q<queue.length;q++){
+          const k=queue[q],x=k%width,y=Math.floor(k/width);
+          for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+            const xx=x+dx,yy=y+dy,n=yy*width+xx;
+            if(xx<0||xx>=width||yy<0||yy>=height||!grown[n]||visited[n])continue;
+            const u=xx-ox,v=yy-oy,px=center.x+tangent.x*u+normal.x*v,py=center.y+tangent.y*u+normal.y*v;
+            if(Math.abs(u)>alongLimit||Math.abs(v)>transverseLimit(u)+1||inEye(px,py))continue;visited[n]=1;queue.push(n);
+          }
+        }
+        const mask=document.createElement('canvas');mask.width=width;mask.height=height;
+        const mc=mask.getContext('2d'),pixels=mc.createImageData(width,height),inkPoints=[];
+        for(const k of queue){pixels.data[k*4]=pixels.data[k*4+1]=pixels.data[k*4+2]=pixels.data[k*4+3]=255;inkPoints.push({x:k%width-ox,y:Math.floor(k/width)-oy});}
+        mc.putImageData(pixels,0,0);
+        const spec={kind:'brow',mask,center,tangent,normal,up:vertical,down:vertical,padding,halfWidth};
+        const patch=faceBuildEyePatch(source,spec);if(!patch)return null;
+        return {...patch,inkPoints};
+      }
+      function faceDrawBrows(l,source,output,cache,eyes) {
+        const frame=faceFrame(l,source.width,source.height),dc=output.getContext('2d'),brows=faceBrowSpecs(frame,eyes);
+        if(cache.browSource!==source){cache.browSource=source;cache.browPatches=new Map();}
+        for(const brow of brows){
+          const value=l.faceRig.values['brow'+brow.side]||0;if(Math.abs(value)<.001)continue;
+          const key=JSON.stringify([source._r2dTextureVersion||0,brow]);let entry=cache.browPatches.get(brow.side);
+          if(!entry||entry.key!==key){entry={key,patch:faceBuildBrowPatch(source,brow)};cache.browPatches.set(brow.side,entry);}
+          const patch=entry.patch;if(!patch)continue;
+          const pose=faceBrowPose(brow,patch,value,frame),{center,tangent,normal}=brow,{ox,oy}=patch;
+          dc.save();
+          for(const protectedEye of eyes){
+            dc.beginPath();dc.rect(0,0,source.width,source.height);
+            protectedEye.quad.forEach((p,i)=>{if(i===0)dc.moveTo(p.x,p.y);else dc.lineTo(p.x,p.y);});dc.closePath();dc.clip('evenodd');
+          }
+          dc.save();dc.transform(tangent.x,tangent.y,normal.x,normal.y,center.x-tangent.x*ox-normal.x*oy,center.y-tangent.y*ox-normal.y*oy);
+          if(!patch.hasSkin){dc.globalCompositeOperation='destination-out';dc.drawImage(patch.mask,0,0);}
+          dc.globalCompositeOperation='source-over';dc.drawImage(patch.plate,0,0);dc.restore();
+          const t=pose.tangent,n=pose.normal;
+          dc.transform(t.x,t.y,n.x,n.y,center.x-t.x*ox-n.x*oy,center.y+pose.dy-t.y*ox-n.y*oy);
+          dc.drawImage(patch.art,0,0);dc.restore();
+        }
+      }
+
+      function faceEyeLids(values,eye) {
+        const smooth=t=>t*t*(3-2*t),blink=smooth(faceClamp(values['blink'+eye.side],0,100)/100);
+        let upper=1-(1-blink*.48)*(1-faceClamp(values['upper'+eye.side],0,100)/100*.96);
+        let lower=1-(1-blink*.48)*(1-faceClamp(values['lower'+eye.side],0,100)/100*.96);
+        const sum=upper+lower;if(sum>.96){upper*=.96/sum;lower*=.96/sum;}
+        const total=upper+lower,scale=1-total;
+        return {upper,lower,total,scale,top:-eye.up+eye.gap*upper};
+      }
+      function faceOpenMouthTexture(l,source,cache,mouth,frame) {
+        const amount=faceClamp(l.faceRig.values.open,0,100)/100;if(!amount||!mouth)return source;
+        const {center,tangent,normal,length,radius}=mouth;
+        const padding=Math.max(2,length*.055),extent=Math.max(2,Math.min(length*.38,radius*.80));
+        const key=JSON.stringify([source._r2dTextureVersion||0,frame.p.mouthL,frame.p.mouthR,frame.p.nose,frame.p.chin]);
+        if(cache.mouthSource!==source||cache.mouthPatchKey!==key){
+          const local=[{x:-length/2,y:-extent},{x:length/2,y:-extent},{x:length/2,y:extent},{x:-length/2,y:extent}];
+          const spec={kind:'mouth',local,center,tangent,normal,halfWidth:length/2,up:extent,down:extent,padding};
+          const patch=faceBuildEyePatch(source,spec);cache.mouthSource=source;cache.mouthPatchKey=key;cache.mouthPatch=patch;cache.mouthRenderKey=null;
+          if(patch){
+            const dc=patch.art.getContext('2d',{willReadFrequently:true});let data;
+            try{data=dc.getImageData(0,0,patch.width,patch.height).data;}catch(_){return source;}
+            const lum=[];for(let i=0;i<data.length;i+=4)if(data[i+3]>160)lum.push(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722);
+            lum.sort((a,b)=>a-b);const skin=lum[Math.floor(lum.length*.70)]||230,profile=[];
+            const range=Math.max(2,length*.16),y0=Math.max(0,Math.floor(patch.oy-range)),y1=Math.min(patch.height-1,Math.ceil(patch.oy+range));
+            for(let x=0;x<patch.width;x++){
+              let split=patch.oy,best=0;
+              for(let y=y0;y<=y1;y++){
+                const i=(y*patch.width+x)*4,dark=skin-(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722);
+                if(data[i+3]<100||dark<Math.max(18,skin*.10))continue;
+                const score=dark/(1+Math.abs(y-patch.oy)/Math.max(2,length*.08));
+                if(score>best){best=score;split=y+.5;}
+              }profile.push(split);
+            }
+            patch.profile=profile.map((_,x)=>{const near=profile.slice(Math.max(0,x-2),Math.min(profile.length,x+3)).sort((a,b)=>a-b);return faceClamp(near[Math.floor(near.length/2)],.5,patch.height-.5);});
+            patch.ink=faceEyeInk(source,{a:{x:center.x-normal.x*extent,y:center.y-normal.y*extent},b:{x:center.x+normal.x*extent,y:center.y+normal.y*extent},gap:extent*2});
+          }
+        }
+        const patch=cache.mouthPatch;if(!patch?.profile)return source;
+        const renderKey=key+'|'+amount;
+        if(cache.openMouthCanvas&&cache.mouthRenderKey===renderKey)return cache.openMouthCanvas;
+        if(!cache.openMouthCanvas)cache.openMouthCanvas=document.createElement('canvas');
+        const output=cache.openMouthCanvas;output.width=source.width;output.height=source.height;
+        const dc=output.getContext('2d');dc.drawImage(source,0,0);
+        const distance=point=>point?Math.abs((point.x-center.x)*normal.x+(point.y-center.y)*normal.y):Infinity;
+        const upper=Math.max(0,Math.min(length*.12,distance(frame.p.nose)-extent-padding-2))*amount;
+        const lower=Math.max(0,Math.min(length*.28,distance(frame.p.chin)-extent-padding-2))*amount;
+        const {art,mask,plate,width,height,ox,oy}=patch;
+        dc.save();dc.transform(tangent.x,tangent.y,normal.x,normal.y,center.x-tangent.x*ox-normal.x*oy,center.y-tangent.y*ox-normal.y*oy);
+        if(!patch.hasSkin){dc.globalCompositeOperation='destination-out';dc.drawImage(mask,0,0);}
+        dc.globalCompositeOperation='source-over';dc.drawImage(plate,0,0);
+        dc.fillStyle=patch.ink;dc.imageSmoothingEnabled=true;dc.imageSmoothingQuality='high';
+        for(let x=0;x<width;x++){
+          const u=(x+.5-ox)/(length/2),arc=Math.max(0,1-u*u),up=upper*arc,down=lower*arc,split=patch.profile[x];
+          if(up+down>0)dc.fillRect(x,split-up,1,up+down);
+          dc.drawImage(art,x,0,1,split,x,-up,1,split);
+          dc.drawImage(art,x,split,1,height-split,x,split+down,1,height-split);
+        }
+        dc.restore();output._r2dTextureVersion=(output._r2dTextureVersion||0)+1;
+        cache.mouthRenderKey=renderKey;return output;
+      }
+
+      function faceBlinkTexture(l,source,cache,eyes) {
+        const active=eyes.filter(eye=>faceEyeLids(l.faceRig.values,eye).total>.001);
+        const hasBrows=faceBrowSpecs(faceFrame(l,source.width,source.height),eyes).some(brow=>Math.abs(l.faceRig.values['brow'+brow.side]||0)>.001);
+        if(!active.length&&!hasBrows)return source;
+        if(!cache.blinkCanvas)cache.blinkCanvas=document.createElement('canvas');
+        const output=cache.blinkCanvas;output.width=source.width;output.height=source.height;
+        const dc=output.getContext('2d');dc.drawImage(source,0,0);
+        if(cache.eyeSource!==source){cache.eyeSource=source;cache.eyePatches=new Map();}
+        for(const eye of active){
+          const key=JSON.stringify([source._r2dTextureVersion||0,eye]);
+          let entry=cache.eyePatches.get(eye.side);
+          if(!entry||entry.key!==key){entry={key,patch:faceBuildEyePatch(source,eye)};cache.eyePatches.set(eye.side,entry);}
+          const patch=entry.patch;if(!patch)continue;
+          const lidEye={...eye};
+          if(patch.contentTop!==null&&patch.contentBottom!==null){lidEye.up=Math.max(1,patch.oy-patch.contentTop);lidEye.down=Math.max(1,patch.contentBottom-patch.oy);lidEye.gap=lidEye.up+lidEye.down;}
+          const lids=faceEyeLids(l.faceRig.values,lidEye);
+          const {center,tangent,normal,halfWidth,gap}=lidEye,{mask,plate,width,height,ox,oy}=patch;
+          const top=oy+lids.top,bottom=oy+lidEye.down-lidEye.gap*lids.lower;
+          const apertureTop=lids.upper>.001?top:0,apertureBottom=lids.lower>.001?bottom:height;
+          dc.save();
+          dc.beginPath();eye.quad.forEach((p,i)=>{if(i===0)dc.moveTo(p.x,p.y);else dc.lineTo(p.x,p.y);});dc.closePath();dc.clip();
+          dc.transform(tangent.x,tangent.y,normal.x,normal.y,center.x-tangent.x*ox-normal.x*oy,center.y-tangent.y*ox-normal.y*oy);
+          if(!patch.hasSkin){dc.globalCompositeOperation='destination-out';dc.drawImage(mask,0,0);}
+          dc.globalCompositeOperation='source-over';dc.drawImage(plate,0,0);
+          // The eye/iris stays at its exact original coordinates. Eyelids only
+          // hide pixels behind a straight horizontal aperture: no compression,
+          // vertical remapping, curved strips or moving eyeball texture.
+          if(lids.total<.94&&apertureBottom>apertureTop){
+            dc.save();dc.beginPath();dc.rect(0,apertureTop,width,apertureBottom-apertureTop);dc.clip();
+            dc.setTransform(1,0,0,1,0,0);dc.drawImage(source,0,0);dc.restore();
+          }
+          const left=patch.contentLeft??ox-halfWidth,right=patch.contentRight??ox+halfWidth;
+          dc.strokeStyle=faceEyeInk(source,eye);dc.lineCap='round';
+          dc.lineWidth=Math.max(1.1,Math.min(gap*.065,halfWidth*.045));
+          const line=(y,alpha)=>{dc.globalAlpha=alpha;dc.beginPath();dc.moveTo(left,y);dc.lineTo(right,y);dc.stroke();};
+          if(lids.total>=.94)line((top+bottom)/2,1);
+          else{
+            if(lids.upper>.001)line(top,Math.min(1,lids.upper*8));
+            if(lids.lower>.001)line(bottom,Math.min(1,lids.lower*8));
+          }
+          dc.restore();
+        }
+        if(hasBrows)faceDrawBrows(l,source,output,cache,eyes);
+        return output;
+      }
+      function getFaceRigRenderImage(l,source) {
+        if(!l.faceRig || (faceMarking&&l===faceLayer()) || shapeWarpSession?.layerUid===l.uid)return source;
+        const r=ensureFaceRig(l);
+        if(!Object.keys(r.points).length||!Object.values(r.values).some(v=>Math.abs(v)>.001))return source;
+        const signature=JSON.stringify([r.points,r.values,source.width,source.height,source._r2dTextureVersion||0]);
+        let cache=faceRenderCache.get(l);
+        if(cache?.signature===signature&&cache.source===source)return cache.canvas;
+        if(!cache){cache={canvas:document.createElement('canvas'),version:0};faceRenderCache.set(l,cache);}
+        const w=source.width,h=source.height,frame=faceFrame(l,w,h),eyes=faceEyeSpecs(frame),mouth=faceMouthSpec(frame);
+        const mouthSource=faceOpenMouthTexture(l,source,cache,mouth,frame);
+        const blinkSource=faceBlinkTexture(l,mouthSource,cache,eyes);
+        const hasGlobalDeformation=['headX','headY','roll','smile','width'].some(id=>Math.abs(r.values[id]||0)>.001);
+        if(!hasGlobalDeformation){
+          cache.canvas.width=w;cache.canvas.height=h;
+          cache.canvas.getContext('2d').drawImage(blinkSource,0,0);
+          cache.signature=signature;cache.source=source;cache.canvas._r2dTextureVersion=++cache.version;
+          return cache.canvas;
+        }
+        function axisGrid(axis,size){
+          const values=new Set(),add=v=>values.add(Math.round(Math.max(0,Math.min(size,v))*10000)/10000);
+          const range=(lo,hi,n)=>{for(let i=0;i<=n;i++)add(lo+(hi-lo)*i/n);};
+          range(0,size,48);
+          for(const eye of eyes){
+            const half=eye.halfWidth*1.18*Math.abs(eye.tangent[axis])+eye.outer*Math.abs(eye.normal[axis]);
+            range(eye.center[axis]-half,eye.center[axis]+half,28);
+            for(const point of [eye.a,eye.b,eye.center])add(point[axis]);
+            for(const t of [-1,-.65,.65,1])add(eye.center[axis]+eye.tangent[axis]*eye.halfWidth*t);
+          }
+          if(mouth){const half=Math.abs(mouth.tangent[axis])*mouth.length*1.1+Math.abs(mouth.normal[axis])*mouth.radius;
+            range(mouth.center[axis]-half,mouth.center[axis]+half,40);add(mouth.center[axis]);
+            add(frame.p.mouthL[axis]);add(frame.p.mouthR[axis]);}
+          return [...values].sort((a,b)=>a-b);
+        }
+        const sourceXs=axisGrid('x',w),sourceYs=axisGrid('y',h),cols=sourceXs.length-1,rows=sourceYs.length-1;
+        const transform=faceField(l,w,h),deltas=[];
+        for(const sy of sourceYs)for(const sx of sourceXs){const d=transform(sx,sy);deltas.push({dx:d.x-sx,dy:d.y-sy});}
+        renderOneShapeWarp(blinkSource,cache.canvas,{selection:[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}],bbox:{x:0,y:0,w,h},cols,rows,sourceXs,sourceYs,deltas},1);
+        cache.signature=signature;cache.source=source;cache.canvas._r2dTextureVersion=++cache.version;
+        return cache.canvas;
+      }
+      // Map between the image and the existing body mesh, including bone poses.
+      function faceMeshPoint(l,point,inverse=false) {
+        const geometry=buildInfluenceMaskGeometry(l),verts=geometry.mesh||l.mesh;
+        if(!verts?.length)return point;
+        for(const t of geometry.triangles||TRIANGLE_INDICES){
+          const a=verts[t[0]],b=verts[t[1]],c=verts[t[2]];if(!a||!b||!c)continue;
+          const ax=inverse?a.x:a.ox,ay=inverse?a.y:a.oy,bx=inverse?b.x:b.ox,by=inverse?b.y:b.oy,cx=inverse?c.x:c.ox,cy=inverse?c.y:c.oy;
+          const det=(by-cy)*(ax-cx)+(cx-bx)*(ay-cy);if(Math.abs(det)<1e-8)continue;
+          const u=((by-cy)*(point.x-cx)+(cx-bx)*(point.y-cy))/det,v=((cy-ay)*(point.x-cx)+(ax-cx)*(point.y-cy))/det,z=1-u-v;
+          if(u<-.001||v<-.001||z<-.001)continue;
+          return inverse?{x:a.ox*u+b.ox*v+c.ox*z,y:a.oy*u+b.oy*v+c.oy*z}:{x:a.x*u+b.x*v+c.x*z,y:a.y*u+b.y*v+c.y*z};
+        }return point;
+      }
+      function faceScreenPoint(l,p,m,transform) {
+        const q=faceMeshPoint(l,transform?transform(p.x,p.y):p);
+        return new DOMPoint(q.x,q.y).matrixTransform(m);
+      }
+      function drawFaceRigOverlay(l,m,target) {
+        if(!faceMarking || !document.getElementById('face-rig-tab').classList.contains('open') || !l.faceRig)return;
+        const asset=l.assets[l.activeAssetIndex]?.img;if(!asset)return;
+        const points=l.faceRig.points,choice=document.getElementById('face-point-choice').value;
+        const transform=null;
+        target.save();target.setTransform(1,0,0,1,0,0);
+        const scale=FW/Math.max(1,canvas.getBoundingClientRect().width);target.lineWidth=1.5*scale;
+        target.setLineDash([3*scale,3*scale]);target.strokeStyle='#62d6c4';
+        for(const side of ['L','R']){
+          const corners=['TL','TR','BR','BL'].map(corner=>points['eye'+side+corner]);
+          target.beginPath();let first=true;
+          for(const p of corners){if(!p)continue;const q=faceScreenPoint(l,p,m,null);if(first){target.moveTo(q.x,q.y);first=false;}else target.lineTo(q.x,q.y);}
+          if(corners.every(Boolean)){const q=faceScreenPoint(l,corners[0],m,null);target.lineTo(q.x,q.y);}
+          target.stroke();
+        }
+        target.setLineDash([]);
+        for(const side of ['L','R']){
+          const start=points['brow'+side+'Start'],end=points['brow'+side+'End'];if(!start||!end)continue;
+          const a=faceScreenPoint(l,start,m,null),b=faceScreenPoint(l,end,m,null);target.beginPath();target.moveTo(a.x,a.y);target.lineTo(b.x,b.y);target.stroke();
+        }
+        for(let i=0;i<FACE_POINTS.length;i++){
+          const [id]=FACE_POINTS[i],p=points[id];if(!p)continue;
+          const q=faceScreenPoint(l,p,m,transform);target.beginPath();target.arc(q.x,q.y,5*scale,0,Math.PI*2);target.fillStyle=id===choice?'#fff':'#f1b95b';target.fill();target.strokeStyle='#171717';target.stroke();
+        }target.restore();
+      }
+      function faceEventPoint(e,l) {
+        const rect=canvas.getBoundingClientRect(),m=getLayerCanvasMatrix(l);
+        if(!m)return null;
+        const a=new DOMPoint((e.clientX-rect.left)*FW/rect.width,(e.clientY-rect.top)*FH/rect.height).matrixTransform(m.inverse());
+        return faceMeshPoint(l,a,true);
+      }
+      canvas.addEventListener('pointerdown',e=>{
+        if(!faceMarking||isDrawingEditorOpen()||canvasViewPanMode||e.button!==0)return;
+        const l=faceLayer();if(!l)return;
+        e.preventDefault();e.stopImmediatePropagation();
+        const p=faceEventPoint(e,l),asset=l.assets[l.activeAssetIndex]?.img;if(!p||!asset)return;
+        const rig=ensureFaceRig(l),rect=canvas.getBoundingClientRect(),m=getLayerCanvasMatrix(l);
+        let id=null,best=12*FW/rect.width;
+        const chosen=document.getElementById('face-point-choice').value;
+        for(const [key,q] of Object.entries(rig.points).filter(()=>!!rig.points[chosen])){const at=faceScreenPoint(l,q,m,null),d=Math.hypot(at.x-(e.clientX-rect.left)*FW/rect.width,at.y-(e.clientY-rect.top)*FH/rect.height);if(d<best){best=d;id=key;}}
+        const existing=!!id;if(!id)id=chosen;
+        if(!existing&&(p.x<0||p.y<0||p.x>asset.width||p.y>asset.height)){showNotice('Marque o ponto dentro da imagem da camada.');return;}
+        rig.points[id]={x:faceClamp(p.x,0,asset.width),y:faceClamp(p.y,0,asset.height)};
+        document.getElementById('face-point-choice').value=id;
+        faceDrag={pointerId:e.pointerId,layer:l,id,existing};canvas.setPointerCapture(e.pointerId);draw();
+      },true);
+      canvas.addEventListener('pointermove',e=>{
+        if(!faceDrag||faceDrag.pointerId!==e.pointerId)return;
+        e.preventDefault();e.stopImmediatePropagation();
+        const {layer:l,id}=faceDrag,p=faceEventPoint(e,l),asset=l.assets[l.activeAssetIndex]?.img;
+        if(p&&asset){l.faceRig.points[id]={x:faceClamp(p.x,0,asset.width),y:faceClamp(p.y,0,asset.height)};scheduleShapeWarpDraw();}
+      },true);
+      function faceEndDrag(e){
+        if(!faceDrag||faceDrag.pointerId!==e.pointerId)return;
+        e.preventDefault();e.stopImmediatePropagation();
+        const {layer:l,id,existing}=faceDrag;faceDrag=null;
+        if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
+        if(!existing && e.type==='pointerup'){
+          const next=FACE_POINTS.find(([key])=>!l.faceRig.points[key]);
+          if(next)document.getElementById('face-point-choice').value=next[0];
+          else {faceMarking=false;showNotice('Marcação concluída. Pontos ocultos: use o joystick e as expressões.');}
+        }
+        draw();
+      }
+      canvas.addEventListener('pointerup',faceEndDrag,true);canvas.addEventListener('pointercancel',faceEndDrag,true);
+      document.getElementById('face-point-choice').addEventListener('change',()=>{updateFaceRigUI();draw();});
+      for(const [id,label,min,max] of FACE_CONTROLS.filter(([id])=>!['headX','headY','roll'].includes(id))){
+        const row=document.createElement('label');row.className='face-slider';
+        const text=document.createElement('span');text.textContent=label;const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.value=0;input.step=1;input.dataset.faceControl=id;
+        const out=document.createElement('output');out.textContent='0';input.addEventListener('input',()=>faceSetValue(id,input.value));row.append(text,input,out);document.getElementById('face-slider-list').appendChild(row);
+      }
+      const faceJoystick=document.getElementById('face-joystick');let faceStickPointer=null;
+      function faceStickMove(e){const rect=faceJoystick.getBoundingClientRect();let x=(e.clientX-rect.left-rect.width/2)/(rect.width*.39),y=(e.clientY-rect.top-rect.height/2)/(rect.height*.39);const d=Math.hypot(x,y);if(d>1){x/=d;y/=d;}faceSetValue('headX',Math.round(x*100));faceSetValue('headY',Math.round(y*100));}
+      faceJoystick.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();faceStickPointer=e.pointerId;faceJoystick.setPointerCapture(e.pointerId);faceStickMove(e);});
+      faceJoystick.addEventListener('pointermove',e=>{if(faceStickPointer===e.pointerId)faceStickMove(e);});
+      for(const type of ['pointerup','pointercancel'])faceJoystick.addEventListener(type,e=>{if(faceStickPointer!==e.pointerId)return;faceStickPointer=null;if(faceJoystick.hasPointerCapture(e.pointerId))faceJoystick.releasePointerCapture(e.pointerId);});
+      faceJoystick.addEventListener('dblclick',()=>{faceSetValue('headX',0);faceSetValue('headY',0);});
+      faceJoystick.addEventListener('keydown',e=>{const v=faceLayer()?.faceRig?.values||{};if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key)){e.preventDefault();e.stopPropagation();if(e.key==='Home'){faceSetValue('headX',0);faceSetValue('headY',0);}else{const horizontal=e.key==='ArrowLeft'||e.key==='ArrowRight',id=horizontal?'headX':'headY';faceSetValue(id,(v[id]||0)+(['ArrowLeft','ArrowUp'].includes(e.key)?-5:5));}}});
+
       // Shape Keys 2D — fluxo de edição por sessão.
       // ShapeKey na barra inicia uma NOVA Shape Key ainda não criada na lista.
       // Editar inicia uma sessão sobre uma Shape Key existente e a reseta à Base.
@@ -7165,8 +7811,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
       function shapeWarpVertex(op, x, y) {
         return {
-          x: op.bbox.x + (x / op.cols) * op.bbox.w,
-          y: op.bbox.y + (y / op.rows) * op.bbox.h,
+          x: op.sourceXs ? op.sourceXs[x] : op.bbox.x + (x / op.cols) * op.bbox.w,
+          y: op.sourceYs ? op.sourceYs[y] : op.bbox.y + (y / op.rows) * op.bbox.h,
         };
       }
 
@@ -8883,6 +9529,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       
 
       function draw(showUI = true, targetCtx = ctx, ignoreBg = false) {
+        if(targetCtx === ctx) updateFaceRigUI();
         targetCtx.clearRect(0, 0, FW, FH);
         applyFollowPins();
         applyFolderFollowers();
@@ -8905,7 +9552,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
               : 0;
           const baseImg = l.assets[assetIdx]?.img;
           if (!baseImg || !baseImg.width) return;
-          const currentImg = getShapeWarpRenderImage(l, baseImg);
+          const currentImg = getFaceRigRenderImage(l, getShapeWarpRenderImage(l, baseImg));
 
           const gMat = getLayerCanvasMatrix(l);
           if (!gMat) return;
@@ -9061,6 +9708,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             drawInfluenceMaskOverlay(active, m, targetCtx);
             // Overlay temporário do Laço Warp / pincel da Shape Key.
             drawShapeWarpOverlay(active, m, targetCtx);
+            drawFaceRigOverlay(active, m, targetCtx);
 
           }
         }
@@ -9205,7 +9853,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       function switchLayerPanelTab(tab) {
         const posesOpen = tab === "poses";
         const shapeKeysOpen = tab === "shapeKeys";
-        const layersOpen = !posesOpen && !shapeKeysOpen;
+        const faceOpen = tab === "faceRig";
+        if (!faceOpen && faceMarking) { faceMarking = false; faceDrag = null; draw(); }
+        const layersOpen = !posesOpen && !shapeKeysOpen && !faceOpen;
+        document.getElementById("face-rig-tab").classList.toggle("open", faceOpen);
+        document.getElementById("faceRigTabBtn").classList.toggle("active", faceOpen);
+        if(faceOpen) updateFaceRigUI();
         document.getElementById("layers-tab").classList.toggle("hidden", !layersOpen);
         document.getElementById("poses-tab").classList.toggle("open", posesOpen);
         document.getElementById("shape-keys-tab").classList.toggle("open", shapeKeysOpen);
@@ -9214,18 +9867,19 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         document.getElementById("shapeKeysTabBtn").classList.toggle("active", shapeKeysOpen);
         if (posesOpen) updateSavedPosesUI();
         if (shapeKeysOpen) updateShapeKeysUI();
+        draw();
       }
 
       function normalizeSavedPosesForLayer(layer) {
         if(!layer)return;const poses=Array.isArray(layer.savedPoses)?layer.savedPoses:[];if(layer.isFolder){layer.savedPoses=poses;return;}
         const layerPins=layer.pins||[];
         const localState=(saved,pin)=>{if(!saved||!pin)return null;const baseX=Number.isFinite(pin.ox)?pin.ox:pin.x,baseY=Number.isFinite(pin.oy)?pin.oy:pin.y;return{dx:Number.isFinite(saved.dx)?saved.dx:Number.isFinite(saved.x)?saved.x-baseX:0,dy:Number.isFinite(saved.dy)?saved.dy:Number.isFinite(saved.y)?saved.y-baseY:0,warpAngle:Number.isFinite(saved.warpAngle)?saved.warpAngle:0,z:Number.isFinite(saved.z)?saved.z:Number(pin.z||0)};};
-        layer.savedPoses=poses.map((pose,poseIndex)=>{if(!pose||typeof pose!=="object")return null;return{uid:pose.uid||generateUid(),name:pose.name||`Pose ${poseIndex+1}`,poseSpace:"local-v2",bodyPins:layerPins.map((pin,index)=>localState(pose.bodyPins?.[index],pin)),shapeKeyValues:{...(pose.shapeKeyValues||{})},assetIndex:Math.max(0,Number(pose.assetIndex)||0)};}).filter(Boolean);
+        layer.savedPoses=poses.map((pose,poseIndex)=>{if(!pose||typeof pose!=="object")return null;return{uid:pose.uid||generateUid(),name:pose.name||`Pose ${poseIndex+1}`,poseSpace:"local-v2",bodyPins:layerPins.map((pin,index)=>localState(pose.bodyPins?.[index],pin)),shapeKeyValues:{...(pose.shapeKeyValues||{})},faceRigValues:{...(pose.faceRigValues||{})},assetIndex:Math.max(0,Number(pose.assetIndex)||0)};}).filter(Boolean);
       }
 
       function captureLayerPose(l,name,uid=generateUid()) {
         const bodyPins=(l.pins||[]).map((p)=>{const baseX=Number.isFinite(p.ox)?p.ox:p.x,baseY=Number.isFinite(p.oy)?p.oy:p.y;return{dx:p.x-baseX,dy:p.y-baseY,warpAngle:p.warpAngle,z:Number(p.z||0)};});
-        return{uid,name,poseSpace:"local-v2",bodyPins,shapeKeyValues:captureShapeKeyValues(l),assetIndex:l.activeAssetIndex||0};
+        return{uid,name,poseSpace:"local-v2",bodyPins,shapeKeyValues:captureShapeKeyValues(l),faceRigValues:captureFaceRigValues(l),assetIndex:l.activeAssetIndex||0};
       }
 
       function saveCurrentLayerPose() {
@@ -9249,6 +9903,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const preservedTransform={gPos:{...(l.gPos||{x:0,y:0})},gScale:Number.isFinite(l.gScale)?l.gScale:1,gRotation:Number.isFinite(l.gRotation)?l.gRotation:0,gPivot:l.gPivot?{...l.gPivot}:null,z:Number(l.z||0)};
         const applyPinPose=(p,saved)=>{if(!saved)return;if(pose.poseSpace==="local-v2"){const baseX=Number.isFinite(p.ox)?p.ox:p.x,baseY=Number.isFinite(p.oy)?p.oy:p.y;p.x=baseX+Number(saved.dx||0);p.y=baseY+Number(saved.dy||0);}else{if(Number.isFinite(saved.x))p.x=saved.x;if(Number.isFinite(saved.y))p.y=saved.y;}if(Number.isFinite(saved.warpAngle))p.warpAngle=saved.warpAngle;if(Number.isFinite(saved.z))p.z=saved.z;};
         (l.pins||[]).forEach((p,i)=>applyPinPose(p,pose.bodyPins?.[i]));
+        if(l.faceRig) l.faceRig.values=interpolateFaceRigValues(pose.faceRigValues,pose.faceRigValues,0);
         if(pose.shapeKeyValues){ensureShapeKeys2D(l).forEach((shape)=>{if(Object.prototype.hasOwnProperty.call(pose.shapeKeyValues,shape.uid))shape.value=Math.max(0,Math.min(100,Number(pose.shapeKeyValues[shape.uid])||0));});invalidateShapeWarp();updateShapeKeysUI();}
         l.activeAssetIndex=Math.min(pose.assetIndex||0,Math.max(0,l.assets.length-1));l.gPos=preservedTransform.gPos;l.gScale=preservedTransform.gScale;l.gRotation=preservedTransform.gRotation;if(preservedTransform.gPivot)l.gPivot=preservedTransform.gPivot;l.z=preservedTransform.z;
         pins=l.pins;gPos=l.gPos;gScale=l.gScale;gRotation=l.gRotation;updateDeform(l);setKeyframe(false);updateLayersUI();draw();
