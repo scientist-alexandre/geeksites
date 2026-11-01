@@ -1121,6 +1121,40 @@
       .face-slider input {width:100%;min-width:0;accent-color:#f1b95b;}
       .face-slider output {text-align:right;font:10px monospace;}
       #face-rig-tab .face-help {padding:8px;border:1px solid #494033;border-radius:5px;}
+      /* Keep native horizontal scrollbars below the 21px keyframe lanes. */
+      #transform-timeline-panel,
+      #background-timeline-panel,
+      #audio-timeline {
+        height: 46px;
+        min-height: 46px;
+        flex-shrink: 0;
+      }
+      .transform-timeline-track-wrap,
+      .background-timeline-track-wrap,
+      #audio-timeline-scroll {
+        box-sizing: border-box;
+        height: 41px;
+        min-height: 41px;
+        max-height: 41px;
+        scrollbar-width: thin;
+        scrollbar-color: #666 #161616;
+      }
+      .transform-timeline-track-wrap::-webkit-scrollbar,
+      .background-timeline-track-wrap::-webkit-scrollbar,
+      #audio-timeline-scroll::-webkit-scrollbar {
+        height: 10px;
+        width: 10px;
+      }
+      .transform-timeline-track-wrap::-webkit-scrollbar-track,
+      .background-timeline-track-wrap::-webkit-scrollbar-track,
+      #audio-timeline-scroll::-webkit-scrollbar-track { background: #161616; }
+      .transform-timeline-track-wrap::-webkit-scrollbar-thumb,
+      .background-timeline-track-wrap::-webkit-scrollbar-thumb,
+      #audio-timeline-scroll::-webkit-scrollbar-thumb {
+        background: #666;
+        border: 2px solid #161616;
+        border-radius: 6px;
+      }
     </style>
     <script id="threejs-offline-bundle">
 console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
@@ -1268,6 +1302,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         <button id="g-scale" class="btn-global" onclick="setMode('g-scale')">
           Escalar
         </button>
+        <label style="display:flex;align-items:center;gap:5px;white-space:nowrap;padding:0 4px;font-size:10px;">Virar imagem
+          <input id="image-turn" type="range" min="-100" max="100" step="1" value="0" style="width:90px;" aria-label="Virar a imagem inteira em perspectiva" title="Esquerda / frente / direita. Duplo clique para zerar.">
+          <output id="image-turn-value" style="min-width:28px;text-align:right;">0°</output>
+        </label>
       </div>
       <div class="toolbar-white-group" aria-label="Grupo de ordem">
         <button
@@ -1302,7 +1340,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             min="1"
             max="60"
             step="1"
-            value="1"
+            value="4"
             style="width: 40px"
             oninput="seek(currentFrame); refreshTotalFrames(); renderAudioTimeline()"
         /></label>
@@ -1814,41 +1852,23 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           const pinBind = (l.pins || [])
             .map(
               (p, i) =>
-                `${i}:${Math.round((p.ox || 0) * 100) / 100},${Math.round((p.oy || 0) * 100) / 100}`,
+                `${i}:${Math.round((p.ox || 0) * 100) / 100},${Math.round((p.oy || 0) * 100) / 100},${p.parentId??-1}`,
             )
             .join(";");
           return `${gm.signature || "base"}|${gm.mesh.length}|${gm.triangles.length}|${item.img.width}x${item.img.height}|${pinBind}`;
         };
 
-        // Metadados invariantes por triângulo. Nearest pin e candidatos de Frente
-        // dependem da pose de bind/regiões, não do movimento atual dos ossos.
+        // Depth follows the same stable, masked segments used to deform skin.
         const buildTriangleMeta = (item, gm) => {
-          const l = item.l;
-          const meta = new Array(gm.triangles.length);
-          const bodyPins = (l.pins || []).map((p, i) => ({ p, i }));
-          for (let ti = 0; ti < gm.triangles.length; ti++) {
-            const t = gm.triangles[ti];
-            const a = gm.mesh[t[0]], b = gm.mesh[t[1]], c = gm.mesh[t[2]];
-            const cx = (a.ox + b.ox + c.ox) / 3;
-            const cy = (a.oy + b.oy + c.oy) / 3;
-            let nearest = -1, best = Infinity;
-            for (let j = 0; j < bodyPins.length; j++) {
-              const o = bodyPins[j];
-              const dx = cx - (o.p.ox ?? o.p.x);
-              const dy = cy - (o.p.oy ?? o.p.y);
-              const d = dx * dx + dy * dy;
-              if (d < best) { best = d; nearest = o.i; }
-            }
-            meta[ti] = { nearest, frontCandidates: [], localOverlay: false };
-          }
-          return meta;
+          return buildRigDepthMeta(item.l,gm);
         };
 
         const buildCommands = (item, gm, cacheEntry) => {
           const l = item.l;
+          const headRegion=faceHeadRegion(l);
           const zSignature = (l.pins || [])
             .map((p) => Number(p.z || 0).toFixed(5))
-            .join(",") + `|layer:${Number(l.z || 0).toFixed(5)}`;
+            .join(",") + `|layer:${Number(l.z || 0).toFixed(5)}|head:${headRegion?.signature||''}`;
           if (cacheEntry.commands && cacheEntry.zSignature === zSignature)
             return cacheEntry.commands;
           destroyCommands(cacheEntry.commands);
@@ -1867,21 +1887,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           const layerZ = Number(l.z || 0);
           for (let ti = 0; ti < gm.triangles.length; ti++) {
             const m = cacheEntry.meta[ti];
-            let manualFrontZ = 0,
-              manualBackZ = 0;
-            const candidates = m.frontCandidates;
-            for (let j = 0; j < candidates.length; j++) {
-              const z = pins[candidates[j]]?.z || 0;
-              if (z > manualFrontZ) manualFrontZ = z;
-              if (z < manualBackZ) manualBackZ = z;
-            }
-            const manualDepthZ = manualFrontZ > 0 ? manualFrontZ : manualBackZ;
-            const bodyZ =
-              manualDepthZ ||
-              (m.nearest >= 0 ? Number(pins[m.nearest]?.z || 0) : 0);
-            // Um único eixo Z numérico e ilimitado para ordenar a profundidade.
-            const effectiveZ = layerZ + bodyZ;
-            add(0, effectiveZ, ti, m.localOverlay);
+            const bodyZ=rigDepthForMeta(l,m);
+            const tri=gm.triangles[ti],a=gm.mesh[tri[0]],b=gm.mesh[tri[1]],c=gm.mesh[tri[2]];
+            const headFront=headRegion?.contains((a.ox+b.ox+c.ox)/3,(a.oy+b.oy+c.oy)/3);
+            const effectiveZ = layerZ + (headFront?headRegion.depth:bodyZ);
+            add(headFront?1:0, effectiveZ, ti, m.localOverlay);
           }
 
           const commands = [];
@@ -1993,8 +2003,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             }
             commands.sort(
               (a, b) =>
-                a.depthGroup - b.depthGroup ||
                 a.depthValue - b.depthValue ||
+                a.depthGroup - b.depthGroup ||
                 a.layerOrder - b.layerOrder ||
                 Number(a.localOverlay) - Number(b.localOverlay),
             );
@@ -2333,7 +2343,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const pin = source?.pins?.[pinIndex];
         const matrix = source && pin ? getLayerCanvasMatrix(source) : null;
         if (!pin || !matrix) return null;
-        const point = new DOMPoint(pin.x, pin.y).matrixTransform(matrix);
+        const point = new DOMPoint(layerTurnPoint(source,pin).x,layerTurnPoint(source,pin).y).matrixTransform(matrix);
         const sourceScale = Math.abs(Number(source.gScale)) > 1e-8 ? Number(source.gScale) : 1;
         return {
           x: point.x,
@@ -2535,7 +2545,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           const matrix = getLayerCanvasMatrix(source);
           if (!matrix) return;
           (source.pins || []).forEach((pin, pinIndex) => {
-            const point = new DOMPoint(pin.x, pin.y).matrixTransform(matrix);
+            const point = new DOMPoint(layerTurnPoint(source,pin).x,layerTurnPoint(source,pin).y).matrixTransform(matrix);
             const distance = Math.hypot(point.x - rawX, point.y - rawY);
             if (distance <= 22 && (!chosen || distance < chosen.distance))
               chosen = { source, pinIndex, point, distance };
@@ -4728,6 +4738,20 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         return geometry;
       }
 
+      const influenceMaskPoseCache=new WeakMap();
+      function influenceMaskPoseStamp(layer) {
+        const image=layer.assets?.[layer.activeAssetIndex||0]?.img;
+        return JSON.stringify([image?.width||0,image?.height||0,(layer.pins||[]).map(p=>[p.ox,p.oy,p.x,p.y,p.parentId,p.warpAngle])]);
+      }
+      function updateInfluenceMaskRenderPose(layer,geometry) {
+        if(!geometry.adaptive)return false;
+        const stamp=influenceMaskPoseStamp(layer),cached=influenceMaskPoseCache.get(geometry);
+        if(cached?.layer===layer&&cached.stamp===stamp)return false;
+        updateDeform(layer,geometry.mesh,true);
+        influenceMaskPoseCache.set(geometry,{layer,stamp:influenceMaskPoseStamp(layer)});
+        return true;
+      }
+
       function distanceSqPointToBoneSegment(x, y, control) {
         const a = control.parent;
         const t = Math.max(0, Math.min(1,
@@ -4767,7 +4791,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
       function getFps() {
         const val = parseFloat(document.getElementById("fps-input").value);
-        return isNaN(val) ? 1 : Math.max(1, Math.min(60, val));
+        return isNaN(val) ? 4 : Math.max(1, Math.min(60, val));
       }
 
       function togglePins() {
@@ -6791,7 +6815,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 window.r2dPanoramaData = null;
                 window.r2dPendingPanoramaData = null;
               }
-              document.getElementById("fps-input").value = data.fps || 1;
+              document.getElementById("fps-input").value = data.fps || 4;
 
               const loadedLayers = await Promise.all(
                 (Array.isArray(data.layers) ? data.layers : []).map(async (lData) => {
@@ -7070,7 +7094,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         let interactionMatrix = getGlobalMatrix();
         const pt = new DOMPoint(rawX, rawY).matrixTransform(interactionMatrix.inverse());
 
-        return { x: pt.x, y: pt.y };
+        return layerTurnPoint(getSelectedImageLayer(),pt,true);
       }
 
 
@@ -7088,6 +7112,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         ['mouthL','Canto esquerdo da boca'],['mouthR','Canto direito da boca']
       ];
       const FACE_CONTROLS = [
+        ['imageYaw','Imagem 3/4',-100,100],
         ['headX','Virar horizontal',-100,100],['headY','Virar vertical',-100,100],
         ['roll','Inclinar cabeça',-100,100],
         ['smile','Boca',-100,100],['width','Largura boca',-100,100],['open','Abrir boca',0,100],
@@ -7141,7 +7166,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       function faceReset() {
         const l=faceLayer();if(!l||faceMarking)return;
         if(isPlaying)togglePlay();
-        ensureFaceRig(l).values=interpolateFaceRigValues();faceAutoKey();
+        const imageYaw=ensureFaceRig(l).values.imageYaw;
+        ensureFaceRig(l).values={...interpolateFaceRigValues(),imageYaw};faceAutoKey();
       }
       function faceToggleMark() {
         const l=faceLayer();if(!l){showNotice('Selecione uma camada de imagem.');return;}
@@ -7165,6 +7191,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         showNotice('Refaça os pontos no desenho, começando pelo contorno esquerdo. O centro é automático.');
       }
       function updateFaceRigUI() {
+        const imageLayer=faceLayer(),turn=document.getElementById('image-turn');
+        if(turn){turn.value=imageLayer?.faceRig?.values?.imageYaw||0;turn.disabled=!imageLayer||faceMarking||!!shapeWarpSession;
+          document.getElementById('image-turn-value').textContent=Math.round(Number(turn.value)*.45)+'°';}
         const tab=document.getElementById('face-rig-tab');if(!tab?.classList.contains('open'))return;
         const l=faceLayer(),uid=l?.uid||null;
         if(uid!==faceUILayer){faceUILayer=uid;faceMarking=false;faceDrag=null;}
@@ -7222,7 +7251,155 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }
         return {center,tangent,normal,length,radius:Math.max(2,radius)};
       }
-      function faceField(l,w,h) {
+      function faceHeadUsesGeometry(layer) {
+        return !!layer?.faceRig && normalizeInfluenceMasks(layer).length>0;
+      }
+      function layerTurnProjection(layer) {
+        const value=Number(layer?.faceRig?.values?.imageYaw||0);
+        if(!value||!layer||layer.isFolder)return null;
+        if((faceMarking&&layer===faceLayer())||shapeWarpSession?.layerUid===layer.uid||
+          ((influenceMaskToolActive||shapeWarpToolActive)&&layer===getSelectedImageLayer()))return null;
+        const image=layer.assets?.[layer.activeAssetIndex||0]?.img;
+        if(!image?.width||!image?.height)return null;
+        const angle=faceClamp(value)/100*Math.PI/4;
+        const c=Math.cos(angle),k=Math.sin(angle)/(image.width*2.8);
+        const cx=image.width/2,cy=image.height/2;
+        return {forward:(x,y)=>{const dx=x-cx,den=Math.max(.15,1-dx*k);return {x:cx+dx*c/den,y:cy+(y-cy)/den};},
+          inverse:(x,y)=>{const dx=(x-cx)/(c+(x-cx)*k);return {x:cx+dx,y:cy+(y-cy)*(1-dx*k)};}};
+      }
+      function layerTurnPoint(layer,point,inverse=false) {
+        const projection=layerTurnProjection(layer);
+        return projection?(inverse?projection.inverse(point.x,point.y):projection.forward(point.x,point.y)):point;
+      }
+      const layerTurnGeometryCache=new WeakMap();
+      function buildLayerTurnGeometry(layer,geometry) {
+        const projection=layerTurnProjection(layer);
+        if(!projection)return geometry;
+        let view=layerTurnGeometryCache.get(layer);
+        if(!view||view.source!==geometry.mesh||view.triangles!==geometry.triangles){
+          view={source:geometry.mesh,mesh:geometry.mesh.map(v=>({...v})),triangles:geometry.triangles,
+            adaptive:geometry.adaptive,signature:geometry.signature+'|image-turn'};
+          layerTurnGeometryCache.set(layer,view);
+        }
+        for(let i=0;i<geometry.mesh.length;i++){
+          const v=geometry.mesh[i],p=projection.forward(v.x,v.y);
+          view.mesh[i].x=p.x;view.mesh[i].y=p.y;
+        }
+        return view;
+      }
+      const rigDepthMetaCache=new WeakMap();
+      function buildRigDepthMeta(layer,geometry) {
+        const binding=buildBoneWarpBinding(layer,geometry.mesh,layer.pins||[]);
+        const previous=rigDepthMetaCache.get(geometry.mesh);
+        if(previous?.binding===binding&&previous.triangles===geometry.triangles)return previous.meta;
+        const meta=geometry.triangles.map(tri=>{
+          // Use the same masked bone ownership as skinning. A hand joint must
+          // not claim a patch of belly merely because it is nearby.
+          const scores=new Map();
+          for(const vi of tri){
+            const rigid=binding.rigidCarrierIds[vi];
+            if(rigid>=0){scores.set(rigid,(scores.get(rigid)||0)+1);continue;}
+            for(let j=binding.offsets[vi];j<binding.offsets[vi+1];j++){
+              const id=binding.ids[j];scores.set(id,(scores.get(id)||0)+binding.weights[j]);
+            }
+          }
+          let nearest=-1,best=-1;
+          for(const [id,weight] of scores)if(weight>best){best=weight;nearest=id;}
+          if(nearest<0){
+            const x=tri.reduce((sum,i)=>sum+geometry.mesh[i].ox,0)/3;
+            const y=tri.reduce((sum,i)=>sum+geometry.mesh[i].oy,0)/3;
+            let distance=Infinity;
+            for(const bone of binding.controls){
+              const d=distanceSqPointToBoneSegment(x,y,bone);
+              if(d<distance){distance=d;nearest=bone.index;}
+            }
+          }
+          return {nearest,parent:layer.pins?.[nearest]?.parentId??-1};
+        });
+        rigDepthMetaCache.set(geometry.mesh,{binding,triangles:geometry.triangles,meta});
+        return meta;
+      }
+      function rigDepthForMeta(layer,meta) {
+        // A selected joint controls both ends of its adjacent segment. Explicit
+        // depth on the segment's tip overrides the depth inherited from its root.
+        return Number(layer.pins?.[meta.nearest]?.z||layer.pins?.[meta.parent]?.z||0);
+      }
+      function faceHeadRegion(layer) {
+        const p=layer.faceRig?.points;
+        if(!p?.left||!p.right||!p.top||!p.chin)return null;
+        const {c,rx,ry}=faceFrame(layer,1,1);
+        // One stable carrier for the whole head. Never choose a different Z
+        // per triangle or use posed coordinates: shoulders must not split it.
+        let carrier=-1,best=Infinity;
+        (layer.pins||[]).forEach((pin,i)=>{
+          const x=pin.ox??pin.x,y=pin.oy??pin.y;
+          const distance=((x-c.x)/rx)**2+((y-c.y)/ry)**2;
+          if(distance<best){best=distance;carrier=i;}
+        });
+        return {depth:Number(layer.pins?.[carrier]?.z||0),
+          signature:[p.left,p.right,p.top,p.chin].map(q=>q.x+','+q.y).join(';')+'|carrier:'+carrier,
+          contains:(x,y)=>Math.pow(Math.abs(x-c.x)/(rx*1.18),4)+Math.pow(Math.abs(y-c.y)/(ry*1.04),4)<=1};
+      }
+      function faceHeadField(layer,w,h) {
+        const {p,c,rx,ry}=faceFrame(layer,w,h),values=layer.faceRig.values;
+        const active=!!(p.left&&p.right&&p.top&&p.chin);
+        const yaw=faceClamp(values.headX||0)/100*.48,pitch=faceClamp(values.headY||0)/100*.36,roll=faceClamp(values.roll||0)/100*.35;
+        const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),cr=Math.cos(roll),sr=Math.sin(roll);
+        return (x,y)=>{
+          if(!active)return {x,y};
+          const nx=(x-c.x)/rx,ny=(y-c.y)/ry,d=Math.hypot(nx,ny),fade=d<.75?1:Math.max(0,1-(d-.75)/.65),blend=fade*fade*(3-2*fade);
+          if(!blend)return {x,y};
+          // Smooth rounded volume: no square-root ridge at the face outline.
+          // Rotate the same volume in yaw then pitch, including diagonal turns.
+          const depth=Math.exp(-.8*(nx*nx+ny*ny));
+          const z=rx*(.20+.42*depth),xx=(x-c.x)*cy+sy*z;
+          const turnedZ=z*cy-(x-c.x)*sy;
+          const yy=(y-c.y)*cp+sp*turnedZ*(ry/rx)*.78;
+          return {x:x+(xx*cr-yy*sr+c.x-x)*blend,y:y+(xx*sr+yy*cr+c.y-y)*blend};
+        };
+      }
+      const faceHeadGeometryCache=new WeakMap();
+      function buildFaceRigRenderGeometry(layer,bodyGeometry,image) {
+        if(!faceHeadUsesGeometry(layer)||!bodyGeometry.mesh.length||
+          (faceMarking&&layer===faceLayer())||shapeWarpSession?.layerUid===layer.uid)return bodyGeometry;
+        const rig=ensureFaceRig(layer),points=rig.points;
+        if(!points.left||!points.right||!points.top||!points.chin)return bodyGeometry;
+        const headActive=['headX','headY','roll'].some(id=>Math.abs(rig.values[id]||0)>.001);
+        let view=faceHeadGeometryCache.get(layer);
+        if(!view||view.sourceMesh!==bodyGeometry.mesh||view.triangles!==bodyGeometry.triangles){
+          view={sourceMesh:bodyGeometry.mesh,mesh:bodyGeometry.mesh.map(v=>({...v})),triangles:bodyGeometry.triangles,
+            adaptive:false,signature:bodyGeometry.signature+'|face-after-mask'};
+          faceHeadGeometryCache.set(layer,view);
+        }
+        if(!headActive){
+          for(let i=0;i<bodyGeometry.mesh.length;i++){view.mesh[i].x=bodyGeometry.mesh[i].x;view.mesh[i].y=bodyGeometry.mesh[i].y;}
+          return view;
+        }
+        const field=faceHeadField(layer,image.width,image.height);
+        const binding=buildBoneWarpBinding(layer,bodyGeometry.mesh,layer.pins||[]);
+        for(let i=0;i<bodyGeometry.mesh.length;i++){
+          const body=bodyGeometry.mesh[i],out=view.mesh[i],at=field(body.ox,body.oy),dx=at.x-body.ox,dy=at.y-body.oy;
+          let mx=dx,my=dy;
+          if(Math.abs(dx)+Math.abs(dy)>1e-10){
+            const carrierId=binding.rigidCarrierIds?.[i]??-1;
+            if(carrierId>=0){
+              // Keep the mask's rigid attachment, adding FaceRig in its local
+              // frame AFTER the attachment. A bone-mask cannot erase this delta.
+              const angle=binding.angle[carrierId]||0,c=Math.cos(angle),s=Math.sin(angle);
+              mx=dx*c-dy*s;my=dx*s+dy*c;
+            }else{
+              let sum=0;for(let j=binding.offsets[i];j<binding.offsets[i+1];j++)sum+=binding.weights[j];
+              const angle=blendedBoneAngle(binding,i),c=Math.cos(angle),s=Math.sin(angle);
+              mx=dx*(1-sum)+(dx*c-dy*s)*sum;my=dy*(1-sum)+(dx*s+dy*c)*sum;
+            }
+          }
+          // The bone/rest meshes and their UVs are never rewritten by FaceRig.
+          out.x=body.x+mx;out.y=body.y+my;
+        }
+        return view;
+      }
+
+      function faceField(l,w,h,includeHead=true) {
         const r=ensureFaceRig(l),f=faceFrame(l,w,h),{p,c,rx,ry}=f,v=r.values;
         const mouth=faceMouthSpec(f);
         const smile=(v.smile||0)/100,width=(v.width||0)/100;
@@ -7241,16 +7418,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           const stretch=width*length*.18*t*fade;
           return {dx:tangent.x*stretch+normal.x*bend,dy:tangent.y*stretch+normal.y*bend};
         }
-        function head(x,y){
-          // Approximate a turn in 2D, keeping the neck/outside region anchored.
-          if(!p.left||!p.right||!p.top||!p.chin)return {x,y};
-          const nx=(x-c.x)/rx,ny=(y-c.y)/ry,d=Math.hypot(nx,ny),fade=d<.75?1:Math.max(0,1-(d-.75)/.65),blend=fade*fade*(3-2*fade);
-          const yaw=(v.headX||0)/100*.55,pitch=(v.headY||0)/100*.45,roll=(v.roll||0)/100*.35;
-          const depth=Math.sqrt(Math.max(0,1-Math.min(1,nx*nx+ny*ny)));
-          const xx=(x-c.x)*Math.cos(yaw)+Math.sin(yaw)*rx*depth*.6;
-          const yy=(y-c.y)*Math.cos(pitch)+Math.sin(pitch)*ry*depth*.5;
-          return {x:x+(xx*Math.cos(roll)-yy*Math.sin(roll)+c.x-x)*blend,y:y+(xx*Math.sin(roll)+yy*Math.cos(roll)+c.y-y)*blend};
-        }
+        const head=includeHead?faceHeadField(l,w,h):(x,y)=>({x,y});
         return (x,y)=>{
           const m=mouthOffset(x,y);return head(x+m.dx,y+m.dy);
         };
@@ -7276,7 +7444,88 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         // Only the current samples are retained for mutable Shape Key canvases.
         if(entry.size>4)entry.clear();entry.set(key,color);return color;
       }
-      function faceBuildEyePatch(source,eye) {
+      function faceNaturalEyePlate(data,mask,out,width,height,background) {
+        const count=width*height,known=new Float32Array(count*3),inside=new Uint8Array(count);
+        const at=(x,y)=>Math.max(0,Math.min(height-1,y))*width+Math.max(0,Math.min(width-1,x));
+        for(let k=0;k<count;k++){
+          const i=k*4,j=k*3;inside[k]=mask[i+3]>32&&data[i+3]>16?1:0;
+          for(let c=0;c<3;c++)known[j+c]=data[i+3]>160?data[i+c]:background[c];
+        }
+        // Only local boundary outliers (eyelash/white-of-eye pixels) are
+        // rejected. Real broad lighting/shadow changes remain boundary data.
+        const radius=Math.max(1,Math.min(4,Math.round(Math.min(width,height)/25)));
+        for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+          const k=y*width+x,i=k*4;if(inside[k]||data[i+3]<160)continue;
+          if(![at(x-1,y),at(x+1,y),at(x,y-1),at(x,y+1)].some(n=>inside[n]))continue;
+          const samples=[[],[],[]],lights=[];
+          for(let dy=-radius;dy<=radius;dy++)for(let dx=-radius;dx<=radius;dx++){
+            const n=at(x+dx,y+dy),q=n*4;if(inside[n]||data[q+3]<160)continue;
+            for(let c=0;c<3;c++)samples[c].push(data[q+c]);lights.push(data[q]*.2126+data[q+1]*.7152+data[q+2]*.0722);
+          }
+          if(lights.length<4)continue;
+          lights.sort((a,b)=>a-b);const median=lights[Math.floor(lights.length/2)],lum=data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722;
+          if(lum>=median-Math.max(25,median*.18)&&lum<=median+45)continue;
+          for(let c=0;c<3;c++){samples[c].sort((a,b)=>a-b);known[k*3+c]=samples[c][Math.floor(samples[c].length/2)];}
+        }
+        // Harmonic (zero-Laplacian) interpolation, fixed to the surrounding
+        // source colors. Solve on a bounded grid; refine the full-size edge.
+        const step=Math.max(1,Math.ceil(Math.max(width,height)/56)),cols=Math.ceil((width-1)/step)+1,rows=Math.ceil((height-1)/step)+1;
+        const values=new Float32Array(cols*rows*3),unknown=new Uint8Array(cols*rows);
+        for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+          const px=Math.min(width-1,x*step),py=Math.min(height-1,y*step),k=py*width+px,g=y*cols+x;
+          unknown[g]=inside[k]&&x>0&&y>0&&x<cols-1&&y<rows-1?1:0;
+          for(let c=0;c<3;c++)values[g*3+c]=unknown[g]?out[k*4+c]:known[k*3+c];
+        }
+        function solve(v,domain,w,h,iterations,omega){
+          const stride=w*3;
+          for(let sweep=0;sweep<iterations;sweep++){
+            let change=0;
+            for(let parity=0;parity<2;parity++)for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+              if(((x+y)&1)!==parity)continue;const k=y*w+x;if(!domain[k])continue;const j=k*3;
+              for(let c=0;c<3;c++){
+                const p=j+c,average=(v[p-3]+v[p+3]+v[p-stride]+v[p+stride])*.25,delta=(average-v[p])*omega;
+                v[p]+=delta;const absolute=delta<0?-delta:delta;if(absolute>change)change=absolute;
+              }
+            }
+            if(sweep>12&&change<.025)break;
+          }
+        }
+        solve(values,unknown,cols,rows,Math.min(260,Math.max(80,Math.ceil(Math.max(cols,rows)*2.5))),1.72);
+        let full;
+        if(step===1)full=values;
+        else{
+          full=new Float32Array(count*3);
+          for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+            const k=y*width+x,gx=x/step,gy=y/step,ix=Math.min(cols-2,Math.floor(gx)),iy=Math.min(rows-2,Math.floor(gy)),fx=Math.min(1,gx-ix),fy=Math.min(1,gy-iy);
+            for(let c=0;c<3;c++)full[k*3+c]=inside[k]?
+              (values[(iy*cols+ix)*3+c]*(1-fx)+values[(iy*cols+ix+1)*3+c]*fx)*(1-fy)+
+              (values[((iy+1)*cols+ix)*3+c]*(1-fx)+values[((iy+1)*cols+ix+1)*3+c]*fx)*fy:known[k*3+c];
+          }
+          solve(full,inside,width,height,14,1.45);
+        }
+        // Distance inside the selected region: feather skin only, never let
+        // the old iris/lashes show through the transition strip.
+        const distance=new Float32Array(count),large=width+height;
+        for(let y=0;y<height;y++)for(let x=0;x<width;x++)distance[y*width+x]=inside[y*width+x]&&x>0&&y>0&&x<width-1&&y<height-1?large:0;
+        for(let y=1;y<height;y++)for(let x=1;x<width;x++){
+          const k=y*width+x;distance[k]=Math.min(distance[k],distance[k-1]+1,distance[k-width]+1,distance[k-width-1]+Math.SQRT2);
+        }
+        for(let y=height-2;y>=0;y--)for(let x=width-2;x>=0;x--){
+          const k=y*width+x;distance[k]=Math.min(distance[k],distance[k+1]+1,distance[k+width]+1,distance[k+width+1]+Math.SQRT2);
+        }
+        const feather=Math.max(1.1,Math.min(8,Math.min(width,height)*.10));
+        for(let k=0;k<count;k++){
+          const i=k*4,j=k*3;if(!mask[i+3])continue;
+          let t=Math.max(0,Math.min(1,distance[k]/feather)),blend=t*t*(3-2*t);
+          const lum=full[j]*.2126+full[j+1]*.7152+full[j+2]*.0722,sourceLum=data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722;
+          const mismatch=Math.hypot(full[j]-data[i],full[j+1]-data[i+1],full[j+2]-data[i+2]);
+          if(data[i+3]>100&&(Math.abs(lum-sourceLum)>Math.max(22,lum*.16)||mismatch>45))blend=1;
+          for(let c=0;c<3;c++)out[i+c]=Math.max(0,Math.min(255,full[j+c]));
+          out[i+3]=mask[i+3]*(data[i+3]/255)*blend;
+        }
+      }
+
+      function faceBuildEyePatch(source,eye,previous=null) {
         const {center,tangent,normal,up,down,padding,halfWidth,browV}=eye;
         const width=Math.max(4,Math.ceil(halfWidth*2+padding*2)),height=Math.max(4,Math.ceil(up+down+padding*2));
         const ox=padding+halfWidth,oy=padding+up;
@@ -7294,7 +7543,13 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         let pixels,maskPixels;
         try{pixels=ac.getImageData(0,0,width,height);maskPixels=mc.getImageData(0,0,width,height).data;}
         catch(_){return null;}
-        const data=pixels.data,samples=[[],[],[]];let outside=0,opaque=0;
+        const data=pixels.data;
+        if(eye.kind==='eye-box'&&previous?.inputPixels?.length===data.length&&previous.width===width&&previous.height===height){
+          let identical=true;
+          for(let i=0;i<data.length;i++)if(data[i]!==previous.inputPixels[i]||maskPixels[i]!==previous.inputMask[i]){identical=false;break;}
+          if(identical)return previous;
+        }
+        const samples=[[],[],[]];let outside=0,opaque=0;
         for(let i=0;i<data.length;i+=4)if(maskPixels[i+3]<16){
           outside++;if(data[i+3]>160){opaque++;for(let c=0;c<3;c++)samples[c].push(data[i+c]);}
         }
@@ -7320,6 +7575,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           for(let c=0;c<3;c++)out[i+c]=(tl[c]*(1-u)+tr[c]*u)*(1-v)+(bl[c]*(1-u)+br[c]*u)*v;
           out[i+3]=maskPixels[i+3];
         }
+        if(hasSkin&&eye.kind==='eye-box')faceNaturalEyePlate(data,maskPixels,out,width,height,background);
         pc.putImageData(fill,0,0);
         ac.globalCompositeOperation='destination-in';ac.drawImage(mask,0,0);ac.globalCompositeOperation='source-over';
         let contentTop=null,contentBottom=null,contentLeft=null,contentRight=null;
@@ -7331,7 +7587,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           }
           if(rows.length){rows.sort((a,b)=>a-b);contentTop=rows[Math.floor(rows.length*.01)];contentBottom=rows[Math.floor((rows.length-1)*.99)];cols.sort((a,b)=>a-b);contentLeft=cols[Math.floor(cols.length*.01)];contentRight=cols[Math.floor((cols.length-1)*.99)];}
         }
-        return {art,mask,plate,width,height,ox,oy,hasSkin,contentTop,contentBottom,contentLeft,contentRight};
+        return {art,mask,plate,width,height,ox,oy,hasSkin,contentTop,contentBottom,contentLeft,contentRight,inputPixels:data,inputMask:maskPixels};
       }
       function faceBrowSpecs(frame,eyes) {
         const brows=[],nose=frame.p.nose||frame.c;
@@ -7513,7 +7769,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         for(const eye of active){
           const key=JSON.stringify([source._r2dTextureVersion||0,eye]);
           let entry=cache.eyePatches.get(eye.side);
-          if(!entry||entry.key!==key){entry={key,patch:faceBuildEyePatch(source,eye)};cache.eyePatches.set(eye.side,entry);}
+          if(!entry||entry.key!==key){entry={key,patch:faceBuildEyePatch(source,eye,entry?.patch)};cache.eyePatches.set(eye.side,entry);}
           const patch=entry.patch;if(!patch)continue;
           const lidEye={...eye};
           if(patch.contentTop!==null&&patch.contentBottom!==null){lidEye.up=Math.max(1,patch.oy-patch.contentTop);lidEye.down=Math.max(1,patch.contentBottom-patch.oy);lidEye.gap=lidEye.up+lidEye.down;}
@@ -7549,16 +7805,18 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
       function getFaceRigRenderImage(l,source) {
         if(!l.faceRig || (faceMarking&&l===faceLayer()) || shapeWarpSession?.layerUid===l.uid)return source;
-        const r=ensureFaceRig(l);
-        if(!Object.keys(r.points).length||!Object.values(r.values).some(v=>Math.abs(v)>.001))return source;
-        const signature=JSON.stringify([r.points,r.values,source.width,source.height,source._r2dTextureVersion||0]);
+        const r=ensureFaceRig(l),headOnMesh=faceHeadUsesGeometry(l);
+        const rasterActive=Object.entries(r.values).some(([id,value])=>id!=='imageYaw'&&Math.abs(value)>.001&&(!headOnMesh||!['headX','headY','roll'].includes(id)));
+        if(!Object.keys(r.points).length||!rasterActive)return source;
+        const {imageYaw,...expressionValues}=r.values;
+        const signature=JSON.stringify([r.points,expressionValues,source.width,source.height,source._r2dTextureVersion||0,headOnMesh]);
         let cache=faceRenderCache.get(l);
         if(cache?.signature===signature&&cache.source===source)return cache.canvas;
         if(!cache){cache={canvas:document.createElement('canvas'),version:0};faceRenderCache.set(l,cache);}
         const w=source.width,h=source.height,frame=faceFrame(l,w,h),eyes=faceEyeSpecs(frame),mouth=faceMouthSpec(frame);
         const mouthSource=faceOpenMouthTexture(l,source,cache,mouth,frame);
         const blinkSource=faceBlinkTexture(l,mouthSource,cache,eyes);
-        const hasGlobalDeformation=['headX','headY','roll','smile','width'].some(id=>Math.abs(r.values[id]||0)>.001);
+        const hasGlobalDeformation=['smile','width',...(!headOnMesh?['headX','headY','roll']:[])].some(id=>Math.abs(r.values[id]||0)>.001);
         if(!hasGlobalDeformation){
           cache.canvas.width=w;cache.canvas.height=h;
           cache.canvas.getContext('2d').drawImage(blinkSource,0,0);
@@ -7581,7 +7839,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           return [...values].sort((a,b)=>a-b);
         }
         const sourceXs=axisGrid('x',w),sourceYs=axisGrid('y',h),cols=sourceXs.length-1,rows=sourceYs.length-1;
-        const transform=faceField(l,w,h),deltas=[];
+        const transform=faceField(l,w,h,!headOnMesh),deltas=[];
         for(const sy of sourceYs)for(const sx of sourceXs){const d=transform(sx,sy);deltas.push({dx:d.x-sx,dy:d.y-sy});}
         renderOneShapeWarp(blinkSource,cache.canvas,{selection:[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}],bbox:{x:0,y:0,w,h},cols,rows,sourceXs,sourceYs,deltas},1);
         cache.signature=signature;cache.source=source;cache.canvas._r2dTextureVersion=++cache.version;
@@ -7602,7 +7860,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
       function faceScreenPoint(l,p,m,transform) {
         const q=faceMeshPoint(l,transform?transform(p.x,p.y):p);
-        return new DOMPoint(q.x,q.y).matrixTransform(m);
+        const turned=layerTurnPoint(l,q);
+        return new DOMPoint(turned.x,turned.y).matrixTransform(m);
       }
       function drawFaceRigOverlay(l,m,target) {
         if(!faceMarking || !document.getElementById('face-rig-tab').classList.contains('open') || !l.faceRig)return;
@@ -7633,7 +7892,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const rect=canvas.getBoundingClientRect(),m=getLayerCanvasMatrix(l);
         if(!m)return null;
         const a=new DOMPoint((e.clientX-rect.left)*FW/rect.width,(e.clientY-rect.top)*FH/rect.height).matrixTransform(m.inverse());
-        return faceMeshPoint(l,a,true);
+        return faceMeshPoint(l,layerTurnPoint(l,a,true),true);
       }
       canvas.addEventListener('pointerdown',e=>{
         if(!faceMarking||isDrawingEditorOpen()||canvasViewPanMode||e.button!==0)return;
@@ -7670,7 +7929,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
       canvas.addEventListener('pointerup',faceEndDrag,true);canvas.addEventListener('pointercancel',faceEndDrag,true);
       document.getElementById('face-point-choice').addEventListener('change',()=>{updateFaceRigUI();draw();});
-      for(const [id,label,min,max] of FACE_CONTROLS.filter(([id])=>!['headX','headY','roll'].includes(id))){
+      const imageTurnSlider=document.getElementById('image-turn');
+      imageTurnSlider.addEventListener('input',()=>faceSetValue('imageYaw',imageTurnSlider.value));
+      imageTurnSlider.addEventListener('dblclick',()=>faceSetValue('imageYaw',0));
+      for(const [id,label,min,max] of FACE_CONTROLS.filter(([id])=>!['imageYaw','headX','headY','roll'].includes(id))){
         const row=document.createElement('label');row.className='face-slider';
         const text=document.createElement('span');text.textContent=label;const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.value=0;input.step=1;input.dataset.faceControl=id;
         const out=document.createElement('output');out.textContent='0';input.addEventListener('input',()=>faceSetValue(id,input.value));row.append(text,input,out);document.getElementById('face-slider-list').appendChild(row);
@@ -8798,9 +9060,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           return false;
 
         let visualMatrix = getGlobalMatrix();
-        const pt = new DOMPoint(rawX, rawY).matrixTransform(
+        const pt = layerTurnPoint(l,new DOMPoint(rawX, rawY).matrixTransform(
           visualMatrix.inverse(),
-        );
+        ),true);
         return (
           pt.x >= 0 &&
           pt.x <= currentImg.width &&
@@ -9557,13 +9819,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           const gMat = getLayerCanvasMatrix(l);
           if (!gMat) return;
 
-          const geometry = buildInfluenceMaskGeometry(l);
-          // A malha conforme subdivide apenas onde a máscara cruza a grade e
-          // compartilha de verdade os vértices entre triângulos vizinhos. Ela usa
-          // o mesmo updateDeform 2D do rig; não existe segunda imagem nem clip.
-          if (geometry.adaptive) {
-            updateDeform(l, geometry.mesh, true);
-          }
+          const bodyGeometry = buildInfluenceMaskGeometry(l);
+          // Masks filter the body bones only. Facial head motion is added to a
+          // render-only mesh after that masked pose, without changing its bind.
+          updateInfluenceMaskRenderPose(l,bodyGeometry);
+          const geometry=buildLayerTurnGeometry(l,buildFaceRigRenderGeometry(l,bodyGeometry,baseImg));
           renderLayers.push({
             l,
             idx,
@@ -9589,6 +9849,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         if (!gpuRendered) {
           const needsDepthSort = renderLayers.some(
             (item) =>
+              faceHeadRegion(item.l) ||
               item.l.pins.some((p) => (p.z || 0) !== 0) ||
               Number(item.l.z || 0) !== 0,
           );
@@ -9617,23 +9878,18 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 triangles: TRIANGLE_INDICES,
               };
               const layerZ = Number(item.l.z || 0);
-              gm.triangles.forEach((t) => {
+              const headRegion=faceHeadRegion(item.l);
+              const depthMeta=buildRigDepthMeta(item.l,gm);
+              gm.triangles.forEach((t,ti) => {
                 const tri = [gm.mesh[t[0]], gm.mesh[t[1]], gm.mesh[t[2]]];
                 const centerX = (tri[0].ox + tri[1].ox + tri[2].ox) / 3;
                 const centerY = (tri[0].oy + tri[1].oy + tri[2].oy) / 3;
-                let pinZ = 0,
-                  minDist = Infinity;
-                item.l.pins.forEach((p) => {
-                  const d = (centerX - p.ox) ** 2 + (centerY - p.oy) ** 2;
-                  if (d < minDist) {
-                    minDist = d;
-                    pinZ = p.z || 0;
-                  }
-                });
-                const effectiveZ = layerZ + pinZ;
+                const pinZ=rigDepthForMeta(item.l,depthMeta[ti]);
+                const headFront=headRegion?.contains(centerX,centerY);
+                const effectiveZ = layerZ + (headFront?headRegion.depth:pinZ);
                 allTriangles.push({
                   tri,
-                  depthGroup: 0,
+                  depthGroup: headFront?1:0,
                   pinZ: effectiveZ,
                   layerOrder: Number.isFinite(item.renderOrder) ? item.renderOrder : item.idx,
                   localOverlay: false,
@@ -9647,6 +9903,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
               .sort(
                 (a, b) =>
                   a.pinZ - b.pinZ ||
+                  a.depthGroup - b.depthGroup ||
                   a.layerOrder - b.layerOrder ||
                   Number(a.localOverlay) - Number(b.localOverlay),
               )
@@ -9690,7 +9947,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 }),
               );
               if (visiblePins.size)
-                drawUI(l.pins, gMat, targetCtx, visiblePins);
+                drawUI(l.pins, gMat, targetCtx, visiblePins, l);
             }
           });
         }
@@ -9719,7 +9976,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         gMat,
         targetCtx = ctx,
         visiblePins = new Set(lPins),
+        layer = null,
       ) {
+        const projection=layerTurnProjection(layer);
+        if(projection){
+          const projected=lPins.map(p=>({...p,...projection.forward(p.x,p.y),_original:p}));
+          visiblePins=new Set(projected.filter(p=>visiblePins.has(p._original)));
+          lPins=projected;
+        }
         targetCtx.save();
         targetCtx.strokeStyle = "rgba(255, 255, 255, 0.2)";
         targetCtx.lineWidth = 2;
@@ -9732,7 +9996,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
               const dx=p.x-parent.x,dy=p.y-parent.y,length=Math.hypot(dx,dy)||1;
               const nx=-dy/length,ny=dx/length,width=Math.min(7,length*.15);
               const sx=parent.x+dx*.22,sy=parent.y+dy*.22;
-              const active=selectedPins.includes(p)||p===hoveredPin;
+              const active=selectedPins.includes(p._original||p)||(p._original||p)===hoveredPin;
               targetCtx.strokeStyle=active?'#ffffff':'#5ac8fa';
               targetCtx.fillStyle=active?'rgba(90,200,250,.7)':'rgba(90,200,250,.25)';
               targetCtx.lineWidth=active?2.5:1.5;
@@ -9760,13 +10024,13 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         });
         lPins.forEach((p) => {
           if (!visiblePins.has(p)) return;
-          const isSelected = selectedPins.includes(p);
+          const isSelected = selectedPins.includes(p._original||p);
           targetCtx.strokeStyle = isSelected
             ? "#ffffff"
-            : p === hoveredPin
+            : (p._original||p) === hoveredPin
               ? "#bbbbbb"
               : "#666666";
-          targetCtx.lineWidth = isSelected || p === hoveredPin ? 4 : 2;
+          targetCtx.lineWidth = isSelected || (p._original||p) === hoveredPin ? 4 : 2;
 
           const z = p.z || 0;
           if (z > 0) targetCtx.fillStyle = "#007bff";
