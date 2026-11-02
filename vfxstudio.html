@@ -108,7 +108,7 @@
             background: var(--accent);
             margin-top: 5px;
             border-radius: 2px;
-            transition: 0.2s;
+            transition: 0.2s linear;
         }
 
         label span { color: var(--text-main); }
@@ -124,7 +124,7 @@
             font-size: 10px;
             letter-spacing: 1px;
             text-transform: uppercase;
-            transition: 0.2s;
+            transition: 0.2s linear;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -144,7 +144,7 @@
             font-size: 10px;
             text-transform: uppercase;
             margin-top: 5px;
-            transition: 0.2s;
+            transition: 0.2s linear;
         }
         .btn-trigger:hover {
             background: var(--accent);
@@ -191,7 +191,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             transform-origin: center;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s linear;
         }
 
         #status-indicator {
@@ -347,7 +347,7 @@
             border-radius: 6px;
             cursor: pointer;
             position: relative;
-            transition: 0.2s;
+            transition: 0.2s linear;
             flex-shrink: 0;
         }
         input[type="checkbox"]:checked {
@@ -370,8 +370,12 @@
             accent-color: var(--accent); 
         }
     </style>
+
+    
 </head>
 <body>
+    
+
 
     <aside id="sidebar">
         <div class="sidebar-header">
@@ -380,49 +384,15 @@
 
         <div class="scroll-area">
             <div class="import-section">
-                <label style="display:block; font-size:9px; color:#555; margin-bottom:10px; letter-spacing:2px;">CENÁRIO E CAMADAS</label>
-                <label for="background-upload" class="btn-primary">Importar Background</label>
+                <label style="display:block; font-size:9px; color:#555; margin-bottom:10px; letter-spacing:2px;">APLICAR VFX</label>
+                <label for="background-upload" class="btn-primary">Importar imagem</label>
                 <input type="file" id="background-upload" accept="image/*" style="display:none;">
-                <label for="images-upload" class="btn-primary" style="margin-top:7px; border-color:#666;">Importar Imagens</label>
-                <input type="file" id="images-upload" accept="image/*" multiple style="display:none;">
-                <label for="sequence-upload" class="btn-primary" style="margin-top:7px; border-color:#666;">Importar Sequência (Pasta)</label>
-                <input type="file" id="sequence-upload" accept="image/*" multiple webkitdirectory directory style="display:none;">
-            </div>
-
-            <div style="position:sticky;top:-20px;z-index:20;background:#151515;border:1px solid #444;border-radius:6px;padding:12px;margin-bottom:12px;">
-                <label for="effect-image-target" style="font-size:11px;">APLICAR / EDITAR EFEITOS EM</label>
-                <select id="effect-image-target" style="width:100%;margin-top:8px;"><option value="scene">Cena inteira · tudo junto</option></select>
-                <p style="font-size:10px;line-height:1.5;color:#aaa;margin-bottom:0">Escolha qualquer imagem importada. Cada imagem guarda seus próprios ajustes e keyframes.</p>
+                <label for="source-sequence-upload" class="btn-primary" style="margin-top:8px">Importar sequência (pasta)</label>
+                <input id="source-sequence-upload" type="file" accept="image/*" multiple webkitdirectory directory style="display:none">
+                <p id="source-info" style="font-size:10px;color:#aaa">Escolha uma imagem ou a pasta da sequência. Quadros em ordem por nome, a 24 FPS.</p>
             </div>
             <div class="effect-card">
-                <h3>Composição de Imagens <i class="fas fa-chevron-down" style="font-size:8px; transition:.3s;"></i></h3>
-                <div class="vfx-content">
-                    <div class="label-group">
-                        <label>Camada selecionada</label>
-                        <select id="image-layer-selector" style="width:100%; background:#000; color:#fff; border:1px solid #444; height:32px;"></select>
-                    </div>
-                    <div class="button-row" style="display:flex; gap:5px;">
-                        <button class="btn-trigger" id="btn-layer-down">↓ Atrás</button>
-                        <button class="btn-trigger" id="btn-layer-up">↑ Frente</button>
-                        <button class="btn-trigger" id="btn-layer-remove">Remover</button>
-                    </div>
-                    <div class="label-group"><label>Visível <input type="checkbox" id="image-layer-visible" checked></label></div>
-                    <div class="label-group"><label>Posição X / Y (permite sair do quadro)</label><div style="display:flex; gap:5px;"><input type="range" id="image-layer-x" min="-1" max="2" step="0.005" value="0.5"><input type="range" id="image-layer-y" min="-1" max="2" step="0.005" value="0.5"></div></div>
-                    <div class="label-group"><label>Escala <span id="val-image-layer-scale">1.00</span>x</label><input type="range" id="image-layer-scale" min="0.05" max="5" step="0.01" value="1"></div>
-                    <div class="label-group"><label>Rotação <span id="val-image-layer-rotation">0</span>°</label><input type="range" id="image-layer-rotation" min="-180" max="180" step="1" value="0"></div>
-                    <div class="label-group"><label>Opacidade <span id="val-image-layer-opacity">1.00</span></label><input type="range" id="image-layer-opacity" min="0" max="1" step="0.01" value="1"></div>
-                    <button class="btn-trigger" id="btn-kf-image-layer" style="width:100%; margin-bottom:9px;">◆ Keyframe da Camada</button>
-                    <div id="image-sequence-controls" style="display:none; border-top:1px solid #292929; padding-top:9px; margin-top:9px;">
-                        <div class="label-group"><label id="image-layer-type">Sequência</label></div>
-                        <div class="label-group"><label>FPS <span id="val-image-layer-fps">24</span></label><input type="range" id="image-layer-fps" min="1" max="60" step="1" value="24"></div>
-                        <div class="label-group"><label>Repetir em loop <input type="checkbox" id="image-layer-loop" checked></label></div>
-                    </div>
-                    <div style="font-size:9px; line-height:1.45; color:#777;">O background define o cenário 3D. Imagens criam camadas estáticas; uma pasta cria uma camada animada, ordenada pelo nome dos frames.</div>
-                </div>
-            </div>
-
-            <div class="effect-card">
-                <h3>Dimensão Espelhada <i class="fas fa-chevron-down" style="font-size:8px; transition:.3s;"></i></h3>
+                <h3>Dimensão Espelhada <i class="fas fa-chevron-down" style="font-size:8px; transition: .3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-mirror"></label></div>
                     <div class="label-group"><label>Intensidade <span id="val-mirror-strength">75</span></label><input type="range" id="mirror-strength" min="0" max="100" step="1" value="75"></div>
@@ -438,7 +408,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Campo de Partículas Universal <i class="fas fa-chevron-down" style="font-size:8px; transition:.3s;"></i></h3>
+                <h3>Campo de Partículas Universal <i class="fas fa-chevron-down" style="font-size:8px; transition: .3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-particles"></label></div>
                     <div class="label-group">
@@ -499,7 +469,7 @@
  <div class="label-group"><label>Ativo <input id="imagefx-glass-active" type="checkbox" checked></label></div>
  <div class="label-group"><label>Velocidade do efeito <span id="imagefx-glass-val-speed">1.00</span>×</label><input id="imagefx-glass-speed" type="range" min="0.1" max="4" step="0.05" value="1"></div><div class="label-group"><label>Fragmentos <span id="imagefx-glass-val-amount">360</span></label><input id="imagefx-glass-amount" type="range" min="40" max="1000" step="20" value="360"></div><div class="label-group"><label>Força da quebra <span id="imagefx-glass-val-strength">160</span></label><input id="imagefx-glass-strength" type="range" min="0" max="700" step="1" value="160"></div><div class="label-group"><label>Turbulência <span id="imagefx-glass-val-turbulence">60</span></label><input id="imagefx-glass-turbulence" type="range" min="0" max="250" step="1" value="60"></div><div class="label-group"><label>Direção da câmera (− afasta / + aproxima) <span id="imagefx-glass-val-depth">0</span></label><input id="imagefx-glass-depth" type="range" min="-100" max="100" step="1" value="0"></div><div class="label-group"><label>Voo lateral (− esquerda / + direita) <span id="imagefx-glass-val-flight">0</span></label><input id="imagefx-glass-flight" type="range" min="-700" max="700" step="10" value="0"></div><div class="label-group"><label>Voo vertical (− desce / + sobe) <span id="imagefx-glass-val-lift">0</span></label><input id="imagefx-glass-lift" type="range" min="-700" max="700" step="10" value="0"></div><div class="label-group"><label>Fratura fractal <span id="imagefx-glass-val-fracture">2</span></label><input id="imagefx-glass-fracture" type="range" min="0" max="4" step="1" value="2"></div><div class="label-group"><label>Gravidade <span id="imagefx-glass-val-gravity">420</span></label><input id="imagefx-glass-gravity" type="range" min="-200" max="1200" step="10" value="420"></div><div class="label-group"><label>Rotação / giro <span id="imagefx-glass-val-spin">2</span></label><input id="imagefx-glass-spin" type="range" min="0" max="10" step="0.1" value="2"></div><div class="label-group"><label>Progresso manual <span id="imagefx-glass-val-progress">0</span></label><input id="imagefx-glass-progress" type="range" min="0" max="1" step="0.01" value="0"></div><div class="button-row"><button class="btn-trigger" id="btn-preview-glass-camera">À câmera</button><button class="btn-trigger" id="btn-preview-glass-fall">Cair</button><button class="btn-trigger" id="btn-preview-glass-fly">Voar</button></div><div class="button-row"><button class="btn-trigger" id="btn-preview-imagefx-glass">Preview</button><button class="btn-trigger" id="btn-random-imagefx-glass">Nova variação</button></div><div class="button-row"><button class="btn-trigger" id="btn-kf-imagefx-glass">◆ Add Key</button></div></div></div>
             <div class="effect-card">
-                <h3>Zoom Infinito (Loop) <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Zoom Infinito (Loop) <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group">
                         <label>Ativo <input type="checkbox" id="toggle-zoom"></label>
@@ -519,7 +489,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Iluminar Imagem <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Iluminar Imagem <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-global-light" checked></label></div>
                     <div class="label-group">
@@ -537,7 +507,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Cenário (Scrolling) <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Cenário (Scrolling) <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-scroll" checked></label></div>
                     <div class="label-group">
@@ -551,7 +521,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Vento (Folhagens) <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Vento (Folhagens) <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-wind" checked></label></div>
                     <div class="label-group">
@@ -588,7 +558,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Ondulação <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Ondulação <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group">
                         <label>Ativo <input type="checkbox" id="toggle-ripple"></label>
@@ -609,7 +579,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Camera Shake <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Camera Shake <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group">
                         <label>Ativo <input type="checkbox" id="toggle-shake"></label>
@@ -633,7 +603,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Fogo Procedural <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Fogo Procedural <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-fire" checked></label></div>
                     <div class="label-group">
@@ -666,7 +636,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Iluminação<i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Iluminação<i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group">
                         <label>Gerenciar Luzes</label>
@@ -715,7 +685,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Impacto na Água <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Impacto na Água <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-impact" checked></label></div>
                     <div class="label-group">
@@ -747,7 +717,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Correção de Cor <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Correção de Cor <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-color" checked></label></div>
                     <div class="label-group">
@@ -807,7 +777,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Vinheta <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Vinheta <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group">
                         <label>Ativo <input type="checkbox" id="toggle-vignette"></label>
@@ -827,7 +797,7 @@
             </div>
 
             <div class="effect-card">
-                <h3>Fumaça / Neblina <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
+                <h3>Fumaça / Neblina <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s linear;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-vapor" checked></label></div>
                     <div class="label-group">
@@ -848,30 +818,6 @@
                 </div>
             </div>
 
-            <div class="effect-card" id="camera-effect-card">
-                <h3>Câmera 3D 360° <i class="fas fa-chevron-down" style="font-size:8px; transition:.3s;"></i></h3>
-                <div class="vfx-content" id="camera-controls">
-                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-camera-effect" checked></label></div>
-                    <div style="font-size:9px; color:#aaa; margin-bottom:10px; line-height:1.5;">Ative o preview. Clique na imagem para prender o mouse, mova para olhar, use o scroll para zoom e Esc para soltar. Depois crie keyframes para animar a câmera.</div>
-                    <button id="btn-camera-preview" class="btn-primary" style="width:100%; min-height:38px; margin-bottom:10px;">ATIVAR PREVIEW 3D</button>
-                    <label style="display:block; font-size:9px;">PANORÂMICA 360° <span id="camera-yaw-value">0°</span></label>
-                    <input id="camera-yaw" type="range" min="-720" max="720" step="1" value="0">
-                    <label style="display:block; font-size:9px;">INCLINAÇÃO LIVRE <span id="camera-pitch-value">0°</span></label>
-                    <input id="camera-pitch" type="range" min="-85" max="85" step="1" value="0">
-                    <label style="display:block; font-size:9px;">ALTURA DO HORIZONTE <span id="camera-horizon-value">CENTRO</span></label>
-                    <div style="display:flex; justify-content:space-between; font-size:8px; color:#888;"><span>MAIS CÉU</span><span>MAIS CHÃO</span></div>
-                    <input id="camera-horizon" type="range" min="-100" max="100" step="1" value="0">
-                    <label style="display:block; font-size:9px;">ZOOM DA CÂMERA <span id="camera-fov-value">75°</span></label>
-                    <input id="camera-fov" type="range" min="35" max="100" step="1" value="75">
-                    <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px;">
-                        <button id="btn-kf-camera" class="btn-trigger" style="width:100%; min-height:38px; border-color:#4aa3ff; color:#4aa3ff;">◆ ADD KEY CÂMERA</button>
-                        <button id="btn-render-camera" class="btn-primary" style="width:100%; min-height:40px; background:#2471a3;">EXPORTAR WEBM FULL HD</button>
-                        <button id="btn-render-camera-png" class="btn-primary" style="width:100%; min-height:40px; background:#b65f12;">EXPORTAR SEQUÊNCIA PNG FULL HD</button>
-                    </div>
-                    <div style="font-size:8px; color:#777; line-height:1.45; margin-top:8px;">Giro completo: key em 0° no início e outro key em 360° no final.</div>
-                </div>
-            </div>
-
             <div style="margin-top: 20px; text-align: center; display: flex; flex-direction: column; gap: 8px;">
                 <button class="btn-primary btn-record" id="btn-render" style="width: 100%; padding: 12px;">EXPORTAR VÍDEO (WEBM)</button>
                 <button class="btn-primary" id="btn-render-gif" style="width: 100%; padding: 12px; background: #8e44ad;">EXPORTAR GIF</button>
@@ -884,7 +830,7 @@
     <main id="viewport">
         <div id="status-indicator">● RENDERING: <span id="timer">0</span>s</div>
         <div id="empty-msg">Workspace Vazio</div>
-        <button id="toggle-3d" style="position: absolute; top: 15px; left: 15px; z-index: 1000; background: rgba(0,0,0,0.8); color: #fff; border: 1px solid #444; padding: 8px 15px; font-size: 10px; cursor: pointer; border-radius: 4px; display: none; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; transition: 0.2s;">Preview 3D: OFF</button>
+        <button id="toggle-3d" style="position: absolute; top: 15px; left: 15px; z-index: 1000; background: rgba(0,0,0,0.8); color: #fff; border: 1px solid #444; padding: 8px 15px; font-size: 10px; cursor: pointer; border-radius: 4px; display: none; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; transition: 0.2s linear;" title="Clique e arraste para olhar; use a roda para zoom; Esc libera o mouse.">Prévia 3D: OFF</button>
         <div id="three-container" style="display:none; width:100%; height:100%; position: absolute; top: 0; left: 0; cursor: move;"></div>
         <div id="canvas-container"></div>
         <button id="btn-restart-preview" style="position:absolute;right:14px;top:14px;z-index:1001;background:#171717;color:#fff;border:1px solid #444;border-radius:5px;padding:9px;cursor:pointer" title="Recomeça a prévia com os ajustes atuais, sem alterar os keyframes">Reiniciar prévia</button>
@@ -892,7 +838,7 @@
 
     <footer id="timeline-container">
         <div id="timeline-header">
-            <span style="font-size:9px; letter-spacing:1px; color:#666;">TIMELINE GERAL</span>
+            <span style="font-size:9px; letter-spacing:1px; color:#666;">ANIMAÇÃO DOS VFX</span>
             <button id="btn-reset" class="btn-transport" title="Ir para o Início">|◀</button>
             <button id="btn-play" class="btn-transport">Play</button>
             <div style="font-family: monospace; color: var(--accent); font-size: 14px; min-width: 80px;" id="time-display">00:00.00</div>
@@ -908,6 +854,7 @@
         </div>
     </footer>
 
+
     <script>
         let app, sprite, rippleMap, rippleFilter, impactFilter, impactSprite, impactFunnelFilter, vaporFilter, vignetteFilter, colorFilter, windFilter, globalLightFilter, mirrorFilter, fireNoiseTex;
         let lightFilters = []; // Array para múltiplos filtros de luz
@@ -922,6 +869,7 @@
         let explosionActive = false;
         let explosionProgress = 0;
         let vaporActive = false;
+        let sourceFrames = [], sourceFrameIndex = -1;
         let currentTime = 0;
         let isDraggingScrubber = false;
         let isPlaying = false;
@@ -953,11 +901,16 @@
             return { frames:duration*EXPORT_FPS, duration };
         }
 
+        function linearEnvelope(progress,fadeIn=0,fadeOut=0){
+            return Math.max(0,Math.min(1,fadeIn>0?progress/fadeIn:1,fadeOut>0?(1-progress)/fadeOut:1));
+        }
+        function linearPulse(progress){return Math.max(0,1-Math.abs(2*progress-1));}
+
         function loopTransition(time, duration = settings.renderDuration) {
             const window=Math.min(.25,Math.max(0,duration)*.1);
             if(!(window>0) || time<duration-window || time>duration)return null;
             const progress=Math.max(0,Math.min(1,(time-duration+window)/window));
-            return {tailTime:0,headWeight:1-progress*progress*(3-2*progress)};
+            return {tailTime:0,headWeight:1-progress};
         }
 
         // The loop blends back to its actual first frame only at the end.
@@ -1150,23 +1103,10 @@
             syncCameraControls();
         });
 
-        function syncCameraControls() {
-            const yawInput = document.getElementById('camera-yaw');
-            if (!yawInput) return;
-            const yawDegrees = threeYaw * 180 / Math.PI;
-            const pitchDegrees = threePitch * 180 / Math.PI;
-            yawInput.value = Math.max(-720, Math.min(720, Math.round(yawDegrees)));
-            document.getElementById('camera-pitch').value = Math.round(pitchDegrees);
-            document.getElementById('camera-horizon').value = Math.round(threeHorizon);
-            document.getElementById('camera-fov').value = Math.round(threeFov);
-            document.getElementById('camera-yaw-value').innerText = `${Math.round(yawDegrees)}°`;
-            document.getElementById('camera-pitch-value').innerText = `${Math.round(pitchDegrees)}°`;
-            document.getElementById('camera-horizon-value').innerText = threeHorizon === 0 ? 'CENTRO' : `${Math.abs(Math.round(threeHorizon))}% ${threeHorizon > 0 ? 'CHÃO' : 'CÉU'}`;
-            document.getElementById('camera-fov-value').innerText = `${Math.round(threeFov)}°`;
-        }
+        function syncCameraControls() {}
 
         function aimThreeCamera(camera, yaw = threeYaw, pitch = threePitch, fov = threeFov, horizon = threeHorizon) {
-            if(settings.cameraActive===false){yaw=0;pitch=0;fov=75;horizon=0;}
+            if(!isPreview3D && settings.cameraActive===false){yaw=0;pitch=0;fov=75;horizon=0;}
             camera.fov = fov;
             camera.clearViewOffset();
             // View offset oficial do Three.js: desloca o horizonte sem alterar
@@ -1315,14 +1255,32 @@
             }
         }
 
-        function shouldExportCamera3D() {
-            return isPreview3D
-                || settings.keyframes.some(kf => kf.type === 'camera3d')
-                || Math.abs(settings.cameraYaw) > 1e-6
-                || Math.abs(settings.cameraPitch) > 1e-6
-                || Math.abs(settings.cameraHorizon) > 1e-6
-                || Math.abs(settings.cameraFov - 75) > 1e-6;
+        function setPreview3D(active) {
+            if (!app) return;
+            isPreview3D = active;
+            const btn = document.getElementById('toggle-3d');
+            const threeContainer = document.getElementById('three-container');
+            const canvasContainer = document.getElementById('canvas-container');
+
+            threeContainer.style.display = isPreview3D ? 'block' : 'none';
+            canvasContainer.style.opacity = isPreview3D ? '0' : '1';
+            canvasContainer.style.pointerEvents = isPreview3D ? 'none' : 'auto';
+            btn.innerText = isPreview3D ? "Prévia 3D: ON" : "Prévia 3D: OFF";
+
+            if (isPreview3D) {
+                setupThree();
+                syncCameraControls();
+                app.renderer.render(app.stage);
+                renderThreePreview();
+            } else if (document.pointerLockElement) {
+                document.exitPointerLock?.();
+            }
         }
+
+        document.getElementById('toggle-3d').onclick = () => {
+            setPreview3D(!isPreview3D);
+        };
+        function shouldExportCamera3D() { return false; }
 
         function createCameraExportContext(width, height) {
             if (!shouldExportCamera3D()) return null;
@@ -1358,317 +1316,12 @@
             context.renderer.forceContextLoss?.();
         }
 
-        function setPreview3D(active) {
-            isPreview3D = active;
-            const btn = document.getElementById('toggle-3d');
-            const threeContainer = document.getElementById('three-container');
-            const canvasContainer = document.getElementById('canvas-container');
-
-            threeContainer.style.display = isPreview3D ? 'block' : 'none';
-            canvasContainer.style.opacity = isPreview3D ? '0' : '1';
-            canvasContainer.style.pointerEvents = isPreview3D ? 'none' : 'auto';
-            btn.innerText = isPreview3D ? "Preview 3D: ON" : "Preview 3D: OFF";
-            document.getElementById('btn-camera-preview').innerText = isPreview3D ? 'DESATIVAR PREVIEW 3D' : 'ATIVAR PREVIEW 3D';
-
-            if (isPreview3D) {
-                setupThree();
-                syncCameraControls();
-                app.renderer.render(app.stage);
-                renderThreePreview();
-            } else if (document.pointerLockElement) {
-                document.exitPointerLock?.();
-            }
-        }
-
-        document.getElementById('toggle-3d').onclick = () => {
-            setPreview3D(!isPreview3D);
-        };
-        document.getElementById('btn-camera-preview').onclick = () => {
-            setPreview3D(!isPreview3D);
-        };
-
-        document.getElementById('camera-yaw').addEventListener('input', e => {
-            threeYaw = Number(e.target.value) * Math.PI / 180;
-            settings.cameraYaw = threeYaw;
-            syncCameraControls();
-            renderThreePreview();
-        });
-        document.getElementById('camera-pitch').addEventListener('input', e => {
-            threePitch = Number(e.target.value) * Math.PI / 180;
-            settings.cameraPitch = threePitch;
-            syncCameraControls();
-            renderThreePreview();
-        });
-        document.getElementById('camera-horizon').addEventListener('input', e => {
-            threeHorizon = Number(e.target.value);
-            settings.cameraHorizon = threeHorizon;
-            syncCameraControls();
-            renderThreePreview();
-        });
-        document.getElementById('camera-fov').addEventListener('input', e => {
-            threeFov = Number(e.target.value);
-            settings.cameraFov = threeFov;
-            syncCameraControls();
-            renderThreePreview();
-        });
-        async function exportCameraFullHD() {
-            if (!app) return alert('A composição ainda não foi iniciada.');
-            if (typeof VideoEncoder === 'undefined') return alert('Este navegador não suporta exportação Full HD por WebCodecs. Use Chrome ou Edge atualizado.');
-
-            if (!isPreview3D) setPreview3D(true);
-            setupThree();
-
-            const btn = document.getElementById('btn-render-camera');
-            const originalText = btn.innerText;
-            const statusLabel = document.getElementById('status-indicator');
-            const timerDisplay = document.getElementById('timer');
-            const width = 1920;
-            const height = 1080;
-            const fps = EXPORT_FPS;
-            const normalizedLoop = normalizeLoopDuration(document.getElementById('render-duration').value);
-            const totalFrames = normalizedLoop.frames;
-            settings.renderDuration = normalizedLoop.duration;
-            document.getElementById('render-duration').value = normalizedLoop.duration;
-
-            if (isPlaying) togglePlay();
-            btn.disabled = true;
-            btn.innerText = 'INICIANDO...';
-            statusLabel.style.display = 'block';
-
-            let exportRenderer = null;
-            let videoEncoder = null;
-            try {
-                const target = new WebMMuxer.ArrayBufferTarget();
-                const muxer = new WebMMuxer.Muxer({
-                    target,
-                    video: { codec: 'V_VP9', width, height, frameRate: fps }
-                });
-
-                videoEncoder = new VideoEncoder({
-                    output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
-                    error: error => console.error(error)
-                });
-                videoEncoder.configure({
-                    codec: 'vp09.00.10.08',
-                    width,
-                    height,
-                    bitrate: 16_000_000,
-                    framerate: fps
-                });
-
-                exportRenderer = new THREE.WebGLRenderer({
-                    antialias: true,
-                    alpha: false,
-                    preserveDrawingBuffer: true,
-                    powerPreference: 'high-performance'
-                });
-                exportRenderer.setPixelRatio(1);
-                exportRenderer.setSize(width, height, false);
-                exportRenderer.setClearColor(0x000000, 1);
-                exportRenderer.outputColorSpace = THREE.SRGBColorSpace;
-
-                const exportCamera = threeCamera.clone();
-                exportCamera.aspect = width / height;
-                exportCamera.position.copy(threeCamera.position);
-                aimThreeCamera(exportCamera);
-
-                app.ticker.stop();
-                for (let i = 0; i < totalFrames; i++) {
-                    while (videoEncoder.encodeQueueSize > 8) {
-                        await new Promise(resolve => setTimeout(resolve, 30));
-                    }
-                    if (i % 3 === 0) {
-                        const pct = Math.round(i / totalFrames * 100);
-                        btn.innerText = `⏳ FULL HD ${pct}%`;
-                        timerDisplay.innerText = `${pct}%`;
-                        await new Promise(resolve => setTimeout(resolve, 0));
-                    }
-
-                    seek(i / fps, false);
-                    app.renderer.render(app.stage);
-                    threeTexture.needsUpdate = true;
-                    aimThreeCamera(exportCamera);
-                    exportRenderer.render(threeScene, exportCamera);
-
-                    const loopCanvas=closeLoopExportFrame(exportRenderer.domElement,i/fps,()=>{
-                        app.renderer.render(app.stage);
-                        threeTexture.needsUpdate=true;
-                        aimThreeCamera(exportCamera);
-                        exportRenderer.render(threeScene,exportCamera);
-                        return exportRenderer.domElement;
-                    });
-                    const frame = new VideoFrame(loopCanvas, {
-                        timestamp: Math.round(i * 1_000_000 / fps),
-                        duration: Math.round(1_000_000 / fps)
-                    });
-                    videoEncoder.encode(frame, { keyFrame: i % (fps * 2) === 0 });
-                    frame.close();
-                }
-
-                await videoEncoder.flush();
-                muxer.finalize();
-                const blob = new Blob([target.buffer], { type: 'video/webm' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'camera-3d-full-hd.webm';
-                link.click();
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
-                btn.innerText = 'CONCLUÍDO!';
-            } catch (error) {
-                console.error('Erro na exportação da câmera 3D:', error);
-                alert('Falha ao exportar a câmera 3D: ' + error.message);
-            } finally {
-                if (videoEncoder && videoEncoder.state !== 'closed') videoEncoder.close();
-                if (exportRenderer) {
-                    exportRenderer.dispose();
-                    exportRenderer.forceContextLoss?.();
-                }
-                if (app) app.ticker.start();
-                statusLabel.style.display = 'none';
-                renderThreePreview();
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                }, 1200);
-            }
-        }
-
-        document.getElementById('btn-render-camera').addEventListener('click', exportCameraFullHD);
-
-        async function exportCameraPngSequence() {
-            if (!app) return alert('A composição ainda não foi iniciada.');
-
-            const btn = document.getElementById('btn-render-camera-png');
-            const originalText = btn.innerText;
-            const statusLabel = document.getElementById('status-indicator');
-            const timerDisplay = document.getElementById('timer');
-            const width = 1920;
-            const height = 1080;
-            const fps = EXPORT_FPS;
-            const normalizedLoop = normalizeLoopDuration(document.getElementById('render-duration').value);
-            const totalFrames = normalizedLoop.frames;
-            let directoryHandle = null;
-            let zipModule = null;
-            const zipFrames = {};
-
-            try {
-                if (typeof window.showDirectoryPicker === 'function') {
-                    directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-                } else {
-                    if (totalFrames > 120 && !confirm(`A sequência terá ${totalFrames} imagens Full HD e será reunida em ZIP no tablet. Pode ficar pesada. Continuar?`)) return;
-                    zipModule = await import('https://cdn.jsdelivr.net/npm/fflate@0.8.2/+esm');
-                }
-            } catch (error) {
-                if (error.name === 'AbortError') return;
-                alert('Não foi possível escolher a pasta: ' + error.message);
-                return;
-            }
-
-            if (!isPreview3D) setPreview3D(true);
-            setupThree();
-            if (isPlaying) togglePlay();
-            settings.renderDuration = normalizedLoop.duration;
-            document.getElementById('render-duration').value = normalizedLoop.duration;
-
-            let exportRenderer = null;
-
-            btn.disabled = true;
-            btn.innerText = 'INICIANDO...';
-            statusLabel.style.display = 'block';
-
-            try {
-                exportRenderer = new THREE.WebGLRenderer({
-                    antialias: true,
-                    alpha: false,
-                    preserveDrawingBuffer: true,
-                    powerPreference: 'high-performance'
-                });
-                exportRenderer.setPixelRatio(1);
-                exportRenderer.setSize(width, height, false);
-                exportRenderer.setClearColor(0x000000, 1);
-                exportRenderer.outputColorSpace = THREE.SRGBColorSpace;
-
-                const exportCamera = threeCamera.clone();
-                exportCamera.aspect = width / height;
-                exportCamera.position.copy(threeCamera.position);
-                aimThreeCamera(exportCamera);
-
-                app.ticker.stop();
-                for (let i = 0; i < totalFrames; i++) {
-                    const pct = Math.round(i / totalFrames * 100);
-                    btn.innerText = `⏳ PNG ${pct}%`;
-                    timerDisplay.innerText = `${pct}%`;
-                    if (i % 2 === 0) await new Promise(resolve => setTimeout(resolve, 0));
-
-                    seek(i / fps, false);
-                    app.renderer.render(app.stage);
-                    threeTexture.needsUpdate = true;
-                    aimThreeCamera(exportCamera);
-                    exportRenderer.render(threeScene, exportCamera);
-
-                    const loopCanvas=closeLoopExportFrame(exportRenderer.domElement,i/fps,()=>{
-                        app.renderer.render(app.stage);
-                        threeTexture.needsUpdate=true;
-                        aimThreeCamera(exportCamera);
-                        exportRenderer.render(threeScene,exportCamera);
-                        return exportRenderer.domElement;
-                    });
-                    const blob = await new Promise((resolve, reject) => {
-                        loopCanvas.toBlob(result => result ? resolve(result) : reject(new Error('Falha ao criar PNG.')), 'image/png');
-                    });
-                    const fileName = `camera_3d_${String(i).padStart(5, '0')}.png`;
-
-                    if (directoryHandle) {
-                        const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
-                        const writable = await fileHandle.createWritable();
-                        await writable.write(blob);
-                        await writable.close();
-                    } else {
-                        zipFrames[fileName] = new Uint8Array(await blob.arrayBuffer());
-                    }
-                }
-
-                if (!directoryHandle) {
-                    btn.innerText = 'COMPACTANDO ZIP...';
-                    await new Promise(resolve => setTimeout(resolve, 0));
-                    const zipped = zipModule.zipSync(zipFrames, { level: 0 });
-                    const url = URL.createObjectURL(new Blob([zipped], { type: 'application/zip' }));
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = 'camera-3d-full-hd-png.zip';
-                    link.click();
-                    setTimeout(() => URL.revokeObjectURL(url), 1000);
-                }
-                btn.innerText = 'CONCLUÍDO!';
-            } catch (error) {
-                console.error('Erro na sequência PNG da câmera 3D:', error);
-                alert('Falha na sequência PNG Full HD: ' + error.message);
-            } finally {
-                if (exportRenderer) {
-                    exportRenderer.dispose();
-                    exportRenderer.forceContextLoss?.();
-                }
-                if (app) app.ticker.start();
-                statusLabel.style.display = 'none';
-                renderThreePreview();
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                }, 1200);
-            }
-        }
-
-        document.getElementById('btn-render-camera-png').addEventListener('click', exportCameraPngSequence);
-
-        // O modo por arraste funciona igualmente com mouse, caneta e toque.
-
         let selectedEffectTarget='scene';
         const effectTargetBanks=new Map(),layerEffectContexts=new Map();
         let effectTargetBusy=false,effectEvaluationTarget=null;
         const effectPropertyTypes={rippleActive:'ripple',rippleStrength:'ripple',rippleSpeed:'ripple',expStrength:'impact',expSpeed:'impact',expRippleStrength:'impact',expRippleSpeed:'impact',expFunnel:'impact',vaporProgress:'vapor',vaporSpeed:'vapor',vaporColor:'vapor',scrollSpeed:'scroll',zoomActive:'zoom',zoomSpeed:'zoom',zoomMax:'zoom',shakeActive:'shake',shakeStrength:'shake',shakeAngle:'shake',shakeSpeed:'shake',vignetteActive:'vignette',vignetteStrength:'vignette',vignetteSize:'vignette',contrast:'color',whiteLevel:'color',blackLevel:'color',exposure:'color',saturation:'color',gamma:'color',temperature:'color',bloom:'color',chromatic:'color',grain:'color',scanlines:'color',lights:'light',fires:'fire',globalLightIntensity:'globalLight',globalLightColor:'globalLight',windStrength:'wind',windSpeed:'wind',windDirX:'wind',windDirY:'wind',particles:'particles'};
-        const effectActivationProps={mirror:'mirrorActive',ripple:'rippleActive',zoom:'zoomActive',shake:'shakeActive',vignette:'vignetteActive',fire:'fireActive',globalLight:'globalLightActive',wind:'windActive',scroll:'scrollActive',impact:'impactActive',color:'colorActive',vapor:'vaporActive',camera3d:'cameraActive'};
-        const extraEffectControls={mirrorActive:'toggle-mirror',fireActive:'toggle-fire',globalLightActive:'toggle-global-light',windActive:'toggle-wind',scrollActive:'toggle-scroll',impactActive:'toggle-impact',colorActive:'toggle-color',vaporActive:'toggle-vapor',cameraActive:'toggle-camera-effect'};
+        const effectActivationProps={mirror:'mirrorActive',ripple:'rippleActive',zoom:'zoomActive',shake:'shakeActive',vignette:'vignetteActive',fire:'fireActive',globalLight:'globalLightActive',wind:'windActive',scroll:'scrollActive',impact:'impactActive',color:'colorActive',vapor:'vaporActive',};
+        const extraEffectControls={mirrorActive:'toggle-mirror',fireActive:'toggle-fire',globalLightActive:'toggle-global-light',windActive:'toggle-wind',scrollActive:'toggle-scroll',impactActive:'toggle-impact',colorActive:'toggle-color',vaporActive:'toggle-vapor'};
         Object.assign(effectPropertyTypes,{fireActive:'fire',globalLightActive:'globalLight',windActive:'wind',scrollActive:'scroll',impactActive:'impact',colorActive:'color',vaporActive:'vapor'});
         function effectIsOn(config,type){const prop=effectActivationProps[type];return !prop || config[prop]!==false;}
         function setupEffectActivationUI(){
@@ -1759,11 +1412,7 @@
         function setupEffectTargetUI(){
             effectTargetBanks.set('scene',{id:'scene',config:captureEffectConfig(),initial:captureEffectConfig(),impactPreview:false});
             const select=document.getElementById('effect-image-target');
-            select.addEventListener('change',()=>switchEffectTarget(select.value));
-            document.getElementById('image-layer-selector').addEventListener('change',()=>{
-                const layer=compositionLayers[Number(document.getElementById('image-layer-selector').value)];
-                if(layer && selectedEffectTarget!=='scene')switchEffectTarget(layer.id);
-            });
+            if(select)select.addEventListener('change',()=>switchEffectTarget(select.value));
             const save=()=>storeEditedEffectBank();
             document.getElementById('sidebar').addEventListener('input',save);
             document.getElementById('sidebar').addEventListener('change',event=>{if(event.target.id!=='effect-image-target')save();});
@@ -1851,7 +1500,7 @@
             const fit=ctx.id==='background'?Math.min(compositionWidth/sourceWidth,compositionHeight/sourceHeight):source.scale.x;
             const center=ctx.id==='background'?{x:source.tilePosition.x+sourceWidth*fit/2,y:source.tilePosition.y+sourceHeight*fit/2}:{x:source.x,y:source.y};
             root.pivot.set(center.x,center.y);root.position.set(center.x+(effectIsOn(config,'scroll')?time*config.scrollSpeed:0),center.y);
-            if(config.zoomActive){const zoom=Math.pow(Math.max(1,config.zoomMax),.5-.5*Math.cos(time*config.zoomSpeed/100*Math.PI*2));root.scale.set(zoom);}
+            if(config.zoomActive){const zoom=1+(Math.max(1,config.zoomMax)-1)*linearPulse(loopPhase(time*config.zoomSpeed/100,1));root.scale.set(zoom);}
             if(config.shakeActive){const t=time*config.shakeSpeed/5*Math.PI*2,a=config.shakeAngle*Math.PI/180,dx=Math.sin(t)*config.shakeStrength,dy=Math.sin(t*2)*config.shakeStrength*.7;root.position.x+=Math.cos(a)*dx-Math.sin(a)*dy;root.position.y+=Math.sin(a)*dx+Math.cos(a)*dy;}
             root.getBounds(false);
             const w=ctx.id==='background'?root.worldTransform.clone().append(new PIXI.Matrix(fit,0,0,fit,source.tilePosition.x,source.tilePosition.y)):source.worldTransform,anchor=ctx.id==='background'?{x:0,y:0}:source.anchor;
@@ -1873,7 +1522,7 @@
             let progress=-1,impact=keys.filter(k=>k.type==='impact' && k.time<=currentTime).sort((a,b)=>b.time-a.time)[0];
             if(effectIsOn(config,'impact') && live && bank.impactPreview)progress=Math.min(1,time*config.expSpeed);
             else if(effectIsOn(config,'impact') && impact)progress=Math.min(1,(currentTime-impact.time)*impact.expSpeed);
-            const envelope=progress>=0 && progress<1?Math.sin(progress*Math.PI):0;
+            const envelope=linearPulse(progress);
             f.impact.scale.set(config.expStrength*envelope*sizeScale);
             ctx.impactMap.position.set(targetCenter[0]*compositionWidth,targetCenter[1]*compositionHeight);ctx.impactMap.scale.set(Math.max(.02,Math.max(0,progress)*8*sizeScale));
             f.ripple.scale.x+=config.expRippleStrength*envelope*sizeScale;f.ripple.scale.y+=config.expRippleStrength*envelope*sizeScale;
@@ -1920,6 +1569,7 @@
             root.filters=stages.length?stages:null;
         }
         function applySettingsToCanvas(isLivePreview=false){
+            updateSourceFrame(currentTime);
             if(!app || !sprite || effectTargetBusy)return;
             const restore=captureEffectConfig(),allKeys=settings.keyframes;
             const editedLive=isLivePreview || (livePreviewActive && !isPlaying && app.ticker.started);
@@ -1979,7 +1629,7 @@
             void main(){
                 vec2 uv=vTextureCoord*inputSize.xy/outputFrame.zw;
                 float rank=texture2D(uRank,clamp(uv,0.0,1.0)).r*.78+microNoise(uv*outputFrame.zw*.65)*.22;
-                float keep=1.0-smoothstep(rank-.09,rank+.09,uProgress);
+                float keep=1.0-clamp((uProgress-rank+.09)/.18,0.0,1.0);
                 gl_FragColor=texture2D(uSampler,vTextureCoord)*keep;
             }
         `;
@@ -2198,8 +1848,7 @@
                         const drift=config.turbulence*(Math.sin(motionAge*1.8+phase)-Math.sin(phase))*(.25+t*.75);
                         puff.position.set(piece.x+drift+(r-.5)*config.strength*motionAge*.45*expansion,piece.y-config.strength*motionAge*.7+Math.sin(motionAge*2+phase)*config.turbulence*t*.3);
                         const size=piece.cell*(piece.wisp?(1+11*t*expansion):(.55+3*t*expansion));puff.scale.set(size/64,size/64*(1.1+r*.4));puff.rotation=phase+motionAge*(r-.5)*.4;
-                        const fadeIn=Math.min(1,t/.15),fadeOut=Math.min(1,(1-t)/.55);
-                        puff.alpha=(1-Math.exp(-3*fadeIn))*fadeOut*fadeOut*(piece.color[3]/255)*(piece.wisp ? .24 : .4);
+                        puff.alpha=linearEnvelope(t,.15,.55)*(piece.color[3]/255)*(piece.wisp ? .24 : .4);
                         const shade=.7+.3*(1-t);
                         const rgb=smokeColor.map((c,i)=>Math.round((piece.color[i]*(1-t*.85)+c*255*t*.85)*shade));
                         puff.tint=(rgb[0]<<16)|(rgb[1]<<8)|rgb[2];
@@ -2208,7 +1857,7 @@
                     asset.original.filters=null;
                     asset.original.visible=elapsed<=0;
                     asset.cracks.visible=elapsed>0 && elapsed<duration*.18;
-                    asset.cracks.alpha=Math.min(1,Math.max(0,elapsed/(duration*.025)))*Math.max(0,1-elapsed/(duration*.18));
+                    asset.cracks.alpha=linearEnvelope(elapsed/(duration*.18),.025/.18,1-.025/.18);
                     const impactX=0,impactY=0;
                     for(const piece of asset.pieces){
                         const shard=piece.sprite;
@@ -2235,7 +1884,7 @@
                         shard.position.set(0);shard.rotation=0;shard.scale.set(1);
                         shard._depth=centerZ;shard._projection=camera/Math.max(camera*.08,camera-centerZ);
                         const nearFade=1-Math.max(0,Math.min(1,(centerZ/camera-.82)/.14));
-                        shard.alpha=(1-Math.pow(Math.max(0,(progress-.5)/.5),2))*nearFade;
+                        shard.alpha=Math.min(linearEnvelope(progress,0,.5),nearFade);
                         const light=Math.round(255*(.58+.42*Math.abs(cx*cy)));shard.tint=(light<<16)|(light<<8)|light;
                     }
                 }
@@ -2324,7 +1973,7 @@
 
         const settings = {
             mirrorActive:false,mirrorStrength:75,mirrorSpeed:25,mirrorSegments:6,mirrorDepth:60,mirrorScale:100,mirrorRotation:0,mirrorX:50,mirrorY:50,
-            fireActive:true,globalLightActive:true,windActive:true,scrollActive:true,impactActive:true,colorActive:true,vaporActive:true,cameraActive:true,
+            fireActive:true,globalLightActive:true,windActive:true,scrollActive:true,impactActive:true,colorActive:true,vaporActive:true,cameraActive:false,
             rippleActive: false,
             rippleStrength: 40,
             rippleSpeed: 1.0,
@@ -3372,19 +3021,16 @@ varying vec2 vTextureCoord;
                 const variation = Math.max(.05, 1 + (r1 * 2 - 1) * p.sizeVar);
                 let size = (p.sizeStart + (p.sizeEnd - p.sizeStart) * phase) * variation * effectScale;
                 size *= 1 + Math.sin(phase * Math.PI * 2 + r3 * Math.PI * 2) * p.pulse;
-                const fi = p.fadeIn <= 0 ? 1 : Math.min(1, phase / p.fadeIn);
-                const fadeIn=fi*fi*(3-2*fi);
-                const fo = p.fadeOut <= 0 ? 1 : Math.min(1, (1 - phase) / p.fadeOut);
-                const fadeOut=fo*fo*(3-2*fo);
+                const fade=linearEnvelope(phase,p.fadeIn,p.fadeOut);
 
                 sprite.texture = particleTextures[p.shape] || particleTextures.soft;
                 sprite.position.set(x, y);
                 const baseSize = Math.max(.01, size) / 64;
                 sprite.scale.set(baseSize, baseSize * p.stretch);
                 sprite.rotation = angle - Math.PI / 2 + p.rotation * Math.PI / 180 + p.spin * Math.PI / 180 * age;
-                sprite.alpha = Math.max(0, Math.min(1, p.alpha * fadeIn * fadeOut));
+                sprite.alpha = Math.max(0, Math.min(1, p.alpha * fade));
                 const ca=p._colorStart,cb=p._colorEnd;
-                const ct=phase*phase*(3-2*phase);
+                const ct=phase;
                 sprite.tint=(Math.round((ca[0]+(cb[0]-ca[0])*ct)*255)<<16)|(Math.round((ca[1]+(cb[1]-ca[1])*ct)*255)<<8)|Math.round((ca[2]+(cb[2]-ca[2])*ct)*255);
                 if(p.shape==='streak'){
                     const damping=Math.exp(-Math.max(0,p.drag)*age);
@@ -3435,16 +3081,12 @@ varying vec2 vTextureCoord;
             layer.sprite.scale.set(fitScale * layer.scale);
             layer.sprite.rotation = layer.rotation * Math.PI / 180;
             layer.sprite.alpha = layer.opacity;
-            layer.sprite.visible = layer.visible && (layer.type !== 'sequence' || layer.animationVisible !== false);
+            layer.sprite.visible = layer.visible;
         }
 
         function createCompositionLayerSprite(layer) {
             if (!compositionLayersContainer) return;
-            if (layer.type === 'sequence') {
-                layer.frameTextures = layer.frameDataUrls.map(dataUrl => PIXI.Texture.from(dataUrl));
-                layer.currentFrame = -1;
-            }
-            const texture = layer.type === 'sequence' ? layer.frameTextures[0] : PIXI.Texture.from(layer.dataUrl);
+            const texture = PIXI.Texture.from(layer.dataUrl);
             const layerSprite = new PIXI.Sprite(texture);
             layerSprite.anchor.set(0.5);
             layer.sprite = layerSprite;
@@ -3475,188 +3117,6 @@ varying vec2 vTextureCoord;
         function updateCompositionLayerUI() {
             syncImageEffectTargets();
             refreshEffectTargetList();
-            const selector = document.getElementById('image-layer-selector');
-            selector.innerHTML = '';
-            compositionLayers.forEach((layer, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${index + 1}. ${layer.name}`;
-                selector.appendChild(option);
-            });
-
-            if (!compositionLayers.length) selectedCompositionLayer = -1;
-            else selectedCompositionLayer = Math.max(0, Math.min(selectedCompositionLayer, compositionLayers.length - 1));
-            selector.value = selectedCompositionLayer;
-
-            const layer = getSelectedCompositionLayer();
-            const controlIds = ['image-layer-selector','btn-layer-down','btn-layer-up','btn-layer-remove','btn-kf-image-layer','image-layer-visible','image-layer-x','image-layer-y','image-layer-scale','image-layer-rotation','image-layer-opacity'];
-            controlIds.forEach(id => { document.getElementById(id).disabled = !layer; });
-            if (!layer) {
-                document.getElementById('image-sequence-controls').style.display = 'none';
-                return;
-            }
-
-            document.getElementById('image-layer-visible').checked = layer.visible;
-            document.getElementById('image-layer-x').value = layer.x;
-            document.getElementById('image-layer-y').value = layer.y;
-            document.getElementById('image-layer-scale').value = layer.scale;
-            document.getElementById('val-image-layer-scale').innerText = layer.scale.toFixed(2);
-            document.getElementById('image-layer-rotation').value = layer.rotation;
-            document.getElementById('val-image-layer-rotation').innerText = Math.round(layer.rotation);
-            document.getElementById('image-layer-opacity').value = layer.opacity;
-            document.getElementById('val-image-layer-opacity').innerText = layer.opacity.toFixed(2);
-            const isSequence = layer.type === 'sequence';
-            document.getElementById('image-sequence-controls').style.display = isSequence ? 'block' : 'none';
-            if (isSequence) {
-                document.getElementById('image-layer-type').innerText = `Sequência · ${layer.frameDataUrls.length} frames`;
-                document.getElementById('image-layer-fps').value = layer.fps;
-                document.getElementById('val-image-layer-fps').innerText = layer.fps;
-                document.getElementById('image-layer-loop').checked = layer.loop;
-            }
-        }
-
-        function updateSelectedCompositionLayer(prop, value) {
-            const layer = getSelectedCompositionLayer();
-            if (!layer) return;
-            layer[prop] = value;
-            applyCompositionLayerTransform(layer);
-            if (!isPlaying) app.renderer.render(app.stage);
-        }
-
-        async function addCompositionImages(files) {
-            if(!app){const canvas=document.createElement('canvas');canvas.width=1456;canvas.height=728;initPixi(canvas.toDataURL(),1456,728);}
-            for (const file of files) {
-                const dataUrl = await readImageFile(file);
-                const layer = {
-                    id: createCompositionLayerId(),
-                    type: 'image',
-                    name: file.name,
-                    dataUrl,
-                    x: 0.5,
-                    y: 0.5,
-                    scale: 1,
-                    rotation: 0,
-                    opacity: 1,
-                    visible: true,
-                    sprite: null
-                };
-                compositionLayers.push(layer);
-                createCompositionLayerSprite(layer);
-            }
-            selectedCompositionLayer = compositionLayers.length - 1;
-            updateCompositionLayerUI();
-            if (!isPlaying && app) app.renderer.render(app.stage);
-        }
-
-        async function addCompositionSequence(files) {
-            const imageFiles = files
-                .filter(file => file.type.startsWith('image/'))
-                .sort((a, b) => (a.webkitRelativePath || a.name).localeCompare(
-                    b.webkitRelativePath || b.name, undefined, { numeric: true, sensitivity: 'base' }
-                ));
-            if (!imageFiles.length) throw new Error('A pasta não contém imagens reconhecidas.');
-            const frameDataUrls = await Promise.all(imageFiles.map(readImageFile));
-            const relativePath = imageFiles[0].webkitRelativePath || imageFiles[0].name;
-            const folderName = relativePath.includes('/') ? relativePath.split('/')[0] : 'Sequência';
-            const layer = {
-                id: createCompositionLayerId(),
-                type: 'sequence',
-                name: `${folderName} (${frameDataUrls.length} frames)`,
-                frameDataUrls,
-                frameTextures: null,
-                currentFrame: -1,
-                fps: 24,
-                loop: true,
-                animationVisible: true,
-                x: 0.5, y: 0.5, scale: 1, rotation: 0, opacity: 1, visible: true, sprite: null
-            };
-            compositionLayers.push(layer);
-            createCompositionLayerSprite(layer);
-            selectedCompositionLayer = compositionLayers.length - 1;
-            updateCompositionLayerUI();
-            updateCompositionLayersAnimation(currentTime);
-            if (!isPlaying && app) app.renderer.render(app.stage);
-        }
-
-        function getCompositionLayerSequenceStart(layer) {
-            const firstKeyframe = settings.keyframes
-                .filter(kf => kf.type === 'compositionLayer' && kf.layerId === layer.id)
-                .sort((a, b) => a.time - b.time)[0];
-            return firstKeyframe ? firstKeyframe.time : 0;
-        }
-
-        function updateCompositionLayersAnimation(animTime) {
-            compositionLayers.forEach(layer => {
-                if (layer.type !== 'sequence' || !layer.sprite || !layer.frameTextures?.length) return;
-                const localTime = animTime - getCompositionLayerSequenceStart(layer);
-                layer.animationVisible = localTime >= 0;
-                if (layer.animationVisible) {
-                    const frameCount = layer.frameTextures.length;
-                    const rawFrame = Math.floor(localTime * layer.fps);
-                    const frameIndex = layer.loop ? rawFrame % frameCount : Math.min(rawFrame, frameCount - 1);
-                    if (frameIndex !== layer.currentFrame) {
-                        layer.currentFrame = frameIndex;
-                        layer.sprite.texture = layer.frameTextures[frameIndex];
-                    }
-                }
-                applyCompositionLayerTransform(layer);
-            });
-        }
-
-        function interpolateCompositionLayerKeyframes(layer, time) {
-            const kfs = settings.keyframes
-                .filter(kf => kf.type === 'compositionLayer' && kf.layerId === layer.id)
-                .sort((a, b) => a.time - b.time);
-            if (!kfs.length) return null;
-            if (kfs.length === 1) return kfs[0];
-            if (time <= kfs[0].time) return kfs[0];
-            if (time >= kfs[kfs.length - 1].time) return kfs[kfs.length - 1];
-
-            let from = kfs[0];
-            let to = kfs[1];
-            for (let i = 0; i < kfs.length - 1; i++) {
-                if (time >= kfs[i].time && time < kfs[i + 1].time) {
-                    from = kfs[i];
-                    to = kfs[i + 1];
-                    break;
-                }
-            }
-            const ratio = Math.max(0, Math.min(1, (time - from.time) / Math.max(1e-6, to.time - from.time)));
-            const mix = prop => from[prop] + (to[prop] - from[prop]) * ratio;
-            return {
-                x: mix('x'), y: mix('y'), scale: mix('scale'),
-                rotation: mix('rotation'), opacity: mix('opacity'),
-                visible: ratio < 1 ? from.visible : to.visible
-            };
-        }
-
-        function applyCompositionLayerKeyframes(time, syncUI = false) {
-            compositionLayers.forEach(layer => {
-                const state = interpolateCompositionLayerKeyframes(layer, time);
-                if (!state) return;
-                layer.x = state.x;
-                layer.y = state.y;
-                layer.scale = state.scale;
-                layer.rotation = state.rotation;
-                layer.opacity = state.opacity;
-                layer.visible = state.visible;
-                applyCompositionLayerTransform(layer);
-            });
-            if (syncUI && getSelectedCompositionLayer()) updateCompositionLayerControls();
-        }
-
-        function updateCompositionLayerControls() {
-            const layer = getSelectedCompositionLayer();
-            if (!layer) return;
-            document.getElementById('image-layer-visible').checked = layer.visible;
-            document.getElementById('image-layer-x').value = layer.x;
-            document.getElementById('image-layer-y').value = layer.y;
-            document.getElementById('image-layer-scale').value = layer.scale;
-            document.getElementById('val-image-layer-scale').innerText = layer.scale.toFixed(2);
-            document.getElementById('image-layer-rotation').value = layer.rotation;
-            document.getElementById('val-image-layer-rotation').innerText = Math.round(layer.rotation);
-            document.getElementById('image-layer-opacity').value = layer.opacity;
-            document.getElementById('val-image-layer-opacity').innerText = layer.opacity.toFixed(2);
         }
 
         function initPixi(imageURL, sourceWidth = compositionWidth, sourceHeight = compositionHeight) {
@@ -4364,125 +3824,50 @@ varying vec2 vTextureCoord;
         }
 
         // Importação do cenário-base 3D
-        document.getElementById('background-upload').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const sourceImage = new Image();
-                    sourceImage.onload = () => initPixi(ev.target.result, sourceImage.naturalWidth, sourceImage.naturalHeight);
-                    sourceImage.onerror = () => alert('Não foi possível ler as dimensões da imagem.');
-                    sourceImage.src = ev.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-            e.target.value = '';
-        });
 
-        // Importação múltipla de camadas para composição
-        document.getElementById('images-upload').addEventListener('change', async (e) => {
-            const files = Array.from(e.target.files || []);
-            if (!files.length) return;
+        let sourceLoadVersion = 0;
+        function updateSourceFrame(time) {
+            if (!sprite || !sourceFrames.length) return;
+            const fps = EXPORT_FPS;
+            const index = Math.floor(Math.max(0,time)*fps) % sourceFrames.length;
+            if(index === sourceFrameIndex) return;
+            sourceFrameIndex = index;
+            sprite.texture = sourceFrames[index];
+            zoomLayers.forEach(layer => { layer.texture = sourceFrames[index]; });
+        }
+        async function importSource(files, sequence) {
+            const version = ++sourceLoadVersion;
+            const sorted = Array.from(files).filter(file => file.type.startsWith('image/') || /\.(png|jpe?g|webp|bmp|avif|gif)$/i.test(file.name));
+            if(sequence) sorted.sort((a,b)=>(a.webkitRelativePath || a.name).localeCompare(b.webkitRelativePath || b.name,undefined,{numeric:true,sensitivity:'base'}));
+            if(!sorted.length) { if(sequence) alert('A pasta selecionada não contém imagens compatíveis.'); return; }
             try {
-                await addCompositionImages(files);
-            } catch (error) {
-                console.error('Erro ao importar imagens da composição:', error);
-                alert('Não foi possível importar uma ou mais imagens.');
-            } finally {
-                e.target.value = '';
-            }
-        });
-
-        document.getElementById('sequence-upload').addEventListener('change', async (e) => {
-            const files = Array.from(e.target.files || []);
-            if (!files.length) return;
-            try {
-                await addCompositionSequence(files);
-            } catch (error) {
-                console.error('Erro ao importar sequência:', error);
-                alert(error.message || 'Não foi possível importar a sequência.');
-            } finally {
-                e.target.value = '';
-            }
-        });
-
-        document.getElementById('image-layer-selector').addEventListener('change', e => {
-            selectedCompositionLayer = parseInt(e.target.value);
-            updateCompositionLayerUI();
-        });
-        document.getElementById('image-layer-visible').addEventListener('change', e => updateSelectedCompositionLayer('visible', e.target.checked));
-        document.getElementById('image-layer-x').addEventListener('input', e => updateSelectedCompositionLayer('x', parseFloat(e.target.value)));
-        document.getElementById('image-layer-y').addEventListener('input', e => updateSelectedCompositionLayer('y', parseFloat(e.target.value)));
-        document.getElementById('image-layer-scale').addEventListener('input', e => {
-            const value = parseFloat(e.target.value);
-            document.getElementById('val-image-layer-scale').innerText = value.toFixed(2);
-            updateSelectedCompositionLayer('scale', value);
-        });
-        document.getElementById('image-layer-rotation').addEventListener('input', e => {
-            const value = parseFloat(e.target.value);
-            document.getElementById('val-image-layer-rotation').innerText = Math.round(value);
-            updateSelectedCompositionLayer('rotation', value);
-        });
-        document.getElementById('image-layer-opacity').addEventListener('input', e => {
-            const value = parseFloat(e.target.value);
-            document.getElementById('val-image-layer-opacity').innerText = value.toFixed(2);
-            updateSelectedCompositionLayer('opacity', value);
-        });
-        document.getElementById('image-layer-fps').addEventListener('input', e => {
-            const value = parseInt(e.target.value);
-            document.getElementById('val-image-layer-fps').innerText = value;
-            updateSelectedCompositionLayer('fps', value);
-            updateCompositionLayersAnimation(currentTime);
-        });
-        document.getElementById('image-layer-loop').addEventListener('change', e => {
-            updateSelectedCompositionLayer('loop', e.target.checked);
-            updateCompositionLayersAnimation(currentTime);
-        });
-        document.getElementById('btn-kf-image-layer').addEventListener('click', () => {
-            const layer = getSelectedCompositionLayer();
-            if (!layer) return;
-            settings.keyframes = settings.keyframes.filter(kf => !(
-                kf.type === 'compositionLayer' && kf.layerId === layer.id && Math.abs(kf.time - currentTime) < 0.0001
-            ));
-            addKeyframe({
-                type: 'compositionLayer',
-                layerId: layer.id,
-                layerName: layer.name,
-                time: currentTime,
-                x: layer.x,
-                y: layer.y,
-                scale: layer.scale,
-                rotation: layer.rotation,
-                opacity: layer.opacity,
-                visible: layer.visible
-            });
-            updateCompositionLayersAnimation(currentTime);
-            if (!isPlaying && app) app.renderer.render(app.stage);
-        });
-        document.getElementById('btn-layer-remove').addEventListener('click', () => {
-            const layer = getSelectedCompositionLayer();
-            if (!layer) return;
-            if (layer.sprite) {
-                compositionLayersContainer.removeChild(layer.sprite);
-                layer.sprite.destroy({ texture: false, baseTexture: false });
-            }
-            compositionLayers.splice(selectedCompositionLayer, 1);
-            settings.keyframes = settings.keyframes.filter(kf => kf.type !== 'compositionLayer' || kf.layerId !== layer.id);
-            selectedCompositionLayer = Math.min(selectedCompositionLayer, compositionLayers.length - 1);
-            updateCompositionLayerUI();
-            updateKeyframesUI();
-        });
-        const moveSelectedCompositionLayer = delta => {
-            const from = selectedCompositionLayer;
-            const to = from + delta;
-            if (from < 0 || to < 0 || to >= compositionLayers.length) return;
-            [compositionLayers[from], compositionLayers[to]] = [compositionLayers[to], compositionLayers[from]];
-            selectedCompositionLayer = to;
-            rebuildCompositionLayers();
-            if (!isPlaying && app) app.renderer.render(app.stage);
-        };
-        document.getElementById('btn-layer-down').addEventListener('click', () => moveSelectedCompositionLayer(-1));
-        document.getElementById('btn-layer-up').addEventListener('click', () => moveSelectedCompositionLayer(1));
+                const images = [];
+                for(const file of (sequence ? sorted : sorted.slice(0,1))) {
+                    const url = await readImageFile(file);
+                    const image = await new Promise((resolve,reject)=>{ const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('Imagem inválida: '+file.name));image.src=url; });
+                    images.push(image);
+                }
+                if(version !== sourceLoadVersion) return;
+                if(isPlaying) togglePlay();
+                const previous=sourceFrames; sourceFrames=[]; sourceFrameIndex=-1;
+                const width=images[0].naturalWidth,height=images[0].naturalHeight;
+                initPixi(images[0].src,width,height);
+                sourceFrames=images.map(image=>{
+                    if(image.naturalWidth===width && image.naturalHeight===height)return PIXI.Texture.from(image);
+                    const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+                    const ratio=Math.min(width/image.naturalWidth,height/image.naturalHeight);
+                    const w=image.naturalWidth*ratio,h=image.naturalHeight*ratio;
+                    canvas.getContext('2d').drawImage(image,(width-w)/2,(height-h)/2,w,h);
+                    return PIXI.Texture.from(canvas);
+                });
+                previous.forEach(texture=>{if(!texture.destroyed)texture.destroy(true);});
+                if(sequence){settings.renderDuration=Math.max(1,Math.ceil(images.length/EXPORT_FPS));document.getElementById('render-duration').value=settings.renderDuration;}
+                seek(0);
+                document.getElementById('source-info').textContent=sequence ? sorted.length+' quadros · '+width+'×'+height+' · ordem por nome · repetição em loop' : sorted[0].name+' · '+width+'×'+height;
+            } catch(error) { console.error(error);alert('Não foi possível importar: '+error.message); }
+        }
+        document.getElementById('background-upload').addEventListener('change',event=>{importSource(event.target.files,false);event.target.value='';});
+        document.getElementById('source-sequence-upload').addEventListener('change',event=>{importSource(event.target.files,true);event.target.value='';});
 
         document.getElementById('ripple-strength').addEventListener('input', (e) => {
             settings.rippleStrength = parseInt(e.target.value);
@@ -5055,22 +4440,8 @@ varying vec2 vTextureCoord;
             });
         });
 
-        document.getElementById('btn-kf-camera').addEventListener('click', () => {
-            settings.cameraYaw = threeYaw;
-            settings.cameraPitch = threePitch;
-            settings.cameraHorizon = threeHorizon;
-            settings.cameraFov = threeFov;
-            addKeyframe({
-                type: 'camera3d',
-                time: currentTime,
-                cameraYaw: threeYaw,
-                cameraPitch: threePitch,
-                cameraHorizon: threeHorizon,
-                cameraFov: threeFov
-            });
-        });
-
         function addKeyframe(kf) {
+            if (kf.type === 'compositionLayer' || kf.type === 'camera3d') return;
             const activation=effectActivationProps[kf.type];
             if(activation)kf[activation]=settings[activation];
             if(kf.type!=='compositionLayer' && kf.type!=='camera3d')kf.effectTarget=selectedEffectTarget;
@@ -5103,7 +4474,7 @@ varying vec2 vTextureCoord;
         window.removeKeyframesAtTime = (time) => {
             settings.keyframes = settings.keyframes.filter(kf => Math.abs(kf.time-time)>=.0001 || (kf.type!=='compositionLayer' && kf.type!=='camera3d' && effectTargetOf(kf)!==selectedEffectTarget));
             updateKeyframesUI();
-            updateCompositionLayersAnimation(currentTime);
+
             if (!isPlaying && app) app.renderer.render(app.stage);
         };
 
@@ -5117,6 +4488,24 @@ varying vec2 vTextureCoord;
         function cloneTimelineValue(value) {
             if (value === undefined || value === null || typeof value !== 'object') return value;
             return JSON.parse(JSON.stringify(value));
+        }
+
+        function interpolateParticleSnapshot(from,to,ratio){
+            if(typeof from==='number' && typeof to==='number')return from+(to-from)*ratio;
+            if(typeof from==='string' && /^#[0-9a-f]{6}$/i.test(from) && typeof to==='string' && /^#[0-9a-f]{6}$/i.test(to)){
+                const a=hexToRgb(from),b=hexToRgb(to);
+                return '#'+a.map((v,i)=>Math.round((v+(b[i]-v)*ratio)*255).toString(16).padStart(2,'0')).join('');
+            }
+            if(Array.isArray(from) && Array.isArray(to))return from.map((value,index)=>{
+                const next=value?.id?to.find(item=>item.id===value.id):to[index];
+                return next===undefined?cloneTimelineValue(value):interpolateParticleSnapshot(value,next,ratio);
+            });
+            if(from && to && typeof from==='object' && typeof to==='object'){
+                const value=cloneTimelineValue(from);
+                for(const key of Object.keys(from))if(to[key]!==undefined && !['seed','timelineStart','timelineEnd'].includes(key))value[key]=interpolateParticleSnapshot(from[key],to[key],ratio);
+                return value;
+            }
+            return cloneTimelineValue(from);
         }
 
         function getInterpolatedValue(time, prop, type = 'ripple') {
@@ -5148,19 +4537,7 @@ varying vec2 vTextureCoord;
             const v0 = from[prop];
             const v1 = to[prop];
 
-                    if (type === 'particles' && prop === 'particles') {
-                        const p0 = from.particles, p1 = to.particles;
-                        const result = cloneTimelineValue(p0);
-                        Object.keys(p1).forEach(key => {
-                            if (typeof p0[key] === 'number' && typeof p1[key] === 'number') result[key] = p0[key] + (p1[key] - p0[key]) * ratio;
-                            else if (key === 'colorStart' || key === 'colorEnd') {
-                                const c0 = hexToRgb(p0[key]), c1 = hexToRgb(p1[key]);
-                                const toHex = n => Math.round(n * 255).toString(16).padStart(2, '0');
-                                result[key] = `#${toHex(c0[0] + (c1[0]-c0[0])*ratio)}${toHex(c0[1] + (c1[1]-c0[1])*ratio)}${toHex(c0[2] + (c1[2]-c0[2])*ratio)}`;
-                            } else result[key] = cloneTimelineValue(p0[key]);
-                        });
-                        return result;
-                    }
+                    if (type === 'particles' && prop === 'particles')return interpolateParticleSnapshot(v0,v1,ratio);
 
                     if (type === 'fire' && prop === 'fires') {
                         const f0 = from.fires;
@@ -5222,7 +4599,7 @@ varying vec2 vTextureCoord;
             
             const animTime = isLivePreview ? Math.max(0,performance.now()/1000-livePreviewEpoch) : currentTime;
             // Sequências seguem a timeline; efeitos procedurais podem continuar em preview ao vivo.
-            updateCompositionLayersAnimation(currentTime);
+
             const phase = loopPhase(animTime);
 
             // Deslocamento em pixels por segundo, independente do fim da exportação.
@@ -5242,16 +4619,15 @@ varying vec2 vTextureCoord;
                 zoomLayers.forEach(s => {
                     const progress = animTime * cycleSpeed + s.initialZOffset;
                     s.zProgress = ((progress % 1) + 1) % 1;
-                    const scaleValue = baseScale * Math.pow(settings.zoomMax, s.zProgress);
+                    const scaleValue = baseScale * (1+(settings.zoomMax-1)*s.zProgress);
                     s.tileScale.set(scaleValue);
                     
                     // Centraliza + Scroll
                     s.tilePosition.x = (compositionWidth - tex.width * scaleValue) / 2 + scrollOffset;
                     s.tilePosition.y = (compositionHeight - tex.height * scaleValue) / 2;
                     
-                    // Transição Senoidal: Cria um cross-fade perfeito entre as 2 camadas.
-                    // Quando uma está no pico de opacidade (centro), a outra está totalmente invisível (reiniciando).
-                    s.alpha = Math.pow(Math.sin(s.zProgress * Math.PI), 0.7);
+                    // Linear cross-fade: the hidden layer resets at each cycle.
+                    s.alpha = linearPulse(s.zProgress);
                 });
 
                 // Reordena camadas: as menores (no fundo) ficam por trás
@@ -5335,7 +4711,7 @@ varying vec2 vTextureCoord;
                 const travelsForward = activeFunnel >= 0;
                 const travelProgress = travelsForward ? activeProgress : 1 - activeProgress;
                 impactSprite.scale.set(Math.max(0.02, travelProgress * 8));
-                const impactEnvelope = Math.sin(activeProgress * Math.PI);
+                const impactEnvelope = linearPulse(activeProgress);
                 // The impact's water controls contribute even when the separate
                 // continuous Ripple toggle is off.
                 const impactWater=Math.max(0,activeRippleStrength)*impactEnvelope;
@@ -5511,7 +4887,7 @@ varying vec2 vTextureCoord;
             settings.cameraPitch = getInterpolatedValue(time, 'cameraPitch', 'camera3d');
             settings.cameraHorizon = getInterpolatedValue(time, 'cameraHorizon', 'camera3d');
             settings.cameraFov = getInterpolatedValue(time, 'cameraFov', 'camera3d');
-            applyCompositionLayerKeyframes(time, updateUI && !isPlaying);
+
             threeYaw = settings.cameraYaw;
             threePitch = settings.cameraPitch;
             threeHorizon = settings.cameraHorizon;
@@ -5931,5 +5307,9 @@ varying vec2 vTextureCoord;
             });
         });
     </script>
+
+    
+
+
 </body>
 </html> 
