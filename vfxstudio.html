@@ -389,6 +389,11 @@
                 <input type="file" id="sequence-upload" accept="image/*" multiple webkitdirectory directory style="display:none;">
             </div>
 
+            <div style="position:sticky;top:-20px;z-index:20;background:#151515;border:1px solid #444;border-radius:6px;padding:12px;margin-bottom:12px;">
+                <label for="effect-image-target" style="font-size:11px;">APLICAR / EDITAR EFEITOS EM</label>
+                <select id="effect-image-target" style="width:100%;margin-top:8px;"><option value="scene">Cena inteira · tudo junto</option></select>
+                <p style="font-size:10px;line-height:1.5;color:#aaa;margin-bottom:0">Escolha qualquer imagem importada. Cada imagem guarda seus próprios ajustes e keyframes.</p>
+            </div>
             <div class="effect-card">
                 <h3>Composição de Imagens <i class="fas fa-chevron-down" style="font-size:8px; transition:.3s;"></i></h3>
                 <div class="vfx-content">
@@ -417,6 +422,22 @@
             </div>
 
             <div class="effect-card">
+                <h3>Dimensão Espelhada <i class="fas fa-chevron-down" style="font-size:8px; transition:.3s;"></i></h3>
+                <div class="vfx-content">
+                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-mirror"></label></div>
+                    <div class="label-group"><label>Intensidade <span id="val-mirror-strength">75</span></label><input type="range" id="mirror-strength" min="0" max="100" step="1" value="75"></div>
+                    <div class="label-group"><label>Velocidade / sentido <span id="val-mirror-speed">25</span></label><input type="range" id="mirror-speed" min="-100" max="100" step="1" value="25"></div>
+                    <div class="label-group"><label>Divisões <span id="val-mirror-segments">6</span></label><input type="range" id="mirror-segments" min="2" max="16" step="1" value="6"></div>
+                    <div class="label-group"><label>Dobras / profundidade <span id="val-mirror-depth">60</span></label><input type="range" id="mirror-depth" min="0" max="100" step="1" value="60"></div>
+                    <div class="label-group"><label>Escala <span id="val-mirror-scale">100</span></label><input type="range" id="mirror-scale" min="25" max="250" step="1" value="100"></div>
+                    <div class="label-group"><label>Ângulo inicial <span id="val-mirror-rotation">0</span></label><input type="range" id="mirror-rotation" min="-180" max="180" step="1" value="0"></div>
+                    <div class="label-group"><label>Centro X <span id="val-mirror-x">50</span></label><input type="range" id="mirror-x" min="0" max="100" step="1" value="50"></div>
+                    <div class="label-group"><label>Centro Y <span id="val-mirror-y">50</span></label><input type="range" id="mirror-y" min="0" max="100" step="1" value="50"></div>
+                    <div class="button-row"><button class="btn-trigger" id="btn-preview-mirror">Preview</button><button class="btn-trigger" id="btn-kf-mirror">◆ Add Key</button></div>
+                </div>
+            </div>
+
+            <div class="effect-card">
                 <h3>Campo de Partículas Universal <i class="fas fa-chevron-down" style="font-size:8px; transition:.3s;"></i></h3>
                 <div class="vfx-content">
                     <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-particles"></label></div>
@@ -426,7 +447,7 @@
                             <option value="custom">Personalizado</option>
                             <optgroup label="Clima"><option value="rain">Chuva</option><option value="heavyRain">Tempestade</option><option value="drizzle">Garoa</option><option value="snow">Neve</option><option value="blizzard">Nevasca</option><option value="fog">Névoa</option><option value="sandstorm">Tempestade de Areia</option></optgroup>
                             <optgroup label="Fogo e Impacto"><option value="fire">Fogo</option><option value="smoke">Fumaça</option><option value="steam">Vapor</option><option value="sparks">Faíscas</option><option value="embers">Brasas</option><option value="ash">Cinzas</option><option value="explosion">Explosão de Bomba</option><option value="nuclear">Explosão Nuclear</option><option value="muzzle">Disparo de Arma</option><option value="fireworks">Fogos de Artifício</option><option value="meteors">Meteoros</option></optgroup>
-                            <optgroup label="Energia e Espaço"><option value="portal">Portal</option><option value="vortex">Vórtice</option><option value="magic">Magia</option><option value="aura">Aura de Energia</option><option value="electric">Arcos Elétricos</option><option value="lightning">Raios / Relâmpagos</option><option value="light">Raios de Luz</option><option value="galaxy">Galáxia</option><option value="stars">Estrelas</option></optgroup>
+                            <optgroup label="Energia e Espaço"><option value="portal">Portal</option><option value="vortex">Vórtice</option><option value="magic">Magia</option><option value="aura">Aura de Energia · Iluminação</option><option value="electric">Arcos Elétricos</option><option value="lightning">Raios / Relâmpagos</option><option value="light">Raios de Luz</option><option value="galaxy">Galáxia</option><option value="stars">Estrelas</option></optgroup>
                             <optgroup label="Natureza e Ambiente"><option value="dust">Poeira</option><option value="leaves">Folhas</option><option value="fireflies">Vagalumes</option><option value="bubbles">Bolhas</option><option value="underwater">Suspensão Subaquática</option></optgroup>
                         </select>
                     </div>
@@ -471,6 +492,12 @@
                 </div>
             </div>
 
+<div class="effect-card" id="imagefx-smoke-card"><h3>Desintegração <i class="fas fa-chevron-down" style="font-size:8px;"></i></h3><div class="vfx-content">
+ <div class="label-group"><label>Ativo <input id="imagefx-smoke-active" type="checkbox" checked></label></div>
+ <div class="label-group"><label>Velocidade do efeito <span id="imagefx-smoke-val-speed">1.00</span>×</label><input id="imagefx-smoke-speed" type="range" min="0.1" max="4" step="0.05" value="1"></div><div class="label-group"><label>Densidade da fumaça <span id="imagefx-smoke-val-amount">360</span></label><input id="imagefx-smoke-amount" type="range" min="40" max="1000" step="20" value="360"></div><div class="label-group"><label>Deslocamento da fumaça <span id="imagefx-smoke-val-strength">160</span></label><input id="imagefx-smoke-strength" type="range" min="0" max="700" step="1" value="160"></div><div class="label-group"><label>Turbulência <span id="imagefx-smoke-val-turbulence">60</span></label><input id="imagefx-smoke-turbulence" type="range" min="0" max="250" step="1" value="60"></div><div class="label-group"><label>Expansão da fumaça <span id="imagefx-smoke-val-expansion">1.00</span></label><input id="imagefx-smoke-expansion" type="range" min="0.25" max="4" step="0.05" value="1"></div><div class="label-group"><label>Cor da fumaça</label><input id="imagefx-smoke-color" type="color" value="#b8b8b8"></div><div class="label-group"><label>Progresso manual <span id="imagefx-smoke-val-progress">0</span></label><input id="imagefx-smoke-progress" type="range" min="0" max="1" step="0.01" value="0"></div><div class="button-row"><button class="btn-trigger" id="btn-preview-imagefx-smoke">Preview</button><button class="btn-trigger" id="btn-random-imagefx-smoke">Nova variação</button></div><div class="button-row"><button class="btn-trigger" id="btn-kf-imagefx-smoke">◆ Add Key</button></div></div></div>
+<div class="effect-card" id="imagefx-glass-card"><h3>Fractal <i class="fas fa-chevron-down" style="font-size:8px;"></i></h3><div class="vfx-content">
+ <div class="label-group"><label>Ativo <input id="imagefx-glass-active" type="checkbox" checked></label></div>
+ <div class="label-group"><label>Velocidade do efeito <span id="imagefx-glass-val-speed">1.00</span>×</label><input id="imagefx-glass-speed" type="range" min="0.1" max="4" step="0.05" value="1"></div><div class="label-group"><label>Fragmentos <span id="imagefx-glass-val-amount">360</span></label><input id="imagefx-glass-amount" type="range" min="40" max="1000" step="20" value="360"></div><div class="label-group"><label>Força da quebra <span id="imagefx-glass-val-strength">160</span></label><input id="imagefx-glass-strength" type="range" min="0" max="700" step="1" value="160"></div><div class="label-group"><label>Turbulência <span id="imagefx-glass-val-turbulence">60</span></label><input id="imagefx-glass-turbulence" type="range" min="0" max="250" step="1" value="60"></div><div class="label-group"><label>Direção da câmera (− afasta / + aproxima) <span id="imagefx-glass-val-depth">0</span></label><input id="imagefx-glass-depth" type="range" min="-100" max="100" step="1" value="0"></div><div class="label-group"><label>Voo lateral (− esquerda / + direita) <span id="imagefx-glass-val-flight">0</span></label><input id="imagefx-glass-flight" type="range" min="-700" max="700" step="10" value="0"></div><div class="label-group"><label>Voo vertical (− desce / + sobe) <span id="imagefx-glass-val-lift">0</span></label><input id="imagefx-glass-lift" type="range" min="-700" max="700" step="10" value="0"></div><div class="label-group"><label>Fratura fractal <span id="imagefx-glass-val-fracture">2</span></label><input id="imagefx-glass-fracture" type="range" min="0" max="4" step="1" value="2"></div><div class="label-group"><label>Gravidade <span id="imagefx-glass-val-gravity">420</span></label><input id="imagefx-glass-gravity" type="range" min="-200" max="1200" step="10" value="420"></div><div class="label-group"><label>Rotação / giro <span id="imagefx-glass-val-spin">2</span></label><input id="imagefx-glass-spin" type="range" min="0" max="10" step="0.1" value="2"></div><div class="label-group"><label>Progresso manual <span id="imagefx-glass-val-progress">0</span></label><input id="imagefx-glass-progress" type="range" min="0" max="1" step="0.01" value="0"></div><div class="button-row"><button class="btn-trigger" id="btn-preview-glass-camera">À câmera</button><button class="btn-trigger" id="btn-preview-glass-fall">Cair</button><button class="btn-trigger" id="btn-preview-glass-fly">Voar</button></div><div class="button-row"><button class="btn-trigger" id="btn-preview-imagefx-glass">Preview</button><button class="btn-trigger" id="btn-random-imagefx-glass">Nova variação</button></div><div class="button-row"><button class="btn-trigger" id="btn-kf-imagefx-glass">◆ Add Key</button></div></div></div>
             <div class="effect-card">
                 <h3>Zoom Infinito (Loop) <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
                 <div class="vfx-content">
@@ -494,6 +521,7 @@
             <div class="effect-card">
                 <h3>Iluminar Imagem <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
                 <div class="vfx-content">
+                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-global-light" checked></label></div>
                     <div class="label-group">
                         <label>Intensidade <span id="val-global-light-intensity">1.0</span></label>
                         <input type="range" id="global-light-intensity" min="0" max="5" step="0.1" value="0">
@@ -511,6 +539,7 @@
             <div class="effect-card">
                 <h3>Cenário (Scrolling) <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
                 <div class="vfx-content">
+                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-scroll" checked></label></div>
                     <div class="label-group">
                         <label>Velocidade Horizontal <span id="val-scroll-speed">0</span></label>
                         <input type="range" id="scroll-speed" min="-1000" max="1000" step="1" value="0">
@@ -524,6 +553,7 @@
             <div class="effect-card">
                 <h3>Vento (Folhagens) <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
                 <div class="vfx-content">
+                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-wind" checked></label></div>
                     <div class="label-group">
                         <label>Pintar Área <input type="checkbox" id="toggle-wind-edit"></label>
                     </div>
@@ -605,6 +635,7 @@
             <div class="effect-card">
                 <h3>Fogo Procedural <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
                 <div class="vfx-content">
+                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-fire" checked></label></div>
                     <div class="label-group">
                         <label>Gerenciar Chamas</label>
                         <div style="display: flex; gap: 5px; margin-bottom: 10px;">
@@ -670,7 +701,7 @@
                         <input type="range" id="light-source" min="0" max="1" step="0.01" value="0">
                     </div>
                     <div class="label-group">
-                        <label>Fogo <span id="val-light-flicker">0.00</span></label>
+                        <label>Fogo / Ondulação <span id="val-light-flicker">0.00</span></label>
                         <input type="range" id="light-flicker" min="0" max="2" step="0.01" value="0">
                     </div>
                     <div class="label-group">
@@ -686,6 +717,7 @@
             <div class="effect-card">
                 <h3>Impacto na Água <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
                 <div class="vfx-content">
+                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-impact" checked></label></div>
                     <div class="label-group">
                         <label>Força do Impacto <span id="val-exp-strength">300</span></label>
                         <input type="range" id="exp-strength" min="1" max="1000" value="300">
@@ -717,6 +749,7 @@
             <div class="effect-card">
                 <h3>Correção de Cor <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
                 <div class="vfx-content">
+                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-color" checked></label></div>
                     <div class="label-group">
                         <label>Contraste <span id="val-contrast">1.00</span></label>
                         <input type="range" id="contrast" min="0" max="2" step="0.01" value="1">
@@ -796,6 +829,7 @@
             <div class="effect-card">
                 <h3>Fumaça / Neblina <i class="fas fa-chevron-down" style="font-size: 8px; transition: 0.3s;"></i></h3>
                 <div class="vfx-content">
+                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-vapor" checked></label></div>
                     <div class="label-group">
                         <label>Quantidade <span id="val-vapor-progress">0</span>%</label>
                         <input type="range" id="vapor-progress" min="0" max="200" value="0">
@@ -817,6 +851,7 @@
             <div class="effect-card" id="camera-effect-card">
                 <h3>Câmera 3D 360° <i class="fas fa-chevron-down" style="font-size:8px; transition:.3s;"></i></h3>
                 <div class="vfx-content" id="camera-controls">
+                    <div class="label-group"><label>Ativo <input type="checkbox" id="toggle-camera-effect" checked></label></div>
                     <div style="font-size:9px; color:#aaa; margin-bottom:10px; line-height:1.5;">Ative o preview. Clique na imagem para prender o mouse, mova para olhar, use o scroll para zoom e Esc para soltar. Depois crie keyframes para animar a câmera.</div>
                     <button id="btn-camera-preview" class="btn-primary" style="width:100%; min-height:38px; margin-bottom:10px;">ATIVAR PREVIEW 3D</button>
                     <label style="display:block; font-size:9px;">PANORÂMICA 360° <span id="camera-yaw-value">0°</span></label>
@@ -862,7 +897,7 @@
             <button id="btn-play" class="btn-transport">Play</button>
             <div style="font-family: monospace; color: var(--accent); font-size: 14px; min-width: 80px;" id="time-display">00:00.00</div>
             <div style="flex: 1"></div>
-            <div>DURAÇÃO TOTAL: <input type="number" id="render-duration" class="time-input" value="10" min="0.041667" step="0.041667">s</div>
+            <div>DURAÇÃO TOTAL: <input type="number" id="render-duration" class="time-input" value="5" min="1" step="1" inputmode="numeric">s</div>
         </div>
         <div id="timeline-track">
             <div id="timeline-content">
@@ -874,7 +909,7 @@
     </footer>
 
     <script>
-        let app, sprite, rippleMap, rippleFilter, impactFilter, impactSprite, impactFunnelFilter, vaporFilter, vignetteFilter, colorFilter, windFilter, globalLightFilter, fireNoiseTex;
+        let app, sprite, rippleMap, rippleFilter, impactFilter, impactSprite, impactFunnelFilter, vaporFilter, vignetteFilter, colorFilter, windFilter, globalLightFilter, mirrorFilter, fireNoiseTex;
         let lightFilters = []; // Array para múltiplos filtros de luz
         let fireFilters = []; // Array para múltiplos filtros de fogo
         let sceneContainer, zoomContainer, zoomLayers = [], compositionLayersContainer, compositionLayers = [], selectedCompositionLayer = -1, compositionLayerSerial = 0, maskTexture, maskSprite, maskBrush, maskBlur;
@@ -896,6 +931,9 @@
         const ZOOM_MIN = 1.0; // Imagem original (100%)
         const PPS = 200; // Pixels Per Second - Aumentado para maior precisão/distância
         const EXPORT_FPS = 24;
+        // Procedural cycles retain their original ten-second reference rate.
+        // Export length only chooses how many real-time frames are captured.
+        const EFFECT_CYCLE_SECONDS = 10;
         let compositionWidth = 1456;
         let compositionHeight = 728;
 
@@ -911,11 +949,159 @@
 
         function normalizeLoopDuration(value) {
             const requested = Number(value);
-            const frames = Math.max(1, Math.round((Number.isFinite(requested) ? requested : 1) * EXPORT_FPS));
-            return { frames, duration: frames / EXPORT_FPS };
+            const duration=Math.max(1,Math.round(Number.isFinite(requested) && String(value).trim()!==''?requested:5));
+            return { frames:duration*EXPORT_FPS, duration };
         }
 
-        function loopPhase(time, duration = settings.renderDuration) {
+        function loopTransition(time, duration = settings.renderDuration) {
+            const window=Math.min(.25,Math.max(0,duration)*.1);
+            if(!(window>0) || time<duration-window || time>duration)return null;
+            const progress=Math.max(0,Math.min(1,(time-duration+window)/window));
+            return {tailTime:0,headWeight:1-progress*progress*(3-2*progress)};
+        }
+
+        // The loop blends back to its actual first frame only at the end.
+        // Imported images are shown immediately; the opening never samples a vanished tail.
+        function closeLoopExportFrame(source, time, renderTail) {
+            const transition=loopTransition(time);
+            if(!transition)return source;
+            let blend=app._loopExportBlend;
+            if(!blend){
+                const canvas=document.createElement('canvas');
+                blend=app._loopExportBlend={canvas,context:canvas.getContext('2d')};
+            }
+            const {canvas,context}=blend;
+            if(canvas.width!==source.width || canvas.height!==source.height){canvas.width=source.width;canvas.height=source.height;}
+            context.clearRect(0,0,canvas.width,canvas.height);
+            context.globalCompositeOperation='source-over';
+            context.globalAlpha=transition.headWeight;
+            context.drawImage(source,0,0);
+            try {
+                seek(transition.tailTime,false);
+                const tail=renderTail();
+                context.globalCompositeOperation='lighter';
+                context.globalAlpha=1-transition.headWeight;
+                context.drawImage(tail,0,0);
+            } finally {
+                context.globalAlpha=1;
+                context.globalCompositeOperation='source-over';
+                seek(time,false);
+            }
+            return canvas;
+        }
+
+        const mirrorWorldShader = `
+            precision highp float;
+            varying vec2 vTextureCoord;
+            uniform sampler2D uSampler;
+            uniform highp vec4 inputSize;
+            uniform highp vec4 outputFrame;
+            uniform float uTime;
+            uniform float uStrength;
+            uniform float uSpeed;
+            uniform float uSegments;
+            uniform float uDepth;
+            uniform float uZoom;
+            uniform vec4 uRegion;
+            uniform float uRotation;
+            uniform vec2 uCenter;
+            mat2 mirrorRotate(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}
+            vec2 mirrorRepeat(vec2 p){return 1.0-abs(mod(p,2.0)-1.0);}
+            void main(){
+                vec2 frameScale=outputFrame.zw*inputSize.zw;
+                vec2 screenUV=vTextureCoord/frameScale;
+                vec2 regionSize=max(uRegion.zw,vec2(.00001));
+                vec2 uv=(screenUV-uRegion.xy)/regionSize;
+                if(any(lessThan(uv,vec2(0.0))) || any(greaterThan(uv,vec2(1.0)))){gl_FragColor=vec4(0.0);return;}
+                float aspect=outputFrame.z*regionSize.x/max(1.0,outputFrame.w*regionSize.y);
+                vec2 metric=vec2(aspect,1.0);
+                vec2 p=(uv-uCenter)*metric;
+                float t=uTime*uSpeed*.45;
+                float radius=length(p);
+                // The world keeps turning. Radial shear adds moving depth while
+                // its bounded derivative cannot reverse the main rotation.
+                float turn=uRotation+t*.7+uDepth*.18*sin(radius*9.0-t*.8);
+                float sector=6.28318530718/max(2.0,floor(uSegments+.5));
+                float angle=atan(p.y,p.x)+turn;
+                float folded=abs(mod(angle+sector*.5,sector)-sector*.5);
+                vec2 q=radius*vec2(cos(folded),sin(folded));
+                // Independent texture rotation avoids cancelling the world spin
+                // inside each mirrored sector; the two motions stay continuous.
+                q=mirrorRotate(-uRotation+t*.16)*q/max(.25,uZoom);
+                // Hinged mirror planes: local perspective, alternating faces and
+                // concentric folding; sample the complete pre-lit target once.
+                vec2 grid=q*(2.0+uDepth*2.0);
+                vec2 cell=floor(grid+.5),local=fract(grid+.5)-.5;
+                float phase=t+dot(cell,vec2(.71,1.13));
+                float hinge=uDepth*(.35+.65*sin(phase));
+                float perspective=max(.35,1.0+local.x*hinge*1.3);
+                vec2 plane=vec2(local.x*cos(hinge*1.3),local.y)/perspective;
+                plane=mirrorRotate(uDepth*(t*.38+dot(cell,vec2(.19,-.13))))*plane;
+                vec2 tiles=(cell+plane)/(2.0+uDepth*2.0);
+                q=mix(q,tiles,uDepth);
+                q*=1.0+uDepth*.16*sin(length(p)*10.0-t);
+                vec2 warped=uCenter+q/metric;
+                vec2 sampleUV=mirrorRepeat(mix(uv,warped,clamp(uStrength,0.0,1.0)));
+                vec4 color=texture2D(uSampler,clamp((uRegion.xy+sampleUV*regionSize)*frameScale,.5*inputSize.zw,frameScale-.5*inputSize.zw));
+                float faceLight=1.0-uDepth*uStrength*.12*(.5+.5*sin(phase));
+                gl_FragColor=vec4(color.rgb*faceLight,color.a);
+            }
+        `;
+
+        const loopBlendShader = `
+            precision highp float;
+            varying vec2 vTextureCoord;
+            uniform sampler2D uSampler;
+            uniform sampler2D uTail;
+            uniform highp vec4 inputSize;
+            uniform highp vec4 outputFrame;
+            uniform float uHeadWeight;
+            void main(){
+                vec2 uv=vTextureCoord*inputSize.xy/outputFrame.zw;
+                gl_FragColor=texture2D(uSampler,vTextureCoord)*uHeadWeight+texture2D(uTail,uv)*(1.0-uHeadWeight);
+            }
+        `;
+
+        function installLoopPreview(application) {
+            const renderer=application.renderer;
+            const rawRender=renderer.render.bind(renderer);
+            let resources=null,busy=false;
+            const dispose=()=>{
+                renderer.render=rawRender;
+                if(resources){resources.sprite.destroy({texture:false,baseTexture:false});resources.filter.destroy();resources.head.destroy(true);resources.tail.destroy(true);resources=null;}
+            };
+            application._loopPreview={destroy:dispose};
+            renderer.render=(displayObject,options)=>{
+                // Offscreen brush painting, live editing and export capture use raw
+                // frames. Export closure is applied after any 3D camera projection.
+                const transition=!busy && displayObject===application.stage && !options?.renderTexture && application.ticker.started && !livePreviewActive && !isPreview3D?loopTransition(currentTime):null;
+                if(!transition)return rawRender(displayObject,options);
+                if(!resources){
+                    const head=PIXI.RenderTexture.create({width:compositionWidth,height:compositionHeight,resolution:1});
+                    const tail=PIXI.RenderTexture.create({width:compositionWidth,height:compositionHeight,resolution:1});
+                    const sprite=new PIXI.Sprite(head);
+                    sprite.filterArea=application.screen;
+                    const filter=new PIXI.Filter(null,loopBlendShader,{uTail:tail,uHeadWeight:0});
+                    sprite.filters=[filter];
+                    resources={head,tail,sprite,filter};
+                }
+                const time=currentTime;
+                busy=true;
+                try {
+                    rawRender(displayObject,{renderTexture:resources.head,clear:true});
+                    seek(transition.tailTime,false);
+                    rawRender(displayObject,{renderTexture:resources.tail,clear:true});
+                    seek(time,false);
+                    resources.filter.uniforms.uHeadWeight=transition.headWeight;
+                    return rawRender(resources.sprite,options);
+                } finally {
+                    if(currentTime!==time)seek(time,false);
+                    busy=false;
+                }
+            };
+        }
+
+        function loopPhase(time, duration = EFFECT_CYCLE_SECONDS) {
             if (!(duration > 0)) return 0;
             return (((time % duration) + duration) % duration) / duration;
         }
@@ -980,6 +1166,7 @@
         }
 
         function aimThreeCamera(camera, yaw = threeYaw, pitch = threePitch, fov = threeFov, horizon = threeHorizon) {
+            if(settings.cameraActive===false){yaw=0;pitch=0;fov=75;horizon=0;}
             camera.fov = fov;
             camera.clearViewOffset();
             // View offset oficial do Three.js: desloca o horizonte sem alterar
@@ -1021,6 +1208,7 @@
                 threeRenderer.domElement.style.cursor = 'grab';
                 threeRenderer.domElement.addEventListener('pointerdown', (e) => {
                     if (e.button !== 0 || !isPreview3D) return;
+                    if(!isPlaying)livePreviewActive=true;
                     isDraggingThree = true;
                     lastThreePointerX = e.clientX;
                     lastThreePointerY = e.clientY;
@@ -1043,6 +1231,7 @@
                 threeRenderer.domElement.addEventListener('wheel', (e) => {
                     if (!isPreview3D) return;
                     e.preventDefault();
+                    if(!isPlaying)livePreviewActive=true;
                     const delta = Number.isFinite(e.deltaY) ? e.deltaY : 0;
                     threeFov = Math.max(35, Math.min(100, threeFov + delta * 0.025));
                     settings.cameraFov = threeFov;
@@ -1102,9 +1291,28 @@
 
         function renderThreePreview() {
             if (!isPreview3D || !threeRenderer || !threeTexture || !threeCamera) return;
+            const source=threeRenderer.domElement;
+            const closing=!livePreviewActive && loopTransition(currentTime);
+            if(closing)app.renderer.render(app.stage);
             threeTexture.needsUpdate = true;
             aimThreeCamera(threeCamera);
             threeRenderer.render(threeScene, threeCamera);
+            if(closing){
+                const canvas=closeLoopExportFrame(source,currentTime,()=>{
+                    app.renderer.render(app.stage);
+                    threeTexture.needsUpdate=true;
+                    aimThreeCamera(threeCamera);
+                    threeRenderer.render(threeScene,threeCamera);
+                    return source;
+                });
+                canvas.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;';
+                if(canvas.parentNode!==source.parentNode)source.parentNode.appendChild(canvas);
+                app._loopPreviewCanvas=canvas;
+                source.style.opacity='0';
+            }else{
+                source.style.opacity='1';
+                if(app._loopPreviewCanvas)app._loopPreviewCanvas.style.display='none';
+            }
         }
 
         function shouldExportCamera3D() {
@@ -1220,7 +1428,7 @@
             const normalizedLoop = normalizeLoopDuration(document.getElementById('render-duration').value);
             const totalFrames = normalizedLoop.frames;
             settings.renderDuration = normalizedLoop.duration;
-            document.getElementById('render-duration').value = Number(normalizedLoop.duration.toFixed(6));
+            document.getElementById('render-duration').value = normalizedLoop.duration;
 
             if (isPlaying) togglePlay();
             btn.disabled = true;
@@ -1282,7 +1490,14 @@
                     aimThreeCamera(exportCamera);
                     exportRenderer.render(threeScene, exportCamera);
 
-                    const frame = new VideoFrame(exportRenderer.domElement, {
+                    const loopCanvas=closeLoopExportFrame(exportRenderer.domElement,i/fps,()=>{
+                        app.renderer.render(app.stage);
+                        threeTexture.needsUpdate=true;
+                        aimThreeCamera(exportCamera);
+                        exportRenderer.render(threeScene,exportCamera);
+                        return exportRenderer.domElement;
+                    });
+                    const frame = new VideoFrame(loopCanvas, {
                         timestamp: Math.round(i * 1_000_000 / fps),
                         duration: Math.round(1_000_000 / fps)
                     });
@@ -1354,7 +1569,7 @@
             setupThree();
             if (isPlaying) togglePlay();
             settings.renderDuration = normalizedLoop.duration;
-            document.getElementById('render-duration').value = Number(normalizedLoop.duration.toFixed(6));
+            document.getElementById('render-duration').value = normalizedLoop.duration;
 
             let exportRenderer = null;
 
@@ -1392,8 +1607,15 @@
                     aimThreeCamera(exportCamera);
                     exportRenderer.render(threeScene, exportCamera);
 
+                    const loopCanvas=closeLoopExportFrame(exportRenderer.domElement,i/fps,()=>{
+                        app.renderer.render(app.stage);
+                        threeTexture.needsUpdate=true;
+                        aimThreeCamera(exportCamera);
+                        exportRenderer.render(threeScene,exportCamera);
+                        return exportRenderer.domElement;
+                    });
                     const blob = await new Promise((resolve, reject) => {
-                        exportRenderer.domElement.toBlob(result => result ? resolve(result) : reject(new Error('Falha ao criar PNG.')), 'image/png');
+                        loopCanvas.toBlob(result => result ? resolve(result) : reject(new Error('Falha ao criar PNG.')), 'image/png');
                     });
                     const fileName = `camera_3d_${String(i).padStart(5, '0')}.png`;
 
@@ -1441,7 +1663,668 @@
 
         // O modo por arraste funciona igualmente com mouse, caneta e toque.
 
+        let selectedEffectTarget='scene';
+        const effectTargetBanks=new Map(),layerEffectContexts=new Map();
+        let effectTargetBusy=false,effectEvaluationTarget=null;
+        const effectPropertyTypes={rippleActive:'ripple',rippleStrength:'ripple',rippleSpeed:'ripple',expStrength:'impact',expSpeed:'impact',expRippleStrength:'impact',expRippleSpeed:'impact',expFunnel:'impact',vaporProgress:'vapor',vaporSpeed:'vapor',vaporColor:'vapor',scrollSpeed:'scroll',zoomActive:'zoom',zoomSpeed:'zoom',zoomMax:'zoom',shakeActive:'shake',shakeStrength:'shake',shakeAngle:'shake',shakeSpeed:'shake',vignetteActive:'vignette',vignetteStrength:'vignette',vignetteSize:'vignette',contrast:'color',whiteLevel:'color',blackLevel:'color',exposure:'color',saturation:'color',gamma:'color',temperature:'color',bloom:'color',chromatic:'color',grain:'color',scanlines:'color',lights:'light',fires:'fire',globalLightIntensity:'globalLight',globalLightColor:'globalLight',windStrength:'wind',windSpeed:'wind',windDirX:'wind',windDirY:'wind',particles:'particles'};
+        const effectActivationProps={mirror:'mirrorActive',ripple:'rippleActive',zoom:'zoomActive',shake:'shakeActive',vignette:'vignetteActive',fire:'fireActive',globalLight:'globalLightActive',wind:'windActive',scroll:'scrollActive',impact:'impactActive',color:'colorActive',vapor:'vaporActive',camera3d:'cameraActive'};
+        const extraEffectControls={mirrorActive:'toggle-mirror',fireActive:'toggle-fire',globalLightActive:'toggle-global-light',windActive:'toggle-wind',scrollActive:'toggle-scroll',impactActive:'toggle-impact',colorActive:'toggle-color',vaporActive:'toggle-vapor',cameraActive:'toggle-camera-effect'};
+        Object.assign(effectPropertyTypes,{fireActive:'fire',globalLightActive:'globalLight',windActive:'wind',scrollActive:'scroll',impactActive:'impact',colorActive:'color',vaporActive:'vapor'});
+        function effectIsOn(config,type){const prop=effectActivationProps[type];return !prop || config[prop]!==false;}
+        function setupEffectActivationUI(){
+            for(const [prop,id] of Object.entries(extraEffectControls))document.getElementById(id).addEventListener('change',event=>{
+                settings[prop]=event.target.checked;
+                if(prop==='impactActive'){
+                    ensureEffectBank(selectedEffectTarget).impactPreview=event.target.checked;
+                    if(!event.target.checked)explosionActive=false;
+                }
+                restartLivePreview(prop==='impactActive' && event.target.checked?'btn-preview-impact':id);
+                if(prop==='cameraActive')renderThreePreview();
+            });
+        }
+        // One source lookup per pixel; the inactive filter is absent from the stack.
+        const mirrorControlProps={"mirrorStrength": "mirror-strength", "mirrorSpeed": "mirror-speed", "mirrorSegments": "mirror-segments", "mirrorDepth": "mirror-depth", "mirrorScale": "mirror-scale", "mirrorRotation": "mirror-rotation", "mirrorX": "mirror-x", "mirrorY": "mirror-y"};
+        Object.assign(effectPropertyTypes,{mirrorActive:'mirror',...Object.fromEntries(Object.keys(mirrorControlProps).map(prop=>[prop,'mirror']))});
+        function syncMirrorUI(){
+            document.getElementById('toggle-mirror').checked=settings.mirrorActive;
+            for(const [prop,id] of Object.entries(mirrorControlProps)){
+                document.getElementById(id).value=settings[prop];
+                document.getElementById('val-'+id).textContent=Math.round(settings[prop]);
+            }
+        }
+        function setupMirrorUI(){
+            for(const [prop,id] of Object.entries(mirrorControlProps))document.getElementById(id).addEventListener('input',event=>{
+                settings[prop]=Number(event.target.value);syncMirrorUI();
+            });
+            document.getElementById('btn-preview-mirror').addEventListener('click',()=>{
+                settings.mirrorActive=true;syncMirrorUI();restartLivePreview('btn-preview-mirror');
+            });
+            document.getElementById('btn-kf-mirror').addEventListener('click',()=>addKeyframe({type:'mirror',time:currentTime,...Object.fromEntries(Object.keys(mirrorControlProps).map(prop=>[prop,settings[prop]]))}));
+            syncMirrorUI();
+        }
+        function setMirrorUniforms(filter,config,time){
+            Object.assign(filter.uniforms,{uRegion:[0,0,1,1],uTime:time,uStrength:config.mirrorStrength/100,uSpeed:config.mirrorSpeed/25,uSegments:config.mirrorSegments,uDepth:config.mirrorDepth/100,uZoom:config.mirrorScale/100,uRotation:config.mirrorRotation*Math.PI/180,uCenter:[config.mirrorX/100,config.mirrorY/100]});
+        }
+        const scopedEffectProps=[...Object.keys(effectPropertyTypes),'selectedLightIndex','selectedFireIndex','imageSmoke','imageGlass'];
+        const effectTargetOf=kf=>kf.effectTarget || 'scene';
+        function captureEffectConfig(){return Object.fromEntries(scopedEffectProps.map(prop=>[prop,JSON.parse(JSON.stringify(settings[prop]))]));}
+        function ensureEffectBank(id){
+            if(!effectTargetBanks.has(id)){
+                const config=Object.fromEntries(scopedEffectProps.map(prop=>[prop,JSON.parse(JSON.stringify(initialSettingsState[prop]))]));
+                effectTargetBanks.set(id,{id,config,initial:JSON.parse(JSON.stringify(config)),impactPreview:false});
+            }
+            return effectTargetBanks.get(id);
+        }
+        function storeEditedEffectBank(){if(!effectTargetBusy && effectTargetBanks.size)ensureEffectBank(selectedEffectTarget).config=captureEffectConfig();}
+        function evaluateEffectBank(bank,time,live){
+            const restore=captureEffectConfig(),allKeys=settings.keyframes,oldEvaluation=effectEvaluationTarget;
+            effectEvaluationTarget=bank.id;
+            Object.assign(settings,JSON.parse(JSON.stringify(bank.config)));
+            settings.keyframes=allKeys.filter(k=>effectTargetOf(k)===bank.id || k.type==='camera3d' || k.type==='compositionLayer');
+            try{
+                if(!live)for(const [prop,type] of Object.entries(effectPropertyTypes))settings[prop]=getInterpolatedValue(time,prop,type);
+                return {config:captureEffectConfig(),keys:settings.keyframes};
+            }finally{Object.assign(settings,restore);settings.keyframes=allKeys;effectEvaluationTarget=oldEvaluation;}
+        }
+        function refreshEffectTargetList(){
+            for(const id of [...effectTargetBanks.keys()])if(id!=='scene' && id!=='background' && !compositionLayers.some(layer=>layer.id===id)){
+                disposeLayerEffectContext(layerEffectContexts.get(id));effectTargetBanks.delete(id);
+                settings.keyframes=settings.keyframes.filter(kf=>effectTargetOf(kf)!==id);
+                const removed=[];
+                for(const [assetId,asset] of imageEffectAssets)if(asset.targetId===id){disposeImageEffectAssetView(asset);asset.texture.destroy(true);imageEffectAssets.delete(assetId);removed.push(assetId);}
+                settings.keyframes=settings.keyframes.filter(kf=>!removed.includes(kf.config?.assetId));
+                for(const bank of effectTargetBanks.values())for(const key of ['imageSmoke','imageGlass'])if(removed.includes(bank.config[key]?.assetId)){bank.config[key].assetId=null;bank.config[key].active=false;}
+            }
+            const select=document.getElementById('effect-image-target');if(!select)return;
+            select.innerHTML='';
+            const add=(value,label)=>{const option=document.createElement('option');option.value=value;option.textContent=label;select.appendChild(option);};
+            add('scene','Cena inteira · tudo junto');
+            if(backgroundImageURL && sprite)add('background','Somente Background');
+            compositionLayers.forEach(layer=>add(layer.id,layer.name));
+            if(selectedEffectTarget!=='scene' && !imageEffectTarget(selectedEffectTarget)){
+                selectedEffectTarget='scene';Object.assign(settings,JSON.parse(JSON.stringify(ensureEffectBank('scene').config)));
+            }
+            select.value=selectedEffectTarget;
+        }
+        function switchEffectTarget(id){
+            storeEditedEffectBank();selectedEffectTarget=id;
+            const bank=ensureEffectBank(id);
+            Object.assign(settings,JSON.parse(JSON.stringify(bank.config)));
+            const index=compositionLayers.findIndex(layer=>layer.id===id);
+            if(index>=0){selectedCompositionLayer=index;updateCompositionLayerUI();}
+            refreshEffectTargetList();
+            if(app){seek(currentTime,true);if(maskSprite)maskSprite.texture=layerEffectContexts.get(id)?.mask || maskTexture;restartLivePreview();}
+            syncImageEffectUI('smoke');syncImageEffectUI('glass');
+        }
+        function setupEffectTargetUI(){
+            effectTargetBanks.set('scene',{id:'scene',config:captureEffectConfig(),initial:captureEffectConfig(),impactPreview:false});
+            const select=document.getElementById('effect-image-target');
+            select.addEventListener('change',()=>switchEffectTarget(select.value));
+            document.getElementById('image-layer-selector').addEventListener('change',()=>{
+                const layer=compositionLayers[Number(document.getElementById('image-layer-selector').value)];
+                if(layer && selectedEffectTarget!=='scene')switchEffectTarget(layer.id);
+            });
+            const save=()=>storeEditedEffectBank();
+            document.getElementById('sidebar').addEventListener('input',save);
+            document.getElementById('sidebar').addEventListener('change',event=>{if(event.target.id!=='effect-image-target')save();});
+            document.getElementById('sidebar').addEventListener('click',event=>{
+                if(event.target.closest('button')){save();const id=event.target.closest('button').id;if(id.startsWith('btn-preview-impact') || id.startsWith('btn-kf-impact'))ensureEffectBank(selectedEffectTarget).impactPreview=true;}
+            });
+            refreshEffectTargetList();
+        }
+        const targetAlphaShader=`
+            precision highp float;
+            varying vec2 vTextureCoord;
+            uniform sampler2D uSampler;
+            uniform sampler2D uTarget;
+            uniform highp vec4 inputSize;
+            uniform highp vec4 outputFrame;
+            uniform mat3 uWorldToSource;
+            uniform float uTargetAlpha;
+            void main(){
+                vec2 scene=vTextureCoord*inputSize.xy/outputFrame.zw;
+                vec2 uv=(uWorldToSource*vec3(scene*outputFrame.zw+outputFrame.xy,1.0)).xy;
+                vec4 c=texture2D(uSampler,vTextureCoord);
+                float inside=step(0.0,uv.x)*step(uv.x,1.0)*step(0.0,uv.y)*step(uv.y,1.0);
+                float alpha=texture2D(uTarget,clamp(uv,0.0,1.0)).a*inside*uTargetAlpha;
+                gl_FragColor=vec4(c.rgb*(alpha/max(c.a,.00001)),alpha);
+            }
+        `;
+        // Deformation must include emitted light, rather than clipping it to
+        // the uploaded texture. Three radii cover the visible Gaussian falloff.
+        function expandMirrorRegionForAura(filter,auras){
+            let [left,top,width,height]=filter.uniforms.uRegion;
+            let right=left+width,bottom=top+height;
+            for(const sprite of auras || []){
+                if(!sprite.visible)continue;
+                const u=sprite.filters[0].uniforms;
+                if(!(u.uAlpha>0))continue;
+                const [rx,ry]=u.uRadius,cs=Math.cos(u.uAngle),sn=Math.sin(u.uAngle);
+                const extentX=3*Math.hypot(rx*cs,ry*sn),extentY=3*Math.hypot(rx*sn,ry*cs);
+                left=Math.min(left,u.uCenter[0]-extentX);right=Math.max(right,u.uCenter[0]+extentX);
+                top=Math.min(top,u.uCenter[1]-extentY);bottom=Math.max(bottom,u.uCenter[1]+extentY);
+            }
+            // The final composition is the only crop for emitted light.
+            const x=Math.max(0,left),y=Math.max(0,top);
+            filter.uniforms.uRegion=[x,y,Math.max(.00001,Math.min(1,right)-x),Math.max(.00001,Math.min(1,bottom)-y)];
+        }
+        function createLayerEffectContext(id){
+            const target=imageEffectTarget(id);if(!target?.sprite?.parent)return null;
+            const source=id==='background'?sprite:target.sprite,parent=source.parent,index=parent.getChildIndex(source);
+            const root=new PIXI.Container();root.filterArea=app.screen;parent.addChildAt(root,index);root.addChild(source);
+            if(id==='background'){zoomContainer.parent?.removeChild(zoomContainer);root.addChildAt(zoomContainer,0);}
+            const overlay=new PIXI.Container(),particles=new PIXI.Container(),lightning=new PIXI.Container();
+            overlay.addChild(particles);overlay.addChild(lightning);root.addChild(overlay);
+            const rippleMap=new PIXI.Sprite(createRippleTexture());root.addChild(rippleMap);
+            const impactMap=new PIXI.Sprite(createRadialTexture());impactMap.anchor.set(.5);root.addChild(impactMap);
+            const mask=PIXI.RenderTexture.create({width:compositionWidth,height:compositionHeight});
+            const filters={
+                mirror:new PIXI.Filter(null,mirrorWorldShader,{}),
+                ripple:new PIXI.DisplacementFilter(rippleMap),impact:new PIXI.DisplacementFilter(impactMap),
+                funnel:new PIXI.Filter(null,impactFunnelShader,{uStrength:0,uProgress:0,uAspect:compositionWidth/compositionHeight,uCameraOffset:[0,0],uCenter:[.5,.5],uEffectScale:1}),
+                vapor:new PIXI.Filter(null,vaporShader,{uNoise:createNoiseTexture(),uThreshold:0,uTime:0,uDuration:EFFECT_CYCLE_SECONDS,uSpeed:1,uColor:[1,1,1]}),
+                wind:new PIXI.Filter(null,windShader,{uMask:mask,uTime:0,uDuration:EFFECT_CYCLE_SECONDS,uStrength:0,uSpeed:1,uDirection:[1,.3]}),
+                global:new PIXI.Filter(null,globalLightShader,{uColor:[1,1,1],uIntensity:0}),
+                color:new PIXI.Filter(null,colorCorrectionShader,{uResolution:[compositionWidth,compositionHeight]}),
+                vignette:new PIXI.Filter(null,vignetteShader,{uStrength:0,uSize:.3,uVignetteFrame:[0,0,1,1]}),
+                alpha:new PIXI.Filter(null,targetAlphaShader,{uTarget:source.texture,uTargetAlpha:1,uWorldToSource:new Float32Array([1,0,0,0,1,0,0,0,1])})
+            };
+            const context={id,root,source,parent,overlay,particles,lightning,pool:[],rippleMap,impactMap,mask,painted:false,filters,lights:[],fires:[]};
+            layerEffectContexts.set(id,context);return context;
+        }
+        function disposeLayerEffectContext(ctx){
+            if(!ctx)return;
+            if(!ctx.source.destroyed){ctx.root.removeChild(ctx.source);if(!ctx.parent.destroyed)ctx.parent.addChild(ctx.source);}
+            if(ctx.id==='background' && zoomContainer?.parent===ctx.root){ctx.root.removeChild(zoomContainer);ctx.parent.addChildAt(zoomContainer,0);}
+            disposeAuraPool(ctx.particles);
+            ctx.root.parent?.removeChild(ctx.root);ctx.root.destroy({children:true,texture:false,baseTexture:false});
+            Object.values(ctx.filters).forEach(f=>f.destroy());ctx.lights.forEach(f=>f.destroy());ctx.fires.forEach(f=>f.destroy());ctx.mask.destroy(true);
+            // Ripple texture is shared with the original scene map; the scene owns it.
+            ctx.impactMap.texture?.destroy(true);layerEffectContexts.delete(ctx.id);
+        }
+        function disposeLayerEffectContexts(){[...layerEffectContexts.values()].forEach(disposeLayerEffectContext);}
+        function updateLayerEffectContext(ctx,config,keys,time,live){
+            const source=ctx.source,root=ctx.root,bank=ensureEffectBank(ctx.id),f=ctx.filters;
+            root.visible=ctx.id==='background' || (source.visible && source.alpha>.0001);ctx.overlay.alpha=source.alpha;
+            root.position.set(0);root.pivot.set(0);root.scale.set(1);
+            const sourceWidth=source.texture.width,sourceHeight=source.texture.height;
+            const fit=ctx.id==='background'?Math.min(compositionWidth/sourceWidth,compositionHeight/sourceHeight):source.scale.x;
+            const center=ctx.id==='background'?{x:source.tilePosition.x+sourceWidth*fit/2,y:source.tilePosition.y+sourceHeight*fit/2}:{x:source.x,y:source.y};
+            root.pivot.set(center.x,center.y);root.position.set(center.x+(effectIsOn(config,'scroll')?time*config.scrollSpeed:0),center.y);
+            if(config.zoomActive){const zoom=Math.pow(Math.max(1,config.zoomMax),.5-.5*Math.cos(time*config.zoomSpeed/100*Math.PI*2));root.scale.set(zoom);}
+            if(config.shakeActive){const t=time*config.shakeSpeed/5*Math.PI*2,a=config.shakeAngle*Math.PI/180,dx=Math.sin(t)*config.shakeStrength,dy=Math.sin(t*2)*config.shakeStrength*.7;root.position.x+=Math.cos(a)*dx-Math.sin(a)*dy;root.position.y+=Math.sin(a)*dx+Math.cos(a)*dy;}
+            root.getBounds(false);
+            const w=ctx.id==='background'?root.worldTransform.clone().append(new PIXI.Matrix(fit,0,0,fit,source.tilePosition.x,source.tilePosition.y)):source.worldTransform,anchor=ctx.id==='background'?{x:0,y:0}:source.anchor;
+            const map=(x,y)=>{const point=w.apply(new PIXI.Point((x-anchor.x)*sourceWidth,(y-anchor.y)*sourceHeight));return [point.x/compositionWidth,point.y/compositionHeight];};
+            const targetCenter=map(.5,.5),sizeScale=Math.max(.01,Math.hypot(w.c,w.d)*sourceHeight/compositionHeight);
+            const inverse=w.clone().invert();
+            f.alpha.uniforms.uTarget=source.texture;f.alpha.uniforms.uTargetAlpha=source.worldAlpha ?? source.alpha;
+            f.alpha.uniforms.uWorldToSource=new Float32Array([inverse.a/sourceWidth,inverse.b/sourceHeight,0,inverse.c/sourceWidth,inverse.d/sourceHeight,0,inverse.tx/sourceWidth+anchor.x,inverse.ty/sourceHeight+anchor.y,1]);
+            setMirrorUniforms(f.mirror,config,time);
+            if(ctx.id!=='background'){
+                const rect=source.getBounds(false);
+                f.mirror.uniforms.uRegion=[rect.x/compositionWidth,rect.y/compositionHeight,Math.max(1,rect.width)/compositionWidth,Math.max(1,rect.height)/compositionHeight];
+            }
+            const phase=loopPhase(time);
+            f.vapor.uniforms.uThreshold=config.vaporProgress;f.vapor.uniforms.uTime=phase;f.vapor.uniforms.uSpeed=config.vaporSpeed;f.vapor.uniforms.uColor=hexToRgb(config.vaporColor);
+            f.wind.uniforms.uTime=time;f.wind.uniforms.uStrength=config.windStrength/100;f.wind.uniforms.uSpeed=config.windSpeed/50;f.wind.uniforms.uDirection=[config.windDirX,config.windDirY];
+            ctx.rippleMap.position.set(time*config.rippleSpeed*4096%512,time*config.rippleSpeed*2048%512);
+            f.ripple.scale.set(config.rippleActive?config.rippleStrength*(1+Math.sin(time*config.rippleSpeed*12.56636)*.2):0);
+            let progress=-1,impact=keys.filter(k=>k.type==='impact' && k.time<=currentTime).sort((a,b)=>b.time-a.time)[0];
+            if(effectIsOn(config,'impact') && live && bank.impactPreview)progress=Math.min(1,time*config.expSpeed);
+            else if(effectIsOn(config,'impact') && impact)progress=Math.min(1,(currentTime-impact.time)*impact.expSpeed);
+            const envelope=progress>=0 && progress<1?Math.sin(progress*Math.PI):0;
+            f.impact.scale.set(config.expStrength*envelope*sizeScale);
+            ctx.impactMap.position.set(targetCenter[0]*compositionWidth,targetCenter[1]*compositionHeight);ctx.impactMap.scale.set(Math.max(.02,Math.max(0,progress)*8*sizeScale));
+            f.ripple.scale.x+=config.expRippleStrength*envelope*sizeScale;f.ripple.scale.y+=config.expRippleStrength*envelope*sizeScale;
+            ctx.rippleMap.x=(ctx.rippleMap.x+Math.max(0,progress)*config.expRippleSpeed*512)%512;
+            f.funnel.uniforms.uCenter=targetCenter;f.funnel.uniforms.uEffectScale=sizeScale;f.funnel.uniforms.uProgress=Math.max(0,progress);f.funnel.uniforms.uStrength=config.expFunnel/100*envelope;
+            f.global.uniforms.uColor=hexToRgb(config.globalLightColor);f.global.uniforms.uIntensity=config.globalLightIntensity;
+            while(ctx.lights.length<config.lights.length)ctx.lights.push(new PIXI.Filter(null,lightShader,{}));
+            config.lights.forEach((light,i)=>Object.assign(ctx.lights[i].uniforms,{uPos:map(light.posX,light.posY),uAngle:light.angle+source.rotation*180/Math.PI,uAspect:compositionWidth/compositionHeight,uSize:light.size*sizeScale,uSpread:light.spread,uSourceSize:light.source*sizeScale,uTime:time/EFFECT_CYCLE_SECONDS,uFlicker:light.flicker,uColor:hexToRgb(light.color)}));
+            while(ctx.fires.length<config.fires.length)ctx.fires.push(new PIXI.Filter(null,fireShader,{}));
+            config.fires.forEach((fire,i)=>Object.assign(ctx.fires[i].uniforms,{uPos:map(fire.posX,fire.posY),uSize:fire.size*.3*sizeScale,uIntensity:fire.intensity,uTime:phase,uAspect:compositionWidth/compositionHeight,uNoise:createNoiseTexture()}));
+            Object.assign(f.color.uniforms,{uContrast:config.contrast,uWhite:config.whiteLevel,uBlack:config.blackLevel,uExposure:config.exposure,uSaturation:config.saturation,uGamma:config.gamma,uTemperature:config.temperature,uBloom:config.bloom,uChromatic:config.chromatic,uGrain:config.grain,uScanlines:config.scanlines,uTime:phase});
+            f.vignette.uniforms.uStrength=config.vignetteStrength;f.vignette.uniforms.uSize=config.vignetteSize;
+            const bounds=source.getBounds(false);f.vignette.uniforms.uVignetteFrame=[bounds.x/compositionWidth,bounds.y/compositionHeight,bounds.width/compositionWidth,bounds.height/compositionHeight];
+            const snapshot={particleContainer,lightningContainer,particlePool,particles:settings.particles,keyframes:settings.keyframes};
+            try{
+                particleContainer=ctx.particles;lightningContainer=ctx.lightning;particlePool=ctx.pool;settings.particles=config.particles;settings.keyframes=keys;
+                updateParticles(live?performance.now()/1000:currentTime,live);ctx.pool=particlePool;
+            }finally{particleContainer=snapshot.particleContainer;lightningContainer=snapshot.lightningContainer;particlePool=snapshot.particlePool;settings.particles=snapshot.particles;settings.keyframes=snapshot.keyframes;}
+            ctx.overlay.position.set(center.x,center.y);ctx.overlay.rotation=source.rotation;ctx.overlay.scale.set(sourceWidth*fit/compositionWidth,sourceHeight*fit/compositionHeight);ctx.particles.position.set(-compositionWidth/2,-compositionHeight/2);ctx.lightning.position.set(-compositionWidth/2,-compositionHeight/2);
+            const stages=[];
+            if(effectIsOn(config,'vapor') && config.vaporProgress>0)stages.push(f.vapor);
+            ctx.lights.forEach((filter,i)=>{if(config.lights[i]?.active)stages.push(filter);});ctx.fires.forEach((filter,i)=>{if(effectIsOn(config,'fire') && config.fires[i]?.intensity>0)stages.push(filter);});
+            ctx.particles._auras?.forEach(sprite=>{
+                if(!sprite.visible)return;
+                const uniforms=sprite.filters[0].uniforms;
+                uniforms.uCenter=map(uniforms.uCenter[0],uniforms.uCenter[1]);
+                uniforms.uRadius=[uniforms.uRadius[0]*Math.hypot(w.a,w.b)*sourceWidth/compositionWidth,uniforms.uRadius[1]*Math.hypot(w.c,w.d)*sourceHeight/compositionHeight];
+                uniforms.uAngle+=Math.atan2(w.b,w.a);
+                stages.push(sprite.filters[0]);
+            });
+            if(effectIsOn(config,'globalLight') && config.globalLightIntensity>0)stages.push(f.global);
+            // Constrain painted/image-only atmosphere before subsequent deformation.
+            if(((effectIsOn(config,'vapor') && config.vaporProgress>0) || config.lights.some(l=>l.active) || (effectIsOn(config,'globalLight') && config.globalLightIntensity>0)) && !config.particles.active && !(config.imageSmoke.active && config.imageSmoke.assetId) && !(config.imageGlass.active && config.imageGlass.assetId))stages.push(f.alpha);
+            if(config.mirrorActive && config.mirrorStrength>0){
+                if(ctx.particles._auras?.some(sprite=>sprite.visible && sprite.filters[0].uniforms.uAlpha>0))expandMirrorRegionForAura(f.mirror,ctx.particles._auras);
+                stages.push(f.mirror);
+            }
+            if(effectIsOn(config,'wind') && ctx.painted && config.windStrength>0)stages.push(f.wind);
+            if(Math.abs(f.ripple.scale.x)>.0001)stages.push(f.ripple);
+            if(envelope>0 && config.expStrength>0)stages.push(f.impact);
+            if(Math.abs(f.funnel.uniforms.uStrength)>.0001)stages.push(f.funnel);
+            if(effectIsOn(config,'color') && (config.contrast!==1 || config.whiteLevel!==1 || config.blackLevel!==0 || config.exposure!==0 || config.saturation!==1 || config.gamma!==1 || config.temperature!==0 || config.bloom || config.chromatic || config.grain || config.scanlines))stages.push(f.color);
+            if(config.vignetteActive)stages.push(f.vignette);
+            root.filters=stages.length?stages:null;
+        }
+        function applySettingsToCanvas(isLivePreview=false){
+            if(!app || !sprite || effectTargetBusy)return;
+            const restore=captureEffectConfig(),allKeys=settings.keyframes;
+            const editedLive=isLivePreview || (livePreviewActive && !isPlaying && app.ticker.started);
+            if(editedLive)ensureEffectBank(selectedEffectTarget).config=JSON.parse(JSON.stringify(restore));
+            const time=isLivePreview?Math.max(0,performance.now()/1000-livePreviewEpoch):currentTime;
+            const states=[];effectTargetBusy=true;
+            try{
+                for(const bank of effectTargetBanks.values())states.push({bank,...evaluateEffectBank(bank,currentTime,editedLive && bank.id===selectedEffectTarget)});
+                const particleDemand=states.reduce((sum,item)=>sum+(item.config.particles.active?(item.config.particles.layers?.length?item.config.particles.layers.reduce((n,l)=>n+(l.active===false || l.presetKey==='aura'?0:l.count),0):(item.config.particles.presetKey==='aura'?0:item.config.particles.count)):0),0);
+                if(particleDemand>2000){const factor=2000/particleDemand;states.forEach(item=>{const p=item.config.particles;if(p.presetKey!=='aura')p.count=Math.max(1,Math.floor(p.count*factor));p.layers?.forEach(layer=>{if(layer.presetKey!=='aura')layer.count=Math.max(1,Math.floor(layer.count*factor));});});}
+                const scene=states.find(item=>item.bank.id==='scene');
+                Object.assign(settings,scene.config);settings.keyframes=scene.keys;
+                const oldExplosion=explosionActive;if(selectedEffectTarget!=='scene')explosionActive=false;
+                try{applyGlobalSceneSettings(isLivePreview);}finally{explosionActive=oldExplosion;}
+                for(const item of states){
+                    if(item.bank.id==='scene')continue;
+                    if(!imageEffectTarget(item.bank.id)){disposeLayerEffectContext(layerEffectContexts.get(item.bank.id));continue;}
+                    const ctx=layerEffectContexts.get(item.bank.id)||createLayerEffectContext(item.bank.id);
+                    if(ctx)updateLayerEffectContext(ctx,item.config,item.keys,time,editedLive && item.bank.id===selectedEffectTarget);
+                }
+                imageEffectHiddenTargets.forEach(target=>{if(!target.destroyed)target.renderable=true;});imageEffectHiddenTargets.clear();
+                imageEffectAssets.forEach(asset=>{if(asset.container)asset.container.visible=false;});
+                for(const item of states){
+                    Object.assign(settings,item.config);settings.keyframes=item.keys;updateImageEffects(time,editedLive && item.bank.id===selectedEffectTarget,false);
+                    const smoke=imageEffectAssets.get(item.config.imageSmoke.assetId),glass=imageEffectAssets.get(item.config.imageGlass.assetId);
+                    if(item.config.imageSmoke.active && item.config.imageGlass.active && smoke?.container?.visible && glass?.container?.visible && smoke.targetId===glass.targetId){
+                        smoke.original.visible=false;
+                        glass.original.filters=[smoke.filter];
+                        const p=smoke.filter.uniforms.uProgress;
+                        for(const piece of glass.pieces){const rank=.08+.84*particleRandom(piece.index,0,item.config.imageSmoke.seed);piece.sprite.alpha*=1-Math.max(0,Math.min(1,(p-rank+.08)/.16));}
+                    }
+                }
+            }finally{Object.assign(settings,restore);settings.keyframes=allKeys;effectTargetBusy=false;}
+        }
+
+        // Uploaded-image effects keep their own assets and event snapshots.
+        const imageEffectAssets=new Map();
+        let imageEffectContainer=null,imageEffectSerial=0,backgroundImageURL=null;
+        const imageEffectHiddenTargets=new Set();
+        const imageEffectDefaults={active:false,assetId:null,duration:4,speed:1,expansion:1,amount:360,strength:160,turbulence:60,gravity:420,spin:2,depth:0,flight:0,lift:0,fracture:2,color:'#b8b8b8',animate:true,progress:0,seed:1};
+        const imageEffectKeys={smoke:'imageSmoke',glass:'imageGlass'};
+        const imageEffectInputs=[['speed',2],['expansion',2],['amount',0],['strength',0],['turbulence',0],['gravity',0],['spin',1],['depth',0],['flight',0],['lift',0],['fracture',0],['progress',2]];
+
+        const imageDissolveShader = `
+            precision highp float;
+            varying vec2 vTextureCoord;
+            uniform sampler2D uSampler;
+            uniform sampler2D uRank;
+            uniform highp vec4 inputSize;
+            uniform highp vec4 outputFrame;
+            uniform float uProgress;
+            float grain(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+            float microNoise(vec2 p){
+                vec2 cell=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+                return mix(mix(grain(cell),grain(cell+vec2(1.0,0.0)),f.x),mix(grain(cell+vec2(0.0,1.0)),grain(cell+1.0),f.x),f.y);
+            }
+            void main(){
+                vec2 uv=vTextureCoord*inputSize.xy/outputFrame.zw;
+                float rank=texture2D(uRank,clamp(uv,0.0,1.0)).r*.78+microNoise(uv*outputFrame.zw*.65)*.22;
+                float keep=1.0-smoothstep(rank-.09,rank+.09,uProgress);
+                gl_FragColor=texture2D(uSampler,vTextureCoord)*keep;
+            }
+        `;
+
+        function imageSmokeField(asset,seed){
+            const longest=Math.max(asset.width,asset.height),shortest=Math.min(asset.width,asset.height);
+            const width=Math.max(32,Math.round(asset.width/longest*384)),height=Math.max(32,Math.round(asset.height/longest*384));
+            const ax=Math.min(16,asset.width/shortest),ay=Math.min(16,asset.height/shortest);
+            const bands=[{f:5,w:.42},{f:12,w:.28},{f:29,w:.18},{f:67,w:.08},{f:149,w:.04}].map((band,index)=>{
+                const cols=Math.ceil((ax+.4)*band.f)+3,rows=Math.ceil((ay+.4)*band.f)+3,data=new Float32Array(cols*rows);
+                for(let i=0;i<data.length;i++)data[i]=particleRandom(i,index+21,seed);
+                return {...band,cols,rows,data};
+            });
+            const bytes=new Uint8Array(width*height*4);
+            for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+                const u=(x+.5)/width,v=(y+.5)/height;
+                const qx=u*ax+.15+Math.sin(v*9+seed*.13)*.09,qy=v*ay+.15+Math.cos(u*8+seed*.17)*.09;
+                let value=0;
+                for(const band of bands){
+                    const gx=qx*band.f,gy=qy*band.f,ix=Math.floor(gx),iy=Math.floor(gy);
+                    let fx=gx-ix,fy=gy-iy;fx=fx*fx*(3-2*fx);fy=fy*fy*(3-2*fy);
+                    const a=band.data[iy*band.cols+ix],b=band.data[iy*band.cols+ix+1],c=band.data[(iy+1)*band.cols+ix],d=band.data[(iy+1)*band.cols+ix+1];
+                    value+=((a+(b-a)*fx)*(1-fy)+(c+(d-c)*fx)*fy)*band.w;
+                }
+                const rank=Math.round((.03+.94*Math.max(0,Math.min(1,.5+(value-.5)*1.8)))*255),j=(y*width+x)*4;
+                bytes[j]=bytes[j+1]=bytes[j+2]=rank;bytes[j+3]=255;
+            }
+            return {width,height,bytes};
+        }
+        function imageSmokeRank(field,u,v){
+            const x=Math.max(0,Math.min(field.width-1,u*field.width-.5)),y=Math.max(0,Math.min(field.height-1,v*field.height-.5));
+            const ix=Math.floor(x),iy=Math.floor(y),jx=Math.min(ix+1,field.width-1),jy=Math.min(iy+1,field.height-1),fx=x-ix,fy=y-iy;
+            const at=(px,py)=>field.bytes[(py*field.width+px)*4]/255;
+            return (at(ix,iy)*(1-fx)+at(jx,iy)*fx)*(1-fy)+(at(ix,jy)*(1-fx)+at(jx,jy)*fx)*fy;
+        }
+
+        function imageEffectDuration(config){return Math.max(.05,Number(config.duration || 4)/Math.max(.1,Number(config.speed ?? 1)));}
+
+        function imageEffectFrame(kind,time,isLivePreview=false) {
+            const key=imageEffectKeys[kind];
+            const edited=settings[key];
+            if(isLivePreview){
+                const duration=imageEffectDuration(edited);
+                const elapsed=edited.animate?time%(duration+1)-.5:edited.progress*duration;
+                return {config:edited,elapsed};
+            }
+            const keys=settings.keyframes.filter(kf=>kf.type===key && kf.config).sort((a,b)=>a.time-b.time);
+            if(!keys.length)return {config:edited,elapsed:edited.animate?time:edited.progress*imageEffectDuration(edited)};
+            let index=-1;
+            for(let i=0;i<keys.length;i++)if(keys[i].time<=time)index=i;
+            if(index<0)return {config:keys[0].config,elapsed:-1};
+            const from=keys[index],config=from.config;
+            if(config.animate)return {config,elapsed:time-from.time};
+            let progress=config.progress;
+            const to=keys[index+1];
+            if(to && !to.config.animate && to.config.assetId===config.assetId){
+                const ratio=Math.max(0,Math.min(1,(time-from.time)/Math.max(.0001,to.time-from.time)));
+                progress+=(to.config.progress-progress)*ratio;
+            }
+            return {config,elapsed:progress*imageEffectDuration(config)};
+        }
+
+        function imageEffectSample(asset,x,y) {
+            const px=Math.max(0,Math.min(asset.sampleWidth-1,Math.floor(x/asset.width*asset.sampleWidth)));
+            const py=Math.max(0,Math.min(asset.sampleHeight-1,Math.floor(y/asset.height*asset.sampleHeight)));
+            const i=(py*asset.sampleWidth+px)*4;
+            return [asset.pixels[i],asset.pixels[i+1],asset.pixels[i+2],asset.pixels[i+3]];
+        }
+
+        function imageEffectCellColor(asset,left,top,right,bottom) {
+            const x0=Math.max(0,Math.floor(left/asset.width*asset.sampleWidth)),x1=Math.min(asset.sampleWidth,Math.max(x0+1,Math.ceil(right/asset.width*asset.sampleWidth)));
+            const y0=Math.max(0,Math.floor(top/asset.height*asset.sampleHeight)),y1=Math.min(asset.sampleHeight,Math.max(y0+1,Math.ceil(bottom/asset.height*asset.sampleHeight)));
+            let alpha=0,r=0,g=0,b=0,count=0;
+            for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+                const i=(y*asset.sampleWidth+x)*4,a=asset.pixels[i+3];alpha+=a;r+=asset.pixels[i]*a;g+=asset.pixels[i+1]*a;b+=asset.pixels[i+2]*a;count++;
+            }
+            return alpha?[Math.round(r/alpha),Math.round(g/alpha),Math.round(b/alpha),Math.min(255,Math.max(24,alpha/Math.max(1,count)*1.8))]:[0,0,0,0];
+        }
+
+        function imageEffectGrid(width,height,amount,triangles=false) {
+            const cells=Math.max(16,Math.min(1200,Math.round(amount/(triangles?2:1))));
+            const aspect=Math.max(.05,Math.min(20,width/height));
+            const cols=Math.max(2,Math.min(80,Math.round(Math.sqrt(cells*aspect))));
+            const rows=Math.max(2,Math.min(80,Math.round(cells/cols)));
+            return {cols,rows};
+        }
+
+        function imageGlassTriangles(width,height,amount,seed,fracture=2) {
+            const detail=Math.max(0,Math.min(4,Math.round(fracture)));
+            const {cols,rows}=imageEffectGrid(width,height,detail?Math.max(32,amount/(1+detail*2)):amount,true),points=[];
+            for(let y=0;y<=rows;y++)for(let x=0;x<=cols;x++){
+                const index=y*(cols+1)+x;
+                points.push({x:(x+(x>0 && x<cols?(particleRandom(index,1,seed)-.5)*.6:0))*width/cols,y:(y+(y>0 && y<rows?(particleRandom(index,2,seed)-.5)*.6:0))*height/rows});
+            }
+            const triangles=[];
+            for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+                const a=y*(cols+1)+x,b=a+1,c=a+cols+1,d=c+1;
+                if((x+y)%2)triangles.push([points[a],points[b],points[c]],[points[b],points[d],points[c]]);
+                else triangles.push([points[a],points[b],points[d]],[points[a],points[d],points[c]]);
+            }
+            if(detail){
+                const target=Math.max(triangles.length,Math.min(1200,Math.round(amount)));
+                let split=0;
+                while(triangles.length+2<=target){
+                    let chosen=0,best=-1;
+                    triangles.forEach((triangle,index)=>{
+                        const [a,b,c]=triangle,area=Math.abs((b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x));
+                        const cx=(a.x+b.x+c.x)/3,cy=(a.y+b.y+c.y)/3,centerDistance=Math.hypot((cx/width-.5),(cy/height-.5));
+                        const priority=area*(.45+particleRandom(index,17,seed+split)*.55)*(1+detail*.18/(.25+centerDistance));
+                        if(priority>best){best=priority;chosen=index;}
+                    });
+                    const [a,b,c]=triangles[chosen];
+                    const wa=.18+particleRandom(split,18,seed)*.42,wb=.18+particleRandom(split,19,seed)*.42,wc=.18+particleRandom(split,20,seed)*.42,total=wa+wb+wc;
+                    const center={x:(a.x*wa+b.x*wb+c.x*wc)/total,y:(a.y*wa+b.y*wb+c.y*wc)/total};
+                    triangles.splice(chosen,1,[a,b,center],[b,c,center],[c,a,center]);split++;
+                }
+            }
+            return triangles;
+        }
+
+        function disposeImageEffectAssetView(asset) {
+            if(asset.container && !asset.container.destroyed){asset.container.parent?.removeChild(asset.container);asset.container.destroy({children:true,texture:false,baseTexture:false});}
+            asset.filter?.destroy();asset.rankTexture?.destroy(true);
+            asset.container=null;asset.original=null;asset.pieces=null;asset.filter=null;asset.rankTexture=null;asset.signature='';
+        }
+
+        function disposeImageEffectScene() {
+            imageEffectHiddenTargets.forEach(target=>{if(!target.destroyed)target.renderable=true;});imageEffectHiddenTargets.clear();
+            imageEffectAssets.forEach(disposeImageEffectAssetView);
+            imageEffectContainer=null;
+        }
+
+        function buildImageEffectAsset(asset,config) {
+            const signature=`${Math.round(config.amount)}:${config.seed}:${config.fracture ?? 2}`;
+            if(asset.container && asset.signature===signature)return;
+            disposeImageEffectAssetView(asset);
+            const container=new PIXI.Container();container.eventMode='none';
+            const original=new PIXI.Sprite(asset.texture);original.anchor.set(.5);container.addChild(original);
+            asset.container=container;asset.original=original;asset.pieces=[];asset.signature=signature;
+            imageEffectContainer.addChild(container);
+            if(asset.kind==='smoke'){
+                const field=asset.smokeField && asset.smokeSeed===config.seed?asset.smokeField:imageSmokeField(asset,config.seed);asset.smokeField=field;asset.smokeSeed=config.seed;
+                const samples=[];
+                for(let i=0;i<asset.sampleWidth*asset.sampleHeight;i++)if(asset.pixels[i*4+3]>0)samples.push(i);
+                const count=Math.max(240,Math.min(2400,Math.round(config.amount*3)));
+                for(let index=0;index<count && samples.length;index++){
+                    const sample=samples[Math.floor(((index*.61803398875+particleRandom(0,31,config.seed))%1)*samples.length)];
+                    const sx=sample%asset.sampleWidth,sy=Math.floor(sample/asset.sampleWidth);
+                    const u=(sx+particleRandom(index,32,config.seed))/asset.sampleWidth,v=(sy+particleRandom(index,33,config.seed))/asset.sampleHeight;
+                    const color=Array.from(asset.pixels.slice(sample*4,sample*4+4));
+                    const wisp=index%4===0,puff=new PIXI.Sprite(wisp?(particleTextures.smoke || particleTextures.soft):particleTextures.soft);puff.anchor.set(.5);puff.visible=false;
+                    container.addChild(puff);
+                    asset.pieces.push({sprite:puff,x:(u-.5)*asset.width,y:(v-.5)*asset.height,rank:imageSmokeRank(field,u,v)*.78+.11,color,index,wisp,cell:Math.max(.08,Math.min(asset.width,asset.height)/Math.sqrt(count)*.38)});
+                }
+                asset.rankTexture=PIXI.Texture.fromBuffer(field.bytes,field.width,field.height);
+                asset.rankTexture.baseTexture.scaleMode=PIXI.SCALE_MODES.LINEAR;
+                asset.filter=new PIXI.Filter(null,imageDissolveShader,{uRank:asset.rankTexture,uProgress:-.1});
+                asset.filter.padding=0;original.filters=[asset.filter];
+            }else{
+                const cracks=new PIXI.Graphics();cracks.lineStyle(Math.max(.6,asset.width/1100),0xe2f2ff,.65);
+                imageGlassTriangles(asset.width,asset.height,config.amount,config.seed,config.fracture ?? 2).forEach((triangle,index)=>{
+                    const cx=triangle.reduce((sum,p)=>sum+p.x,0)/3,cy=triangle.reduce((sum,p)=>sum+p.y,0)/3;
+                    if(imageEffectCellColor(asset,Math.min(...triangle.map(p=>p.x)),Math.min(...triangle.map(p=>p.y)),Math.max(...triangle.map(p=>p.x)),Math.max(...triangle.map(p=>p.y)))[3]===0)return;
+                    const vertices=new Float32Array(triangle.flatMap(p=>[p.x-cx,p.y-cy]));
+                    const uvs=new Float32Array(triangle.flatMap(p=>[p.x/asset.width,p.y/asset.height]));
+                    const mesh=new PIXI.SimpleMesh(asset.texture,vertices,uvs,new Uint16Array([0,1,2]),PIXI.DRAW_MODES.TRIANGLES);
+                    mesh.autoUpdate=true;mesh.visible=false;mesh.eventMode='none';container.addChild(mesh);
+                    asset.pieces.push({sprite:mesh,x:cx-asset.width/2,y:cy-asset.height/2,index,baseVertices:new Float32Array(vertices)});
+                    triangle.forEach((a,i)=>{
+                        const b=triangle[(i+1)%3];
+                        if(imageEffectSample(asset,(a.x+b.x)/2,(a.y+b.y)/2)[3]>200){cracks.moveTo(a.x-asset.width/2,a.y-asset.height/2);cracks.lineTo(b.x-asset.width/2,b.y-asset.height/2);}
+                    });
+                });
+                container.addChild(cracks);asset.cracks=cracks;
+            }
+        }
+
+        function updateImageEffects(time,isLivePreview=false,reset=true) {
+            if(!imageEffectContainer)return;
+            if(reset){imageEffectHiddenTargets.forEach(target=>{if(!target.destroyed)target.renderable=true;});imageEffectHiddenTargets.clear();imageEffectAssets.forEach(asset=>{if(asset.container)asset.container.visible=false;});}
+            for(const kind of ['smoke','glass']){
+                const {config,elapsed}=imageEffectFrame(kind,time,isLivePreview);
+                const asset=imageEffectAssets.get(config.assetId);
+                const target=asset?imageEffectTarget(asset.targetId):null;
+                if(!config.active || !asset || !target || (asset.targetId==='background' && asset.url!==target.url))continue;
+                buildImageEffectAsset(asset,config);
+                const group=asset.container,duration=imageEffectDuration(config),progress=Math.max(0,Math.min(1,elapsed/duration));
+                const source=target.sprite,layer=target.layer;
+                const parent=source.parent;
+                if(parent){
+                    const desired=parent.getChildIndex(source)+1;
+                    if(group.parent!==parent || parent.getChildIndex(group)!==desired){group.parent?.removeChild(group);parent.addChildAt(group,Math.min(desired,parent.children.length));}
+                }
+                group.visible=source.visible;
+                if(layer){
+                    group.position.set(source.x,source.y);
+                    group.scale.set(source.scale.x,source.scale.y);group.rotation=source.rotation;group.alpha=source.alpha;
+                }else{
+                    const fit=Math.min(compositionWidth/asset.width,compositionHeight/asset.height);
+                    group.position.set(source.tilePosition.x+asset.width*fit/2,source.tilePosition.y+asset.height*fit/2);
+                    group.scale.set(fit);group.rotation=0;group.alpha=1;group.visible=true;
+                    zoomContainer.renderable=false;imageEffectHiddenTargets.add(zoomContainer);
+                }
+                source.renderable=false;imageEffectHiddenTargets.add(source);
+                if(kind==='smoke'){
+                    asset.original.visible=true;
+                    asset.filter.uniforms.uProgress=elapsed<=0?-.1:progress/.6*1.1;
+                    const smokeColor=hexToRgb(config.color);
+                    for(const piece of asset.pieces){
+                        const age=elapsed-piece.rank*duration*.6,life=duration*(piece.wisp ? .48 : .32);
+                        const puff=piece.sprite;
+                        if(age<=0 || age>=life){puff.visible=false;continue;}
+                        puff.visible=true;
+                        const t=age/life,r=particleRandom(piece.index,3,config.seed),phase=piece.x/asset.width*4+piece.y/asset.height*3+config.seed*.12+r*.2;
+                        const motionAge=age*Math.max(.1,Number(config.speed ?? 1)),expansion=Math.max(.25,Number(config.expansion ?? 1));
+                        const drift=config.turbulence*(Math.sin(motionAge*1.8+phase)-Math.sin(phase))*(.25+t*.75);
+                        puff.position.set(piece.x+drift+(r-.5)*config.strength*motionAge*.45*expansion,piece.y-config.strength*motionAge*.7+Math.sin(motionAge*2+phase)*config.turbulence*t*.3);
+                        const size=piece.cell*(piece.wisp?(1+11*t*expansion):(.55+3*t*expansion));puff.scale.set(size/64,size/64*(1.1+r*.4));puff.rotation=phase+motionAge*(r-.5)*.4;
+                        const fadeIn=Math.min(1,t/.15),fadeOut=Math.min(1,(1-t)/.55);
+                        puff.alpha=(1-Math.exp(-3*fadeIn))*fadeOut*fadeOut*(piece.color[3]/255)*(piece.wisp ? .24 : .4);
+                        const shade=.7+.3*(1-t);
+                        const rgb=smokeColor.map((c,i)=>Math.round((piece.color[i]*(1-t*.85)+c*255*t*.85)*shade));
+                        puff.tint=(rgb[0]<<16)|(rgb[1]<<8)|rgb[2];
+                    }
+                }else{
+                    asset.original.filters=null;
+                    asset.original.visible=elapsed<=0;
+                    asset.cracks.visible=elapsed>0 && elapsed<duration*.18;
+                    asset.cracks.alpha=Math.min(1,Math.max(0,elapsed/(duration*.025)))*Math.max(0,1-elapsed/(duration*.18));
+                    const impactX=0,impactY=0;
+                    for(const piece of asset.pieces){
+                        const shard=piece.sprite;
+                        shard.visible=elapsed>0 && progress<1;
+                        if(!shard.visible)continue;
+                        const r=particleRandom(piece.index,5,config.seed),s=particleRandom(piece.index,6,config.seed);
+                        const dx=piece.x-impactX,dy=piece.y-impactY,distance=Math.hypot(dx,dy)||1;
+                        const age=Math.max(0,elapsed-distance/Math.max(asset.width,asset.height)*duration*.08)*Math.max(.1,Number(config.speed ?? 1));
+                        const speed=config.strength*(.4+r*1.2),camera=Math.max(asset.width,asset.height)*2;
+                        const centerX=piece.x+dx/distance*speed*age+Number(config.flight || 0)*age+Math.sin(age*3+r*6)*config.turbulence*age*.15;
+                        const centerY=piece.y+dy/distance*speed*age-Number(config.lift || 0)*age+.5*config.gravity*age*age;
+                        const centerZ=Number(config.depth || 0)/100*camera*.3*age*(.6+r*.8);
+                        if(centerZ>camera*.96){shard.visible=false;continue;}
+                        const rx=(r-.5)*config.spin*age*.8,ry=(particleRandom(piece.index,9,config.seed)-.5)*config.spin*age,rz=(s-.5)*config.spin*age;
+                        const cx=Math.cos(rx),sx=Math.sin(rx),cy=Math.cos(ry),sy=Math.sin(ry),cz=Math.cos(rz),sz=Math.sin(rz);
+                        const vertices=shard.vertices;
+                        for(let i=0;i<6;i+=2){
+                            const x=piece.baseVertices[i],y=piece.baseVertices[i+1];
+                            const x1=x*cy+y*sx*sy,y1=y*cx,z1=-x*sy+y*sx*cy;
+                            const projectedX=x1*cz-y1*sz,projectedY=x1*sz+y1*cz;
+                            const perspective=camera/Math.max(camera*.08,camera-centerZ-z1);
+                            vertices[i]=(centerX+projectedX)*perspective;vertices[i+1]=(centerY+projectedY)*perspective;
+                        }
+                        shard.position.set(0);shard.rotation=0;shard.scale.set(1);
+                        shard._depth=centerZ;shard._projection=camera/Math.max(camera*.08,camera-centerZ);
+                        const nearFade=1-Math.max(0,Math.min(1,(centerZ/camera-.82)/.14));
+                        shard.alpha=(1-Math.pow(Math.max(0,(progress-.5)/.5),2))*nearFade;
+                        const light=Math.round(255*(.58+.42*Math.abs(cx*cy)));shard.tint=(light<<16)|(light<<8)|light;
+                    }
+                }
+            }
+        }
+
+        function syncImageEffectUI(kind) {
+            const config=settings[imageEffectKeys[kind]],prefix=`imagefx-${kind}`;
+            for(const [prop,decimals] of imageEffectInputs){
+                const input=document.getElementById(`${prefix}-${prop}`);if(!input)continue;
+                input.value=config[prop];const label=document.getElementById(`${prefix}-val-${prop}`);if(label)label.textContent=Number(config[prop]).toFixed(decimals);
+            }
+            document.getElementById(`${prefix}-active`).checked=config.active;
+            if(kind==='smoke')document.getElementById(`${prefix}-color`).value=config.color;
+            syncImageEffectTargets();
+        }
+
+        function imageEffectTarget(targetId) {
+            if(targetId==='background')return backgroundImageURL && sprite?{sprite,layer:null,url:backgroundImageURL,name:'Background'}:null;
+            const layer=compositionLayers.find(layer=>layer.id===targetId);
+            if(!layer?.sprite)return null;
+            return {sprite:layer.sprite,layer,url:layer.dataUrl || layer.frameDataUrls?.[Math.max(0,layer.currentFrame || 0)],name:layer.name};
+        }
+
+        function syncImageEffectTargets() {
+            for(const kind of ['smoke','glass']){
+                const label=document.getElementById(`imagefx-${kind}-target-name`);
+                if(!label)continue;
+                const target=selectedEffectTarget==='scene'?null:imageEffectTarget(selectedEffectTarget);
+                label.textContent=target?'Imagem-alvo: '+target.name:'Escolha uma imagem no campo Aplicar / editar efeitos em.';
+            }
+        }
+        async function ensureImageEffectTarget(kind) {
+            if(selectedEffectTarget==='scene'){alert('Escolha uma imagem no campo Aplicar / editar efeitos em.');return false;}
+            const owner=selectedEffectTarget,key=imageEffectKeys[kind],asset=imageEffectAssets.get(settings[key].assetId);
+            if(!asset || asset.targetId!==owner || asset.url!==imageEffectTarget(owner)?.url)await loadImageEffect(kind,owner);
+            if(selectedEffectTarget!==owner)return false;
+            settings[key].active=true;syncImageEffectUI(kind);return true;
+        }
+
+        async function loadImageEffect(kind,targetId) {
+            const owner=selectedEffectTarget,key=imageEffectKeys[kind],bank=ensureEffectBank(owner);
+            bank.loadTokens=bank.loadTokens || {};const token=bank.loadTokens[kind]=(bank.loadTokens[kind] || 0)+1;
+            if(!targetId){settings[imageEffectKeys[kind]].assetId=null;syncImageEffectUI(kind);restartLivePreview();return;}
+            const target=imageEffectTarget(targetId);
+            if(!target?.url)return;
+            const existing=[...imageEffectAssets.values()].find(asset=>asset.kind===kind && asset.targetId===targetId && asset.url===target.url);
+            if(existing){settings[imageEffectKeys[kind]].assetId=existing.id;settings[imageEffectKeys[kind]].active=true;syncImageEffectUI(kind);restartLivePreview();return;}
+            const url=target.url;
+            const image=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('Imagem inválida.'));img.src=url;});
+            if(bank.loadTokens[kind]!==token || !imageEffectTarget(targetId))return;
+            const sample=document.createElement('canvas'),factor=Math.min(1,256/Math.max(image.naturalWidth,image.naturalHeight));
+            sample.width=Math.max(1,Math.round(image.naturalWidth*factor));sample.height=Math.max(1,Math.round(image.naturalHeight*factor));
+            const ctx=sample.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0,sample.width,sample.height);
+            const asset={id:`imagefx-${++imageEffectSerial}`,targetId,kind,name:target.name,url,width:image.naturalWidth,height:image.naturalHeight,texture:PIXI.Texture.from(image),sampleWidth:sample.width,sampleHeight:sample.height,pixels:ctx.getImageData(0,0,sample.width,sample.height).data};
+            imageEffectAssets.set(asset.id,asset);
+            bank.config[key].assetId=asset.id;bank.config[key].active=true;
+            if(owner===selectedEffectTarget){settings[key].assetId=asset.id;settings[key].active=true;syncImageEffectUI(kind);}
+            restartLivePreview();
+        }
+
+        function setupImageEffectUI() {
+            const motions={camera:{depth:90,flight:0,lift:35,gravity:35,strength:130,spin:2.4},fall:{depth:0,flight:0,lift:0,gravity:650,strength:45,spin:1.8},fly:{depth:25,flight:80,lift:350,gravity:60,strength:280,spin:3}};
+            for(const [mode,values] of Object.entries(motions))document.getElementById(`btn-preview-glass-${mode}`).addEventListener('click',async()=>{
+                if(!(await ensureImageEffectTarget('glass')))return;
+                Object.assign(settings.imageGlass,values);settings.imageGlass.animate=true;syncImageEffectUI('glass');restartLivePreview();
+            });
+            for(const kind of ['smoke','glass']){
+                const key=imageEffectKeys[kind],prefix=`imagefx-${kind}`;
+                for(const [prop] of imageEffectInputs){
+                    const input=document.getElementById(`${prefix}-${prop}`);if(!input)continue;
+                    input.addEventListener('input',async()=>{settings[key][prop]=Number(input.value);if(prop==='progress'){settings[key].animate=false;if(!settings[key].assetId && selectedEffectTarget!=='scene')await ensureImageEffectTarget(kind);}syncImageEffectUI(kind);});
+                }
+                for(const prop of ['active'])document.getElementById(`${prefix}-${prop}`).addEventListener('change',async event=>{const owner=selectedEffectTarget;settings[key][prop]=event.target.checked;if(prop==='active' && event.target.checked){settings[key].animate=true;}if(prop==='active' && event.target.checked){try{const ready=await ensureImageEffectTarget(kind);if(!ready && owner===selectedEffectTarget){settings[key].active=false;syncImageEffectUI(kind);}}catch(error){ensureEffectBank(owner).config[key].active=false;if(owner===selectedEffectTarget){settings[key].active=false;syncImageEffectUI(kind);}alert(error.message);}}});
+                if(kind==='smoke')document.getElementById(`${prefix}-color`).addEventListener('input',event=>{settings[key].color=event.target.value;});
+                document.getElementById(`btn-preview-imagefx-${kind}`).addEventListener('click',async()=>{if(await ensureImageEffectTarget(kind)){settings[key].animate=true;restartLivePreview();}});
+                document.getElementById(`btn-random-imagefx-${kind}`).addEventListener('click',()=>{settings[key].seed++;restartLivePreview();});
+                document.getElementById(`btn-kf-imagefx-${kind}`).addEventListener('click',async()=>{
+                    if(!settings[key].assetId && !(await ensureImageEffectTarget(kind)))return;
+                    settings.keyframes=settings.keyframes.filter(kf=>!(kf.type===key && effectTargetOf(kf)===selectedEffectTarget && Math.abs(kf.time-currentTime)<.0001));
+                    addKeyframe({type:key,time:currentTime,config:JSON.parse(JSON.stringify(settings[key]))});restartLivePreview();
+                });
+                syncImageEffectUI(kind);
+            }
+        }
+
         const settings = {
+            mirrorActive:false,mirrorStrength:75,mirrorSpeed:25,mirrorSegments:6,mirrorDepth:60,mirrorScale:100,mirrorRotation:0,mirrorX:50,mirrorY:50,
+            fireActive:true,globalLightActive:true,windActive:true,scrollActive:true,impactActive:true,colorActive:true,vaporActive:true,cameraActive:true,
             rippleActive: false,
             rippleStrength: 40,
             rippleSpeed: 1.0,
@@ -1496,10 +2379,16 @@
             cameraPitch: 0,
             cameraHorizon: 0,
             cameraFov: 75,
-            renderDuration: 10,
+            imageSmoke:{...imageEffectDefaults},
+            imageGlass:{...imageEffectDefaults,amount:240},
+            renderDuration: 5,
             keyframes: []
         };
         const initialSettingsState = JSON.parse(JSON.stringify(settings));
+        setupImageEffectUI();
+        setupEffectTargetUI();
+        setupEffectActivationUI();
+        setupMirrorUI();
 
         const windShader = `
             precision highp float;
@@ -1536,17 +2425,14 @@
                      return;
                 }
 
-                // Para um loop perfeito, calculamos um número inteiro de oscilações baseado na velocidade e duração.
-                float cycles = max(1.0, floor(uSpeed * uDuration + 0.5));
-                float phase = uTime / uDuration;
-                
-                float angle = phase * 6.28318 * cycles;
+                // Frequência em segundos: mudar a duração não muda a velocidade do vento.
+                float angle = uTime * max(0.0,uSpeed) * 6.28318;
                 
                 // Variação espacial para que diferentes partes da imagem não se movam em bloco rígido.
                 float spatialOffset = (uvScene.x * 3.0 + uvScene.y * 2.0) * 1.2;
                 
                 // Movimento principal de balanço + harmônico de "ondulação" (shiver).
-                // Ambos são baseados em 'cycles' inteiros, garantindo continuidade total no loop.
+                // Os harmônicos compartilham a mesma frequência em tempo real.
                 float sway = sin(angle + spatialOffset);
                 sway += sin(angle * 2.0 + spatialOffset * 1.5) * 0.25;
 
@@ -1575,44 +2461,69 @@
         `;
 
         const lightShader = `
-            precision highp float;
-
-varying vec2 vTextureCoord;
+            varying vec2 vTextureCoord;
             uniform sampler2D uSampler;
-
+            precision highp float;
             uniform highp vec4 inputSize;
             uniform highp vec4 outputFrame;
-            vec2 sceneUV() { return vTextureCoord * inputSize.xy / outputFrame.zw; }
-            vec4 scene(vec2 uv) {
-                vec2 halfPixel = 0.5 / outputFrame.zw;
-                uv = vec2(fract(uv.x), clamp(uv.y, halfPixel.y, 1.0-halfPixel.y));
-                return texture2D(uSampler, uv * outputFrame.zw * inputSize.zw);
-            }
-            vec4 overEffect(vec4 bg, vec3 rgb, float alpha) {
-                alpha=clamp(alpha,0.0,1.0);
-                return vec4(rgb*alpha + bg.rgb*(1.0-alpha), alpha+bg.a*(1.0-alpha));
-            }
+            vec2 lightSceneUV(){return vTextureCoord*inputSize.xy/outputFrame.zw;}
+            vec4 lightScene(vec2 uv){return texture2D(uSampler,uv*outputFrame.zw*inputSize.zw);}
 
             uniform vec2 uPos;
-            uniform float uAngle,uAspect,uSize,uSpread,uSourceSize,uTime,uFlicker;
+            uniform float uAngle;
+            uniform float uAspect;
+            uniform float uSize;
+            uniform float uSpread;
+            uniform float uSourceSize;
+            uniform float uTime;
+            uniform float uFlicker;
             uniform vec3 uColor;
-            void main(){
-                vec2 uv=sceneUV();vec4 bg=scene(uv);vec2 p=uv-uPos;
-                p.x=fract(p.x+0.5)-0.5;p.x*=uAspect;
-                float a=radians(uAngle);vec2 dir=vec2(cos(a),sin(a));
-                float along=dot(p,dir), across=abs(p.x*dir.y-p.y*dir.x);
-                float width=max(0.0015,uSourceSize+max(0.0,along)*uSpread);
-                float cone=exp(-2.5*across*across/(width*width));
-                float reach=max(0.002,uSize);
-                float falloff=exp(-max(0.0,along)/reach*2.0)*(1.0-smoothstep(reach*0.6,reach*1.6,along));
-                falloff*=smoothstep(-max(0.003,uSourceSize),0.0,along);
-                float t=uTime*6.2831853;
-                float shafts=0.88+0.07*sin(across/width*24.0+along*11.0+t)+0.05*sin(across/width*53.0-t*2.0);
-                float pulse=1.0+uFlicker*(0.12*sin(t*11.0)+0.065*sin(t*23.0+1.2));
-                float energy=cone*falloff*shafts*pulse;
-                gl_FragColor=overEffect(bg,uColor,1.0-exp(-energy*1.25));
-            }
 
+            void main() {
+                vec2 uv=lightSceneUV();
+                float aspect = uAspect;
+                vec2 p = uv - uPos;
+                
+                // FIX: Continuidade Horizontal 360° (Equirretangular)
+                if (p.x > 0.5) p.x -= 1.0;
+                else if (p.x < -0.5) p.x += 1.0;
+                
+                p.x *= aspect;
+                
+                float angleRad = uAngle * 0.0174533;
+                vec2 dir = vec2(cos(angleRad), sin(angleRad));
+
+                float distAlong = dot(p, dir);
+                
+                // Ruído multicamada para simular chamas realistas
+                float wave1 = sin(distAlong * 45.0 - uTime * 6.28318 * 5.0) * 0.02;
+                float wave2 = cos(distAlong * 22.0 - uTime * 6.28318 * 3.0 + 1.2) * 0.03;
+                float wave3 = sin(distAlong * 12.0 - uTime * 6.28318 * 2.0 + 2.5) * 0.04;
+                
+                // A turbulência aumenta com a distância para simular o balanço das pontas das chamas
+                float noise = (wave1 + wave2 + wave3) * uFlicker * (0.3 + max(0.0, distAlong) * 2.0);
+                
+                // FIX: Se estiver "atrás" da origem (distAlong < 0), calculamos a distância radial ao ponto uPos.
+                // Isso cria o arredondamento da fonte baseado no uSourceSize.
+                float bend=noise*smoothstep(0.0,max(.002,uSize*.25),max(0.0,distAlong));
+                float signedAcross=dot(p,vec2(-dir.y,dir.x));
+                float distAcross = distAlong<0.0?length(p):abs(signedAcross+bend);
+
+                // uSourceSize agora controla a largura real do feixe no início
+                float currentWidth = max(0.00001,uSourceSize + (max(0.0, distAlong) * uSpread));
+                float cone = (1.0-smoothstep(currentWidth * 0.5,currentWidth,distAcross));
+                
+                // FIX: Ajustamos o falloff para permitir que a borda arredondada apareça sem cortes secos
+                float falloff = (1.0-smoothstep(-uSourceSize,max(0.00001,uSize),distAlong));
+
+                // Intensidade constante; o fogo é o movimento ondulado do contorno.
+                float pulse = 1.0; // Continuous intensity: the flame control deforms the beam without blinking.
+                vec4 tex = lightScene(uv);
+                float beamAlpha = clamp(cone * falloff * pulse * 0.72, 0.0, 1.0);
+                vec3 rgb=tex.rgb + (uColor * cone * falloff * pulse);
+                float alpha=max(max(tex.a,beamAlpha),clamp(max(max(rgb.r,rgb.g),rgb.b),0.0,1.0));
+                gl_FragColor = vec4(rgb,alpha);
+            }
         `;
 
         
@@ -1785,6 +2696,7 @@ varying vec2 vTextureCoord;
 
             uniform float uStrength;
             uniform float uSize;
+            uniform vec4 uVignetteFrame;
 
             void main() {
                 vec2 uvScene=sceneUV();
@@ -1792,7 +2704,7 @@ varying vec2 vTextureCoord;
                 
                 // FIX: Vinheta em ambiente 360 deve afetar apenas os polos (Y) 
                 // para não criar uma mancha preta fixa na visão do usuário
-                float distY = abs(uvScene.y - 0.5) * 2.0;
+                float distY = abs((uvScene.y-uVignetteFrame.y)/max(.0001,uVignetteFrame.w) - 0.5) * 2.0;
                 // No 3D, a vinheta funciona melhor como um escurecimento de teto/chão
                 float dist = distY;
                 
@@ -1946,11 +2858,13 @@ varying vec2 vTextureCoord;
             uniform float uProgress;
             uniform float uAspect;
             uniform vec2 uCameraOffset;
+            uniform vec2 uCenter;
+            uniform float uEffectScale;
 
             void main(void) {
                 vec2 uvScene=sceneUV()+uCameraOffset/outputFrame.zw;
-                vec2 center = vec2(0.5);
-                vec2 delta = uvScene - center;
+                vec2 center = uCenter;
+                vec2 delta = (uvScene-center)/max(.0001,uEffectScale);
                 vec2 metric = delta;
                 metric.x *= uAspect;
                 float distanceToCenter = length(metric);
@@ -1974,7 +2888,7 @@ varying vec2 vTextureCoord;
 
                 vec2 radialDirection = metric / max(distanceToCenter, 0.0001);
                 radialDirection.x /= uAspect;
-                float displacement = direction * depth * edgeFade
+                float displacement = uEffectScale * direction * depth * edgeFade
                     * (wallDepth * 0.030 + movingRings * wallDepth * 0.010 + shock * 0.040);
                 vec2 sampleUv = uvScene - radialDirection * displacement;
                 gl_FragColor = scene(sampleUv);
@@ -1983,14 +2897,10 @@ varying vec2 vTextureCoord;
         `;
 
         function createRippleTexture(){
-            const n=256,bytes=new Uint8Array(n*n*4);
-            for(let y=0;y<n;y++)for(let x=0;x<n;x++){
-                const a=x/n*Math.PI*2,b=y/n*Math.PI*2,j=(y*n+x)*4;
-                bytes[j]=128+Math.round(44*Math.sin(a*3+b*2)+24*Math.sin(a*7-b*4));
-                bytes[j+1]=128+Math.round(44*Math.cos(a*2-b*3)+24*Math.cos(a*5+b*6));
-                bytes[j+2]=128;bytes[j+3]=255;
-            }
-            const tex=PIXI.Texture.fromBuffer(bytes,n,n);tex.baseTexture.wrapMode=PIXI.WRAP_MODES.REPEAT;return tex;
+            // The exact original Pixi displacement image is embedded for offline use.
+            const texture=PIXI.Texture.from('data:image/jpeg;base64,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');
+            texture.baseTexture.wrapMode=PIXI.WRAP_MODES.REPEAT;
+            return texture;
         }
         let sharedNoiseTexture = null;
         function createNoiseTexture() {
@@ -2136,6 +3046,7 @@ varying vec2 vTextureCoord;
 
         function resetParticlePool() {
             if (!particleContainer) return;
+            disposeAuraPool(particleContainer);
             const oldParticles = particleContainer.removeChildren();
             oldParticles.forEach(sprite => sprite.destroy({ children: false, texture: false, baseTexture: false }));
             particlePool = [];
@@ -2182,9 +3093,9 @@ varying vec2 vTextureCoord;
                 if(!g){g=new PIXI.Graphics();g.blendMode=PIXI.BLEND_MODES.ADD;lightningContainer.addChild(g);}
                 g.visible=true;
                 const scale=Math.max(.22,Number(layer.effectScale||1));
-                const flashesPerLoop=Math.max(1,Math.round(settings.renderDuration*(layer.presetKey==='lightning'?11:20)));
+                const flashesPerSecond=layer.presetKey==='lightning'?11:20;
                 const layerTime = Math.max(0, isLivePreview?time:time - (layer.timelineStart ?? 0));
-                const frame=Math.floor(loopPhase(layerTime)*flashesPerLoop);
+                const frame=Math.floor(layerTime*flashesPerSecond);
                 const signature=[frame,W,H,layer.seed,layer.x,layer.y,layer.width,layer.height,layer.angle,layer.spread,layer.count,scale,layer.presetKey].join(':');
                 if(g._signature===signature)return;
                 g._signature=signature;g.clear();
@@ -2231,9 +3142,82 @@ varying vec2 vTextureCoord;
             return Number.isFinite(first)?Math.max(start,first):start;
         }
 
+        const auraShader = `
+            precision highp float;
+            varying vec2 vTextureCoord;
+            uniform sampler2D uSampler;
+            uniform highp vec4 inputSize;
+            uniform highp vec4 outputFrame;
+            uniform vec2 uCenter,uRadius;
+            uniform vec3 uCoreColor,uEdgeColor;
+            uniform float uTime,uSpeed,uTurbulence,uPulse,uFrequency,uAlpha,uDetail,uAngle,uThickness,uSeed;
+            void main(){
+                vec4 image=texture2D(uSampler,vTextureCoord);
+                vec2 uv=vTextureCoord*inputSize.xy/outputFrame.zw;
+                vec2 delta=uv-uCenter;delta.x=fract(delta.x+0.5)-0.5;
+                float cs=cos(uAngle),sn=sin(uAngle);
+                vec2 p=vec2(cs*delta.x+sn*delta.y,-sn*delta.x+cs*delta.y)/max(uRadius,vec2(.001));
+                float t=uTime*uSpeed;
+                float warp=sin(p.y*5.0+t*3.1+uSeed)*.6+sin(p.y*11.0-t*4.3)*.25;
+                float field=exp(-dot(p,p)*.72);
+                float ribbons=.5+.5*sin(p.x*(10.0+uDetail*3.0)+warp*uTurbulence+t*4.0);
+                ribbons=pow(ribbons,max(.4,2.0-uThickness*2.0));
+                float waves=.7*sin(p.y*8.0+t*5.0+warp*.5)+.3*sin(p.y*17.0-t*8.0);
+                float flicker=1.0+uPulse*(.17*sin(uTime*uFrequency*6.2831853)+.08*sin(uTime*uFrequency*15.0796447+1.1));
+                float energy=field*(.8+uTurbulence*(ribbons*.4+waves*.12))*uAlpha*max(.25,flicker);
+                vec3 light=mix(uCoreColor,uEdgeColor,clamp(length(p)*.65,0.0,1.0));
+                vec3 original=clamp(image.rgb/max(image.a,.00001),0.0,1.0);
+                vec3 linearColor=pow(original,vec3(2.2));
+                vec3 lit=1.0-(1.0-linearColor)*exp(-max(vec3(0.0),light*energy)*1.1);
+                vec3 body=pow(clamp(lit,0.0,1.0),vec3(1.0/2.2))*image.a;
+                // A filled luminous volume behind the image can expand beyond its alpha.
+                vec2 outer=p;
+                float glowField=exp(-dot(outer,outer)*1.4);
+                float glowEnergy=glowField*(.65+uTurbulence*(ribbons*.22+waves*.06))*uAlpha*max(.25,flicker)*.65;
+                float glowAlpha=(1.0-exp(-max(0.0,glowEnergy)*.8))*(1.0-image.a);
+                vec3 glowColor=mix(uCoreColor,uEdgeColor,.72);
+                gl_FragColor=vec4(body+glowColor*glowAlpha,image.a+glowAlpha);
+            }
+        `;
+        function disposeAuraPool(container){
+            if(!container?._auras)return;
+            for(const sprite of container._auras){sprite.parent?.removeChild(sprite);sprite.filters?.forEach(filter=>filter.destroy());sprite.destroy({texture:false,baseTexture:false});}
+            container._auras=[];
+        }
+        function updateAuraLayers(layers,time,isLivePreview=false){
+            const pool=particleContainer._auras || (particleContainer._auras=[]);
+            pool.forEach(sprite=>{sprite.visible=false;});
+            let index=0;
+            for(const layer of layers){
+                if(layer.active===false || layer.presetKey!=='aura')continue;
+                let sprite=pool[index++];
+                if(!sprite){
+                    sprite=new PIXI.Sprite(PIXI.Texture.WHITE);
+                    sprite.filters=[new PIXI.Filter(null,auraShader,{})];
+                    sprite.eventMode='none';particleContainer.addChild(sprite);pool.push(sprite);
+                }
+                sprite.visible=true;sprite.position.set(0);sprite.width=app.screen.width;sprite.height=app.screen.height;
+                sprite.blendMode=layer.blend==='normal'?PIXI.BLEND_MODES.NORMAL:layer.blend==='screen'?PIXI.BLEND_MODES.SCREEN:layer.blend==='multiply'?PIXI.BLEND_MODES.MULTIPLY:PIXI.BLEND_MODES.ADD;
+                sprite.renderable=false;
+                sprite.filters[0].blendMode=PIXI.BLEND_MODES.NORMAL;
+                const p={...particlePresetDefaults,...layer};
+                const scale=Math.max(.1,Number(p.effectScale || 1));
+                const localTime=Math.max(0,isLivePreview?time:time-(p.timelineStart || 0));
+                Object.assign(sprite.filters[0].uniforms,{
+                    uCenter:[p.x,p.y],uRadius:[Math.max(.005,p.width*.5*scale*(p.sizeStart/18)),Math.max(.005,p.height*.5*scale*(p.sizeStart/18)*Math.sqrt(Math.max(.1,p.stretch)))],
+                    uCoreColor:hexToRgb(p.colorStart),uEdgeColor:hexToRgb(p.colorEnd),
+                    uTime:localTime,uSpeed:p.speed/100,uTurbulence:Math.max(0,p.turbulence/100),uPulse:p.pulse,
+                    uFrequency:Math.max(.01,p.frequency),uAlpha:p.alpha,uDetail:Math.max(.1,Math.min(5,p.count/300)),
+                    uAngle:(p.angle+90+p.rotation+p.spin*localTime*.12)*Math.PI/180,
+                    uThickness:Math.max(.08,Math.min(.5,p.sizeEnd/35)),uSeed:p.seed*.17
+                });
+            }
+        }
+
         function updateParticles(time, isLivePreview = false) {
             if (!particleContainer) return;
             const root = settings.particles;
+            particleContainer._auras?.forEach(sprite=>{sprite.visible=false;});
             particleContainer.visible = root.active;
             const hasParticleTimeline = settings.keyframes.some(kf => kf.type === 'particles');
             const particleSceneTime = isLivePreview
@@ -2249,17 +3233,17 @@ varying vec2 vTextureCoord;
                 && (isLivePreview || (currentTime >= particleLayerStart(layer)
                 && (layer.timelineEnd == null || currentTime < layer.timelineEnd)))
             );
+            updateAuraLayers(roots,particleSceneTime,isLivePreview);
             const entries = [];
 
             roots.forEach(layer => {
-                if (layer.active === false) return;
+                if (layer.active === false || layer.presetKey==='aura') return;
                 const layerTime = Math.max(0, isLivePreview?particleSceneTime:particleSceneTime - particleLayerStart(layer));
                 // Every component shares a clock. A change to one component's life
                 // must not shift the flash, shockwave and smoke into different cycles.
                 const burstComponents=layer.components?.length?layer.components:[layer];
                 const burstPeriod=Math.max(0.05,...burstComponents.filter(component=>component.burst || layer.burst).map(component=>Math.max(component.cycle || layer.cycle || 5,(component.startDelay || 0)+(component.emissionWindow ?? .12)+(component.life ?? layer.life)*1.35)));
-                const burstCycles=Math.max(1,Math.floor(settings.renderDuration/burstPeriod));
-                const burstTime=isLivePreview?layerTime % burstPeriod:(hasParticleTimeline?layerTime:(loopPhase(layerTime)*burstCycles % 1)*(settings.renderDuration/burstCycles));
+                const burstTime=!isLivePreview && hasParticleTimeline?layerTime:layerTime % burstPeriod;
                 const configs = layer.components?.length
                     ? layer.components.map(component => ({
                         ...particlePresetDefaults, ...layer, ...component,
@@ -2267,7 +3251,6 @@ varying vec2 vTextureCoord;
                         components: undefined, active: true,
                         _localTime: layerTime,
                         _burstTime: burstTime,
-                        _phaseInLoop: loopPhase(layerTime),
                         _effectCenterX: layer.x, _effectCenterY: layer.y,
                         _effectScale: Math.max(.1, Number(layer.effectScale ?? 1))
                     }))
@@ -2275,7 +3258,6 @@ varying vec2 vTextureCoord;
                         ...particlePresetDefaults, ...layer, components: undefined, active: true,
                         _localTime: layerTime,
                         _burstTime: burstTime,
-                        _phaseInLoop: loopPhase(layerTime),
                         _effectCenterX: layer.x, _effectCenterY: layer.y,
                         _effectScale: Math.max(.1, Number(layer.effectScale ?? 1))
                     }];
@@ -2332,7 +3314,6 @@ varying vec2 vTextureCoord;
                 while(rangeIndex<ranges.length-1 && i>=ranges[rangeIndex].end)rangeIndex++;
                 const range = ranges[rangeIndex];
                 const p = range.config;
-                const phaseInLoop = p._phaseInLoop;
                 const localIndex = i - range.start;
                 if(sprite._seed!==p.seed || sprite._index!==localIndex){
                     sprite._seed=p.seed;sprite._index=localIndex;
@@ -2349,8 +3330,7 @@ varying vec2 vTextureCoord;
                         return;
                     }
                 } else {
-                    const cyclesPerLoop = Math.max(1, Math.round(settings.renderDuration / life));
-                    age = ((phaseInLoop * cyclesPerLoop + r0) % 1) * life;
+                    age = ((p._localTime / life + r0) % 1) * life;
                 }
                 const phase = age / life;
                 const cx = p.x * W, cy = p.y * H;
@@ -2476,6 +3456,8 @@ varying vec2 vTextureCoord;
 
         function rebuildCompositionLayers() {
             if (!compositionLayersContainer) return;
+            imageEffectAssets.forEach(disposeImageEffectAssetView);
+            disposeLayerEffectContexts();
             compositionLayersContainer.removeChildren().forEach(child => child.destroy({ texture: false, baseTexture: false }));
             compositionLayers.forEach(layer => {
                 layer.sprite = null;
@@ -2491,6 +3473,8 @@ varying vec2 vTextureCoord;
         }
 
         function updateCompositionLayerUI() {
+            syncImageEffectTargets();
+            refreshEffectTargetList();
             const selector = document.getElementById('image-layer-selector');
             selector.innerHTML = '';
             compositionLayers.forEach((layer, index) => {
@@ -2540,6 +3524,7 @@ varying vec2 vTextureCoord;
         }
 
         async function addCompositionImages(files) {
+            if(!app){const canvas=document.createElement('canvas');canvas.width=1456;canvas.height=728;initPixi(canvas.toDataURL(),1456,728);}
             for (const file of files) {
                 const dataUrl = await readImageFile(file);
                 const layer = {
@@ -2676,8 +3661,14 @@ varying vec2 vTextureCoord;
 
         function initPixi(imageURL, sourceWidth = compositionWidth, sourceHeight = compositionHeight) {
             updateCompositionDimensions(sourceWidth, sourceHeight);
+            backgroundImageURL=imageURL;
             if(document.getElementById('empty-msg')) document.getElementById('empty-msg').style.display = 'none';
             if (app) {
+                disposeAuraPool(particleContainer);
+                disposeImageEffectScene();
+                disposeLayerEffectContexts();
+                app._loopPreview?.destroy();
+                app._loopPreviewCanvas?.remove();
                 if (resizePreviewHandler) window.removeEventListener('resize', resizePreviewHandler);
                 [rippleFilter,impactFilter,impactFunnelFilter,vaporFilter,vignetteFilter,colorFilter,windFilter,globalLightFilter,maskBlur].forEach(filter=>{if(filter)filter.destroy();});
                 if(maskSprite && !maskSprite.parent)maskSprite.destroy({texture:false});
@@ -2784,10 +3775,12 @@ varying vec2 vTextureCoord;
             impactSprite.y = app.screen.height / 2;
             impactSprite.scale.set(0);
             impactFilter = new PIXI.DisplacementFilter(impactSprite);
+            mirrorFilter = new PIXI.Filter(null,mirrorWorldShader,{});
             impactFunnelFilter = new PIXI.Filter(null, impactFunnelShader, {
                 uStrength: 0,
                 uProgress: 0,
                 uCameraOffset: [0,0],
+                uCenter: [.5,.5],uEffectScale:1,
                 uAspect: compositionWidth / compositionHeight
             });
 
@@ -2795,14 +3788,14 @@ varying vec2 vTextureCoord;
                 uThreshold: 0,
                 uNoise: createNoiseTexture(),
                 uTime: 0,
-                uDuration: settings.renderDuration,
+                uDuration: EFFECT_CYCLE_SECONDS,
                 uSpeed: 1.0,
                 uColor: [1, 1, 1]
             });
 
             vignetteFilter = new PIXI.Filter(null, vignetteShader, {
                 uStrength: 0.5,
-                uSize: 0.3
+                uSize: 0.3,uVignetteFrame:[0,0,1,1]
             });
 
             colorFilter = new PIXI.Filter(null, colorCorrectionShader, {
@@ -2825,7 +3818,7 @@ varying vec2 vTextureCoord;
                 uMask: maskTexture,
                 uNoise: createNoiseTexture(),
                 uTime: 0,
-                uDuration: settings.renderDuration,
+                uDuration: EFFECT_CYCLE_SECONDS,
                 uStrength: 1.0,
                 uSpeed: 1.0,
                 uDirection: new PIXI.Point(1, 0.3)
@@ -2847,6 +3840,8 @@ varying vec2 vTextureCoord;
             sceneContainer.addChild(rippleMap);
             sceneContainer.addChild(impactSprite);
             createParticleTextures();
+            imageEffectContainer=new PIXI.Container();
+            sceneContainer.addChild(imageEffectContainer);
             // Container comum permite formas e blend modes diferentes dentro de presets compostos.
             // O pool continua limitando a criação a 2.000 sprites.
             particleContainer = new PIXI.Container();
@@ -2902,11 +3897,15 @@ varying vec2 vTextureCoord;
             window.addEventListener('resize', resizePreviewHandler);
             resizePreviewHandler();
             updateLightSelector();
+            installLoopPreview(app);
+            syncImageEffectTargets();
+            refreshEffectTargetList();
         }
 
         function restartLivePreview(sourceId = '') {
             if(!app || isPlaying || !app.ticker.started)return;
             livePreviewActive=true;
+            if(sourceId.startsWith('exp-') || sourceId==='btn-preview-impact' || sourceId==='btn-kf-impact')ensureEffectBank(selectedEffectTarget).impactPreview=true;
             livePreviewEpoch=performance.now()/1000;
             particlePreviewEpoch=livePreviewEpoch;
             if(sourceId.startsWith('exp-') || sourceId==='btn-kf-impact' || sourceId==='btn-preview-impact' || (sourceId==='btn-restart-preview' && (explosionActive || settings.keyframes.some(kf=>kf.type==='impact')))){
@@ -2920,11 +3919,17 @@ varying vec2 vTextureCoord;
             const control=event.target;
             if(control.matches('input,select') && control.type!=='file' && !control.classList.contains('time-input'))restartLivePreview(control.id);
         };
+        // Mark edits before their own handlers render a frame, so the loop
+        // sampler cannot reload saved keyframes over an unsaved slider change.
+        const prepareEditedPreview = ()=>{if(app && !isPlaying && app.ticker.started)livePreviewActive=true;};
+        document.getElementById('sidebar').addEventListener('input',prepareEditedPreview,true);
+        document.getElementById('sidebar').addEventListener('change',prepareEditedPreview,true);
+        document.getElementById('sidebar').addEventListener('click',prepareEditedPreview,true);
         document.getElementById('sidebar').addEventListener('input',resumeEditedPreview);
         document.getElementById('sidebar').addEventListener('change',resumeEditedPreview);
         document.getElementById('sidebar').addEventListener('click',event=>{
             const button=event.target.closest('button');
-            if(button && (button.id.startsWith('btn-kf-') || button.id.startsWith('btn-preview-') || button.id.startsWith('btn-add-') || button.id.startsWith('btn-remove-') || button.id==='btn-random-particles' || button.classList.contains('color-preset')))restartLivePreview(button.id);
+            if(button && (button.id.startsWith('btn-kf-') || button.id.startsWith('btn-preview-') || button.id.startsWith('btn-add-') || button.id.startsWith('btn-remove-') || button.id.startsWith('btn-random-') || button.classList.contains('color-preset')))restartLivePreview(button.id);
         });
         document.getElementById('btn-restart-preview').addEventListener('click',()=>restartLivePreview('btn-restart-preview'));
 
@@ -2934,19 +3939,21 @@ varying vec2 vTextureCoord;
             const stages=[];
             // Background, image layers, particles and lightning are already drawn
             // into this one surface. Add atmospheric and emissive effects next.
-            if(settings.vaporProgress>0.0001)stages.push(vaporFilter);
+            if(effectIsOn(settings,'vapor') && settings.vaporProgress>0.0001)stages.push(vaporFilter);
             lightFilters.forEach((f,i)=>{if(settings.lights[i]?.active)stages.push(f);});
-            fireFilters.forEach((f,i)=>{if(settings.fires[i]?.intensity>0)stages.push(f);});
-            if(settings.globalLightIntensity>0.0001)stages.push(globalLightFilter);
+            fireFilters.forEach((f,i)=>{if(effectIsOn(settings,'fire') && settings.fires[i]?.intensity>0)stages.push(f);});
+            particleContainer?._auras?.forEach(sprite=>{if(sprite.visible)stages.push(sprite.filters[0]);});
+            if(effectIsOn(settings,'globalLight') && settings.globalLightIntensity>0.0001)stages.push(globalLightFilter);
             // All scene content, including generated light/fire/fog, now receives
             // the exact same displacement field once, in the same coordinates.
-            if(windMaskPainted && settings.windStrength>0.0001)stages.push(windFilter);
+            if(settings.mirrorActive && settings.mirrorStrength>0)stages.push(mirrorFilter);
+            if(effectIsOn(settings,'wind') && windMaskPainted && settings.windStrength>0.0001)stages.push(windFilter);
             if(Math.abs(rippleFilter.scale.x)>0.0001)stages.push(rippleFilter);
             if(Math.abs(impactFilter.scale.x)>0.0001)stages.push(impactFilter);
             const cameraOffset=impactFunnelFilter.uniforms.uCameraOffset;
             if(Math.abs(impactFunnelFilter.uniforms.uStrength)>0.0001 || (cameraOffset && (Math.abs(cameraOffset[0])+Math.abs(cameraOffset[1])>0.0001)))stages.push(impactFunnelFilter);
             // Photographic finishing happens after the scene has been deformed.
-            if(grading)stages.push(colorFilter);
+            if(effectIsOn(settings,'color') && grading)stages.push(colorFilter);
             if(settings.vignetteActive && settings.vignetteStrength>0)stages.push(vignetteFilter);
             const same=(a,b)=>a && a.length===b.length && a.every((v,i)=>v===b[i]);
             if(!same(sceneContainer.filters,stages))sceneContainer.filters=stages.length?stages:null;
@@ -3057,7 +4064,7 @@ varying vec2 vTextureCoord;
                 { count:210, shape:'soft', emitter:'rect', width:1.15, height:.05, angle:132, spread:28, speed:650, speedVar:.65, gravityY:120, turbulence:35, life:2.8, sizeStart:9, sizeEnd:1, alpha:.8, colorStart:'#ffd681', colorEnd:'#4b1700', blend:'add', seed:302 }
             ], seed:30 },
             vortex: { ...particlePresets.portal, count: 1200, width: .55, height: 1.05, speed: 12, drag: .2, radial: -95, orbit: 330, turbulence: 42, frequency: 3.2, life: 5.2, sizeStart: 16, colorStart: '#d8ffff', colorEnd: '#1600ff', seed: 31 },
-            aura: { ...particlePresets.magic, count: 850, emitter: 'ring', width: .28, height: .68, speed: 15, drag: .3, radial: 8, orbit: 55, turbulence: 48, life: 5.5, sizeStart: 18, sizeEnd: 4, alpha: .82, colorStart: '#ffffff', colorEnd: '#00eaff', seed: 32 },
+            aura: { ...particlePresets.magic, count:320, emitter:'point', x:.5, y:.52, width:.92, height:1.15, angle:-90, spread:0, speed:100, drag:0, radial:0, orbit:0, turbulence:80, frequency:1.4, life:5, sizeStart:18, sizeEnd:7, sizeVar:.3, alpha:.9, colorStart:'#fffbd2', colorEnd:'#ffbd24', blend:'add', stretch:1, rotation:0, spin:0, pulse:.65, seed:32 },
             electric: { ...particlePresets.light, count: 12, emitter: 'point', x:.5, y:.5, width:.08, height:.08, angle:0, spread:360, speed:0, speedVar:0, turbulence:0, frequency:20, life:.12, sizeStart:3, sizeEnd:1, colorStart:'#ffffff', colorEnd:'#5d7dff', stretch:1, pulse:.9, seed:33 },
             lightning: { ...particlePresets.light, count: 9, emitter:'line', x:.5, y:.02, width:.48, height:.03, angle:90, spread:24, speed:0, speedVar:0, gravityY:0, turbulence:0, frequency:11, life:.18, sizeStart:4, sizeEnd:1, alpha:1, colorStart:'#ffffff', colorEnd:'#68a7ff', blend:'add', stretch:1, pulse:.75, seed:38 },
             galaxy: { ...particlePresets.portal, count: 1500, width: .8, height: 1.25, speed: 4, drag: .1, radial: -7, orbit: 32, turbulence: 14, frequency: .3, life: 18, sizeStart: 3, sizeEnd: 8, alpha: .9, colorStart: '#ffffff', colorEnd: '#5230a8', pulse: .9, seed: 34 },
@@ -3349,8 +4356,10 @@ varying vec2 vTextureCoord;
             maskBrush.width = size;
             maskBrush.height = size;
             maskBrush.position.copyFrom(pos);
-            app.renderer.render(maskBrush, { renderTexture: maskTexture, clear: false });
-            windMaskPainted=true;
+            const targetContext=selectedEffectTarget==='scene'?null:(layerEffectContexts.get(selectedEffectTarget)||createLayerEffectContext(selectedEffectTarget));
+            app.renderer.render(maskBrush, { renderTexture: targetContext?targetContext.mask:maskTexture, clear: false });
+            if(targetContext)targetContext.painted=true;else windMaskPainted=true;
+            maskSprite.texture=targetContext?targetContext.mask:maskTexture;
             livePreviewActive=true;
         }
 
@@ -3780,14 +4789,19 @@ varying vec2 vTextureCoord;
             });
         });
 
+        document.getElementById('render-duration').addEventListener('keydown',event=>{
+            if(['.',',','e','E','+','-'].includes(event.key))event.preventDefault();
+        });
         document.getElementById('render-duration').addEventListener('change', (e) => {
             const normalized = normalizeLoopDuration(e.target.value);
             settings.renderDuration = normalized.duration;
-            e.target.value = Number(normalized.duration.toFixed(6));
+            e.target.value = normalized.duration;
             if (currentTime >= settings.renderDuration) currentTime = 0;
             updateRuler();
             updateKeyframesUI();
-            updateScrubberUI();
+            // Changing the export end does not reload or discard edited effect settings.
+            updateScrubberUI(false,false);
+            if(app)applySettingsToCanvas(!isPlaying && livePreviewActive);
         });
 
         // Interação com Timeline
@@ -3813,11 +4827,11 @@ varying vec2 vTextureCoord;
         }
         updateRuler();
 
-        function updateScrubberUI(updateInputs = true) {
+        function updateScrubberUI(updateInputs = true, evaluateTimeline = true) {
             const pos = currentTime * PPS;
             scrubber.style.left = `${pos}px`;
             document.getElementById('time-display').innerText = `00:${currentTime.toFixed(2).replace('.',':').padStart(5, '0')}`;
-            seek(currentTime, updateInputs);
+            if(evaluateTimeline)seek(currentTime, updateInputs);
             
             // Auto-scroll para manter a agulha visível
             if (isPlaying || isDraggingScrubber) {
@@ -3882,10 +4896,7 @@ varying vec2 vTextureCoord;
             currentTime += delta;
             
             if (currentTime >= settings.renderDuration) {
-                currentTime = settings.renderDuration;
-                updateScrubberUI();
-                togglePlay();
-                return;
+                currentTime %= settings.renderDuration;
             }
             updateScrubberUI(false);
             requestAnimationFrame(playLoop);
@@ -3954,8 +4965,9 @@ varying vec2 vTextureCoord;
         document.getElementById('btn-clear-wind').addEventListener('click', () => {
             if (!app || !maskTexture) return;
             const clearGraphics = new PIXI.Graphics().beginFill(0x000000).drawRect(0, 0, app.screen.width, app.screen.height).endFill();
-            app.renderer.render(clearGraphics, { renderTexture: maskTexture, clear: true });
-            windMaskPainted=false;
+            const targetContext=layerEffectContexts.get(selectedEffectTarget);
+            app.renderer.render(clearGraphics, { renderTexture: targetContext?targetContext.mask:maskTexture, clear: true });
+            if(targetContext)targetContext.painted=false;else windMaskPainted=false;
             clearGraphics.destroy();
         });
 
@@ -3975,7 +4987,7 @@ varying vec2 vTextureCoord;
             const selected=getSelectedParticleLayer();
             if(selected && particleLayerHasBurst(selected))selected.burstStart=currentTime;
             settings.keyframes = settings.keyframes.filter(kf => !(
-                kf.type === 'particles' && Math.abs(kf.time - currentTime) < 0.0001
+                kf.type === 'particles' && effectTargetOf(kf)===selectedEffectTarget && Math.abs(kf.time - currentTime) < 0.0001
             ));
             addKeyframe({ type: 'particles', time: currentTime, particles: JSON.parse(JSON.stringify(settings.particles)) });
         });
@@ -4059,6 +5071,10 @@ varying vec2 vTextureCoord;
         });
 
         function addKeyframe(kf) {
+            const activation=effectActivationProps[kf.type];
+            if(activation)kf[activation]=settings[activation];
+            if(kf.type!=='compositionLayer' && kf.type!=='camera3d')kf.effectTarget=selectedEffectTarget;
+            settings.keyframes=settings.keyframes.filter(existing=>!(existing.type===kf.type && Math.abs(existing.time-kf.time)<.0001 && (kf.type==='compositionLayer'?existing.layerId===kf.layerId:kf.type==='camera3d' || effectTargetOf(existing)===effectTargetOf(kf))));
             settings.keyframes.push(kf);
             settings.keyframes.sort((a, b) => a.time - b.time);
             
@@ -4085,7 +5101,7 @@ varying vec2 vTextureCoord;
         }
 
         window.removeKeyframesAtTime = (time) => {
-            settings.keyframes = settings.keyframes.filter(kf => Math.abs(kf.time - time) >= 0.0001);
+            settings.keyframes = settings.keyframes.filter(kf => Math.abs(kf.time-time)>=.0001 || (kf.type!=='compositionLayer' && kf.type!=='camera3d' && effectTargetOf(kf)!==selectedEffectTarget));
             updateKeyframesUI();
             updateCompositionLayersAnimation(currentTime);
             if (!isPlaying && app) app.renderer.render(app.stage);
@@ -4105,11 +5121,12 @@ varying vec2 vTextureCoord;
 
         function getInterpolatedValue(time, prop, type = 'ripple') {
             const kfs = settings.keyframes
-                .filter(k => k.type === type && k[prop] !== undefined)
+                .filter(k => k.type === type && k[prop] !== undefined && (type==='camera3d' || effectTargetOf(k)===(effectEvaluationTarget || selectedEffectTarget)))
                 .sort((a, b) => a.time - b.time);
             if (kfs.length === 0) return settings[prop];
             if (time < kfs[0].time) {
-                const initialValue = initialSettingsState[prop];
+                if(Object.prototype.hasOwnProperty.call(extraEffectControls,prop) && kfs[0][prop]===true)return false;
+                const initialValue = (effectEvaluationTarget || selectedEffectTarget)!=='scene'?ensureEffectBank(effectEvaluationTarget || selectedEffectTarget).initial[prop]:initialSettingsState[prop];
                 return initialValue !== undefined
                     ? cloneTimelineValue(initialValue)
                     : cloneTimelineValue(kfs[0][prop]);
@@ -4200,21 +5217,19 @@ varying vec2 vTextureCoord;
         }
 
         // Aplica os valores atuais de 'settings' nos filtros do Pixi
-        function applySettingsToCanvas(isLivePreview = false) {
+        function applyGlobalSceneSettings(isLivePreview = false) {
             if (!sprite) return;
             
             const animTime = isLivePreview ? Math.max(0,performance.now()/1000-livePreviewEpoch) : currentTime;
             // Sequências seguem a timeline; efeitos procedurais podem continuar em preview ao vivo.
             updateCompositionLayersAnimation(currentTime);
-            const duration = settings.renderDuration;
-            const phase = loopPhase(animTime, duration);
-            const seamlessOscillation = Math.sin(phase * Math.PI * 2);
+            const phase = loopPhase(animTime);
 
-            // Scroll de Cenário em Loop (Sincronizado com tempo e duração)
+            // Deslocamento em pixels por segundo, independente do fim da exportação.
             const tex = sprite.texture;
             const baseRatio = Math.min(compositionWidth / tex.width, compositionHeight / tex.height);
-            const scrollCycles = Math.round((settings.scrollSpeed * duration) / (tex.width * baseRatio));
-            const scrollOffset = (animTime / duration) * scrollCycles * (tex.width * baseRatio);
+            setMirrorUniforms(mirrorFilter,settings,animTime);
+            const scrollOffset = effectIsOn(settings,'scroll')?animTime*settings.scrollSpeed:0;
 
             if (settings.zoomActive && zoomLayers.length > 0) {
                 sprite.visible = false;
@@ -4224,16 +5239,8 @@ varying vec2 vTextureCoord;
                 const baseScale = Math.max(app.screen.width / texture.width, app.screen.height / texture.height);
                 const cycleSpeed = (settings.zoomSpeed / 100) * 1;
 
-                // Cálculo determinístico para Loop Perfeito:
-                // Definimos uma quantidade inteira de ciclos baseada na velocidade e duração.
-                let totalZoomCycles = Math.floor(Math.abs(cycleSpeed) * duration + 0.5);
-                if (totalZoomCycles < 1) totalZoomCycles = 1;
-                let zoomDirection = cycleSpeed >= 0 ? 1 : -1;
-
                 zoomLayers.forEach(s => {
-                    // Proporção do tempo atual (0 a 1) multiplicada por ciclos inteiros
-                    let timePhase = animTime / duration;
-                    let progress = (timePhase * totalZoomCycles * zoomDirection) + s.initialZOffset;
+                    const progress = animTime * cycleSpeed + s.initialZOffset;
                     s.zProgress = ((progress % 1) + 1) % 1;
                     const scaleValue = baseScale * Math.pow(settings.zoomMax, s.zProgress);
                     s.tileScale.set(scaleValue);
@@ -4256,21 +5263,20 @@ varying vec2 vTextureCoord;
                 sprite.tilePosition.x = (compositionWidth - tex.width * baseRatio) / 2 + scrollOffset;
             }
 
-            // Deslocamento periódico com textura local de 256 px.
-            const rippleCycles = 2 * Math.floor(duration * settings.rippleSpeed);
-            const rippleX = (animTime / duration) * rippleCycles * 256;
+            // Mapa original de ondulação, 512 px, com deslocamento em segundos.
+            const rippleTravel=animTime*settings.rippleSpeed*8;
+            const rippleX = rippleTravel * 512;
             const rippleY = rippleX * 0.5;
-            const internalCount = (animTime / duration) * rippleCycles * 6.28318;
+            const internalCount = animTime*settings.rippleSpeed*2*6.28318;
 
-            rippleMap.x = rippleX % 256;
-            rippleMap.y = rippleY % 256;
+            rippleMap.x = rippleX % 512;
+            rippleMap.y = rippleY % 512;
 
             // Lógica de Camera Shake
             if (settings.shakeActive && settings.shakeStrength > 0) {
-                // Sincroniza o tremor para terminar onde começou (0)
-                // Usamos shakeSpeed para definir quantos ciclos ocorrem na duração total
-                const shakeCycles = Math.max(1, Math.floor(settings.shakeSpeed * duration / 5.0));
-                const t = (animTime / duration) * shakeCycles * Math.PI * 2.0;
+                // Frequência do tremor em tempo real.
+                // A duração do vídeo não altera a frequência da câmera.
+                const t = animTime * (settings.shakeSpeed / 5.0) * Math.PI * 2.0;
                 
                 const angleRad = (settings.shakeAngle * Math.PI) / 180;
 
@@ -4324,6 +5330,7 @@ varying vec2 vTextureCoord;
                 }
             }
 
+            if(!effectIsOn(settings,'impact'))activeProgress=-1;
             if (activeProgress >= 0 && activeProgress < 1.0) {
                 const travelsForward = activeFunnel >= 0;
                 const travelProgress = travelsForward ? activeProgress : 1 - activeProgress;
@@ -4335,8 +5342,8 @@ varying vec2 vTextureCoord;
                 rippleFilter.scale.x+=impactWater;
                 rippleFilter.scale.y+=impactWater;
                 const waterTravel=activeProgress*activeRippleSpeed*512;
-                rippleMap.x=(rippleMap.x+waterTravel)%256;
-                rippleMap.y=(rippleMap.y+waterTravel*.5)%256;
+                rippleMap.x=(rippleMap.x+waterTravel)%512;
+                rippleMap.y=(rippleMap.y+waterTravel*.5)%512;
                 const power = impactEnvelope * activeStrength;
                 impactFilter.scale.set(power);
                 impactFunnelFilter.uniforms.uProgress = activeProgress;
@@ -4355,13 +5362,13 @@ varying vec2 vTextureCoord;
             vaporFilter.uniforms.uThreshold = settings.vaporProgress;
             // Fase normalizada: o shader usa períodos inteiros da textura de ruído.
             vaporFilter.uniforms.uTime = phase;
-            vaporFilter.uniforms.uDuration = duration;
+            vaporFilter.uniforms.uDuration = EFFECT_CYCLE_SECONDS;
             vaporFilter.uniforms.uSpeed = settings.vaporSpeed;
             vaporFilter.uniforms.uColor = hexToRgb(settings.vaporColor);
 
             // Aplica Vento
             windFilter.uniforms.uTime = animTime;
-            windFilter.uniforms.uDuration = duration;
+            windFilter.uniforms.uDuration = EFFECT_CYCLE_SECONDS;
             // Mapeia os valores de 0-100 para escalas úteis ao shader
             windFilter.uniforms.uStrength = settings.windStrength / 100.0;
             windFilter.uniforms.uSpeed = settings.windSpeed / 50.0;
@@ -4421,7 +5428,7 @@ varying vec2 vTextureCoord;
                     f.uniforms.uSize = l.size;
                     f.uniforms.uSpread = l.spread;
                     f.uniforms.uSourceSize = l.source;
-                    f.uniforms.uTime = animTime / duration; 
+                    f.uniforms.uTime = animTime / EFFECT_CYCLE_SECONDS; 
                     f.uniforms.uFlicker = l.flicker;
                     f.uniforms.uColor = hexToRgb(l.color);
                 }
@@ -4451,6 +5458,11 @@ varying vec2 vTextureCoord;
             if (!sprite) return;
             livePreviewActive=false;
             currentTime = time;
+            for(const [type,prop] of Object.entries(effectActivationProps))if(Object.prototype.hasOwnProperty.call(extraEffectControls,prop))settings[prop]=getInterpolatedValue(time,prop,type);
+            if(updateUI)for(const [prop,id] of Object.entries(extraEffectControls))document.getElementById(id).checked=settings[prop]!==false;
+
+            for(const prop of Object.keys(mirrorControlProps))settings[prop]=getInterpolatedValue(time,prop,'mirror');
+            if(updateUI)syncMirrorUI();
 
             // 1. Atualizar settings a partir dos keyframes (Interpolação)
             settings.rippleActive = getInterpolatedValue(time, 'rippleActive', 'ripple');
@@ -4634,7 +5646,7 @@ varying vec2 vTextureCoord;
             const totalDuration = normalizedLoop.duration;
             let cameraExportContext = null;
             settings.renderDuration = totalDuration;
-            document.getElementById('render-duration').value = Number(totalDuration.toFixed(6));
+            document.getElementById('render-duration').value = totalDuration;
 
             // 2. Configurar o Muxer (WebMMuxer)
             const muxer = new WebMMuxer.Muxer({
@@ -4682,7 +5694,10 @@ varying vec2 vTextureCoord;
 
                     seek(currentTimeSec, false);
                     app.renderer.render(app.stage);
-                    const exportCanvas = renderCameraExportFrame(cameraExportContext);
+                    const exportCanvas = closeLoopExportFrame(renderCameraExportFrame(cameraExportContext),currentTime,()=>{
+                        app.renderer.render(app.stage);
+                        return renderCameraExportFrame(cameraExportContext);
+                    });
 
                     try {
                         // Captura o frame do canvas e envia para o codificador
@@ -4746,7 +5761,7 @@ varying vec2 vTextureCoord;
                 const normalizedLoop = normalizeLoopDuration(document.getElementById('render-duration').value);
                 const totalFrames = normalizedLoop.frames;
                 settings.renderDuration = normalizedLoop.duration;
-                document.getElementById('render-duration').value = Number(normalizedLoop.duration.toFixed(6));
+                document.getElementById('render-duration').value = normalizedLoop.duration;
                 const captureCanvas = document.createElement('canvas');
                 captureCanvas.width = compositionWidth;
                 captureCanvas.height = compositionHeight;
@@ -4764,7 +5779,10 @@ varying vec2 vTextureCoord;
 
                     seek(i / fps, false);
                     app.renderer.render(app.stage);
-                    const exportCanvas = renderCameraExportFrame(cameraExportContext);
+                    const exportCanvas = closeLoopExportFrame(renderCameraExportFrame(cameraExportContext),currentTime,()=>{
+                        app.renderer.render(app.stage);
+                        return renderCameraExportFrame(cameraExportContext);
+                    });
                     captureContext.clearRect(0, 0, compositionWidth, compositionHeight);
                     captureContext.drawImage(exportCanvas, 0, 0);
                     const rgba = captureContext.getImageData(0, 0, compositionWidth, compositionHeight).data;
@@ -4833,7 +5851,7 @@ varying vec2 vTextureCoord;
                 const totalFrames = normalizedLoop.frames;
                 const totalDuration = normalizedLoop.duration;
                 settings.renderDuration = totalDuration;
-                document.getElementById('render-duration').value = Number(totalDuration.toFixed(6));
+                document.getElementById('render-duration').value = totalDuration;
                 cameraExportContext = createCameraExportContext(compositionWidth, compositionHeight);
 
                 app.ticker.stop();
@@ -4850,7 +5868,10 @@ varying vec2 vTextureCoord;
 
                     seek(currentTimeSec, false);
                     app.renderer.render(app.stage);
-                    const exportCanvas = renderCameraExportFrame(cameraExportContext);
+                    const exportCanvas = closeLoopExportFrame(renderCameraExportFrame(cameraExportContext),currentTime,()=>{
+                        app.renderer.render(app.stage);
+                        return renderCameraExportFrame(cameraExportContext);
+                    });
 
                     // Converte o canvas para Blob PNG (Preserva transparência)
                     const blob = await new Promise(resolve => exportCanvas.toBlob(resolve, 'image/png'));

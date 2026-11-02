@@ -3268,6 +3268,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         selectedFolderUid = folder.uid;
         updateLayersUI();
         updateFolderSwitcher();
+        updateSavedPosesUI();
         draw();
         showNotice(common ? "Pasta comum: camadas exibidas juntas." : "Pasta switch: uma camada por vez.");
       }
@@ -3478,7 +3479,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         slider.value = chosen;
         info.textContent = `${chosen + 1}/${children.length} — ${children[chosen].layer.name}${commonFolder ? " · selecionar" : ""}`;
         slider.oninput = (e) => {
+          if(selectedFolderUid!==folder.uid||!layers.includes(folder)||(folder.folderMode==='common')!==commonFolder)return;
           const choice = children[+e.target.value];
+          if(!choice)return;
           folder.switchChildUid = choice.layer.uid;
           info.textContent = `${+e.target.value + 1}/${children.length} — ${choice.layer.name}${commonFolder ? " · selecionar" : ""}`;
           if (commonFolder) {
@@ -3494,6 +3497,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             draw();
           } else {
             children.forEach((item) => (item.layer.visible = item === choice));
+            selectLayer(choice.index,true);
             // O switch grava sua troca na timeline; a pasta comum não grava
             // visibilidade porque seu slider é apenas um seletor.
             setKeyframe(false);
@@ -4206,6 +4210,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           if (state) state.assetIndex = remap(state.assetIndex);
         });
         (l.savedPoses || []).forEach((pose) => { pose.assetIndex = remap(pose.assetIndex); });
+        layers.forEach(owner=>(owner.savedPoses||[]).forEach(pose=>(pose.folderMembers||[]).forEach(member=>{
+          if(member.layerUid===l.uid&&member.pose)member.pose.assetIndex=remap(member.pose.assetIndex);
+        })));
         if (activeLayerIndex === lIdx) {
           img = l.assets[replacement].img;
           pins = l.pins;
@@ -4804,10 +4811,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const activeLayer = Number.isInteger(activeLayerIndex)
           ? layers[activeLayerIndex]
           : null;
-        if (activeLayer && !activeLayer.isFolder) {
-          writeLayerTransformKey(activeLayer, frame, readLayerTransform(activeLayer));
-          if (activeLayer.followPin)
-            writeFollowPinStateKey(activeLayer, frame, activeLayer.followPin);
+        const commonFolder=getCommonPoseFolder(activeLayer);
+        const poseLayers=commonFolder?folderDescendants(commonFolder.uid):activeLayer&&!activeLayer.isFolder?[activeLayer]:[];
+        for(const poseLayer of poseLayers){
+          writeLayerTransformKey(poseLayer, frame, readLayerTransform(poseLayer));
+          if (poseLayer.followPin)
+            writeFollowPinStateKey(poseLayer, frame, poseLayer.followPin);
         }
         const states = layers.map((l) => ({
           pins: (l.pins || []).map((p) => ({ x:p.x, y:p.y, warpAngle:p.warpAngle, z:p.z||0, extraLinks:p.extraLinks?[...p.extraLinks]:[] })),
@@ -6462,6 +6471,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           gRotation: Number.isFinite(l.gRotation) ? l.gRotation : 0,
           z: Number(l.z || 0),
           savedPoses: JSON.parse(JSON.stringify(l.savedPoses || [])),
+          poseLibraryImports: JSON.parse(JSON.stringify(l.poseLibraryImports || [])),
           shapeKeys2D: JSON.parse(JSON.stringify(l.shapeKeys2D || [])),
           faceRig: l.faceRig ? JSON.parse(JSON.stringify(l.faceRig)) : null,
           transformBase: readLayerTransform(l),
@@ -6549,6 +6559,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             };
           }
         }
+        layer.poseLibraryImports=(layer.poseLibraryImports||[]).filter(source=>uidMap.has(source.layerUid)).map(source=>({...source,layerUid:uidMap.get(source.layerUid)}));
+        for(const pose of layer.savedPoses||[]){
+          if(!pose.folderMembers)continue;
+          if(pose.sourceLayerUid)pose.sourceLayerUid=uidMap.get(pose.sourceLayerUid)||null;
+          pose.anchorUid=uidMap.get(pose.anchorUid)||null;
+          pose.folderMembers=pose.folderMembers.filter(member=>uidMap.has(member.layerUid)).map(member=>({...member,layerUid:uidMap.get(member.layerUid)}));
+          pose.folderStates=(pose.folderStates||[]).filter(state=>uidMap.has(state.layerUid)).map(state=>({...state,layerUid:uidMap.get(state.layerUid),switchChildUid:uidMap.get(state.switchChildUid)||null}));
+        }
         // Pacotes nunca carregam timelines. A transformação corrente vira a base.
         layer.transformKeyframes = undefined;
         layer.transformBase = layer.transformBase || readLayerTransform(layer);
@@ -6600,6 +6618,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 transformKeyframes: undefined,
                 transformBase: lData.transformBase || null,
                 savedPoses: JSON.parse(JSON.stringify(lData.savedPoses || [])),
+                poseLibraryImports: JSON.parse(JSON.stringify(lData.poseLibraryImports || [])),
                 shapeKeys2D: JSON.parse(JSON.stringify(lData.shapeKeys2D || [])),
                 faceRig: lData.faceRig ? JSON.parse(JSON.stringify(lData.faceRig)) : null,
               };
@@ -6723,6 +6742,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
               transformKeyframes: l.transformKeyframes,
               transformBase: layerTransformBase(l),
               savedPoses: l.savedPoses || [],
+              poseLibraryImports: l.poseLibraryImports || [],
               shapeKeys2D: l.shapeKeys2D || [],
               faceRig: l.faceRig || null,
               assets: l.isFolder
@@ -6852,6 +6872,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                     : undefined,
                   transformBase: lData.transformBase || null,
                   savedPoses: lData.savedPoses || [],
+                  poseLibraryImports: lData.poseLibraryImports || [],
                   shapeKeys2D: Array.isArray(lData.shapeKeys2D) ? lData.shapeKeys2D : [],
                   faceRig: lData.faceRig ? JSON.parse(JSON.stringify(lData.faceRig)) : null,
                 };
@@ -10188,13 +10209,57 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         layer.savedPoses=poses.map((pose,poseIndex)=>{if(!pose||typeof pose!=="object")return null;return{uid:pose.uid||generateUid(),name:pose.name||`Pose ${poseIndex+1}`,poseSpace:"local-v2",bodyPins:layerPins.map((pin,index)=>localState(pose.bodyPins?.[index],pin)),shapeKeyValues:{...(pose.shapeKeyValues||{})},faceRigValues:{...(pose.faceRigValues||{})},assetIndex:Math.max(0,Number(pose.assetIndex)||0)};}).filter(Boolean);
       }
 
+      function getCommonPoseFolder(layer) {
+        const visited=new Set();
+        for(let current=layer;current&&!visited.has(current.uid);current=layers.find(item=>item.uid===current.parentId)){
+          visited.add(current.uid);
+          if(current.isFolder)return current.folderMode==='common'?current:null;
+        }
+        return null;
+      }
+      function getSavedPoseOwner() {
+        const selected=layers[activeLayerIndex];
+        const folder=getCommonPoseFolder(selected);
+        if(folder){
+          folder.savedPoses=folder.savedPoses||[];
+          folder.poseLibraryImports=folder.poseLibraryImports||[];
+          for(const member of folderDescendants(folder.uid)){
+            if(getCommonPoseFolder(member)!==folder)continue;
+            for(const oldPose of member.savedPoses||[]){
+              if(!oldPose||typeof oldPose!=='object')continue;
+              if(!oldPose.uid)oldPose.uid=generateUid();
+              if(folder.poseLibraryImports.some(source=>source.layerUid===member.uid&&source.poseUid===oldPose.uid)){
+                const imported=folder.savedPoses.find(pose=>pose.sourceLayerUid===member.uid&&pose.sourcePoseUid===oldPose.uid&&pose.poseSpace==='folder-legacy-v1');
+                if(imported){imported.name=oldPose.name||imported.name;imported.folderMembers[0].pose=JSON.parse(JSON.stringify(oldPose));}
+                continue;
+              }
+              const uid=oldPose.uid&&!folder.savedPoses.some(pose=>pose.uid===oldPose.uid)?oldPose.uid:generateUid();
+              folder.savedPoses.push({uid,name:oldPose.name||'Pose',poseSpace:'folder-legacy-v1',sourceLayerUid:member.uid,sourcePoseUid:oldPose.uid,
+                folderMembers:[{layerUid:member.uid,pose:JSON.parse(JSON.stringify(oldPose))}]});
+              folder.poseLibraryImports.push({layerUid:member.uid,poseUid:oldPose.uid});
+            }
+          }
+          return folder;
+        }
+        return selected&&!selected.isFolder?selected:null;
+      }
       function captureLayerPose(l,name,uid=generateUid()) {
+        if(l.isFolder&&l.folderMode==='common'){
+          const members=folderDescendants(l.uid);
+          const anchor=members[0];
+          return {uid,name,poseSpace:'folder-local-v1',anchorUid:anchor?.uid,
+            anchorTransform:anchor?readLayerTransform(anchor):null,
+            folderMembers:members.map(member=>({layerUid:member.uid,pose:captureLayerPose(member,member.name),
+              transform:readLayerTransform(member),visible:member.visible!==false,z:Number(member.z||0)})),
+            folderStates:folderDescendants(l.uid,true).filter(member=>member.isFolder).map(member=>({layerUid:member.uid,visible:member.visible!==false,switchChildUid:member.switchChildUid||null}))};
+        }
         const bodyPins=(l.pins||[]).map((p)=>{const baseX=Number.isFinite(p.ox)?p.ox:p.x,baseY=Number.isFinite(p.oy)?p.oy:p.y;return{dx:p.x-baseX,dy:p.y-baseY,warpAngle:p.warpAngle,z:Number(p.z||0)};});
         return{uid,name,poseSpace:"local-v2",bodyPins,shapeKeyValues:captureShapeKeyValues(l),faceRigValues:captureFaceRigValues(l),assetIndex:l.activeAssetIndex||0};
       }
 
       function saveCurrentLayerPose() {
-        const l = getSelectedImageLayer();
+        flushInteractiveRender();
+        const l = getSavedPoseOwner();
         if (!l) {
           document.getElementById("saved-poses-list").innerHTML =
             '<div class="pose-empty">Selecione uma camada de imagem.</div>';
@@ -10210,7 +10275,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
 
       function applySavedLayerPose(index) {
-        const l=getSelectedImageLayer();const pose=l?.savedPoses?.[index];if(!l||!pose)return;
+        const l=getSavedPoseOwner();const pose=l?.savedPoses?.[index];if(!l||!pose)return;
+        if(isPlaying)togglePlay();
+        flushInteractiveRender();
+        if(l.isFolder&&pose.folderMembers){applyCommonFolderPose(l,pose);return;}
         const preservedTransform={gPos:{...(l.gPos||{x:0,y:0})},gScale:Number.isFinite(l.gScale)?l.gScale:1,gRotation:Number.isFinite(l.gRotation)?l.gRotation:0,gPivot:l.gPivot?{...l.gPivot}:null,z:Number(l.z||0)};
         const applyPinPose=(p,saved)=>{if(!saved)return;if(pose.poseSpace==="local-v2"){const baseX=Number.isFinite(p.ox)?p.ox:p.x,baseY=Number.isFinite(p.oy)?p.oy:p.y;p.x=baseX+Number(saved.dx||0);p.y=baseY+Number(saved.dy||0);}else{if(Number.isFinite(saved.x))p.x=saved.x;if(Number.isFinite(saved.y))p.y=saved.y;}if(Number.isFinite(saved.warpAngle))p.warpAngle=saved.warpAngle;if(Number.isFinite(saved.z))p.z=saved.z;};
         (l.pins||[]).forEach((p,i)=>applyPinPose(p,pose.bodyPins?.[i]));
@@ -10220,8 +10288,53 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         pins=l.pins;gPos=l.gPos;gScale=l.gScale;gRotation=l.gRotation;updateDeform(l);setKeyframe(false);updateLayersUI();draw();
       }
 
+      function applyCommonFolderPose(folder,pose) {
+        const members=folderDescendants(folder.uid),allowed=new Set(members.map(layer=>layer.uid));
+        const anchor=members.find(layer=>layer.uid===pose.anchorUid)||members.find(layer=>pose.folderMembers.some(member=>member.layerUid===layer.uid&&member.transform));
+        const savedAnchor=anchor?.uid===pose.anchorUid?pose.anchorTransform:pose.folderMembers.find(member=>member.layerUid===anchor?.uid)?.transform;
+        const liveAnchor=anchor?readLayerTransform(anchor):null;
+        const ratio=liveAnchor&&savedAnchor?liveAnchor.gScale/(savedAnchor.gScale||1):1;
+        const angle=liveAnchor&&savedAnchor?liveAnchor.gRotation-savedAnchor.gRotation:0;
+        const c=Math.cos(angle),s=Math.sin(angle);
+        for(const member of pose.folderMembers){
+          const layer=members.find(layer=>layer.uid===member.layerUid);if(!layer)continue;
+          const saved=member.pose||{},local=saved.poseSpace==='local-v2';
+          (layer.pins||[]).forEach((pin,index)=>{
+            const at=saved.bodyPins?.[index];if(!at)return;
+            if(local){pin.x=(Number.isFinite(pin.ox)?pin.ox:pin.x)+Number(at.dx||0);pin.y=(Number.isFinite(pin.oy)?pin.oy:pin.y)+Number(at.dy||0);}
+            else{if(Number.isFinite(at.x))pin.x=at.x;if(Number.isFinite(at.y))pin.y=at.y;}
+            if(Number.isFinite(at.warpAngle))pin.warpAngle=at.warpAngle;
+            if(Number.isFinite(at.z))pin.z=at.z;
+          });
+          if(layer.faceRig)layer.faceRig.values=interpolateFaceRigValues(saved.faceRigValues,saved.faceRigValues,0);
+          ensureShapeKeys2D(layer).forEach(shape=>{if(Object.prototype.hasOwnProperty.call(saved.shapeKeyValues||{},shape.uid))shape.value=Math.max(0,Math.min(100,Number(saved.shapeKeyValues[shape.uid])||0));});
+          layer.activeAssetIndex=Math.min(saved.assetIndex||0,Math.max(0,(layer.assets||[]).length-1));
+          if(member.transform){
+            const transform=member.transform;
+            if(liveAnchor&&savedAnchor){
+              const dx=(transform.gPos.x-savedAnchor.gPos.x)*ratio,dy=(transform.gPos.y-savedAnchor.gPos.y)*ratio;
+              layer.gPos={x:liveAnchor.gPos.x+dx*c-dy*s,y:liveAnchor.gPos.y+dx*s+dy*c};
+              layer.gScale=transform.gScale*ratio;layer.gRotation=transform.gRotation+angle;
+            }else{layer.gPos={...transform.gPos};layer.gScale=transform.gScale;layer.gRotation=transform.gRotation;}
+            if(transform.gPivot)layer.gPivot={...transform.gPivot};
+          }
+          if(member.visible!==undefined)layer.visible=member.visible;
+          if(Number.isFinite(member.z))layer.z=member.z;
+          updateFollowPinBaseForLayer(layer);updateFolderFollowBaseForLayer(layer);updateDeform(layer);
+        }
+        for(const state of pose.folderStates||[]){
+          const layer=layers.find(layer=>layer.uid===state.layerUid&&layer.isFolder);
+          if(!layer||!folderDescendants(folder.uid,true).includes(layer))continue;
+          layer.visible=state.visible!==false;
+          if(!state.switchChildUid||allowed.has(state.switchChildUid))layer.switchChildUid=state.switchChildUid;
+        }
+        invalidateShapeWarp();refreshActiveLayerForFrame();setKeyframe(false);
+        updateShapeKeysUI();updateLayersUI();draw();
+      }
+
       function updateSavedLayerPose(index) {
-        const l = getSelectedImageLayer();
+        flushInteractiveRender();
+        const l = getSavedPoseOwner();
         const oldPose = l?.savedPoses?.[index];
         if (!l || !oldPose) return;
         l.savedPoses[index] = captureLayerPose(l, oldPose.name, oldPose.uid);
@@ -10229,14 +10342,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
 
       function deleteSavedLayerPose(index) {
-        const l = getSelectedImageLayer();
+        const l = getSavedPoseOwner();
         if (!l?.savedPoses?.[index]) return;
         l.savedPoses.splice(index, 1);
         updateSavedPosesUI();
       }
 
       function moveSavedLayerPose(index, direction) {
-        const l = getSelectedImageLayer();
+        const l = getSavedPoseOwner();
         if (!l?.savedPoses?.[index]) return;
         const newIndex = index + direction;
         if (newIndex < 0 || newIndex >= l.savedPoses.length) return;
@@ -10251,7 +10364,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const title = document.getElementById("pose-layer-name");
         const list = document.getElementById("saved-poses-list");
         if (!title || !list) return;
-        const l = getSelectedImageLayer();
+        const l = getSavedPoseOwner();
         if (!l) {
           title.textContent = "Nenhuma camada selecionada";
           list.innerHTML =
@@ -10263,7 +10376,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         list.innerHTML = "";
         if (l.savedPoses.length === 0) {
           list.innerHTML =
-            '<div class="pose-empty">Ainda não há poses nesta camada.<br>Posicione o rig e clique em Salvar.</div>';
+            `<div class="pose-empty">Ainda não há poses nesta ${l.isFolder?'pasta':'camada'}.<br>Posicione o rig e clique em Salvar.</div>`;
           return;
         }
         l.savedPoses.forEach((pose, index) => {
