@@ -1390,7 +1390,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         <div id="face-rig-tab">
           <h3 id="face-layer-name">FaceRig manual</h3>
           <select id="face-point-choice" aria-label="Ponto facial"></select>
-          <div class="face-actions"><button id="face-mark-btn" type="button" onclick="faceToggleMark()">Marcar pontos</button><button type="button" onclick="faceRedoPoints()" title="Refazer pontos">Refazer pontos</button></div>
+          <div class="face-actions"><button id="face-mark-btn" type="button" onclick="faceToggleMark()">Marcar pontos</button><button type="button" onclick="faceRedoPoints()" title="Refazer o ponto selecionado ou todos os pontos">Refazer pontos</button></div>
           <p id="face-point-status" role="status" aria-live="polite"></p>
           <h3>Cabeça</h3>
           <div id="face-joystick" tabindex="0" role="group" aria-label="Joystick da cabeça" title="Cabeça"><span id="face-stick"></span></div>
@@ -2837,26 +2837,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           renderTransformTimeline();
           return;
         }
-        const layer = layers[activeLayerIndex];
-        if (!layer) return;
-        const beforeTransform = (layer.transformKeyframes || []).length;
-        const beforeFollow = (layer.followPinKeyframes || []).length;
-        layer.transformKeyframes = (layer.transformKeyframes || []).filter(
-          (key) => Math.round(key.frame) !== frame,
-        );
-        layer.followPinKeyframes = (layer.followPinKeyframes || []).filter(
-          (key) => Math.round(key.frame) !== frame,
-        );
-        const removedTransform = layer.transformKeyframes.length !== beforeTransform;
-        const removedFollow = layer.followPinKeyframes.length !== beforeFollow;
-        if (!removedTransform && !removedFollow) return;
-        refreshTotalFrames();
-        // Timeline unificada do Transformer: apagar remove também o evento de
-        // Vincular/Desvincular que existir neste mesmo frame.
-        const previousFrame = Math.max(1, Math.min(totalFrames, frame - 1));
-        seek(previousFrame);
-        renderTransformTimeline();
-        showNotice(`${removedTransform && removedFollow ? "Key de transformação e vínculo" : removedFollow ? "Key de vínculo" : "Key de transformação"} excluído do frame ${frame}.`);
+        if(!layers[activeLayerIndex])return;
+        deleteKeyframe();
       }
 
       function renderTransformTimeline() {
@@ -2930,6 +2912,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const track = document.getElementById("transform-timeline-track");
         const startX = event.clientX;
         const startFrame = key.frame;
+        const activeLayer=layers[activeLayerIndex];
+        const linkedLayers=keyframes.some(k=>k.frame===startFrame)?layers:[activeLayer].filter(Boolean);
+        const companions=activeLayerIndex==='bg'?[key]:[...new Set([key,
+          ...keyframes.filter(k=>k.frame===startFrame),
+          ...linkedLayers.flatMap(layer=>(layer.transformKeyframes||[]).filter(k=>k.frame===startFrame)),
+          ...linkedLayers.flatMap(layer=>(layer.followPinKeyframes||[]).filter(k=>k.frame===startFrame))])];
         let moved = false;
 
         marker.setPointerCapture?.(event.pointerId);
@@ -2938,8 +2926,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           const nextFrame = Math.max(1, startFrame + deltaFrames);
           if (nextFrame === key.frame) return;
           if (source.some((other) => other !== key && other.frame === nextFrame)) return;
+          if(activeLayerIndex!=='bg'&&keyframes.some(other=>!companions.includes(other)&&other.frame===nextFrame))return;
+          if(activeLayerIndex!=='bg'&&linkedLayers.some(layer=>[...(layer.transformKeyframes||[]),...(layer.followPinKeyframes||[])].some(other=>!companions.includes(other)&&other.frame===nextFrame)))return;
+          if((activeLayer?.followPinKeyframes||[]).some(other=>!companions.includes(other)&&other.frame===nextFrame))return;
           moved = true;
-          key.frame = nextFrame;
+          companions.forEach(companion=>companion.frame=nextFrame);
           marker.style.left = `${(nextFrame - 1) * AUDIO_PX_PER_FRAME}px`;
           marker.title = marker.title.replace(/frame \d+$/, `frame ${nextFrame}`);
           const widthFrames = Math.max(totalFrames + 8, nextFrame + 8, 80);
@@ -2950,6 +2941,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           window.removeEventListener("pointerup", up);
           window.removeEventListener("pointercancel", up);
           source.sort((a, b) => a.frame - b.frame);
+          keyframes.sort((a,b)=>a.frame-b.frame);
+          linkedLayers.forEach(layer=>{
+            layer.transformKeyframes?.sort((a,b)=>a.frame-b.frame);
+            layer.followPinKeyframes?.sort((a,b)=>a.frame-b.frame);
+          });
           if (moved) {
             refreshTotalFrames();
             seek(key.frame);
@@ -4798,7 +4794,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         draw();
       }
 
-      function setKeyframe(advance = false) {
+      function setKeyframe(advance = false, options = {}) {
         if (activeLayerIndex === "bg") { setBackgroundKeyframe(); return; }
         const frame = Math.round(currentFrame);
         syncActiveLayer();
@@ -4824,6 +4820,13 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         keyframes.sort((a,b)=>a.frame-b.frame);
         totalFrames = Math.max(getLastTimelineKeyframe(), keyframes.at(-1)?.frame || 1, 1);
         renderTransformTimeline();
+        if(options.interactive&&!advance){
+          // Slider values are already the live preview. Store them immediately,
+          // without seeking/reloading every other channel during the drag.
+          currentFrame=frame;
+          const input=document.getElementById('frame-input');if(input)input.value=frame;
+          updateKfStatus();updateTimeDisplay();scheduleInteractiveRender();return;
+        }
         if (advance) {
           currentFrame = frame + 1;
           if (!keyframes.some((k)=>k.frame>=currentFrame)) setKeyframe(false);
@@ -4887,6 +4890,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
       function deleteKeyframe() {
         if (activeLayerIndex === "bg") { deleteBackgroundKeyframe(); return; }
+        if(isPlaying)togglePlay();
         const frame=Math.round(currentFrame);
         const beforePoses=keyframes.length;
         keyframes=keyframes.filter((key)=>Math.round(key.frame)!==frame);
@@ -4899,7 +4903,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           if(layer.followPinKeyframes.length!==follows.length)removedFollow=true;
         });
         const removedPose=keyframes.length!==beforePoses;
-        if(!removedPose&&!removedTransform&&!removedFollow)return;
+        const removedFaceResidues=pruneOrphanFaceFrames();
+        if(!removedPose&&!removedTransform&&!removedFollow&&!removedFaceResidues)return;
         totalFrames=Math.max(getLastTimelineKeyframe(),1);
         currentFrame=Math.max(1,Math.min(totalFrames,frame-1));
         seek(currentFrame);
@@ -5596,6 +5601,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const bg3dVisibilityButton=document.getElementById("bg3d-visibility-btn");if(bg3dVisibilityButton)bg3dVisibilityButton.textContent=bg3dVisible?"👁️":"🌑";
         const fullState=getInterpolatedState(currentFrame);
         if(!fullState){
+          // No remaining pose means no remaining animated expression. Keep the
+          // calibration points, but never carry a deleted face into a new key.
+          layers.forEach(layer=>{if(layer.faceRig)layer.faceRig.values=interpolateFaceRigValues();});
           // Sem pose corporal, apenas a transformação muda. A malha depende dos
           // pins, não de mover/girar/escalar a camada, portanto não a recalcula.
           layers.forEach((layer)=>{const transform=getInterpolatedLayerTransform(layer,currentFrame);if(transform){layer.gPos={...transform.gPos};layer.gScale=transform.gScale;layer.gRotation=transform.gRotation;if(transform.gPivot)layer.gPivot={...transform.gPivot};}});
@@ -5606,7 +5614,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           let deformChanged=false;
           l.pins.forEach((p,i)=>{const saved=state.pins?.[i];if(!saved)return;const nextX=saved.x,nextY=saved.y,nextAngle=saved.warpAngle,nextZ=saved.z||0;if(p.x!==nextX||p.y!==nextY||p.warpAngle!==nextAngle)deformChanged=true;p.x=nextX;p.y=nextY;p.warpAngle=nextAngle;p.z=nextZ;});
           if(state.shapeKeyValues){let shapeChanged=false;ensureShapeKeys2D(l).forEach((shape)=>{const nextValue=Math.max(0,Math.min(100,Number(state.shapeKeyValues[shape.uid])||0));if(shape.value!==nextValue){shape.value=nextValue;shapeChanged=true;}});if(shapeChanged)invalidateShapeWarp();}
-          if(l.faceRig) l.faceRig.values = interpolateFaceRigValues(state.faceRigValues,state.faceRigValues,0);
+          if(l.faceRig) l.faceRig.values = faceTimelineValues(l,idx,currentFrame);
           l.gPos={...state.gPos};if(state.gPivot)l.gPivot={...state.gPivot};l.gScale=state.gScale;l.gRotation=state.gRotation;
           l.z=Number(state.z||0);l.visible=state.visible!==false;const savedAssetIdx=Number.isInteger(state.assetIndex)?state.assetIndex:(Number(state.assetIndex)||0);const prevAsset=l.activeAssetIndex;l.activeAssetIndex=l.assets&&l.assets.length>0?Math.min(savedAssetIdx,l.assets.length-1):0;if(deformChanged||prevAsset!==l.activeAssetIndex){if(deformChanged)updateDeform(l);else l._deformVersion=(l._deformVersion||0)+1;invalidateShapeWarp();}
         });
@@ -7117,7 +7125,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         ['upperR','Pálpebra sup. D',0,100],['lowerR','Pálpebra inf. D',0,100],
         ['browL','Sobrancelha E',-100,100],['browR','Sobrancelha D',-100,100]
       ];
-      let faceMarking = false, faceDrag = null, faceUILayer = null;
+      let faceMarking = false, faceDrag = null, faceUILayer = null, facePointRedo = null;
       const faceRenderCache = new WeakMap();
       const faceEyeInkCache = new WeakMap();
       function faceLayer() {return Number.isInteger(activeLayerIndex) && !layers[activeLayerIndex]?.isFolder ? layers[activeLayerIndex] : null;}
@@ -7136,6 +7144,35 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         return r;
       }
       function captureFaceRigValues(l) {return l?.faceRig ? {...ensureFaceRig(l).values} : {};}
+      function pruneOrphanFaceFrames() {
+        let changed=false;
+        layers.forEach((layer,index)=>{
+          const frames=new Set((layer.transformKeyframes||[]).map(key=>Math.round(key.frame)));
+          for(const key of keyframes){
+            const state=key.layerStates?.[index];
+            if(state&&!frames.has(Math.round(key.frame))&&Object.keys(state.faceRigValues||{}).length){
+              state.faceRigValues={};changed=true;
+            }
+          }
+          if(layer.faceRig&&!frames.size){
+            if(Object.values(layer.faceRig.values||{}).some(value=>Math.abs(Number(value)||0)>.001))changed=true;
+            layer.faceRig.values=interpolateFaceRigValues();
+          }
+        });
+        return changed;
+      }
+      function faceTimelineValues(layer,index,frame) {
+        const frames=new Set((layer.transformKeyframes||[]).map(key=>Math.round(key.frame)));
+        const keys=keyframes.filter(key=>frames.has(Math.round(key.frame))&&key.layerStates?.[index]);
+        if(!keys.length)return interpolateFaceRigValues();
+        let previous=null,next=null;
+        for(const key of keys){if(key.frame<=frame)previous=key;else{next=key;break;}}
+        if(!previous)previous=next;
+        if(!next)next=previous;
+        const a=previous.layerStates[index],b=next.layerStates[index];
+        return interpolateFaceRigValues(a.faceRigValues,b.faceRigValues,
+          previous===next||a.visible===false&&b.visible!==false?0:(frame-previous.frame)/(next.frame-previous.frame));
+      }
       function interpolateFaceRigValues(a={},b={},t=0) {
         return Object.fromEntries(FACE_CONTROLS.map(([id,,min,max])=>{const x=faceClamp(a?.[id],min,max),y=faceClamp(b?.[id],min,max);return[id,x+(y-x)*t];}));
       }
@@ -7143,7 +7180,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         // Usa a mesma captura de ossos e Shape Keys: preserva os demais
         // controles e substitui o keyframe do frame atual sem duplicá-lo.
         // Grava já no evento para não cair em outro frame após um seek.
-        if(!faceMarking && !isPlaying && faceLayer()) setKeyframe(false);
+        if(!faceMarking && !isPlaying && faceLayer()) setKeyframe(false,{interactive:true});
       }
       function faceSetValue(id,value) {
         const l=faceLayer();if(!l)return;
@@ -7168,8 +7205,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const l=faceLayer();if(!l){showNotice('Selecione uma camada de imagem.');return;}
         if(shapeWarpSession){showNotice('Confirme ou cancele a Shape Key antes de marcar o rosto.');return;}
         if(isPlaying)togglePlay();
-        faceMarking=!faceMarking;faceDrag=null;ensureFaceRig(l);
-        if(faceMarking){const next=FACE_POINTS.find(([id])=>!l.faceRig.points[id]);if(next)document.getElementById('face-point-choice').value=next[0];}
+        facePointRedo=null;faceMarking=!faceMarking;faceDrag=null;ensureFaceRig(l);
+        if(faceMarking){const next=FACE_POINTS.find(([id])=>!l.faceRig.points[id]);const choice=document.getElementById('face-point-choice');if(next)choice.value=next[0];else if(choice.value==='all')choice.value=FACE_POINTS[0][0];}
         updateFaceRigUI();draw();
         showNotice(faceMarking?'Clique no desenho para posicionar cada ponto. Arraste para corrigir.':'Pontos ocultos. Joystick e sliders gravam automaticamente no frame atual.');
       }
@@ -7179,21 +7216,25 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         if(isPlaying)togglePlay();
         if(faceDrag && canvas.hasPointerCapture(faceDrag.pointerId))canvas.releasePointerCapture(faceDrag.pointerId);
         faceDrag=null;
-        ensureFaceRig(l).points={};
+        const chosen=document.getElementById('face-point-choice').value;
+        const single=FACE_POINTS.some(([id])=>id===chosen);
+        const rig=ensureFaceRig(l);
+        if(!single)rig.points={};
+        facePointRedo=single?{layerUid:l.uid,id:chosen}:null;
         faceUILayer=l.uid;faceMarking=true;
-        document.getElementById('face-point-choice').value=FACE_POINTS[0][0];
+        document.getElementById('face-point-choice').value=single?chosen:FACE_POINTS[0][0];
         updateFaceRigUI();draw();
-        showNotice('Refaça os pontos no desenho, começando pelo contorno esquerdo. O centro é automático.');
+        showNotice(single?'Clique para reposicionar apenas o ponto selecionado.':'Refaça todos os pontos no desenho.');
       }
       function updateFaceRigUI() {
         const tab=document.getElementById('face-rig-tab');if(!tab?.classList.contains('open'))return;
         const l=faceLayer(),uid=l?.uid||null;
-        if(uid!==faceUILayer){faceUILayer=uid;faceMarking=false;faceDrag=null;}
+        if(uid!==faceUILayer){faceUILayer=uid;faceMarking=false;faceDrag=null;facePointRedo=null;}
         document.getElementById('face-layer-name').textContent=l?'FaceRig · '+l.name:'Selecione uma camada de imagem';
         const r=l?.faceRig,points=r?.points||{},values=r?.values||{};
         const choice=document.getElementById('face-point-choice');
-        if(!choice.options.length)for(const [id,label] of FACE_POINTS){const opt=document.createElement('option');opt.value=id;opt.textContent=label;choice.appendChild(opt);}
-        for(const opt of choice.options)opt.textContent=(points[opt.value]?'✓ ':'○ ')+FACE_POINTS.find(p=>p[0]===opt.value)[1];
+        if(!choice.options.length){for(const [id,label] of FACE_POINTS){const opt=document.createElement('option');opt.value=id;opt.textContent=label;choice.appendChild(opt);}const all=document.createElement('option');all.value='all';all.textContent='Todos os pontos';choice.appendChild(all);}
+        for(const opt of choice.options)opt.textContent=opt.value==='all'?'Todos os pontos':(points[opt.value]?'✓ ':'○ ')+FACE_POINTS.find(p=>p[0]===opt.value)[1];
         const mark=document.getElementById('face-mark-btn');mark.classList.toggle('active',faceMarking);mark.textContent=faceMarking?'Finalizar pontos':FACE_POINTS.some(([id])=>points[id])&&FACE_POINTS.some(([id])=>!points[id])?'Completar pontos':'Marcar pontos';
         const required=FACE_POINTS;
         const count=required.filter(([id])=>points[id]).length;
@@ -7534,7 +7575,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           for(let c=0;c<3;c++)out[i+c]=(tl[c]*(1-u)+tr[c]*u)*(1-v)+(bl[c]*(1-u)+br[c]*u)*v;
           out[i+3]=maskPixels[i+3];
         }
-        if(hasSkin&&eye.kind==='eye-box')faceNaturalEyePlate(data,maskPixels,out,width,height,background);
+        if(hasSkin&&(eye.kind==='eye-box'||eye.kind==='brow'))faceNaturalEyePlate(data,maskPixels,out,width,height,background);
         pc.putImageData(fill,0,0);
         ac.globalCompositeOperation='destination-in';ac.drawImage(mask,0,0);ac.globalCompositeOperation='source-over';
         let contentTop=null,contentBottom=null,contentLeft=null,contentRight=null;
@@ -7560,15 +7601,25 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }return brows;
       }
       function faceBrowPose(brow,patch,value,frame) {
-        const desired=Math.sign(brow.tangent.x||1)*faceClamp(value)/100*.34;
-        const floor=(frame.p.top?.y||0)+2,ceiling=Math.min(...brow.eye.quad.map(p=>p.y))-2;
+        const desired=Math.sign(brow.tangent.x||1)*faceClamp(value)/100*.25;
+        let neutralTop=Infinity,neutralBottom=-Infinity;
+        for(const point of patch.inkPoints){
+          const y=brow.center.y+brow.tangent.y*point.x+brow.normal.y*point.y;
+          neutralTop=Math.min(neutralTop,y);neutralBottom=Math.max(neutralBottom,y);
+        }
+        // The original drawing is a valid neutral pose, even when its ink
+        // touches a protection boundary. Limits must not introduce a step at 0.
+        const floor=Math.min((frame.p.top?.y||0)+2,neutralTop);
+        const ceiling=Math.max(Math.min(...brow.eye.quad.map(p=>p.y))-2,neutralBottom);
         function pose(angle){
           const cs=Math.cos(angle),sn=Math.sin(angle),t=brow.tangent,n=brow.normal;
           const tangent={x:t.x*cs-t.y*sn,y:t.x*sn+t.y*cs},normal={x:n.x*cs-n.y*sn,y:n.x*sn+n.y*cs};
           let top=Infinity,bottom=-Infinity;
           for(const point of patch.inkPoints){const y=brow.center.y+tangent.y*point.x+normal.y*point.y;top=Math.min(top,y);bottom=Math.max(bottom,y);}
-          const dy=Math.min(0,ceiling-bottom);
-          return {angle,tangent,normal,dy,top:top+dy,bottom:bottom+dy};
+          const anchor=(brow.length||0)*.5;
+          const dx=(t.x-tangent.x)*anchor,shiftY=(t.y-tangent.y)*anchor;
+          const dy=shiftY+Math.min(0,ceiling-bottom-shiftY);
+          return {angle,tangent,normal,dx,dy,top:top+dy,bottom:bottom+dy};
         }
         let result=pose(desired);
         if(result.top<floor){
@@ -7576,6 +7627,63 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           for(let i=0;i<12;i++){const mid=(lo+hi)/2;if(pose(desired*mid).top>=floor)lo=mid;else hi=mid;}
           result=pose(desired*lo);
         }return result;
+      }
+      function faceBrowPixels(data,width,height,ox,oy,length,vertical,isProtected) {
+        const lum=k=>data[k*4]*.2126+data[k*4+1]*.7152+data[k*4+2]*.0722;
+        const lights=[];for(let k=0;k<width*height;k++)if(data[k*4+3]>160)lights.push(lum(k));
+        if(!lights.length)return null;lights.sort((a,b)=>a-b);
+        const skin=lights[Math.floor(lights.length*.70)],threshold=skin-Math.max(16,skin*.10);
+        const colors=[[],[],[]];for(let k=0;k<width*height;k++)if(data[k*4+3]>160&&lum(k)>=skin)for(let c=0;c<3;c++)colors[c].push(data[k*4+c]);
+        const background=colors.map(values=>{values.sort((a,b)=>a-b);return values[Math.floor(values.length/2)]||0;});
+        const dark=new Uint8Array(width*height),core=new Uint8Array(width*height);
+        const along=length/2+Math.max(1,Math.min(ox-length/2-1,length*.08));
+        for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+          const k=y*width+x;
+          if(data[k*4+3]>100&&lum(k)<threshold&&Math.abs(x-ox)<=along&&!isProtected(x,y))dark[k]=1;
+        }
+        const maxThickness=Math.max(4,length*.19);
+        // Track a thin stroke from the middle toward both tips. Broad connected
+        // hair masses are not an eyebrow, even when they touch the brow mask.
+        for(const direction of [-1,1]){
+          let previous=oy;
+          for(let x=Math.round(ox);x>=0&&x<width;x+=direction){
+            if(Math.abs(x-ox)>along)break;
+            let best=null,cost=Infinity;
+            for(let y=0;y<height;){
+              if(!dark[y*width+x]){y++;continue;}
+              const start=y;while(y<height&&dark[y*width+x])y++;
+              const end=y-1,mid=(start+end)/2;
+              if(start===0||end===height-1||end-start+1>maxThickness||Math.abs(mid-oy)>vertical*.9)continue;
+              const score=Math.abs(mid-oy)*.35+Math.abs(mid-previous)*.65;
+              if(score<cost){cost=score;best={start,end,mid};}
+            }
+            if(best){for(let y=best.start;y<=best.end;y++)core[y*width+x]=1;previous=best.mid;}
+          }
+        }
+        const inks=[];for(let k=0;k<core.length;k++)if(core[k])inks.push(lum(k));
+        if(!inks.length)return null;inks.sort((a,b)=>a-b);
+        const ink=inks[Math.floor(inks.length*.1)],bgLum=background[0]*.2126+background[1]*.7152+background[2]*.0722;
+        const mask=new Uint8ClampedArray(data.length),art=new Uint8ClampedArray(data.length),artArea=new Uint8Array(core.length),inkPoints=[];
+        for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+          const k=y*width+x;if(!core[k])continue;
+          inkPoints.push({x:x-ox,y:y-oy});
+          for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
+            const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=width||yy>=height||isProtected(xx,yy))continue;
+            const at=(yy*width+xx)*4;mask[at+3]=255;if(Math.abs(dx)<=1&&Math.abs(dy)<=1)artArea[yy*width+xx]=1;
+          }
+        }
+        for(let k=0;k<core.length;k++){
+          const i=k*4;if(!mask[i+3])continue;
+          mask[i]=mask[i+1]=mask[i+2]=255;
+          // Unmix the ink from its skin background. Moving opaque skin pixels
+          // with the stroke creates the light wedges visible over dark hair.
+          if(!artArea[k])continue;
+          const alpha=Math.max(0,Math.min(1,(bgLum-lum(k))/Math.max(1,bgLum-ink)));
+          if(alpha<.05)continue;
+          for(let c=0;c<3;c++)art[i+c]=Math.max(0,Math.min(255,(data[i+c]-background[c]*(1-alpha))/alpha));
+          art[i+3]=Math.round(alpha*data[i+3]);
+        }
+        return {mask,art,inkPoints};
       }
       function faceBuildBrowPatch(source,brow) {
         const {start,end,center,tangent,normal,length}=brow;
@@ -7586,52 +7694,22 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         sc.setTransform(tangent.x,normal.x,tangent.y,normal.y,ox-center.x*tangent.x-center.y*tangent.y,oy-center.x*normal.x-center.y*normal.y);
         sc.drawImage(source,0,0);sc.setTransform(1,0,0,1,0,0);
         let data;try{data=sc.getImageData(0,0,width,height).data;}catch(_){return null;}
-        const lights=[];for(let i=0;i<data.length;i+=4)if(data[i+3]>160)lights.push(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722);
-        if(!lights.length)return null;lights.sort((a,b)=>a-b);
-        const skin=lights[Math.floor(lights.length*.70)],threshold=skin-Math.max(16,skin*.10);
-        const dark=new Uint8Array(width*height),alongLimit=length/2+Math.max(1.2,Math.min(2.5,length*.025));
-        const eye=brow.eye;
-        const transverseLimit=u=>{const edge=faceClamp((Math.abs(u)/(length/2)-.65)/.35,0,1);return vertical*(1-.70*edge);};
-        function inEye(x,y){
-          let sign=0;
-          for(let i=0;i<4;i++){const a=eye.quad[i],b=eye.quad[(i+1)%4],cross=(b.x-a.x)*(y-a.y)-(b.y-a.y)*(x-a.x);if(Math.abs(cross)<.01)continue;if(sign&&Math.sign(cross)!==sign)return false;sign=Math.sign(cross);}
+        function isProtected(x,y){
+          const u=x-ox,v=y-oy,px=center.x+tangent.x*u+normal.x*v,py=center.y+tangent.y*u+normal.y*v;
+          let sign=0;const quad=brow.eye.quad;
+          for(let i=0;i<4;i++){const a=quad[i],b=quad[(i+1)%4],cross=(b.x-a.x)*(py-a.y)-(b.y-a.y)*(px-a.x);if(Math.abs(cross)<.01)continue;if(sign&&Math.sign(cross)!==sign)return false;sign=Math.sign(cross);}
           return true;
         }
-        for(let y=0;y<height;y++)for(let x=0;x<width;x++){
-          const k=y*width+x,i=k*4,u=x-ox,v=y-oy,px=center.x+tangent.x*u+normal.x*v,py=center.y+tangent.y*u+normal.y*v;
-          const lum=data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722;
-          if(data[i+3]>100&&lum<threshold&&Math.abs(u)<=alongLimit&&Math.abs(v)<=transverseLimit(u)&&!inEye(px,py))dark[k]=1;
-        }
-        const grown=new Uint8Array(dark.length);
-        for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(dark[y*width+x]){
-          for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(x+dx>=0&&x+dx<width&&y+dy>=0&&y+dy<height)grown[(y+dy)*width+x+dx]=1;
-        }
-        // Seed the whole marked segment, including disconnected tips, instead of
-        // extracting a fixed-width fragment around one central marker.
-        const visited=new Uint8Array(dark.length),queue=[];
-        for(let s=0;s<=12;s++){
-          const targetX=padding+length*s/12,targetY=oy;let seed=-1,best=Infinity;
-          for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(dark[y*width+x]){
-            const d=(x-targetX)**2+(y-targetY)**2;if(d<best){best=d;seed=y*width+x;}
-          }
-          if(seed>=0&&best<=vertical*vertical&&!visited[seed]){visited[seed]=1;queue.push(seed);}
-        }
-        if(!queue.length)return null;
-        for(let q=0;q<queue.length;q++){
-          const k=queue[q],x=k%width,y=Math.floor(k/width);
-          for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
-            const xx=x+dx,yy=y+dy,n=yy*width+xx;
-            if(xx<0||xx>=width||yy<0||yy>=height||!grown[n]||visited[n])continue;
-            const u=xx-ox,v=yy-oy,px=center.x+tangent.x*u+normal.x*v,py=center.y+tangent.y*u+normal.y*v;
-            if(Math.abs(u)>alongLimit||Math.abs(v)>transverseLimit(u)+1||inEye(px,py))continue;visited[n]=1;queue.push(n);
-          }
-        }
+        const extracted=faceBrowPixels(data,width,height,ox,oy,length,vertical,isProtected);
+        if(!extracted)return null;
         const mask=document.createElement('canvas');mask.width=width;mask.height=height;
-        const mc=mask.getContext('2d'),pixels=mc.createImageData(width,height),inkPoints=[];
-        for(const k of queue){pixels.data[k*4]=pixels.data[k*4+1]=pixels.data[k*4+2]=pixels.data[k*4+3]=255;inkPoints.push({x:k%width-ox,y:Math.floor(k/width)-oy});}
-        mc.putImageData(pixels,0,0);
+        const mc=mask.getContext('2d'),pixels=mc.createImageData(width,height);
+        pixels.data.set(extracted.mask);mc.putImageData(pixels,0,0);
+        const inkPoints=extracted.inkPoints;
         const spec={kind:'brow',mask,center,tangent,normal,up:vertical,down:vertical,padding,halfWidth};
         const patch=faceBuildEyePatch(source,spec);if(!patch)return null;
+        const ac=patch.art.getContext('2d'),inkImage=ac.createImageData(width,height);
+        inkImage.data.set(extracted.art);ac.putImageData(inkImage,0,0);
         return {...patch,inkPoints};
       }
       function faceDrawBrows(l,source,output,cache,eyes) {
@@ -7652,7 +7730,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           if(!patch.hasSkin){dc.globalCompositeOperation='destination-out';dc.drawImage(patch.mask,0,0);}
           dc.globalCompositeOperation='source-over';dc.drawImage(patch.plate,0,0);dc.restore();
           const t=pose.tangent,n=pose.normal;
-          dc.transform(t.x,t.y,n.x,n.y,center.x-t.x*ox-n.x*oy,center.y+pose.dy-t.y*ox-n.y*oy);
+          dc.transform(t.x,t.y,n.x,n.y,center.x+pose.dx-t.x*ox-n.x*oy,center.y+pose.dy-t.y*ox-n.y*oy);
           dc.drawImage(patch.art,0,0);dc.restore();
         }
       }
@@ -7869,12 +7947,15 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const rig=ensureFaceRig(l),rect=canvas.getBoundingClientRect(),m=getLayerCanvasMatrix(l);
         let id=null,best=12*FW/rect.width;
         const chosen=document.getElementById('face-point-choice').value;
-        for(const [key,q] of Object.entries(rig.points).filter(()=>!!rig.points[chosen])){const at=faceScreenPoint(l,q,m,null),d=Math.hypot(at.x-(e.clientX-rect.left)*FW/rect.width,at.y-(e.clientY-rect.top)*FH/rect.height);if(d<best){best=d;id=key;}}
+        if(!FACE_POINTS.some(([key])=>key===chosen))return;
+        const single=facePointRedo?.layerUid===l.uid;
+        if(!single)for(const [key,q] of Object.entries(rig.points).filter(([id])=>!!rig.points[chosen]&&FACE_POINTS.some(([key])=>key===id))){const at=faceScreenPoint(l,q,m,null),d=Math.hypot(at.x-(e.clientX-rect.left)*FW/rect.width,at.y-(e.clientY-rect.top)*FH/rect.height);if(d<best){best=d;id=key;}}
         const existing=!!id;if(!id)id=chosen;
         if(!existing&&(p.x<0||p.y<0||p.x>asset.width||p.y>asset.height)){showNotice('Marque o ponto dentro da imagem da camada.');return;}
+        const originalPoint=rig.points[id]?{...rig.points[id]}:null;
         rig.points[id]={x:faceClamp(p.x,0,asset.width),y:faceClamp(p.y,0,asset.height)};
         document.getElementById('face-point-choice').value=id;
-        faceDrag={pointerId:e.pointerId,layer:l,id,existing};canvas.setPointerCapture(e.pointerId);draw();
+        faceDrag={pointerId:e.pointerId,layer:l,id,existing,originalPoint};canvas.setPointerCapture(e.pointerId);draw();
       },true);
       canvas.addEventListener('pointermove',e=>{
         if(!faceDrag||faceDrag.pointerId!==e.pointerId)return;
@@ -7885,8 +7966,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       function faceEndDrag(e){
         if(!faceDrag||faceDrag.pointerId!==e.pointerId)return;
         e.preventDefault();e.stopImmediatePropagation();
-        const {layer:l,id,existing}=faceDrag;faceDrag=null;
+        const {layer:l,id,existing,originalPoint}=faceDrag;faceDrag=null;
         if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
+        if(facePointRedo?.layerUid===l.uid){
+          if(e.type==='pointercancel'){if(originalPoint)l.faceRig.points[id]=originalPoint;else delete l.faceRig.points[id];}
+          facePointRedo=null;faceMarking=false;draw();return;
+        }
         if(!existing && e.type==='pointerup'){
           const next=FACE_POINTS.find(([key])=>!l.faceRig.points[key]);
           if(next)document.getElementById('face-point-choice').value=next[0];
@@ -7895,7 +7980,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         draw();
       }
       canvas.addEventListener('pointerup',faceEndDrag,true);canvas.addEventListener('pointercancel',faceEndDrag,true);
-      document.getElementById('face-point-choice').addEventListener('change',()=>{updateFaceRigUI();draw();});
+      document.getElementById('face-point-choice').addEventListener('change',()=>{
+        const chosen=document.getElementById('face-point-choice').value;
+        if(chosen==='all'){facePointRedo=null;faceMarking=false;}
+        else if(facePointRedo)facePointRedo.id=chosen;
+        updateFaceRigUI();draw();
+      });
       for(const [id,label,min,max] of FACE_CONTROLS.filter(([id])=>!['headX','headY','roll'].includes(id))){
         const row=document.createElement('label');row.className='face-slider';
         const text=document.createElement('span');text.textContent=label;const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.value=0;input.step=1;input.dataset.faceControl=id;
@@ -10222,6 +10312,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           layer.transformKeyframes = [];
           layer.followPinKeyframes = [];
           layer.followPinBase = cloneFollowPinState(layer.followPin);
+          if(layer.faceRig)layer.faceRig.values=interpolateFaceRigValues();
         });
 
         stopAudioPlayback();
