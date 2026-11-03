@@ -3777,7 +3777,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const puppetControls = document.createElement('div');
         puppetControls.id = 'puppetControls'; puppetControls.hidden = true;
         puppetControls.style.cssText = 'position:static;flex:0 0 auto;width:100%;box-sizing:border-box;background:#202127;color:white;border-bottom:1px solid #555;padding:7px 12px;font:12px sans-serif;';
-        puppetControls.innerHTML = '<div style="margin-bottom:8px" id="puppetHint"></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="puppetMaskMode" aria-pressed="false">Máscara</button><button type="button" id="puppetCreateMode" aria-pressed="true">Criar ossos</button><button type="button" id="puppetDragMode" aria-pressed="false">Mover ossos</button><button type="button" id="puppetReset">Restaurar pose</button><button type="button" id="puppetApply">Finalizar</button></div>';
+        puppetControls.innerHTML = '<div style="margin-bottom:8px" id="puppetHint"></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="puppetMaskMode" aria-pressed="false">Máscara</button><button type="button" id="puppetCreateMode" aria-pressed="true">Criar ossos</button><button type="button" id="puppetDragMode" aria-pressed="false">Mover ossos</button><button type="button" id="puppetReset">Restaurar pose</button><button type="button" id="puppetNew">Novo</button><button type="button" id="puppetApply">Finalizar</button><button type="button" id="puppetRestart">Reiniciar</button></div>';
         workspace.parentNode.insertBefore(puppetControls,workspace);
         puppetControls.querySelectorAll('button').forEach(b => b.style.cssText = 'background:#383a45;color:white;border:1px solid #777;border-radius:7px;min-height:36px;padding:6px 9px;');
         function syncPuppetMode() {
@@ -3817,6 +3817,35 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         };
         document.getElementById('puppetApply').onclick = () => { if (!isDrawing) { setTool('brush');  } };
 
+        document.getElementById('puppetNew').onclick = async () => {
+            if (isDrawing || isSaving || isPlaying || isExporting) return;
+            // Commit the latest full-resolution pose before starting the next
+            // independent mask on this same frame and layer.
+            if (puppetRAF) { cancelAnimationFrame(puppetRAF); puppetRAF=0; }
+            if (puppet) renderPuppet();
+            endPuppet();
+            if (hasUnsavedChanges) await saveFrameState(currentFrameIndex);
+            currentTool='puppet';setPuppetMode('mask');updateToolUI();
+            showNotification('Alteração aplicada. Contorne outra máscara para continuar.');
+        };
+        document.getElementById('puppetRestart').onclick = async () => {
+            if (isDrawing || isSaving) return;
+            if (puppetRAF) { cancelAnimationFrame(puppetRAF); puppetRAF=0; }
+            if (puppet) {
+                // Keep the original mask and its unposed cutout, but discard
+                // all joints and bindings so they can be placed again.
+                puppet.pins=[];puppet.selected=null;puppet.drag=null;
+                puppet.before=null;puppet.gesture=null;puppet.changed=false;
+                puppet.grid=null;puppet.gridMesh=null;puppet.gridSignature=null;
+                puppetMode=puppet.mask ? 'create' : 'mask';
+                renderPuppet();
+                hasUnsavedChanges=true;
+                syncPuppetMode();drawPuppetPins();
+                await saveFrameState(currentFrameIndex);
+            } else {
+                setPuppetMode('mask');
+            }
+        };
         document.getElementById('puppetReset').onclick = () => {
             if (!puppet || isDrawing || isSaving) return;
             puppet.pins.forEach(p=>{p.x=p.ox;p.y=p.oy;});

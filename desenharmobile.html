@@ -1988,7 +1988,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             <button class="icon-btn" id="selectAllBtn" title="Selecionar Tudo">⛶</button>
             <button class="icon-btn" id="perspectiveBtn" title="Perspectiva">📐</button>
             <button class="icon-btn" id="warpBtn" title="Push — empurrar pixels">🌀</button>
-            <button class="icon-btn" id="puppetBtn" title="Pins — deformar desenho">📌</button>
+            <button class="icon-btn" id="puppetBtn" title="Ossos — máscara, criar e mover" aria-label="Ossos">🦴</button>
             <button class="icon-btn" id="flipHBtn" title="Inverter Horizontal">↔️</button>
             <button class="icon-btn" id="flipVBtn" title="Inverter Vertical">↕️</button>
             <button class="icon-btn" id="copyBtn" title="Copiar">📑</button>
@@ -2347,7 +2347,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
         const mobileToolLabels = new Map([
             ['selectionBtn', 'Seleção'], ['selectAllBtn', 'Selecionar tudo'],
-            ['puppetBtn', 'Pins / Puppet'], ['perspectiveBtn', 'Perspectiva'], ['warpBtn', 'Push'],
+            ['puppetBtn', 'Ossos'], ['perspectiveBtn', 'Perspectiva'], ['warpBtn', 'Push'],
             ['flipHBtn', 'Inverter H'], ['flipVBtn', 'Inverter V'],
             ['copyBtn', 'Copiar'], ['cutBtn', 'Recortar'], ['pasteBtn', 'Colar'],
             ['durationToFramesBtn', 'Dur → Frames']
@@ -3940,10 +3940,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         let puppet = null, puppetRAF = 0, puppetDelete = false, puppetMode = 'create';
         const puppetControls = document.createElement('div');
         puppetControls.id = 'puppetControls'; puppetControls.hidden = true;
-        puppetControls.style.cssText = 'position:static;width:100%;box-sizing:border-box;background:#202127;color:white;border:1px solid #555;border-radius:10px;padding:10px;margin-bottom:9px;font:12px sans-serif;';
-        puppetControls.innerHTML = '<div style="margin-bottom:8px" id="puppetHint">Toque para criar pins. Arraste um pin para deformar.</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="puppetCreateMode" aria-pressed="true">Criar pins</button><button type="button" id="puppetDragMode" aria-pressed="false">Arrastar pins</button><button type="button" id="puppetMaskMode" aria-pressed="false">Máscara: laço livre</button><button type="button" id="puppetMaskClear">Remover máscara</button><button type="button" id="puppetRemove">Apagar pin: OFF</button><button type="button" id="puppetReset">Restaurar pose</button><button type="button" id="puppetClear">Limpar pins</button><button type="button" id="puppetApply">Aplicar ✓</button></div>';
-        mobileEditPanel.insertBefore(puppetControls,mobileEditGrid);
-        puppetControls.querySelectorAll('button').forEach(b => b.style.cssText = 'background:#383a45;color:white;border:1px solid #777;border-radius:7px;min-height:36px;padding:6px 9px;');
+        puppetControls.style.cssText = 'position:static;flex:0 0 auto;width:100%;box-sizing:border-box;background:#202127;color:white;border-bottom:1px solid #555;padding:6px 8px;font:12px sans-serif;';
+        puppetControls.innerHTML = '<div style="margin-bottom:8px" id="puppetHint"></div><div style="display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px;-webkit-overflow-scrolling:touch"><button type="button" id="puppetMaskMode" aria-pressed="false">Máscara</button><button type="button" id="puppetCreateMode" aria-pressed="true">Criar ossos</button><button type="button" id="puppetDragMode" aria-pressed="false">Mover ossos</button><button type="button" id="puppetReset">Restaurar pose</button><button type="button" id="puppetNew">Novo</button><button type="button" id="puppetApply">Finalizar</button><button type="button" id="puppetRestart">Reiniciar</button></div>';
+        workspace.parentNode.insertBefore(puppetControls,workspace);
+        puppetControls.querySelectorAll('button').forEach(b => b.style.cssText = 'background:#383a45;color:white;border:1px solid #777;border-radius:7px;min-height:44px;padding:8px 12px;touch-action:manipulation;flex:0 0 auto;');
         function syncPuppetMode() {
             for(const [id,mode] of [['puppetCreateMode','create'],['puppetDragMode','drag'],['puppetMaskMode','mask']]){
                 const button=document.getElementById(id),active=puppetMode===mode;
@@ -3951,10 +3951,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 button.style.background=active?'#155b80':'#383a45';
                 button.style.borderColor=active?'#65caff':'#777';
             }
-            if(puppetMode==='mask'){document.getElementById('puppetHint').textContent='Laço livre: contorne com o dedo a parte que poderá mover. Solte para fechar.';return;}
+            if(puppetMode==='mask'){document.getElementById('puppetHint').textContent='Laço livre: contorne com o mouse ou dedo a parte que poderá mover. Solte para fechar.';return;}
             document.getElementById('puppetHint').textContent=puppetMode==='create'
-                ?'Criar pins: toque no desenho para adicionar. Para mover, escolha Arrastar pins.'
-                :'Arrastar pins: arraste um ponto existente. Toques fora dos pins não criam pontos.';
+                ?'Toque para criar a base e as juntas. Toque na junta selecionada para iniciar outra base. Depois escolha Mover ossos.'
+                :'Mover ossos: ponta gira e estica, deformando a máscara; raiz ou corpo desloca o esqueleto.';
         }
         function setPuppetMode(mode) {
             if(isDrawing)return;
@@ -3962,22 +3962,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             isViewportPanning=false;
             viewportPanBtn.classList.remove('active');viewportPanBtn.setAttribute('aria-pressed','false');
             workspace.classList.remove('viewport-panning');
-            puppetMode=mode==='create' && !puppet?.mask ? 'mask' : mode;puppetDelete=false;
-            document.getElementById('puppetRemove').textContent='Apagar pin: OFF';
-            syncPuppetMode();drawPuppetPins();closeMobileEditPanel();
+            puppetMode=!puppet?.mask ? 'mask' : mode;puppetDelete=false;
+            syncPuppetMode();drawPuppetPins();
         }
         document.getElementById('puppetCreateMode').onclick=()=>setPuppetMode('create');
         document.getElementById('puppetDragMode').onclick=()=>setPuppetMode('drag');
         document.getElementById('puppetMaskMode').onclick=()=>setPuppetMode('mask');
-        document.getElementById('puppetMaskClear').onclick=()=>{
-            if(!puppet || isDrawing || isSaving)return;
-            rebasePuppet();
-            const sourceCtx=puppet.source.getContext('2d');
-            sourceCtx.clearRect(0,0,puppet.source.width,puppet.source.height);
-            sourceCtx.drawImage(mainCanvas,0,0);
-            puppet.sourceData=null;puppet.background=null;puppet.foreground=null;puppet.mask=null;puppet.maskOutline=null;puppet.pins=[];
-            setPuppetMode('create');
-        };
         syncPuppetMode();
         document.getElementById('puppetBtn').onclick = async () => {
             if (isDrawing || isSaving || isPlaying || isExporting || isProjectSaving) return;
@@ -3986,31 +3976,51 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             if (hasUnsavedChanges) await saveFrameState(currentFrameIndex);
             currentTool = 'puppet'; puppetMode = 'mask'; puppetDelete = false;
             isViewportPanning=false;viewportPanBtn.classList.remove('active');viewportPanBtn.setAttribute('aria-pressed','false');workspace.classList.remove('viewport-panning');
-            document.getElementById('puppetRemove').textContent = 'Apagar pin: OFF';
-            syncPuppetMode();closeMobileEditPanel(); updateToolUI();
-            showNotification('Primeiro contorne a máscara. Ao fechar o laço, toque para criar os pins.');
+            syncPuppetMode(); updateToolUI();
+            showNotification('Primeiro contorne a máscara. Ao fechar o laço, clique para criar a base e depois as pontas dos ossos.');
         };
-        document.getElementById('puppetRemove').onclick = () => {
-            puppetDelete = !puppetDelete;
-            document.getElementById('puppetRemove').textContent = 'Apagar pin: ' + (puppetDelete ? 'ON' : 'OFF');
-            closeMobileEditPanel();
+        document.getElementById('puppetApply').onclick = () => { if (!isDrawing) { setTool('brush');  } };
+
+        document.getElementById('puppetNew').onclick = async () => {
+            if (isDrawing || isSaving || isPlaying || isExporting || isProjectSaving) return;
+            // Commit the latest full-resolution pose before starting the next
+            // independent mask on this same frame and layer.
+            if (puppetRAF) { cancelAnimationFrame(puppetRAF); puppetRAF=0; }
+            if (puppet) renderPuppet();
+            endPuppet();
+            if (hasUnsavedChanges) await saveFrameState(currentFrameIndex);
+            currentTool='puppet';setPuppetMode('mask');updateToolUI();
+            showNotification('Alteração aplicada. Contorne outra máscara para continuar.');
         };
-        document.getElementById('puppetApply').onclick = () => { if (!isDrawing) { setTool('brush'); closeMobileEditPanel(); } };
-        document.getElementById('puppetClear').onclick = () => { if (!isDrawing) { endPuppet(); closeMobileEditPanel(); } };
+        document.getElementById('puppetRestart').onclick = async () => {
+            if (isDrawing || isSaving) return;
+            if (puppetRAF) { cancelAnimationFrame(puppetRAF); puppetRAF=0; }
+            if (puppet) {
+                // Keep the original mask and its unposed cutout, but discard
+                // all joints and bindings so they can be placed again.
+                puppet.pins=[];puppet.selected=null;puppet.drag=null;
+                puppet.before=null;puppet.gesture=null;puppet.changed=false;
+                puppet.grid=null;puppet.gridMesh=null;puppet.gridSignature=null;
+                puppetMode=puppet.mask ? 'create' : 'mask';
+                renderPuppet();
+                hasUnsavedChanges=true;
+                syncPuppetMode();drawPuppetPins();
+                await saveFrameState(currentFrameIndex);
+            } else {
+                setPuppetMode('mask');
+            }
+        };
         document.getElementById('puppetReset').onclick = () => {
             if (!puppet || isDrawing || isSaving) return;
-            puppet.source.getContext('2d').clearRect(0,0,puppet.source.width,puppet.source.height);
-            puppet.source.getContext('2d').drawImage(puppet.original,0,0);puppet.sourceData=null;
-            puppet.background=null;puppet.foreground=null;puppet.mask=null;puppet.maskOutline=null;puppet.maskPath=null;
-            puppet.pins=[]; puppet.bounds=getOpaqueBounds(puppet.source,0)||puppet.bounds;
-            renderPuppet(); hasUnsavedChanges=true; saveFrameState(currentFrameIndex); closeMobileEditPanel();
+            puppet.pins.forEach(p=>{p.x=p.ox;p.y=p.oy;});
+            renderPuppet(); hasUnsavedChanges=true; saveFrameState(currentFrameIndex);
         };
         function puppetRadius() {
-            return 13 * mainCanvas.width / Math.max(1, mainCanvas.getBoundingClientRect().width);
+            return (puppet?.touchInput ? 22 : 13) * mainCanvas.width / Math.max(1, mainCanvas.getBoundingClientRect().width);
         }
         function endPuppet() {
             if (puppetRAF) { cancelAnimationFrame(puppetRAF); puppetRAF=0; if(puppet) renderPuppet(); }
-            if (puppet && (puppet.drag !== null || puppet.maskPath)) { isDrawing=false; activePointerId=null; }
+            if (puppet && (puppet.drag !== null || puppet.maskPath || puppet.creating!=null)) { isDrawing=false; activePointerId=null; }
             puppet=null;
             if(puppetMode==='mask')puppetMode='create';
             if (currentTool === 'puppet') uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
@@ -4022,14 +4032,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             source.getContext('2d').drawImage(mainCanvas,0,0);
             const original=document.createElement('canvas'); original.width=source.width; original.height=source.height; original.getContext('2d').drawImage(source,0,0);
             const preview=document.createElement('canvas'); preview.width=source.width; preview.height=source.height;
-            puppet={source,original,preview,bounds,pins:[],drag:null,changed:false,frame:frames[currentFrameIndex],layer:activeLayerIndex};
+            puppet={source,original,preview,bounds,pins:[],selected:null,drag:null,changed:false,frame:frames[currentFrameIndex],layer:activeLayerIndex};
             return true;
         }
         function drawPuppetPins() {
             uiCtx.clearRect(0,0,uiCanvas.width,uiCanvas.height);
             syncPuppetMode();
             if (!puppet) return;
-            const outline=puppet.maskPath || puppet.maskOutline?.map(p=>puppetMap(p.x,p.y,puppet.pins));
+            const outline=puppet.maskPath || (puppet.maskOutline ? puppetPoseOutline(puppet.maskOutline) : null);
             if(outline?.length){
                 uiCtx.save();uiCtx.beginPath();
                 outline.forEach((p,i)=>i?uiCtx.lineTo(p.x,p.y):uiCtx.moveTo(p.x,p.y));
@@ -4038,14 +4048,393 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             }
             const r=puppetRadius()*.5;
             uiCtx.save(); uiCtx.font=`bold ${r*1.1}px sans-serif`;uiCtx.textAlign='center';uiCtx.textBaseline='middle';
-            puppet.pins.forEach((p,i)=>{
-                uiCtx.beginPath();uiCtx.arc(p.x,p.y,r,0,Math.PI*2);
-                uiCtx.fillStyle=i===puppet.drag?'rgba(255,255,255,.30)':'rgba(255,204,50,.16)';uiCtx.fill();
-                uiCtx.lineWidth=r*.15;uiCtx.strokeStyle='rgba(90,65,0,.60)';uiCtx.stroke();
-                uiCtx.fillStyle='rgba(70,45,0,.65)';uiCtx.fillText(String(i+1),p.x,p.y);
-            });uiCtx.restore();
+            let boneCount=0;
+            puppet.pins.forEach((b,i)=>{
+                const a=puppet.pins[b.parentId];if(!a)return;boneCount++;
+                const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len;
+                const width=Math.min(r,len*.15),sx=a.x+dx*.22,sy=a.y+dy*.22;
+                uiCtx.beginPath();uiCtx.moveTo(a.x,a.y);uiCtx.lineTo(sx+nx*width,sy+ny*width);
+                uiCtx.lineTo(b.x,b.y);uiCtx.lineTo(sx-nx*width,sy-ny*width);uiCtx.closePath();
+                uiCtx.fillStyle='rgba(90,200,250,.35)';uiCtx.strokeStyle='#5ac8fa';uiCtx.lineWidth=r*.22;uiCtx.fill();uiCtx.stroke();
+            });
+            puppet.pins.forEach((p,i)=>{uiCtx.beginPath();uiCtx.arc(p.x,p.y,r*.6,0,Math.PI*2);
+                uiCtx.fillStyle=i===puppet.selected?'#fff':'#202127';uiCtx.strokeStyle='#5ac8fa';uiCtx.fill();uiCtx.stroke();});
+            uiCtx.restore();
             if(puppetMode==='mask')return;
-            document.getElementById('puppetHint').textContent=`${puppet.mask?'Máscara ativa • ':''}${puppet.pins.length} pins • ${puppetDelete?'Apagar: toque no pin.':puppetMode==='create'?'Criar: toque para adicionar.':'Arrastar: mova um pin existente.'}`;
+            document.getElementById('puppetHint').textContent=puppetMode==='create'
+                ? `${boneCount} ossos • Toque para conectar juntas. Toque numa junta para ramificar; toque novamente nela para iniciar outra base.`
+                : `${boneCount} ossos • Ponta: gira e estica o osso e seus filhos. Raiz ou corpo: move o esqueleto. A máscara acompanha a deformação.`;
+        }
+        function puppetBoneHit(pos){
+            const radius=puppetRadius();let endpoint=-1,best=radius;
+            puppet.pins.forEach((p,i)=>{const d=Math.hypot(p.x-pos.x,p.y-pos.y);if(d<best){best=d;endpoint=i;}});
+            if(endpoint>=0)return {indices:[endpoint],joint:endpoint};
+            let hit=null;best=radius;
+            puppet.pins.forEach((b,i)=>{const a=puppet.pins[b.parentId];if(!a)return;
+                const dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((pos.x-a.x)*dx+(pos.y-a.y)*dy)/(dx*dx+dy*dy||1)));
+                const d=Math.hypot(pos.x-a.x-t*dx,pos.y-a.y-t*dy);if(d<best){best=d;hit={indices:[b.parentId,i],joint:i};}});
+            return hit;
+        }
+        const puppetSkinBindingCache = new WeakMap();
+      function puppetRigPointInInfluenceMask(x, y, polygon) {
+        if (!Array.isArray(polygon) || polygon.length < 3) return false;
+        let inside = false;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+          const a = polygon[i], b = polygon[j];
+          const crosses = ((a.y > y) !== (b.y > y)) &&
+            (x < ((b.x - a.x) * (y - a.y)) / ((b.y - a.y) || 1e-12) + a.x);
+          if (crosses) inside = !inside;
+        }
+        return inside;
+      }
+      function puppetRigBoneBelongsToInfluenceMask(control, polygon) {
+        let inside = 0;
+        for (let k = 1; k <= 9; k++) {
+          const t = k / 10;
+          const x = control.parent.ox + (control.pin.ox - control.parent.ox) * t;
+          const y = control.parent.oy + (control.pin.oy - control.parent.oy) * t;
+          if (puppetRigPointInInfluenceMask(x, y, polygon)) inside++;
+        }
+        return inside >= 4;
+      }
+      function puppetRigDistanceSqPointToBoneSegment(x, y, control) {
+        const a = control.parent;
+        const t = Math.max(0, Math.min(1,
+          ((x - a.ox) * control.vx + (y - a.oy) * control.vy) / control.length2));
+        const dx = x - (a.ox + t * control.vx);
+        const dy = y - (a.oy + t * control.vy);
+        return dx * dx + dy * dy;
+      }
+      function puppetRigBuildBoneWarpBinding(layer, lMesh, lPins) {
+        const image = layer?.assets?.[layer.activeAssetIndex || 0]?.img;
+        let width = image?.width || 0, height = image?.height || 0;
+        if (!width || !height) {
+          for (const v of lMesh) {
+            width = Math.max(width, Math.abs(v.ox));
+            height = Math.max(height, Math.abs(v.oy));
+          }
+        }
+        const radius = Math.max(1, Math.max(width, height) * 0.35);
+        const masks = puppetRigNormalizeInfluenceMasks(layer);
+        const signature = JSON.stringify({
+          radius,
+          pins: lPins.map((p) => [p.ox, p.oy, p.parentId]),
+          masks,
+        });
+        let cached = puppetSkinBindingCache.get(lMesh);
+        if (cached?.signature === signature && cached.count === lMesh.length)
+          return cached;
+
+        const controls = [];
+        lPins.forEach((pin, index) => {
+          const parent = Number.isInteger(pin.parentId) ? lPins[pin.parentId] : null;
+          if (!parent || parent === pin) return;
+          const vx = pin.ox - parent.ox, vy = pin.oy - parent.oy;
+          const length2 = vx * vx + vy * vy;
+          if (!Number.isFinite(length2) || length2 < 1e-8) return;
+          controls.push({
+            pin, parent, index, vx, vy, length2, length: Math.sqrt(length2),
+            mx: (pin.ox + parent.ox) * 0.5,
+            my: (pin.oy + parent.oy) * 0.5,
+          });
+        });
+
+        // Cada máscara adota automaticamente os ossos cujo CENTRO do segmento
+        // está dentro do laço. Esses ossos não vazam para fora da região.
+        // Se nenhum segmento estiver dentro (ex.: cabeça sem osso), usa apenas
+        // o osso mais próximo como transportador automático, sem torná-lo exclusivo.
+        const maskInfo = masks.map((poly) => {
+          const owned = controls.filter((c) => puppetRigBoneBelongsToInfluenceMask(c, poly));
+          const ownedIds = new Set(owned.map((c) => c.index));
+          let fallback = null;
+          let fallbackPivotIndex = -1;
+          if (!owned.length && controls.length) {
+            const center = poly.reduce((a, p) => ({ x: a.x + p.x, y: a.y + p.y }), { x: 0, y: 0 });
+            center.x /= poly.length; center.y /= poly.length;
+            let best = Infinity;
+            for (const c of controls) {
+              const d = puppetRigDistanceSqPointToBoneSegment(center.x, center.y, c);
+              if (d < best) { best = d; fallback = c; }
+            }
+            if (fallback) {
+              // Para uma região sem osso próprio (ex.: cabeça), o osso mais
+              // próximo é apenas um TRANSPORTADOR RÍGIDO 2D. O pivô é a ponta
+              // do segmento mais próxima da região. Assim alongar o osso não
+              // alonga a cabeça: ela somente translada e inclina com o pescoço.
+              const parentIndex = fallback.pin.parentId;
+              const dTip = (fallback.pin.ox - center.x) ** 2 + (fallback.pin.oy - center.y) ** 2;
+              const dRoot = (fallback.parent.ox - center.x) ** 2 + (fallback.parent.oy - center.y) ** 2;
+              fallbackPivotIndex = dTip <= dRoot ? fallback.index : parentIndex;
+            }
+          }
+          return {
+            poly,
+            ownedIds,
+            fallbackId: fallback?.index ?? -1,
+            fallbackPivotIndex,
+          };
+        });
+        // Ossos que pertencem a alguma máscara ficam limitados ao conjunto de
+        // máscaras desenhado pelo usuário. Uma mesma posição pode pertencer a
+        // duas ou mais máscaras; nesse caso os conjuntos de ossos são unidos.
+        const maskedBoneIds = new Set();
+        maskInfo.forEach((info) => info.ownedIds.forEach((id) => maskedBoneIds.add(id)));
+
+        // Membership múltiplo: NÃO escolhe uma máscara vencedora. É exatamente
+        // a sobreposição dos laços que o usuário desenhou.
+        const vertexMaskMembership = puppetRigBuildInfluenceMaskMembershipMap(lMesh, masks);
+
+        const offsets = new Uint32Array(lMesh.length + 1);
+        // Regiões sem osso próprio não usam blend de skinning. Cada vértice
+        // recebe o mesmo transform rígido do osso mais próximo, preservando a
+        // forma 2D mesmo quando o usuário alonga/encurta esse osso.
+        const rigidCarrierIds = new Int32Array(lMesh.length).fill(-1);
+        const rigidCarrierPivotIds = new Int32Array(lMesh.length).fill(-1);
+        const ids = [], weights = [], projections = [];
+        for (let vi = 0; vi < lMesh.length; vi++) {
+          offsets[vi] = ids.length;
+          const v = lMesh[vi];
+          const memberships = vertexMaskMembership[vi] || [];
+
+          // Se o ponto está somente em máscaras sem osso próprio (cabeça,
+          // cabelo, acessório...), preserva o transporte rígido. Se o usuário
+          // sobrepôs essa máscara com outra que tem ossos, deixa de ser rígido
+          // APENAS nessa interseção para formar a ligação desenhada à mão.
+          if (memberships.length) {
+            const infos = memberships.map((mi) => maskInfo[mi]).filter(Boolean);
+            const hasOwnedRegion = infos.some((info) => info.ownedIds.size > 0);
+            if (!hasOwnedRegion) {
+              let bestRigid = null, bestDistance = Infinity;
+              for (const info of infos) {
+                if (info.fallbackId < 0) continue;
+                const control = controls.find((item) => item.index === info.fallbackId);
+                if (!control) continue;
+                const d = puppetRigDistanceSqPointToBoneSegment(v.ox, v.oy, control);
+                if (d < bestDistance) {
+                  bestDistance = d;
+                  bestRigid = info;
+                }
+              }
+              if (bestRigid) {
+                rigidCarrierIds[vi] = bestRigid.fallbackId;
+                rigidCarrierPivotIds[vi] = bestRigid.fallbackPivotIndex;
+                continue;
+              }
+            }
+          }
+          const base = [];
+          let baseSum = 0, envelope = 0;
+
+          for (const control of controls) {
+            const a = control.parent;
+            const u = Math.max(0, Math.min(1,
+              ((v.ox - a.ox) * control.vx + (v.oy - a.oy) * control.vy) / control.length2));
+            const distance2 =
+              (v.ox - a.ox - u * control.vx) ** 2 +
+              (v.oy - a.oy - u * control.vy) ** 2;
+            if (distance2 <= 1e-12) {
+              base.push({ id: control.index, raw: 1e18, exact: true });
+              continue;
+            }
+            const t = 1 - Math.sqrt(distance2) / radius;
+            if (t <= 0 && !masks.length) continue;
+            // A selected cutout must follow the bones with full weight. Blending
+            // its rotation with a stationary rest pose collapses the mesh at 180°.
+            // Its separate background already protects all unselected pixels.
+            const falloff = masks.length ? 1 : t * t * (3 - 2 * t);
+            const raw = falloff * falloff / distance2;
+            base.push({ id: control.index, raw, exact: false });
+            baseSum += raw;
+            envelope = Math.max(envelope, falloff);
+          }
+
+          const exact = base.filter((e) => e.exact);
+          let normalized = [];
+          if (exact.length) {
+            normalized = exact.map((e) => ({ id: e.id, weight: 1 / exact.length }));
+          } else if (baseSum > 0) {
+            normalized = base.map((e) => ({ id: e.id, weight: e.raw / baseSum * envelope }));
+          }
+          const originalTotal = normalized.reduce((sum, e) => sum + e.weight, 0);
+          if (originalTotal <= 0 || !normalized.length) continue;
+
+          let filtered;
+          if (memberships.length) {
+            // União literal das máscaras desenhadas neste ponto. Exemplo:
+            // tronco + perna sobrepostos => os ossos dos dois podem influenciar
+            // exatamente essa faixa comum, sem faixa automática adicional.
+            const allowedIds = new Set();
+            for (const mi of memberships) {
+              const info = maskInfo[mi];
+              if (!info) continue;
+              if (info.ownedIds.size) info.ownedIds.forEach((id) => allowedIds.add(id));
+              else if (info.fallbackId >= 0) allowedIds.add(info.fallbackId);
+            }
+            filtered = normalized.filter((e) => allowedIds.has(e.id));
+
+            if (!filtered.length && allowedIds.size) {
+              let bestId = -1, best = Infinity;
+              for (const id of allowedIds) {
+                const c = controls.find((item) => item.index === id);
+                if (!c) continue;
+                const d = puppetRigDistanceSqPointToBoneSegment(v.ox, v.oy, c);
+                if (d < best) { best = d; bestId = id; }
+              }
+              if (bestId >= 0) filtered = [{ id: bestId, weight: originalTotal }];
+            }
+          } else {
+            // Fora de TODOS os laços, ossos pertencentes a máscaras não vazam.
+            // Não há recorte de imagem: isto filtra somente pesos do rig.
+            filtered = normalized.filter((e) => !maskedBoneIds.has(e.id));
+            if (!filtered.length) {
+              let nearestFree = null, best = Infinity;
+              for (const c of controls) {
+                if (maskedBoneIds.has(c.index)) continue;
+                const d = puppetRigDistanceSqPointToBoneSegment(v.ox, v.oy, c);
+                if (d < best) { best = d; nearestFree = c; }
+              }
+              if (nearestFree) filtered = [{ id: nearestFree.index, weight: originalTotal }];
+            }
+          }
+
+          if (!filtered?.length) continue;
+          const filteredTotal = filtered.reduce((sum, e) => sum + e.weight, 0);
+          if (filteredTotal <= 0) continue;
+          const scale = originalTotal / filteredTotal;
+          for (const e of filtered) {
+            ids.push(e.id);
+            weights.push(e.weight * scale);
+          }
+        }
+        offsets[lMesh.length] = ids.length;
+
+        const byIndex = new Map(controls.map((c) => [c.index, c]));
+        for (let i = 0; i < lMesh.length; i++) {
+          for (let j = offsets[i]; j < offsets[i + 1]; j++) {
+            const c = byIndex.get(ids[j]), v = lMesh[i];
+            projections.push(Math.max(0, Math.min(1,
+              ((v.ox - c.parent.ox) * c.vx + (v.oy - c.parent.oy) * c.vy) / c.length2)));
+          }
+        }
+
+        cached = {
+          signature, count: lMesh.length, offsets,
+          ids: Uint32Array.from(ids), weights: Float64Array.from(weights),
+          controls, angle: new Float64Array(lPins.length),
+          angleCos: new Float64Array(lPins.length).fill(1),
+          angleSin: new Float64Array(lPins.length),
+          bends: new Float64Array(lPins.length * 4),
+          projections: Float64Array.from(projections), byIndex,
+          rigidCarrierIds,
+          rigidCarrierPivotIds,
+        };
+        puppetSkinBindingCache.set(lMesh, cached);
+        return cached;
+      }
+      function puppetRigUpdateDeform(targetLayer, overrideMesh = null, suppressVersion = false) {
+        const lPins = targetLayer ? targetLayer.pins : pins;
+        const lMesh = overrideMesh || (targetLayer ? targetLayer.mesh : mesh);
+        if (!Array.isArray(lMesh) || !Array.isArray(lPins)) return;
+        // Avaliar uma pose não pode mover os controles nem os pés fixados.
+        const layer = targetLayer ||
+          (Number.isInteger(activeLayerIndex) ? layers[activeLayerIndex] : null);
+        const binding = puppetRigBuildBoneWarpBinding(layer, lMesh, lPins);
+        const cosAngle=Math.cos, sinAngle=Math.sin;
+        for (const control of binding.controls) {
+          const {index:i, vx, vy} = control;
+          const p=lPins[i], a=lPins[p.parentId];
+          const nx=p.x-a.x, ny=p.y-a.y;
+          const currentLength=Math.hypot(nx,ny);
+          const reference=Number.isFinite(p.warpAngle)?p.warpAngle:0;
+          const raw = currentLength>1e-8
+            ? Math.atan2(vx*ny-vy*nx, vx*nx+vy*ny) : reference;
+          const difference=Math.atan2(Math.sin(raw-reference),Math.cos(raw-reference));
+          const angle=Math.abs(difference)<1e-12?reference:reference+difference;
+          binding.angle[i] = p.warpAngle = Number.isFinite(angle) ? angle : 0;
+          binding.angleCos[i]=cosAngle(binding.angle[i]);binding.angleSin[i]=sinAngle(binding.angle[i]);
+        }
+        for (let i = 0; i < lMesh.length; i++) {
+          let qx=0, qy=0, rx=0, ry=0, sum=0;
+          const v = lMesh[i];
+
+          // Máscara sem osso interno: attachment rígido 2D ao segmento mais
+          // próximo. Usa só rotação + translação do osso, SEM a escala causada
+          // pela mudança de comprimento do segmento. É o comportamento esperado
+          // para cabeça, cabelo, acessórios etc. ligados ao pescoço/âncora.
+          const carrierId = binding.rigidCarrierIds?.[i] ?? -1;
+          if (carrierId >= 0) {
+            const carrier = binding.byIndex.get(carrierId);
+            const pivotId = binding.rigidCarrierPivotIds?.[i] ?? -1;
+            const restPivot = pivotId >= 0 ? lPins[pivotId] : carrier?.pin;
+            const currentPivot = restPivot;
+            if (carrier && restPivot && currentPivot) {
+              const angle = binding.angle[carrierId] || 0;
+              const c = cosAngle(angle), s = sinAngle(angle);
+              const dx = v.ox - restPivot.ox;
+              const dy = v.oy - restPivot.oy;
+              const resultX = currentPivot.x + dx * c - dy * s;
+              const resultY = currentPivot.y + dx * s + dy * c;
+              v.x = v.bx = resultX;
+              v.y = v.by = resultY;
+              continue;
+            }
+          }
+
+          const start=binding.offsets[i], end=binding.offsets[i+1];
+          for (let j = start; j < end; j++) {
+            const id = binding.ids[j], weight = binding.weights[j];
+            const c=binding.byIndex.get(id),p=lPins[id],a=lPins[p.parentId];
+            const u=binding.projections[j];
+            // Blend points ON the segments, then rotate the transverse offset.
+            // At a shared joint every segment maps to the SAME current joint.
+            qx+=(a.x+u*(p.x-a.x))*weight;
+            qy+=(a.y+u*(p.y-a.y))*weight;
+            const co=binding.angleCos[id],si=binding.angleSin[id];
+            const dx=v.ox-a.ox-u*c.vx,dy=v.oy-a.oy-u*c.vy;
+            // Weighted bone transform: rotation plus scale along the bone.
+            // Scale axial offsets beyond endpoints too, not only projections.
+            const stretch=Math.hypot(p.x-a.x,p.y-a.y)/c.length;
+            const axial=(dx*c.vx+dy*c.vy)/c.length2*(stretch-1);
+            const sx=dx+axial*c.vx,sy=dy+axial*c.vy;
+            rx+=(co*sx-si*sy)*weight;
+            ry+=(si*sx+co*sy)*weight;
+            sum += weight;
+          }
+          let resultX=v.ox*(1-sum)+qx+rx;
+          let resultY=v.oy*(1-sum)+qy+ry;
+          v.x=v.bx=resultX;v.y=v.by=resultY;
+        }
+        if (layer && !layer.__adaptiveTemp && !suppressVersion)
+          layer._deformVersion = (layer._deformVersion || 0) + 1;
+      }
+      function puppetRigBlendedBoneAngle(binding, index) {
+        const start=binding.offsets[index], end=binding.offsets[index+1];
+        let sum=0, strongest=0, reference=0, x=0, y=0;
+        for(let j=start;j<end;j++){
+          const w=binding.weights[j],a=binding.angle[binding.ids[j]];
+          sum+=w;x+=w*binding.angleCos[binding.ids[j]];y+=w*binding.angleSin[binding.ids[j]];
+          if(w>strongest){strongest=w;reference=a;}
+        }
+        const identity=Math.max(0,1-sum);
+        x+=identity;
+        if(identity>=strongest)reference=0;
+        // Orientações exatamente opostas não definem uma média única.
+        // Empate estável pelo bind, sem depender do frame visitado antes.
+        return Math.hypot(x,y)>1e-8 ? Math.atan2(y,x) :
+          Math.atan2(Math.sin(reference),Math.cos(reference));
+      }
+        function puppetRigNormalizeInfluenceMasks(layer){return layer.influenceMasks||[];}
+        function puppetRigBuildInfluenceMaskMembershipMap(mesh,masks){
+            // The source is already clipped to this mask, with the remaining
+            // pixels in a separate stationary background. Bind the entire
+            // foreground mesh, including its transparent border, to the region.
+            // Testing the polygon again would anchor its edge to the rest pose.
+            return mesh.map(()=>masks.length ? [0] : []);
+        }
+        function puppetRigLayer(mesh){return {pins:puppet.pins,mesh,influenceMasks:puppet.maskOutline?[puppet.maskOutline]:[],assets:[{img:puppet.source}],activeAssetIndex:0};}
+        function puppetPoseOutline(path){
+            const mesh=path.map(p=>({ox:p.x,oy:p.y,x:p.x,y:p.y}));
+            puppetRigUpdateDeform(puppetRigLayer(mesh),mesh,true);return mesh;
         }
         // Rebind the current pose before changing the set of constraints.
         function rebasePuppet() {
@@ -4053,7 +4442,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             puppet.source.getContext('2d').clearRect(0,0,puppet.source.width,puppet.source.height);
             puppet.source.getContext('2d').drawImage(puppet.background ? puppet.foreground : mainCanvas,0,0);puppet.sourceData=null;
             puppet.bounds=getOpaqueBounds(puppet.source,0)||puppet.bounds;
-            if(puppet.maskOutline)puppet.maskOutline=puppet.maskOutline.map(p=>puppetMap(p.x,p.y,puppet.pins));
+            if(puppet.maskOutline)puppet.maskOutline=puppetPoseOutline(puppet.maskOutline).map(p=>({x:p.x,y:p.y}));
             puppet.pins.forEach(p=>{p.ox=p.x;p.oy=p.y;});
         }
         function applyPuppetMask(path) {
@@ -4074,55 +4463,88 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             const sc=puppet.source.getContext('2d');sc.clearRect(0,0,mask.width,mask.height);sc.drawImage(mainCanvas,0,0);
             sc.globalCompositeOperation='destination-in';sc.drawImage(mask,0,0);sc.globalCompositeOperation='source-over';
             puppet.maskOutline=path.map(p=>({x:p.x,y:p.y}));
-            puppet.mask=mask;puppet.background=background;puppet.sourceData=null;puppet.pins=[];
+            puppet.mask=mask;puppet.background=background;puppet.sourceData=null;puppet.pins=[];puppet.selected=null;
             renderPuppet();return true;
         }
-        function startPuppet(pos) {
+        function startPuppet(pos, event) {
             if (isSaving) {isDrawing=false;activePointerId=null;return;}
             if (puppet && (puppet.frame!==frames[currentFrameIndex] || puppet.layer!==activeLayerIndex)) endPuppet();
             if (!puppet && !initPuppet()) {isDrawing=false;activePointerId=null;return;}
-            if(puppetMode==='create' && !puppet.mask)puppetMode='mask';
+            if(!puppet.mask && puppetMode!=='mask')puppetMode='mask';
             if(puppetMode==='mask'){puppet.maskPath=[pos];drawPuppetPins();return;}
-            const radius=puppetRadius();let hit=-1, best=radius;
-            puppet.pins.forEach((p,i)=>{const d=Math.hypot(p.x-pos.x,p.y-pos.y);if(d<best){best=d;hit=i;}});
-            if(puppetDelete) {
-                if(hit>=0){rebasePuppet();puppet.pins.splice(hit,1);}
+            puppet.touchInput=event?.pointerType==='touch';
+            const hit=puppetBoneHit(pos);
+            if(!hit){
+                if(puppetMode!=='create'){isDrawing=false;activePointerId=null;return;}
+                rebasePuppet();
+                const parentId=event?.shiftKey || puppet.selected===null ? null : puppet.selected;
+                puppet.pins.push({ox:pos.x,oy:pos.y,x:pos.x,y:pos.y,parentId});
+                puppet.selected=puppet.pins.length-1;
                 isDrawing=false;activePointerId=null;drawPuppetPins();return;
             }
             if(puppetMode==='create'){
-                if(hit<0){
-                    rebasePuppet();puppet.pins.push({ox:pos.x,oy:pos.y,x:pos.x,y:pos.y});}
+                puppet.selected=puppet.selected===hit.joint ? null : hit.joint;
                 isDrawing=false;activePointerId=null;drawPuppetPins();return;
             }
-            if(hit<0){isDrawing=false;activePointerId=null;return;}
-            puppet.drag=hit;puppet.before={x:puppet.pins[hit].x,y:puppet.pins[hit].y};
-            puppet.offset={x:pos.x-puppet.before.x,y:pos.y-puppet.before.y};puppet.changed=false;drawPuppetPins();
+            puppet.selected=hit.joint;
+            let root=hit.joint;
+            const parentId=puppet.pins[root].parentId;
+            const rotate=hit.indices.length===1 && Number.isInteger(parentId);
+            if(!rotate){
+                const visited=new Set();
+                while(Number.isInteger(puppet.pins[root].parentId)&&!visited.has(root)){
+                    visited.add(root);root=puppet.pins[root].parentId;
+                }
+            }
+            const ids=new Set([root]);
+            for(const id of ids)puppet.pins.forEach((p,i)=>{if(p.parentId===id)ids.add(i);});
+            puppet.drag=[...ids];puppet.start={...pos};
+            puppet.before=puppet.drag.map(i=>({x:puppet.pins[i].x,y:puppet.pins[i].y}));
+            puppet.gesture=rotate ? {type:'rotate',pivot:{x:puppet.pins[parentId].x,y:puppet.pins[parentId].y}} : {type:'translate'};
+            if(rotate){
+                const {pivot}=puppet.gesture,tip=puppet.pins[root];
+                puppet.gesture.startAngle=Math.atan2(pos.y-pivot.y,pos.x-pivot.x);
+                puppet.gesture.startDistance=Math.max(1e-6,Math.hypot(pos.x-pivot.x,pos.y-pivot.y));
+                puppet.gesture.boneAngle=Math.atan2(tip.y-pivot.y,tip.x-pivot.x);
+            }
+            puppet.changed=false;drawPuppetPins();
         }
         function movePuppet(pos) {
             if(puppet?.maskPath){
                 const last=puppet.maskPath[puppet.maskPath.length-1];
-                if(Math.hypot(pos.x-last.x,pos.y-last.y)>1){puppet.maskPath.push(pos);drawPuppetPins();}
-                return;
+                if(Math.hypot(pos.x-last.x,pos.y-last.y)>1){puppet.maskPath.push(pos);drawPuppetPins();}return;
             }
-            if (!puppet || puppet.drag===null) return;
-            const p=puppet.pins[puppet.drag];
-            // Follow the actual pointer without the former mesh-validity brake.
-            // Keep all other pins exactly where the user placed them.
-            p.x=pos.x-puppet.offset.x;p.y=pos.y-puppet.offset.y;
-            puppet.changed=Math.hypot(p.x-puppet.before.x,p.y-puppet.before.y)>.01;
+
+            if(!puppet || puppet.drag===null)return;
+            const dx=pos.x-puppet.start.x,dy=pos.y-puppet.start.y;
+            if(puppet.gesture?.type==='rotate'){
+                const {pivot,startAngle,startDistance,boneAngle}=puppet.gesture;
+                const distance=Math.hypot(pos.x-pivot.x,pos.y-pivot.y);
+                const delta=distance>1e-6 ? Math.atan2(pos.y-pivot.y,pos.x-pivot.x)-startAngle : 0;
+                const scale=Math.max(.001,distance/startDistance);
+                const bx=Math.cos(boneAngle),by=Math.sin(boneAngle);
+                const co=Math.cos(boneAngle+delta),si=Math.sin(boneAngle+delta);
+                puppet.drag.forEach((index,n)=>{
+                    const x=puppet.before[n].x-pivot.x,y=puppet.before[n].y-pivot.y;
+                    const along=(x*bx+y*by)*scale,across=-x*by+y*bx;
+                    puppet.pins[index].x=pivot.x+co*along-si*across;
+                    puppet.pins[index].y=pivot.y+si*along+co*across;
+                });
+                puppet.changed=Math.abs(delta)>1e-5||Math.abs(scale-1)>1e-5;
+            }else{
+                puppet.drag.forEach((index,n)=>{puppet.pins[index].x=puppet.before[n].x+dx;puppet.pins[index].y=puppet.before[n].y+dy;});
+                puppet.changed=Math.hypot(dx,dy)>.01;
+            }
             if(!puppetRAF)puppetRAF=requestAnimationFrame(()=>{puppetRAF=0;renderPuppet(true);});
         }
         function stopPuppet(event) {
             if(puppet?.maskPath){
                 const path=puppet.maskPath;puppet.maskPath=null;
-                if(event?.type!=='pointercancel'){
-                    if(event)path.push(getMousePos(event));
-                    if(applyPuppetMask(path))puppetMode='create';
-                }
+                if(event?.type!=='pointercancel'){if(event)path.push(getMousePos(event));if(applyPuppetMask(path))puppetMode='create';}
                 isDrawing=false;activePointerId=null;drawPuppetPins();return;
             }
             if(puppet && puppet.drag!==null){
-                if(event?.type==='pointercancel')Object.assign(puppet.pins[puppet.drag],puppet.before);
+                if(event?.type==='pointercancel')puppet.drag.forEach((index,n)=>Object.assign(puppet.pins[index],puppet.before[n]));
                 else if(event)movePuppet(getMousePos(event));
                 if(puppetRAF){cancelAnimationFrame(puppetRAF);puppetRAF=0;}
                 renderPuppet();const changed=puppet.changed && event?.type!=='pointercancel';
@@ -4131,25 +4553,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             }
             isDrawing=false;activePointerId=null;
         }
-        function puppetMap(x,y,pins) {
-            if(!pins.length)return {x,y,ox:x,oy:y};
-            let sw=0,px=0,py=0,qx=0,qy=0;const weights=[];
-            for(const p of pins){const d=(p.ox-x)**2+(p.oy-y)**2;
-                if(d<1e-8)return {x:p.x,y:p.y,ox:x,oy:y};
-                const w=1/(d*d+1e-6);weights.push(w);sw+=w;px+=w*p.ox;py+=w*p.oy;qx+=w*p.x;qy+=w*p.y;}
-            px/=sw;py/=sw;qx/=sw;qy/=sw;
-            let a=0,b=0;
-            pins.forEach((p,i)=>{const sx=p.ox-px,sy=p.oy-py,tx=p.x-qx,ty=p.y-qy,w=weights[i];a+=w*(sx*tx+sy*ty);b+=w*(sx*ty-sy*tx);});
-            const norm=Math.hypot(a,b);if(norm>1e-10){a/=norm;b/=norm;}else{a=1;b=0;}
-            return {x:qx+a*(x-px)-b*(y-py),y:qy+b*(x-px)+a*(y-py),ox:x,oy:y};
-        }
+
         function rasterPuppetTriangle(p0,p1,p2,pixels,ow,oh,source) {
             // Each destination pixel samples the original texture exactly once.
             // No clipped canvas triangles, overlapping alpha or visible grid seams.
             const scaleX=ow/mainCanvas.width,scaleY=oh/mainCanvas.height;
             const ax=p0.x*scaleX,ay=p0.y*scaleY,bx=p1.x*scaleX,by=p1.y*scaleY,cx=p2.x*scaleX,cy=p2.y*scaleY;
             const det=(bx-ax)*(cy-ay)-(by-ay)*(cx-ax);
-            if(det<=1e-9)return;
+            if(Math.abs(det)<=1e-9)return;
             const x0=Math.max(0,Math.ceil(Math.min(ax,bx,cx)-.5)),x1=Math.min(ow-1,Math.floor(Math.max(ax,bx,cx)-.5));
             const y0=Math.max(0,Math.ceil(Math.min(ay,by,cy)-.5)),y1=Math.min(oh-1,Math.floor(Math.max(ay,by,cy)-.5));
             const sw=source.width,sh=source.height,tex=source.data;
@@ -4167,26 +4578,32 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 const w00=(1-fx)*(1-fy)*tex[i00+3],w10=fx*(1-fy)*tex[i10+3];
                 const w01=(1-fx)*fy*tex[i01+3],w11=fx*fy*tex[i11+3];
                 const alpha=w00+w10+w01+w11,index=(y*ow+x)*4;
-                pixels[index+3]=alpha;
-                if(alpha>0){
-                    pixels[index]=(tex[i00]*w00+tex[i10]*w10+tex[i01]*w01+tex[i11]*w11)/alpha;
-                    pixels[index+1]=(tex[i00+1]*w00+tex[i10+1]*w10+tex[i01+1]*w01+tex[i11+1]*w11)/alpha;
-                    pixels[index+2]=(tex[i00+2]*w00+tex[i10+2]*w10+tex[i01+2]*w01+tex[i11+2]*w11)/alpha;
+                // Transparent parts of folded triangles must never erase ink
+                // already rendered by another part of the selected drawing.
+                if(alpha<=0)continue;
+                const behind=pixels[index+3]*(1-alpha/255),total=alpha+behind;
+                for(let channel=0;channel<3;channel++){
+                    const color=tex[i00+channel]*w00+tex[i10+channel]*w10+tex[i01+channel]*w01+tex[i11+channel]*w11;
+                    pixels[index+channel]=(color+pixels[index+channel]*behind)/total;
                 }
+                pixels[index+3]=total;
             }
         }
         function buildPuppetGrid() {
-            const w=mainCanvas.width,h=mainCanvas.height,cols=40,rows=Math.max(16,Math.min(64,Math.ceil(40*h/w)));
-            const xs=[],ys=[];
-            for(let i=0;i<=cols;i++)xs.push(w*i/cols);
-            for(let j=0;j<=rows;j++)ys.push(h*j/rows);
-            // Add exact control-point coordinates so every visible pin samples
-            // its original pixel, even between regular mesh vertices.
-            for(const p of puppet.pins){if(p.x>0&&p.x<w)xs.push(p.x);if(p.y>0&&p.y<h)ys.push(p.y);}
-            const unique=values=>values.sort((a,b)=>a-b).filter((v,i,array)=>i===0||v-array[i-1]>.00001);
-            const xx=unique(xs),yy=unique(ys);
-            const inverse=puppet.pins.map(p=>({ox:p.x,oy:p.y,x:p.ox,y:p.oy}));
-            return yy.map(y=>xx.map(x=>{const source=puppetMap(x,y,inverse);return {x,y,ox:source.x,oy:source.y};}));
+            const w=mainCanvas.width,h=mainCanvas.height,cols=80,rows=Math.max(32,Math.min(128,Math.ceil(80*h/w)));
+            const signature=JSON.stringify([w,h,puppet.pins.map(p=>[p.ox,p.oy,p.parentId]),puppet.maskOutline]);
+            if(puppet.gridSignature!==signature){
+                const xs=[],ys=[];
+                for(let i=0;i<=cols;i++)xs.push(w*i/cols);
+                for(let j=0;j<=rows;j++)ys.push(h*j/rows);
+                for(const p of puppet.pins){if(p.ox>0&&p.ox<w)xs.push(p.ox);if(p.oy>0&&p.oy<h)ys.push(p.oy);}
+                const unique=vs=>vs.sort((a,b)=>a-b).filter((v,i,a)=>i===0||v-a[i-1]>.00001);
+                const xx=unique(xs),yy=unique(ys);
+                puppet.grid=yy.map(y=>xx.map(x=>({x,y,ox:x,oy:y})));
+                puppet.gridMesh=puppet.grid.flat();puppet.gridSignature=signature;
+            }
+            puppetRigUpdateDeform(puppetRigLayer(puppet.gridMesh),puppet.gridMesh,true);
+            return puppet.grid;
         }
         function renderPuppet(fastPreview = false) {
             if(!puppet)return;
@@ -4232,7 +4649,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             try { mainCanvas.setPointerCapture(e.pointerId); } catch(err) {}
 
             const pos = getMousePos(e); 
-            if (currentTool === 'puppet') { startPuppet(pos); return; }
+            if (currentTool === 'puppet') { startPuppet(pos,e); return; }
             if (currentTool === 'push') {
                 if (isTransforming) finishSelection();
                 pushSource=document.createElement('canvas');pushSource.width=mainCanvas.width;pushSource.height=mainCanvas.height;pushSource.getContext('2d').drawImage(mainCanvas,0,0);
