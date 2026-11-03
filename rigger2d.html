@@ -8,7 +8,7 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self' data: blob: file:; script-src 'self' 'unsafe-inline' data: blob: file:; style-src 'self' 'unsafe-inline' data: blob: file:; img-src 'self' data: blob: file:; media-src 'self' data: blob: file:; font-src 'self' data: blob: file:; connect-src data: blob:; worker-src 'self' blob:; object-src 'none'; frame-src 'none'; base-uri 'none';"
     />
-    <title>Rigger 2D — ShapeKey 2D</title>
+    <title>Rigger 2D</title>
 
     <style>
       /* Evita seleção e menus de toque longo sobre a interface. */
@@ -7662,7 +7662,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           const k=y*width+x;
           if(data[k*4+3]>100&&lum(k)<threshold&&Math.abs(x-ox)<=along&&!isProtected(x,y))dark[k]=1;
         }
-        const maxThickness=Math.max(4,length*.19);
+        const maxThickness=Math.max(4,length*.42);
         // Track a thin stroke from the middle toward both tips. Broad connected
         // hair masses are not an eyebrow, even when they touch the brow mask.
         for(const direction of [-1,1]){
@@ -7708,7 +7708,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       }
       function faceBuildBrowPatch(source,brow) {
         const {start,end,center,tangent,normal,length}=brow;
-        const padding=Math.max(3,length*.09),halfWidth=length/2,vertical=Math.max(4,length*.19);
+        const padding=Math.max(3,length*.09),halfWidth=length/2,vertical=Math.max(4,length*.29);
         const width=Math.ceil(length+padding*2),height=Math.ceil(vertical*2+padding*2),ox=halfWidth+padding,oy=vertical+padding;
         const sample=document.createElement('canvas');sample.width=width;sample.height=height;
         const sc=sample.getContext('2d',{willReadFrequently:true});
@@ -11206,11 +11206,51 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 #drawing-dialog .drawing-brush-item.active {color:#52a9ff;background:#007aff22;border-color:#007aff55;}
 #drawing-dialog .drawing-brush-check {margin-left:8px;color:#52a9ff;font-weight:700;}
 </style>
+<style>
+#drawing-dialog .drawing-view-controls{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:10px;padding:9px 8px;border:1px solid #ffffff24;border-radius:10px;background:#222e;box-shadow:0 4px 16px #0005;touch-action:none;max-height:calc(100% - 16px);overflow-y:auto;overscroll-behavior:contain}
+#drawing-dialog .drawing-view-column{display:flex;flex-direction:column;align-items:center;gap:7px;flex-shrink:0}
+#drawing-dialog .drawing-view-column+.drawing-view-column{border-top:1px solid #ffffff24;padding-top:9px}
+#drawing-dialog .drawing-view-controls input[type=range]{writing-mode:vertical-lr;direction:rtl;width:28px;height:150px;margin:0;accent-color:#007aff;cursor:pointer}
+#drawing-dialog #drawing-clone-source-size{accent-color:#34c759}
+#drawing-dialog .drawing-view-controls button{padding:5px 7px;min-width:30px;font-size:17px;border:1px solid #555;background:#303030}
+#drawing-dialog .drawing-view-controls span,#drawing-dialog .drawing-view-controls output{font:10px monospace;text-align:center;color:#bbb}
+#drawing-dialog #drawing-clone.active{color:#fff;border-color:#34c759;background:#34c7593d}
+@media(max-height:750px){#drawing-dialog .drawing-view-controls input[type=range]{height:90px}#drawing-dialog .drawing-view-controls{gap:6px;padding:6px;right:8px}#drawing-dialog .drawing-view-column{gap:5px}}
+@media(max-width:600px){#drawing-dialog .drawing-view-controls input[type=range]{height:85px;width:24px}#drawing-dialog .drawing-view-controls{right:6px;padding:5px;gap:6px}}
+</style>
+
+<style id="drawing-fit-controls">
+#drawing-dialog .drawing-workspace{flex-direction:row}
+#drawing-dialog .drawing-sidebar{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:68px;min-width:0;margin:0;padding:12px 7px;display:flex;flex-direction:column;align-items:center;gap:10px;border-radius:20px;max-height:calc(100% - 16px);overflow:visible;box-sizing:border-box;z-index:10}
+#drawing-dialog .drawing-sidebar>.drawing-slider-group{flex-direction:column;gap:5px;flex:none;min-height:0}
+#drawing-dialog .drawing-sidebar input[type=range]{writing-mode:vertical-lr;direction:rtl;width:18px;height:clamp(32px,calc((100dvh - 330px)/2),100px);margin:0;flex:none;accent-color:#007aff}
+#drawing-dialog .drawing-presets{display:none}
+#drawing-dialog .drawing-slider-row{justify-content:center}
+#drawing-dialog .drawing-reset-row{gap:3px}
+#drawing-dialog .drawing-reset-row input{width:30px}
+#drawing-dialog .drawing-sidebar button{padding:4px}
+#drawing-dialog #drawing-brushes{font-size:16px;padding:3px}
+#drawing-dialog .drawing-bucket-control{display:flex;align-items:center;gap:4px;border-left:1px solid #444;padding-left:4px;color:#aaa;font-size:10px}
+#drawing-dialog .drawing-bucket-control input[type=range]{writing-mode:horizontal-tb;direction:ltr;width:60px;height:18px;margin:0}
+#drawing-dialog .drawing-bucket-control span{white-space:nowrap}
+#drawing-dialog .drawing-view-controls{height:min(480px,calc(100% - 16px));max-height:calc(100% - 16px);overflow:visible;gap:8px;padding:8px 6px;box-sizing:border-box}
+#drawing-dialog .drawing-view-column{flex:1;min-height:0;gap:5px}
+#drawing-dialog .drawing-view-controls input[type=range]{flex:1;min-height:25px;height:0;width:26px}
+#drawing-dialog .drawing-view-column+.drawing-view-column{padding-top:7px}
+@media(max-width:600px){
+#drawing-dialog .drawing-workspace,body.mobile-portrait-mode #drawing-dialog .drawing-workspace{flex-direction:row}
+#drawing-dialog .drawing-sidebar,body.mobile-portrait-mode #drawing-dialog .drawing-sidebar{position:absolute;left:4px;top:50%;transform:translateY(-50%);width:62px;min-width:0;align-self:auto;flex-direction:column!important;flex-wrap:nowrap!important;max-height:calc(100% - 12px);height:auto;margin:0;padding:6px 4px;gap:4px;overflow:visible;border-radius:10px}
+#drawing-dialog .drawing-sidebar>.drawing-slider-group,body.mobile-portrait-mode #drawing-dialog .drawing-slider-group{flex-direction:column}
+#drawing-dialog .drawing-sidebar input[type=range],body.mobile-portrait-mode #drawing-dialog .drawing-sidebar input[type=range]{writing-mode:vertical-lr;direction:rtl;width:26px;height:clamp(32px,calc((100dvh - 450px)/2),64px);touch-action:none}
+#drawing-dialog .drawing-view-controls{right:4px;padding:5px;gap:4px;max-height:calc(100% - 12px);height:min(340px,calc(100% - 12px))}
+#drawing-dialog .drawing-bucket-control input[type=range]{width:45px}
+}
+</style>
 <div id="drawing-dialog" role="dialog" aria-modal="true" aria-label="Desenhar nova camada">
  <div class="drawing-toolbar">
   <strong id="drawing-title">Desenhar</strong><input id="drawing-name" aria-label="Nome do desenho ou switch" value="Desenho">
   
-  <div class="drawing-layer-controls" aria-label="Camadas do desenho"><button id="drawing-line" class="active" aria-pressed="true">🖊 Traço</button><button id="drawing-paint" aria-pressed="false">🎨 Pintura</button></div><button id="drawing-select" title="Contorne uma área para selecionar, mover e redimensionar">◌ Selecionar</button><button id="drawing-warp" title="Push: arraste para empurrar pixels. Tam = área; Força = intensidade" aria-pressed="false">🌀 Push</button><button id="drawing-3d" title="3D: contorne o desenho e arraste para girar" aria-pressed="false" style="font-size:12px;font-weight:800;min-width:34px">3D</button><button id="drawing-copy-direction">Copiar</button><button id="drawing-paste-direction">Colar</button><button id="drawing-flip-direction" title="Espelhar camada horizontalmente">↔ Flip H</button><button id="drawing-flip-vertical" title="Espelhar camada verticalmente">↕ Flip V</button><button id="drawing-background" title="Mostrar ou esconder o fundo branco" aria-pressed="true">Fundo</button><button id="drawing-eyedropper" title="Conta-gotas: toque no desenho para copiar a cor" aria-label="Conta-gotas" aria-pressed="false">💧</button>
+  <div class="drawing-layer-controls" aria-label="Camadas do desenho"><button id="drawing-line" class="active" aria-pressed="true">🖊 Traço</button><button id="drawing-paint" aria-pressed="false">🎨 Pintura</button></div><button id="drawing-bucket" title="Balde de tinta" aria-label="Balde de tinta" aria-pressed="false">🪣</button><div class="drawing-bucket-control"><input id="drawing-bucket-tolerance" type="range" min="0" max="100" value="50" aria-label="Tolerância do balde"><span>Tol <output id="drawing-bucket-tolerance-value">50</output></span></div><button id="drawing-select" title="Contorne uma área para selecionar, mover e redimensionar">◌ Selecionar</button><button id="drawing-warp" title="Push: arraste para empurrar pixels. Tam = área; Força = intensidade" aria-pressed="false">🌀 Push</button><button id="drawing-3d" title="3D: contorne o desenho e arraste para girar" aria-pressed="false" style="font-size:12px;font-weight:800;min-width:34px">3D</button><button id="drawing-copy-direction">Copiar</button><button id="drawing-paste-direction">Colar</button><button id="drawing-flip-direction" title="Espelhar camada horizontalmente">↔ Flip H</button><button id="drawing-flip-vertical" title="Espelhar camada verticalmente">↕ Flip V</button><button id="drawing-background" title="Mostrar ou esconder o fundo branco" aria-pressed="true">Fundo</button><button id="drawing-eyedropper" title="Conta-gotas: toque no desenho para copiar a cor" aria-label="Conta-gotas" aria-pressed="false">💧</button>
   <div id="drawing-colors"><button id="drawing-swatch" title="Paleta de cores" aria-label="Paleta de cores" aria-expanded="false"></button><div id="drawing-palette"><div id="drawing-sb"><span id="drawing-color-cursor"></span></div><input id="drawing-hue" aria-label="Matiz" type="range" min="0" max="360" value="0"><input id="drawing-native" type="color" value="#000000" tabindex="-1" aria-hidden="true"></div></div><button id="drawing-undo" title="Desfazer (Ctrl+Z)">↶</button><button id="drawing-redo" title="Refazer (Ctrl+Shift+Z)">↷</button><button id="drawing-cancel">Cancelar</button><button id="drawing-done">Confirmar ✓</button><button id="drawing-layers-menu" aria-label="Menu de camadas" aria-expanded="false" aria-controls="drawing-directions" title="Camadas e nomes">☰ Camadas</button>
  </div>
 
@@ -11235,9 +11275,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     <div id="drawing-brush-dropdown" class="drawing-brush-dropdown" role="menu"><div class="drawing-brush-title">PINCÉIS</div><div id="drawing-brush-list"></div></div>
    </div>
    <button id="drawing-eraser" aria-pressed="false" title="Borracha padrão — independente do pincel"><svg viewBox="0 0 24 24" width="22" height="22" style="transform:rotate(-20deg)"><path d="M2 16L5 6H13L10 16H2Z" fill="#ff4d6d" stroke="#fff" stroke-width="1.2"/><path d="M10 16L13 6H21L18 16H10Z" fill="#2b5a91" stroke="#fff" stroke-width="1.2"/></svg></button>
+
    <div class="drawing-slider-group"><div class="drawing-reset-row"><input id="drawing-default-opacity" type="number" min="1" max="100" value="100" aria-label="Opacidade padrão"><button id="drawing-reset-opacity" title="Voltar à opacidade padrão">↺</button></div><input id="drawing-opacity" type="range" min="1" max="100" value="100" aria-label="Opacidade do pincel"><span>Opac <output id="drawing-opacity-value">100%</output></span></div>
   </aside>
-  <div id="drawing-area"><div id="drawing-surface"><canvas id="drawing-onion" width="1920" height="1080"></canvas><canvas id="drawing-canvas" width="1920" height="1080"></canvas><canvas id="drawing-overlay" width="1920" height="1080"></canvas></div></div>
+  <aside id="drawing-view-controls" class="drawing-view-controls" aria-label="Zoom e clonador">
+ <div class="drawing-view-column"><button id="drawing-view-reset" title="Zoom 100% e centralizar" aria-label="Restaurar zoom">↺</button><input id="drawing-view-zoom" type="range" min="25" max="300" step="5" value="100" aria-label="Zoom da área de desenho"><output id="drawing-view-zoom-value">100%</output><button id="drawing-view-pan" title="Pan: arraste a tela; dois cliques centralizam" aria-label="Mover visualização" aria-pressed="false">✋</button></div>
+ <div class="drawing-view-column"><button id="drawing-clone" title="Clonar: arraste a bola verde até a origem e pinte fora dela" aria-label="Clonar" aria-pressed="false">◎</button><input id="drawing-clone-source-size" type="range" min="16" max="300" value="70" aria-label="Tamanho da bola do clonador"><span>Clone <output id="drawing-clone-source-value">70</output></span></div>
+</aside>
+<div id="drawing-area"><div id="drawing-surface"><canvas id="drawing-onion" width="1920" height="1080"></canvas><canvas id="drawing-canvas" width="1920" height="1080"></canvas><canvas id="drawing-overlay" width="1920" height="1080"></canvas></div></div>
  </div>
  <div class="drawing-footer"><span id="drawing-active-label">Camada 1 · Desenhando em: Traço</span> · Use ☰ para criar, selecionar e excluir camadas. Onion skin mostra todas as camadas anteriores com desenho e não aparece na imagem salva.</div>
 </div>
@@ -11867,7 +11912,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
 
  function drawOverlay(){
-  oc.clearRect(0,0,W,H);oc.lineWidth=1;oc.strokeStyle='#007aff';oc.fillStyle='#fff';
+  oc.clearRect(0,0,W,H);if(tool==='clone'){drawDrawingCloneSource();return;}oc.lineWidth=1;oc.strokeStyle='#007aff';oc.fillStyle='#fff';
   if(selection&&tool==='3d')return;
   if(selection&&tool==='warp'){oc.strokeStyle='rgba(90,200,250,.15)';oc.beginPath();for(let y=0;y<=WARP_GRID;y++){oc.moveTo(warpMesh[y*(WARP_GRID+1)].x,warpMesh[y*(WARP_GRID+1)].y);for(let x=1;x<=WARP_GRID;x++){const p=warpMesh[y*(WARP_GRID+1)+x];oc.lineTo(p.x,p.y);}}for(let x=0;x<=WARP_GRID;x++){oc.moveTo(warpMesh[x].x,warpMesh[x].y);for(let y=1;y<=WARP_GRID;y++){const p=warpMesh[y*(WARP_GRID+1)+x];oc.lineTo(p.x,p.y);}}oc.stroke();for(const p of warpMesh){oc.fillStyle='rgba(255,255,255,.2)';oc.strokeStyle='rgba(0,122,255,.2)';oc.beginPath();oc.arc(p.x,p.y,4,0,Math.PI*2);oc.fill();oc.stroke();}return;}
   if(selection){const b=selection,m=drawingTouchMetrics(),handle=m.handle/b.scale;oc.save();oc.translate(b.x+b.w/2,b.y+b.h/2);oc.rotate(b.angle);oc.scale(b.scale,b.scale);oc.setLineDash([5,5]);oc.strokeRect(-b.w/2,-b.h/2,b.w,b.h);oc.setLineDash([]);
@@ -11885,7 +11930,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   return Math.abs(x)<hw&&Math.abs(y)<hh?'move':null;
  }
  function commitSelection(){flushTransform();cleanupLightweightHead3D();warpMesh=[];selection=null;lasso=[];drawOverlay();}
- function choose(t){if(pointer!==null||busy)return;commitSelection();tool=tool===t&&(t==='select'||t==='3d'||t==='warp')?'brush':t;for(const name of ['brush','eraser','select','3d','warp','eyedropper']){el(name).classList.toggle('active',name===tool);el(name).setAttribute('aria-pressed',name===tool);}if(tool==='warp'){el('size').value=50;el('size').oninput();}el('opacity').nextElementSibling.firstChild.textContent=tool==='warp'?'Força ':'Opac ';el('opacity').setAttribute('aria-label',tool==='warp'?'Força do Push':'Opacidade do pincel');paper.style.cursor=tool==='eyedropper'?'copy':'crosshair';}
+ function choose(t){if(pointer!==null||busy)return;commitSelection();tool=tool===t&&(t==='select'||t==='3d'||t==='warp'||t==='clone')?'brush':t;for(const name of ['brush','eraser','select','3d','warp','eyedropper','clone','bucket']){el(name).classList.toggle('active',name===tool);el(name).setAttribute('aria-pressed',name===tool);}if(tool==='warp'){el('size').value=50;el('size').oninput();}el('opacity').nextElementSibling.firstChild.textContent=tool==='warp'?'Força ':'Opac ';el('opacity').setAttribute('aria-label',tool==='warp'?'Força do Push':'Opacidade do pincel');drawingPan=false;updateDrawingView();drawOverlay();}
  function selectDrawingLayer(index){if(pointer!==null||busy)return;commitSelection();active=index;ctx=drawingLayers[index].getContext('2d');choose('brush');for(const [name,i] of [['line',1],['paint',0]]){el(name).classList.toggle('active',index===i);el(name).setAttribute('aria-pressed',index===i);}el('active-label').textContent=DIRECTION_NAMES[activeDirection]+' · Desenhando em: '+(index===1?'Traço':'Pintura');}
  el('line').onclick=()=>selectDrawingLayer(1);el('paint').onclick=()=>selectDrawingLayer(0);
  function renderDrawingLayers(){
@@ -11977,7 +12022,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
  function resetSetting(name){if(pointer!==null||busy)return;const input=el('default-'+name),value=Math.max(1,Math.min(100,Math.round(Number(input.value)||(name==='size'?3:100))));input.value=value;el(name).value=value;el(name).oninput();}
  el('reset-size').onclick=()=>resetSetting('size');el('reset-opacity').onclick=()=>resetSetting('opacity');
  document.querySelectorAll('[data-drawing-size]').forEach(b=>b.onclick=()=>{if(pointer!==null||busy)return;el('size').value=b.dataset.drawingSize;el('size').oninput();});
- for(const t of ['brush','eraser','select','3d','warp','eyedropper'])el(t).onclick=()=>{closeDrawingBrushMenu();choose(t);};
+ for(const t of ['brush','eraser','select','3d','warp','eyedropper','clone','bucket'])el(t).onclick=()=>{closeDrawingBrushMenu();choose(t);};
  function positionDrawingBrushMenu(){const menu=el('brush-dropdown'),btn=el('brushes');if(!menu||!btn)return;const r=btn.getBoundingClientRect(),gap=8;menu.style.left='0px';menu.style.top='0px';const mw=Math.min(180,Math.max(120,window.innerWidth-16));menu.style.width=mw+'px';const mh=Math.min(menu.scrollHeight||280,window.innerHeight-16);let left=r.right+gap;if(left+mw>window.innerWidth-8)left=r.left-mw-gap;left=Math.max(8,Math.min(left,window.innerWidth-mw-8));let top=r.top-8;if(top+mh>window.innerHeight-8)top=window.innerHeight-mh-8;top=Math.max(8,top);menu.style.left=Math.round(left)+'px';menu.style.top=Math.round(top)+'px';}
  el('brushes').onclick=e=>{e.stopPropagation();renderDrawingBrushList();const menu=el('brush-dropdown'),open=!menu.classList.contains('open');if(open){menu.classList.add('open');positionDrawingBrushMenu();}else menu.classList.remove('open');el('brushes').setAttribute('aria-expanded',String(open));};
  window.addEventListener('resize',()=>{if(el('brush-dropdown').classList.contains('open'))positionDrawingBrushMenu();});
@@ -11986,6 +12031,114 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
  renderDrawingBrushList();
  function setDrawingBackground(visible){drawingBackgroundVisible=visible!==false;el('surface').classList.toggle('background-hidden',!drawingBackgroundVisible);el('background').classList.toggle('active',drawingBackgroundVisible);el('background').setAttribute('aria-pressed',String(drawingBackgroundVisible));el('background').textContent=drawingBackgroundVisible?'Fundo':'Fundo oculto';}
  el('background').onclick=()=>setDrawingBackground(!drawingBackgroundVisible);
+// View-only zoom/pan: never changes the drawing resolution or saved pixels.
+const drawingViewControls=el('view-controls'),drawingWorkspace=dialog.querySelector('.drawing-workspace');
+let drawingZoom=1,drawingOffsetX=0,drawingOffsetY=0,drawingPan=false,drawingPanPointer=null,drawingPanStart=null;
+let drawingCloneSource={x:W/2,y:H/2};
+const drawingCloneSnapshot=make();
+function updateDrawingView(){
+ el('surface').style.transformOrigin='center center';
+ el('surface').style.transform=`translate(${drawingOffsetX}px,${drawingOffsetY}px) scale(${drawingZoom})`;
+ el('view-zoom').value=Math.round(drawingZoom*100);el('view-zoom-value').textContent=Math.round(drawingZoom*100)+'%';
+ el('view-pan').classList.toggle('active',drawingPan);el('view-pan').setAttribute('aria-pressed',String(drawingPan));
+ paper.style.cursor=drawingPan?(drawingPanPointer!==null?'grabbing':'grab'):tool==='eyedropper'?'copy':'crosshair';
+}
+function resetDrawingView(resetSource=false){
+ const id=drawingPanPointer;drawingPanPointer=null;drawingPanStart=null;
+ if(id!==null&&drawingWorkspace.hasPointerCapture(id))drawingWorkspace.releasePointerCapture(id);
+ drawingZoom=1;drawingOffsetX=0;drawingOffsetY=0;drawingPan=false;
+ if(resetSource){drawingCloneSource={x:W/2,y:H/2};drawingCloneSnapshot.width=W;drawingCloneSnapshot.height=H;}
+ updateDrawingView();drawOverlay();
+}
+function drawDrawingCloneSource(){
+ oc.clearRect(0,0,W,H);if(tool!=='clone')return;
+ const radius=Math.max(8,Number(el('clone-source-size').value)/2),unit=drawingCanvasUnitsPerPixel();
+ oc.save();oc.beginPath();oc.arc(drawingCloneSource.x,drawingCloneSource.y,radius,0,Math.PI*2);oc.fillStyle='rgba(52,199,89,.13)';oc.fill();
+ oc.lineWidth=2*unit;oc.strokeStyle='#fff';oc.stroke();oc.setLineDash([8*unit,6*unit]);oc.strokeStyle='#34c759';oc.stroke();oc.setLineDash([]);
+ oc.beginPath();oc.moveTo(drawingCloneSource.x-6*unit,drawingCloneSource.y);oc.lineTo(drawingCloneSource.x+6*unit,drawingCloneSource.y);oc.moveTo(drawingCloneSource.x,drawingCloneSource.y-6*unit);oc.lineTo(drawingCloneSource.x,drawingCloneSource.y+6*unit);oc.lineWidth=1.5*unit;oc.strokeStyle='#fff';oc.stroke();oc.restore();
+}
+el('view-zoom').addEventListener('input',()=>{if(pointer!==null)return;drawingZoom=Number(el('view-zoom').value)/100;updateDrawingView();drawOverlay();});
+el('view-reset').onclick=()=>{if(pointer===null)resetDrawingView();};
+el('view-pan').onclick=()=>{if(pointer!==null)return;drawingPan=!drawingPan;updateDrawingView();};
+el('view-pan').ondblclick=e=>{e.preventDefault();drawingOffsetX=drawingOffsetY=0;updateDrawingView();};
+el('clone-source-size').oninput=()=>{el('clone-source-value').textContent=el('clone-source-size').value;drawOverlay();};
+el('clone').onclick=()=>{closeDrawingBrushMenu();choose('clone');};
+drawingWorkspace.addEventListener('pointerdown',event=>{
+ if(!drawingPan||drawingViewControls.contains(event.target)||event.target.closest('.drawing-sidebar')||event.button!==0)return;
+ event.preventDefault();event.stopImmediatePropagation();drawingPanPointer=event.pointerId;
+ drawingPanStart={x:event.clientX,y:event.clientY,offsetX:drawingOffsetX,offsetY:drawingOffsetY};drawingWorkspace.setPointerCapture(event.pointerId);updateDrawingView();
+},true);
+drawingWorkspace.addEventListener('pointermove',event=>{
+ if(drawingPanPointer!==event.pointerId||!drawingPanStart)return;
+ event.preventDefault();event.stopImmediatePropagation();drawingOffsetX=drawingPanStart.offsetX+event.clientX-drawingPanStart.x;drawingOffsetY=drawingPanStart.offsetY+event.clientY-drawingPanStart.y;updateDrawingView();
+},true);
+for(const type of['pointerup','pointercancel','lostpointercapture'])drawingWorkspace.addEventListener(type,event=>{
+ if(drawingPanPointer!==event.pointerId)return;
+ event.preventDefault();event.stopImmediatePropagation();drawingPanPointer=null;drawingPanStart=null;
+ if(drawingWorkspace.hasPointerCapture(event.pointerId))drawingWorkspace.releasePointerCapture(event.pointerId);updateDrawingView();
+},true);
+function drawingCloneStamp(point,pressure=1){
+ const size=Math.max(1,gesture.size*(.2+.8*pressure)),radius=size/2,sx=point.x+gesture.offset.x,sy=point.y+gesture.offset.y;
+ ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=gesture.opacity;ctx.beginPath();ctx.arc(point.x,point.y,radius,0,Math.PI*2);ctx.clip();
+ ctx.drawImage(drawingCloneSnapshot,sx-radius,sy-radius,size,size,point.x-radius,point.y-radius,size,size);ctx.restore();composite();
+}
+function drawingCloneMove(point,pressure=1){
+ if(gesture.kind==='clone-source'){drawingCloneSource={x:Math.max(0,Math.min(W,point.x)),y:Math.max(0,Math.min(H,point.y))};drawOverlay();return;}
+ const last=gesture.last,distance=Math.hypot(point.x-last.x,point.y-last.y),steps=Math.max(1,Math.ceil(distance/Math.max(1,gesture.size*.16)));
+ if(distance<.01){drawOverlay();return;}
+ for(let i=1;i<=steps;i++){const t=i/steps;drawingCloneStamp({x:last.x+(point.x-last.x)*t,y:last.y+(point.y-last.y)*t},pressure);}gesture.last=point;drawOverlay();
+}
+paper.addEventListener('pointerdown',event=>{
+ if(tool!=='clone'||drawingPan||pointer!==null||busy||event.button!==0)return;
+ event.preventDefault();event.stopImmediatePropagation();closeDrawingPalette();commitSelection();
+ const point=pos(event),radius=Math.max(8,Number(el('clone-source-size').value)/2);
+ pointer=event.pointerId;paper.setPointerCapture(pointer);
+ if(Math.hypot(point.x-drawingCloneSource.x,point.y-drawingCloneSource.y)<=radius+10*drawingCanvasUnitsPerPixel()){
+  gesture={kind:'clone-source',original:{...drawingCloneSource}};drawingCloneSource={x:point.x,y:point.y};drawOverlay();return;
+ }
+ remember();drawingCloneSnapshot.width=W;drawingCloneSnapshot.height=H;drawingCloneSnapshot.getContext('2d').drawImage(drawingLayers[active],0,0);
+ gesture={kind:'clone',base:undo.at(-1).image,size:Number(el('size').value),opacity:Number(el('opacity').value)/100,last:point,offset:{x:drawingCloneSource.x-point.x,y:drawingCloneSource.y-point.y}};
+ drawingCloneStamp(point,event.pointerType==='pen'&&event.pressure>0?event.pressure:1);drawOverlay();
+},true);
+paper.addEventListener('pointermove',event=>{
+ if(pointer!==event.pointerId||!['clone','clone-source'].includes(gesture?.kind))return;
+ event.preventDefault();event.stopImmediatePropagation();const samples=event.getCoalescedEvents?.();for(const sample of samples?.length?samples:[event])drawingCloneMove(pos(sample),sample.pointerType==='pen'&&sample.pressure>0?sample.pressure:1);
+},true);
+for(const type of['pointerup','pointercancel','lostpointercapture'])paper.addEventListener(type,event=>{
+ if(pointer!==event.pointerId||!['clone','clone-source'].includes(gesture?.kind))return;
+ event.preventDefault();event.stopImmediatePropagation();
+ if(event.type==='pointerup')drawingCloneMove(pos(event),event.pointerType==='pen'&&event.pressure>0?event.pressure:1);
+ else if(gesture.kind==='clone'){restore(gesture.base);undo.pop();historyUI();composite();}
+ else drawingCloneSource={...gesture.original};
+ const id=pointer;pointer=null;gesture=null;if(paper.hasPointerCapture(id))paper.releasePointerCapture(id);drawOverlay();
+},true);
+
+// The reference bucket's RGBA tolerance and alpha-edge behavior, using an
+// integer stack/visited buffer to avoid allocating coordinate pairs per pixel.
+let drawingBucketVisited=new Uint8Array(0);
+el('bucket-tolerance').oninput=()=>el('bucket-tolerance-value').textContent=el('bucket-tolerance').value;
+function fillDrawingBucket(point){
+ const x=Math.floor(point.x),y=Math.floor(point.y);if(x<0||y<0||x>=W||y>=H)return;
+ const image=ctx.getImageData(0,0,W,H),data=image.data,pixels=new Uint32Array(data.buffer),seed=y*W+x,offset=seed*4;
+ const rgb=color.slice(1).match(/../g).map(v=>parseInt(v,16)),alpha=Math.round(Number(el('opacity').value)*255/100),fill=[...rgb,alpha],start=Array.from(data.slice(offset,offset+4));
+ if(start.every((v,i)=>Math.abs(v-fill[i])<2))return;
+ const tolerance=Math.round(Number(el('bucket-tolerance').value)*255/100),start32=pixels[seed],fill32=((alpha<<24)|(rgb[2]<<16)|(rgb[1]<<8)|rgb[0])>>>0;
+ if(drawingBucketVisited.length!==W*H)drawingBucketVisited=new Uint8Array(W*H);else drawingBucketVisited.fill(0);
+ const seen=drawingBucketVisited,stack=[seed];seen[seed]=1;
+ const matches=index=>{if(tolerance===0)return pixels[index]===start32;const i=index*4;return Math.abs(data[i]-start[0])<=tolerance&&Math.abs(data[i+1]-start[1])<=tolerance&&Math.abs(data[i+2]-start[2])<=tolerance&&Math.abs(data[i+3]-start[3])<=tolerance;};
+ const visit=index=>{
+  if(seen[index])return;seen[index]=1;
+  if(matches(index)){stack.push(index);return;}
+  const i=index*4;if(start[3]===0&&data[i+3]>0&&data[i+3]<255){const old=data[i+3]/255,a=alpha/255,out=old+a*(1-old);if(out>0){for(let c=0;c<3;c++)data[i+c]=Math.round((data[i+c]*old+rgb[c]*a*(1-old))/out);data[i+3]=Math.round(out*255);}}
+ };
+ while(stack.length){const index=stack.pop(),px=index%W,py=Math.floor(index/W);pixels[index]=fill32;if(px>0)visit(index-1);if(px<W-1)visit(index+1);if(py>0)visit(index-W);if(py<H-1)visit(index+W);}
+ remember();ctx.putImageData(image,0,0);composite();updateOnionSkin();
+}
+paper.addEventListener('pointerdown',event=>{
+ if(tool!=='bucket'||drawingPan||pointer!==null||busy||event.button!==0)return;
+ event.preventDefault();event.stopImmediatePropagation();closeDrawingPalette();commitSelection();fillDrawingBucket(pos(event));drawOverlay();
+},true);
+
  const pos=e=>{const r=paper.getBoundingClientRect();return artInput(e,{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height});};
  function mark(points,radius){let x=W,y=H,right=0,bottom=0;for(const p of points){x=Math.min(x,p.x-radius);y=Math.min(y,p.y-radius);right=Math.max(right,p.x+radius);bottom=Math.max(bottom,p.y+radius);}x=Math.max(0,Math.floor(x));y=Math.max(0,Math.floor(y));right=Math.min(W,Math.ceil(right));bottom=Math.min(H,Math.ceil(bottom));if(right<=x||bottom<=y)return;if(dirty){right=Math.max(right,dirty.x+dirty.w);bottom=Math.max(bottom,dirty.y+dirty.h);x=Math.min(x,dirty.x);y=Math.min(y,dirty.y);}dirty={x,y,w:right-x,h:bottom-y};if(!frame)frame=requestAnimationFrame(flush);}
  // A stroke is built incrementally. Only its changed rectangle is restored/composited once per animation frame.
@@ -12058,13 +12211,13 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   drawingSources=new WeakMap();W=width;H=height;
   for(const c of [paper,overlay,onionCanvas,stroke,mergedCanvas,directionScratch,onionTint,warpColorCanvas,warpAlphaCanvas,warpUtilCanvas]){c.width=W;c.height=H;}
   directionLayers.slice(1).flat().forEach(c=>c.remove());directionLayers.splice(1);DIRECTION_NAMES.splice(0,DIRECTION_NAMES.length,'Camada 1');directionInk.length=directionInkDirty.length=1;directionLayers.flat().forEach(c=>{c.width=1;c.height=1;});ensureDirectionSize(0);activeDirection=0;drawingLayers=directionLayers[0];ctx=drawingLayers[active].getContext('2d');directionInk.fill(false);directionInkDirty.fill(false);
-  composite();
+  composite();resetDrawingView(true);
  }
  const decodeDrawingImage=src=>new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('Não foi possível abrir a imagem do desenho.'));image.src=src;});
  // Reset interno: também funciona enquanto o salvamento mantém busy=true.
  function resetDrawingTools(){
   tool='brush';
-  for(const name of ['brush','eraser','select','3d','warp','eyedropper']){
+  for(const name of ['brush','eraser','select','3d','warp','eyedropper','clone','bucket']){
    el(name).classList.toggle('active',name===tool);
    el(name).setAttribute('aria-pressed',String(name===tool));
   }
