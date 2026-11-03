@@ -1578,7 +1578,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }
 
         #selectionBtn.active { color: #ffcc00; text-shadow: 0 0 5px rgba(255,204,0,0.5); }
-        #headSphereBtn.active { color: #af52de; text-shadow: 0 0 5px rgba(175,82,222,.55); }
+        #headSphereBtn.active, #body3dBtn.active { color: #af52de; text-shadow: 0 0 5px rgba(175,82,222,.55); }
         #perspectiveBtn.active { color: #ff3b30; text-shadow: 0 0 5px rgba(255,59,48,0.5); }
         #warpBtn.active { color: #5ac8fa; text-shadow: 0 0 5px rgba(90,200,250,0.5); }
         #bucketBtn { color: #5ac8fa; }
@@ -1927,7 +1927,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             <button class="icon-btn" id="selectionBtn" title="Seleção Lasso">◌</button>
             <button class="icon-btn" id="selectAllBtn" title="Selecionar Tudo">⛶</button>
             <button class="icon-btn" id="perspectiveBtn" title="Perspectiva">📐</button>
-            <button class="icon-btn" id="headSphereBtn" title="3D livre: contorne uma área e arraste dentro para girar" aria-label="3D livre" aria-pressed="false">3D</button>
+            <button class="icon-btn" id="headSphereBtn" title="3D Esfera: contorne uma área e arraste dentro para girar em formato arredondado" aria-label="3D Esfera" aria-pressed="false">⚪</button>
+            <button class="icon-btn" id="body3dBtn" title="3D Cilindro: contorne uma área e arraste dentro para girar em formato cilíndrico" aria-label="3D Cilindro" aria-pressed="false">🛢️</button>
             <button class="icon-btn" id="warpBtn" title="Push — empurrar pixels">🌀</button>
             <button class="icon-btn" id="puppetBtn" title="Ossos livres — máscara, ossos e pose">🦴</button>
             <button class="icon-btn" id="flipHBtn" title="Inverter Horizontal">↔️</button>
@@ -2194,6 +2195,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         let draggedWarpPoint = null;
         let warpRenderRafId = null;
         let headSphereMesh = [];
+        let head3DShape = 'head';
         let headSphereYaw = 0;
         let headSpherePitch = 0;
         let isHeadSphereDragging = false;
@@ -2744,6 +2746,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const selectAllBtn = document.getElementById('selectAllBtn');
         const perspectiveBtn = document.getElementById('perspectiveBtn');
         const headSphereBtn = document.getElementById('headSphereBtn');
+        const body3dBtn = document.getElementById('body3dBtn');
         const warpBtn = document.getElementById('warpBtn');
         const flipHBtn = document.getElementById('flipHBtn');
         const flipVBtn = document.getElementById('flipVBtn');
@@ -2766,11 +2769,21 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         document.getElementById('eyedropperBtn').onclick = () => setTool('eyedropper');
         selectionBtn.onclick = () => setTool('lasso');
         perspectiveBtn.onclick = () => setTool('perspective');
-        headSphereBtn.onclick = () => {
+        function activateDrawing3D(shape) {
             if (isPlaying) return;
-            setTool('headSphere');
-            if (currentTool === 'headSphere') showNotification('3D livre: contorne o desenho e arraste dentro do laço para girar. Clique fora ou em outra ferramenta para aplicar.');
-        };
+            // Aplica a seleção anterior com a malha original antes de trocar o formato.
+            if (currentTool === 'headSphere' && head3DShape !== shape) {
+                finishSelection();
+                head3DShape = shape;
+                updateToolUI();
+            } else {
+                head3DShape = shape;
+                setTool('headSphere');
+            }
+            if (currentTool === 'headSphere') showNotification(`3D ${shape === 'body' ? 'Cilindro' : 'Esfera'}: contorne o desenho e arraste dentro do laço para girar. Clique fora para aplicar.`);
+        }
+        headSphereBtn.onclick = () => activateDrawing3D('head');
+        body3dBtn.onclick = () => activateDrawing3D('body');
         warpBtn.onclick = () => setTool(currentTool === 'push' ? 'brush' : 'push');
         document.getElementById('multiSelectBtn').addEventListener('click', (e) => {
             isMultiSelectMode = !isMultiSelectMode;
@@ -2833,8 +2846,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             canvasContainer.classList.toggle('clone-tool-active', currentTool === 'clone');
             selectionBtn.classList.toggle('active', currentTool === 'lasso');
             perspectiveBtn.classList.toggle('active', currentTool === 'perspective');
-            headSphereBtn.classList.toggle('active', currentTool === 'headSphere');
-            headSphereBtn.setAttribute('aria-pressed', String(currentTool === 'headSphere'));
+            headSphereBtn.classList.toggle('active', currentTool === 'headSphere' && head3DShape === 'head');
+            headSphereBtn.setAttribute('aria-pressed', String(currentTool === 'headSphere' && head3DShape === 'head'));
+            body3dBtn.classList.toggle('active', currentTool === 'headSphere' && head3DShape === 'body');
+            body3dBtn.setAttribute('aria-pressed', String(currentTool === 'headSphere' && head3DShape === 'body'));
             warpBtn.classList.toggle('active', currentTool === 'push');
             document.getElementById('bucketBtn').classList.toggle('active', currentTool === 'bucket');
             document.getElementById('eyedropperBtn').classList.toggle('active', currentTool === 'eyedropper');
@@ -4957,7 +4972,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 // Preserva o laço ORIGINAL. Ele é a forma do objeto 3D.
                 headSphereFreePath = selectionPath.map(p => ({ x: p.x, y: p.y }));
                 initLightweightHead3D();
-                showNotification(headSphereObject ? '3D livre: arraste dentro do laço para girar; clique fora para aplicar.' : '3D indisponível neste navegador. O recorte foi preservado.');
+                showNotification(headSphereObject ? `3D ${head3DShape === 'body' ? 'Cilindro' : 'Esfera'}: arraste dentro do laço para girar; clique fora para aplicar.` : '3D indisponível neste navegador. O recorte foi preservado.');
             }
 
             hasUnsavedChanges = true;
@@ -5362,7 +5377,15 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                         (px * px) / (w * w) +
                         (py * py) / (h * h)
                     );
-                    positions.setZ(i, Math.cos(dist * Math.PI) * (w / 4));
+                    if (head3DShape === 'body') {
+                        // Superfície frontal de um cilindro vertical: a projeção
+                        // inicial preserva o desenho, com volume apenas na largura.
+                        const radius = w / 2;
+                        const normalizedX = px / radius;
+                        positions.setZ(i, Math.sqrt(Math.max(0, 1 - normalizedX * normalizedX)) * radius);
+                    } else {
+                        positions.setZ(i, Math.cos(dist * Math.PI) * (w / 4));
+                    }
                 }
                 positions.needsUpdate = true;
                 geometry.computeVertexNormals();
