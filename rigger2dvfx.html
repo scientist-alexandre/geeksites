@@ -1336,7 +1336,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
             min="1"
             max="60"
             step="1"
-            value="4"
+            value="12"
             style="width: 40px"
             oninput="seek(currentFrame); refreshTotalFrames(); renderAudioTimeline()"
         /></label>
@@ -1577,6 +1577,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
           +
         </button>
         <button onclick="stepFrame(1)" data-mobile-label="▶">Próximo ▶</button>
+        <button onclick="stepFrame(Math.round(getFps()))" data-mobile-label="+FPS ▶" title="Avançar a quantidade de frames do FPS atual (ex.: 4 FPS = 4 frames)">+FPS ▶</button>
         <button
           onclick="setKeyframe(false)"
           data-mobile-label="◆ Key"
@@ -2987,6 +2988,28 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         window.addEventListener("pointermove", move);
         window.addEventListener("pointerup", up, { once: true });
         window.addEventListener("pointercancel", up, { once: true });
+      }
+
+      function followTimelineFrame() {
+        const position = (currentFrame - 1) * AUDIO_PX_PER_FRAME;
+        const width = Math.max(totalFrames + 8, Math.ceil(currentFrame) + 8, 80) * AUDIO_PX_PER_FRAME;
+        const lanes = [
+          [".transform-timeline-track-wrap", "transform-timeline-track"],
+          [".background-timeline-track-wrap", "background-timeline-track"],
+          ["#audio-timeline-scroll", "audio-timeline-content"],
+        ];
+        lanes.forEach(([selector, id]) => {
+          const scroller = document.querySelector(selector);
+          const track = document.getElementById(id);
+          if (!scroller || !track) return;
+          track.style.width = `${Math.max(width, parseFloat(track.style.width) || 0)}px`;
+          if (!scroller.clientWidth) return;
+          const padding = Math.min(48, scroller.clientWidth / 4);
+          if (position > scroller.scrollLeft + scroller.clientWidth - padding)
+            scroller.scrollLeft = position - scroller.clientWidth + padding;
+          else if (position < scroller.scrollLeft + padding)
+            scroller.scrollLeft = Math.max(0, position - padding);
+        });
       }
 
       function initializeSynchronizedTimelineScroll() {
@@ -4820,7 +4843,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
       function getFps() {
         const val = parseFloat(document.getElementById("fps-input").value);
-        return isNaN(val) ? 4 : Math.max(1, Math.min(60, val));
+        return isNaN(val) ? 12 : Math.max(1, Math.min(60, val));
       }
 
       function togglePins() {
@@ -4975,6 +4998,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         const display = document.getElementById("time-display");
         if (display) display.innerText = timeStr;
         updateAudioPlayhead();
+        followTimelineFrame();
       }
 
       function updatePlaybackTimelinePlayheads() {
@@ -5252,6 +5276,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         if (!isPlaying) refreshActiveLayerForFrame();
         
         if (!isPlaying) updateLayersUI();
+        followTimelineFrame();
         draw(!isPlaying);
       }
 
@@ -7102,7 +7127,7 @@ async function exportAnimatedGif(){
                 window.r2dPanoramaData = null;
                 window.r2dPendingPanoramaData = null;
               }
-              document.getElementById("fps-input").value = data.fps || 4;
+              document.getElementById("fps-input").value = data.fps || 12;
 
               const loadedLayers = await Promise.all(
                 (Array.isArray(data.layers) ? data.layers : []).map(async (lData) => {
