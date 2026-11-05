@@ -3274,7 +3274,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const anchor = document.createElement('a');
-                anchor.href = url; anchor.download = 'biblioteca_projeto.json';
+                anchor.href = url; anchor.download = 'biblioteca desenhar.json';
                 document.body.appendChild(anchor);
                 try { anchor.click(); } finally {
                     anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000);
@@ -6702,7 +6702,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 return { layers, duration: f.duration || 1 };
             }));
             const projectData = { fps: fps, frames: serializedFrames, background: bgCanvas.toDataURL(), layersMeta: layersMeta };
-            const blob = new Blob([JSON.stringify(projectData)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = "meu_projeto_animacao.json"; a.click(); URL.revokeObjectURL(url); showNotification("Projeto salvo com sucesso!");
+            const blob = new Blob([JSON.stringify(projectData)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = "projeto desenhar.json"; a.click(); URL.revokeObjectURL(url); showNotification("Projeto salvo com sucesso!");
         };
 
         loadProjectMenu.onclick = (e) => { e.preventDefault(); projectInput.click(); };
@@ -7831,7 +7831,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
                 audioClips: serializedAudioClips, layersMeta, assetLibrary, selectedBrushId
             };
             const blob = new Blob([JSON.stringify(projectData)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'meu_projeto_animacao_3d.json'; anchor.click(); URL.revokeObjectURL(url);
+            const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'projeto desenhar.json'; anchor.click(); URL.revokeObjectURL(url);
             showNotification('Projeto 3D salvo com sucesso!');
         };
 
