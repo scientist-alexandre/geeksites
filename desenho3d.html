@@ -339,14 +339,14 @@ function sectionPowers(mode,views,y0,y1,minimumY,step,ny,broadEnds){
  }
  const errors=profiles.map(profile=>Array.from({length:count},(_,i)=>deviation(profile,i)));
  function longEdgeFraction(profile){let covered=0,total=0;for(const side of ['left','right']){const points=profile.map((p,i)=>p?{i,x:p[side]}:null).filter(Boolean);if(points.length<8)continue;total+=points[points.length-1].i-points[0].i;const stack=[[0,points.length-1]];while(stack.length){const [a,b]=stack.pop(),start=points[a],end=points[b];let distance=0,split=-1;for(let i=a+1;i<b;i++){const t=(points[i].i-start.i)/(end.i-start.i),error=Math.abs(points[i].x-(start.x+(end.x-start.x)*t));if(error>distance){distance=error;split=i;}}if(distance>.001&&split>a&&split<b){stack.push([a,split],[split,b]);}else if((end.i-start.i)/count>=.12)covered+=end.i-start.i;}}return total?covered/total:0;}
- const longEdges=profiles.map(longEdgeFraction),baseWidths=profiles.map(profile=>[.78,.84,.90,.96].reduce((sum,t)=>{const p=profile[Math.min(count-1,Math.floor(t*count))];return sum+(p?p.right-p.left:0);},0)/4),angularEnvelope=broadEnds||longEdges.every(fraction=>fraction>.18)||baseWidths.every(width=>width>.72);
+ const longEdges=profiles.map(longEdgeFraction),baseWidths=profiles.map(profile=>[.78,.84,.90,.96].reduce((sum,t)=>{const p=profile[Math.min(count-1,Math.floor(t*count))];return sum+(p?p.right-p.left:0);},0)/4),angularEnvelope=broadEnds||(longEdges.every(fraction=>fraction>.55)&&baseWidths.every(width=>width>.72));
  const powers=new Float32Array(ny);
  for(let y=0;y<ny;y++){
   if(mode==='round'){powers[y]=2;continue;}
   if(mode==='angular'||broadEnds){powers[y]=32;continue;}
   const position=Math.max(0,Math.min(count-1,((y1-(minimumY+y*step))/(y1-y0)*count-.5))),lo=Math.floor(position),hi=Math.min(count-1,lo+1),t=position-lo;
   const error=Math.max(...errors.map(values=>values[lo]*(1-t)+values[hi]*t)),linear=Math.max(0,Math.min(1,(.005-error)/.0035));
-  powers[y]=Math.max(angularEnvelope?8:2,2+30*linear*linear);
+  powers[y]=angularEnvelope?Math.max(8,2+30*linear*linear):2;
  }
  powers.metrics={longEdges,baseWidths,angularEnvelope};return powers;
 }
@@ -395,9 +395,53 @@ function crossing(a,b){const fa=field[a],fb=field[b],t=Math.abs(fa-fb)>1e-12?fa/
 function triangle(a,b,c){let u=b.p.map((v,i)=>v-a.p[i]),v=c.p.map((v,i)=>v-a.p[i]),cross=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];if(Math.hypot(...cross)<1e-12)return;const normal=a.n.map((v,i)=>v+b.n[i]+c.n[i]);if(cross.reduce((s,v,i)=>s+v*normal[i],0)<0)[b,c]=[c,b];const group=normal[2]>=0?groups[0]:groups[1],tex=images[group.i];for(const vertex of [a,b,c]){const p=vertex.p;group.data.push(...p,center(tex)/tex.width+(group.i===2?-p[0]:p[0])/span(tex),.5-p[1]/2);group.normals.push(...vertex.n);}}
 const cellVertices=new Int32Array(field.length);cellVertices.fill(-1);const vertices=[],cubeEdges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
 for(let z=0;z<nz-1;z++)for(let y=0;y<ny-1;y++)for(let x=0;x<nx-1;x++){const base=x+y*nx+z*plane;let positive=0;for(const offset of cube)positive+=field[base+offset]>0;if(!positive||positive===8)continue;const p=[0,0,0],n=[0,0,0];let count=0;for(const [a,b]of cubeEdges){const ia=base+cube[a],ib=base+cube[b];if((field[ia]>0)===(field[ib]>0))continue;const v=crossing(ia,ib);for(let j=0;j<3;j++){p[j]+=v.p[j];n[j]+=v.n[j];}count++;}const length=Math.hypot(...n)||1;cellVertices[base]=vertices.length;vertices.push({p:p.map(v=>v/count),n:n.map(v=>v/length)});}
-function quad(cells){const ids=cells.map(k=>cellVertices[k]);if(ids.some(k=>k<0))return;const [a,b,c,d]=ids.map(k=>vertices[k]);triangle(a,b,c);triangle(a,c,d);}
+// Automatic geometry fairing runs on shared vertices before UV/group duplication.
+const faces=[],neighbors=Array.from({length:vertices.length},()=>[]);
+function quad(cells){const ids=cells.map(k=>cellVertices[k]);if(ids.some(k=>k<0))return;const [a,b,c,d]=ids;faces.push([a,b,c],[a,c,d]);for(const [u,v]of [[a,b],[b,c],[c,d],[d,a]]){if(!neighbors[u].includes(v))neighbors[u].push(v);if(!neighbors[v].includes(u))neighbors[v].push(u);}}
 for(let z=1;z<nz-1;z++)for(let y=1;y<ny-1;y++)for(let x=1;x<nx-1;x++){const k=x+y*nx+z*plane;if((field[k]>0)!==(field[k+1]>0))quad([k-nx-plane,k-plane,k,k-nx]);if((field[k]>0)!==(field[k+nx]>0))quad([k-1-plane,k-1,k,k-plane]);if((field[k]>0)!==(field[k+plane]>0))quad([k-1-nx,k-nx,k,k-1]);}
-const result=groups.map(g=>({...g,headNeck:2,armTextureLimit:0,squared:false,data:new Float32Array(g.data),normals:new Float32Array(g.normals)}));result.viewProfile={data:profileData,width:2,height:ny,bounds:[z0,z1,min[1],min[1]+step*(ny-1)]};result.reconstruction={power,step,mode:sectionMode,rowPower:Array.from(rowPower),metrics:rowPower.metrics,regionMatching:regionCorrespondence?{regions:regionCorrespondence.palette.length,rows:regionCorrespondence.active}:null};return result;
+// Three conservative Taubin pairs: reduce grid ripples without uncontrolled shrinkage.
+// Keep each displacement below a fraction of a voxel; protect angular creases,
+// narrow parts, and the original front/side silhouette constraints.
+const original=vertices.map(v=>v.p.slice()),mobility=new Float32Array(vertices.length);
+for(let i=0;i<vertices.length;i++){
+ const v=vertices[i],row=Math.max(0,Math.min(ny-1,Math.round((v.p[1]-min[1])/step))),angular=rowPower[row]>=8;
+ let agreement=1;for(const j of neighbors[i])agreement=Math.min(agreement,v.n.reduce((sum,n,k)=>sum+n*vertices[j].n[k],0));
+ mobility[i]=angular?(agreement<.85?0:.18):Math.max(0,Math.min(1,(agreement-.35)/.5));
+}
+function fairPass(factor){
+ const next=vertices.map(v=>v.p.slice());
+ for(let i=0;i<vertices.length;i++){
+  const adjacent=neighbors[i],weight=mobility[i];if(!weight||adjacent.length<3)continue;
+  const p=vertices[i].p,mean=[0,0,0];for(const j of adjacent)for(let k=0;k<3;k++)mean[k]+=vertices[j].p[k]/adjacent.length;
+  let candidate=p.map((v,k)=>v+factor*weight*(mean[k]-v));
+  const delta=candidate.map((v,k)=>v-original[i][k]),length=Math.hypot(...delta),limit=step*.35;
+  if(length>limit)candidate=original[i].map((v,k)=>v+delta[k]*limit/length);
+  // Reject a move that cuts farther into the input silhouette or exceeds it.
+  const f0=front.sample(original[i][0],original[i][1]),s0=side.sample(sideFacing*original[i][2],original[i][1]);
+  const f=front.sample(candidate[0],candidate[1]),s=side.sample(sideFacing*candidate[2],candidate[1]);
+  if(f>=Math.min(f0,-step*.08)&&s>=Math.min(s0,-step*.08)&&Math.abs(f-f0)<=step*.2&&Math.abs(s-s0)<=step*.2)next[i]=candidate;
+ }
+ for(let i=0;i<vertices.length;i++)vertices[i].p=next[i];
+}
+for(let iteration=0;iteration<3;iteration++){fairPass(.45);fairPass(-.47);}
+// Area-weighted normals from the final geometry. Angular regions retain creases.
+const incident=Array.from({length:vertices.length},()=>[]),faceNormals=[];
+for(let index=0;index<faces.length;index++){
+ const ids=faces[index],a=vertices[ids[0]],b=vertices[ids[1]],c=vertices[ids[2]],u=b.p.map((v,k)=>v-a.p[k]),v=c.p.map((x,k)=>x-a.p[k]);
+ let n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];
+ const outward=a.n.map((x,k)=>x+b.n[k]+c.n[k]);if(n.reduce((sum,x,k)=>sum+x*outward[k],0)<0){[ids[1],ids[2]]=[ids[2],ids[1]];n=n.map(x=>-x);}
+ faceNormals.push(n);for(const id of ids)incident[id].push(index);
+}
+const smoothNormals=vertices.map((vertex,i)=>{const sum=[0,0,0];for(const f of incident[i])for(let k=0;k<3;k++)sum[k]+=faceNormals[f][k];const length=Math.hypot(...sum);return length>1e-12?sum.map(x=>x/length):vertex.n;});
+for(let index=0;index<faces.length;index++){
+ const reference=faceNormals[index],referenceLength=Math.hypot(...reference);if(referenceLength<1e-12)continue;
+ const corners=faces[index].map(id=>{
+  const vertex=vertices[id],row=Math.max(0,Math.min(ny-1,Math.round((vertex.p[1]-min[1])/step)));let n=smoothNormals[id];
+  if(rowPower[row]>=8){const sum=[0,0,0];for(const f of incident[id]){const other=faceNormals[f],length=Math.hypot(...other);if(length>1e-12&&reference.reduce((total,x,k)=>total+x*other[k],0)/(referenceLength*length)>=Math.cos(Math.PI/4))for(let k=0;k<3;k++)sum[k]+=other[k];}const length=Math.hypot(...sum);if(length>1e-12)n=sum.map(x=>x/length);}
+  return {p:vertex.p,n};
+ });triangle(...corners);
+}
+const result=groups.map(g=>({...g,headNeck:2,armTextureLimit:0,squared:false,data:new Float32Array(g.data),normals:new Float32Array(g.normals)}));result.viewProfile={data:profileData,width:2,height:ny,bounds:[z0,z1,min[1],min[1]+step*(ny-1)]};result.reconstruction={power,step,mode:sectionMode,automaticSmoothing:{method:'Taubin',pairs:3,maxDisplacement:step*.35,creaseAngle:45},rowPower:Array.from(rowPower),metrics:rowPower.metrics,regionMatching:regionCorrespondence?{regions:regionCorrespondence.palette.length,rows:regionCorrespondence.active}:null};return result;
 }
 
 function drawVolume(){if(!images[0]||!images[1])return;requestReconstruction();if(!volumeMesh)return;gl.enable(gl.DEPTH_TEST);for(const group of volumeMesh){if(!group.data.length)continue;uniforms(program);bindViewProfile(program,volumeMesh);if(!group.vertexBuffer){group.vertexBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,group.vertexBuffer);gl.bufferData(gl.ARRAY_BUFFER,group.data,gl.STATIC_DRAW);group.normalBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,group.normalBuffer);gl.bufferData(gl.ARRAY_BUFFER,group.normals,gl.STATIC_DRAW);}gl.bindBuffer(gl.ARRAY_BUFFER,group.vertexBuffer);const pl=gl.getAttribLocation(program,'p'),ul=gl.getAttribLocation(program,'uv');gl.enableVertexAttribArray(pl);gl.vertexAttribPointer(pl,3,gl.FLOAT,false,20,0);if(ul>=0){gl.enableVertexAttribArray(ul);gl.vertexAttribPointer(ul,2,gl.FLOAT,false,20,12);}gl.bindBuffer(gl.ARRAY_BUFFER,group.normalBuffer);const nl=gl.getAttribLocation(program,'normal');gl.enableVertexAttribArray(nl);gl.vertexAttribPointer(nl,3,gl.FLOAT,false,0,0);gl.uniform1f(gl.getUniformLocation(program,'lighting'),0);gl.uniform1f(gl.getUniformLocation(program,'surface'),1);gl.uniform4f(gl.getUniformLocation(program,'crown'),images[0].top/images[0].height,(volumeMesh&&volumeMesh[0]?volumeMesh[0].headNeck:2),+$('depth').value/200,(volumeMesh&&volumeMesh[0]?volumeMesh[0].armTextureLimit||0:0));for(const [unit,idx,label]of [[1,0,'front'],[2,1,'side'],[3,images[2]?2:0,'back']]){gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,textures[idx]);gl.uniform1i(gl.getUniformLocation(program,label+'Tex'),unit);const im=images[idx];setViewUniforms(program,im,label);}gl.activeTexture(gl.TEXTURE0);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,textures[group.i]);gl.uniform1i(gl.getUniformLocation(program,'image'),0);gl.uniform1f(gl.getUniformLocation(program,'opacity'),+$('opacity').value/100);gl.uniform1f(gl.getUniformLocation(program,'cutoff'),0.0);gl.uniform1f(gl.getUniformLocation(program,'colors'),$('colors').checked?1:0);gl.uniform3fv(gl.getUniformLocation(program,'tint'),group.color);window.bindGrabRest?.(program,group);bindPaint(program,group);gl.drawArrays(gl.TRIANGLES,0,group.data.length/5)}}
@@ -413,7 +457,7 @@ ${cleanSilhouette.toString()}
 ${buildVolume.toString()}
 let lastAlpha=-1;onmessage=e=>{try{const job=e.data,start=performance.now();if(job.images){images=job.images;lastAlpha=-1;}controls=job.controls;sideFacing=job.sideFacing;if(lastAlpha!==Number(controls.cutoff)){for(const im of images)if(im)cleanSilhouette(im);lastAlpha=Number(controls.cutoff);}const mesh=buildVolume(),profile=mesh.viewProfile,details=mesh.reconstruction,metadata=images.map(im=>im?({left:im.left,right:im.right,top:im.top,bottom:im.bottom,projection:im.projection}):null),transfer=mesh.flatMap(g=>[g.data.buffer,g.normals.buffer]);if(profile)transfer.push(profile.data.buffer);postMessage({key:job.key,mesh,profile,details,metadata,ms:performance.now()-start},transfer);}catch(error){postMessage({key:e.data.key,error:error.message});}};`;
  const url=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));try{reconstructionWorker=new Worker(url);}finally{URL.revokeObjectURL(url);}
- reconstructionWorker.onmessage=e=>{workerBusy=false;const r=e.data;if(r.key!==modelKey()){requestReconstruction();return;}if(r.error){failedJob=r.key;buildError=r.error;$('progress').textContent='Erro: '+r.error;return;}releaseVolume(volumeMesh);volumeMesh=r.mesh;volumeMesh.viewProfile=r.profile;volumeMesh.reconstruction=r.details;const lower=[Infinity,Infinity,Infinity],upper=[-Infinity,-Infinity,-Infinity];for(const g of volumeMesh)for(let k=0;k<g.data.length;k+=5)for(let c=0;c<3;c++){lower[c]=Math.min(lower[c],g.data[k+c]);upper[c]=Math.max(upper[c],g.data[k+c]);}volumeMesh.bounds={lower,upper};for(let i=0;i<3;i++)if(images[i]&&r.metadata[i])Object.assign(images[i],r.metadata[i]);if(!cameraMoved||lastFittedVersion!==imageVersion){fitCamera();lastFittedVersion=imageVersion;}volumeKey=r.key;meshVersion++;window.clearGrabHistory?.();window.replaySourceGrab?.();replayPaintStrokes();const triangles=volumeMesh.reduce((n,g)=>n+g.data.length/15,0);$('progress').textContent=triangles.toLocaleString('pt-BR')+' triângulos · '+$('quality').selectedOptions[0].text;$('status').textContent=$('progress').textContent;};
+ reconstructionWorker.onmessage=e=>{workerBusy=false;const r=e.data;if(r.key!==modelKey()){requestReconstruction();return;}if(r.error){failedJob=r.key;buildError=r.error;$('progress').textContent='Erro: '+r.error;return;}releaseVolume(volumeMesh);volumeMesh=r.mesh;volumeMesh.viewProfile=r.profile;volumeMesh.reconstruction=r.details;const lower=[Infinity,Infinity,Infinity],upper=[-Infinity,-Infinity,-Infinity];for(const g of volumeMesh)for(let k=0;k<g.data.length;k+=5)for(let c=0;c<3;c++){lower[c]=Math.min(lower[c],g.data[k+c]);upper[c]=Math.max(upper[c],g.data[k+c]);}volumeMesh.bounds={lower,upper};for(let i=0;i<3;i++)if(images[i]&&r.metadata[i])Object.assign(images[i],r.metadata[i]);if(!cameraMoved||lastFittedVersion!==imageVersion){fitCamera();lastFittedVersion=imageVersion;}volumeKey=r.key;meshVersion++;window.clearGrabHistory?.();window.replaySourceGrab?.();replayPaintStrokes();const triangles=volumeMesh.reduce((n,g)=>n+g.data.length/15,0);$('progress').textContent=triangles.toLocaleString('pt-BR')+' triângulos · '+$('quality').selectedOptions[0].text+' · suavização automática';$('status').textContent=$('progress').textContent;};
  reconstructionWorker.onerror=e=>{workerBusy=false;failedJob=activeJob;buildError=e.message||'Falha no processamento';$('progress').textContent='Erro: '+buildError;};
 }
 function requestReconstruction(){if(!images[0]||!images[1]||window.importedGLBActive)return;const key=modelKey();if(workerBusy||key===volumeKey||key===failedJob)return;activeJob=key;workerBusy=true;buildError='';$('progress').textContent='Reconstruindo em alta qualidade…';try{if(!reconstructionWorker)startReconstructionWorker();const job={key,controls:{cutoff:committedAlpha,quality:$('quality').value,sectionMode:$('sectionMode').value},sideFacing:sideOrientation()};if(workerVersion!==imageVersion){job.images=images.map(im=>im?({width:im.width,height:im.height,left:im.left,right:im.right,top:im.top,bottom:im.bottom,pixels:im.pixels}):null);workerVersion=imageVersion;}reconstructionWorker.postMessage(job);}catch(error){workerBusy=false;failedJob=key;buildError=error.message;$('progress').textContent='Erro: '+error.message;}}
