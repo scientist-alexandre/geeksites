@@ -34,7 +34,10 @@ button,canvas,label,output,summary{-webkit-user-drag:none}
 .studioAudioLabel{padding:2px 8px;background:#242d35;border-right:1px solid #424753;min-width:0;font-size:10px;overflow:hidden}.studioAudioLabel>div{display:flex;align-items:center;gap:6px;height:19px}.studioAudioLabel b{margin-right:auto;color:#9ad6dc}.studioAudioLabel button{font-size:12px;padding:0 6px;line-height:16px}.studioAudioLabel select{width:100%;padding:0 3px;font-size:9px;height:16px;background:#19222c;color:#d5e6ed;border:1px solid #46515f}
 #studioAudioScroll{position:relative;overflow:auto;min-width:0;background:#172128;touch-action:none}#studioAudioContent{height:100%;min-height:34px;min-width:100%;position:relative}#studioAudioEmpty{position:absolute;left:30px;top:10px;font-size:10px;color:#7e9aa5;pointer-events:none}#studioAudioHead{position:absolute;top:0;bottom:0;width:2px;background:#70b4ff;z-index:100;pointer-events:none}.studioAudioClip{position:absolute;top:3px;height:28px;min-width:2px;border:1px solid hsl(var(--audioHue) 45% 55%);background:hsl(var(--audioHue) 35% 28% / .8);border-radius:4px;cursor:grab;overflow:hidden;touch-action:none;isolation:isolate}.studioAudioClip.selected{z-index:5;border-color:#e9faff;box-shadow:0 0 0 1px #b1eaff}.studioAudioClip:active{cursor:grabbing}.studioAudioName{position:absolute;inset:1px 9px auto;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;text-shadow:0 1px 3px #000;pointer-events:none}.studioAudioWave{position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none}.studioAudioWave path{stroke:#cbfcff;stroke-width:.65;fill:none}.studioAudioHandle{position:absolute;top:0;bottom:0;width:8px;background:#d8f6ff44;cursor:ew-resize;z-index:3}.studioAudioHandle:after{content:'';position:absolute;top:8px;bottom:8px;left:3px;border-left:1px solid #effaff}.studioAudioHandle.left{left:0}.studioAudioHandle.right{right:0}
 @media(min-width:1600px){.studioAudioRow{grid-template-columns:200px minmax(0,1fr)}}@media(max-width:850px){.studioAudioRow{grid-template-columns:130px minmax(0,1fr)}}
-.as-vfx-follow-tools{margin:8px 0;font-size:11px}.as-vfx-follow-tools>div{display:flex;gap:6px}.as-vfx-follow-tools button{flex:1;padding:6px!important}.as-vfx-follow-tools small{display:block;margin-top:6px;color:#c3b6ed;line-height:1.4}.as-vfx-follow-local{width:100%;padding:7px!important;margin:0 0 9px!important;background:#473c67!important;color:#eee!important}</style>
+.as-vfx-follow-tools{margin:8px 0;font-size:11px}.as-vfx-follow-tools>div{display:flex;gap:6px}.as-vfx-follow-tools button{flex:1;padding:6px!important}.as-vfx-follow-tools small{display:block;margin-top:6px;color:#c3b6ed;line-height:1.4}.as-vfx-follow-local{width:100%;padding:7px!important;margin:0 0 9px!important;background:#473c67!important;color:#eee!important}
+/* Uma rolagem horizontal compartilhada pelas faixas. */
+#timeScroll{overflow:hidden}#studioAudioScroll{overflow-x:scroll;overflow-y:hidden}
+</style>
 <script>(() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
@@ -880,7 +883,7 @@ button,canvas,label,output,summary{-webkit-user-drag:none}
 })();
 </script></head>
 <body><header><div class="brand"><span>◈</span> Alexandre Studio</div><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar arquivo compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button></div></header>
-<main><nav><button id="orbit" title="Navegar">↖</button><button id="toolPose" title="Modo pose">⟳</button><button id="frame" title="Enquadrar personagem (F)">⊡</button><button id="objectMove" title="Mover objeto no cenário" aria-label="Mover objeto">✥</button><button id="objectScale" title="Escalar objeto" aria-label="Escalar objeto">⤢</button><button id="objectRotate" title="Girar objeto" aria-label="Girar objeto">↻</button><button id="showBones" class="active" title="Mostrar ou ocultar ossos">◇</button><button id="viewportGridToggle" title="Mostrar ou esconder grade do viewport 3D" aria-label="Mostrar piso do viewport 3D" aria-pressed="false" style="font-size:10px;line-height:12px">Piso 3D</button><button id="followBones" title="Seguir ossos" style="font-size:10px;line-height:12px">Seguir<br>ossos</button><button id="objectVisibility" title="Mostrar ou ocultar o objeto selecionado" style="font-size:10px">Visível</button><button id="deleteSceneObject" title="Excluir objeto selecionado da cena" style="font-size:10px;line-height:12px">Excluir<br>objeto</button></nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="rotationAxes" hidden><button data-axis="all" class="active" title="Mostrar os três anéis">XYZ</button><button data-axis="X" title="Girar no eixo X">X</button><button data-axis="Y" title="Girar no eixo Y">Y</button><button data-axis="Z" title="Girar no eixo Z">Z</button><button data-axis="XYZE" title="Giro livre nos três eixos">Livre</button></div><div id="error"></div><div class="hint" id="hint">Arraste para orbitar · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div id="sceneObjects"></div></details><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="1" max="100" value="20"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="1" max="100" value="15"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey">◆ Gravar</button></div></div><div class="faceSection"><div class="faceButtons"><button data-face-preset="happy">Feliz</button><button data-face-preset="sad">Triste</button><button data-face-preset="surprised">Surpresa</button></div></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.1"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="A timeline só troca quando você escolher aqui"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar keyframe (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar keyframe (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioDelete" title="Excluir som selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · arraste para posicionar · alças para cortar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Objeto, câmera, VFX ou céu · Autokey · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
+<main><nav><button id="orbit" title="Navegar">↖</button><button id="toolPose" title="Modo pose">⟳</button><button id="frame" title="Enquadrar personagem (F)">⊡</button><button id="objectMove" title="Mover objeto no cenário" aria-label="Mover objeto">✥</button><button id="objectScale" title="Escalar osso selecionado ou personagem inteiro uniformemente" aria-label="Escalar osso selecionado ou personagem inteiro uniformemente">⤢</button><button id="objectRotate" title="Girar osso selecionado ou personagem inteiro" aria-label="Girar osso selecionado ou personagem inteiro">↻</button><button id="showBones" class="active" title="Mostrar ou ocultar ossos">◇</button><button id="viewportGridToggle" title="Mostrar ou esconder grade do viewport 3D" aria-label="Mostrar piso do viewport 3D" aria-pressed="false" style="font-size:10px;line-height:12px">Piso 3D</button><button id="followBones" title="Seguir ossos" style="font-size:10px;line-height:12px">Seguir<br>ossos</button><button id="objectVisibility" title="Mostrar ou ocultar o objeto selecionado" style="font-size:10px">Visível</button><button id="duplicateSceneObject" title="Duplicar objeto selecionado" style="font-size:10px;line-height:12px">Duplicar<br>objeto</button><button id="deleteSceneObject" title="Excluir objeto selecionado da cena" style="font-size:10px;line-height:12px">Excluir<br>objeto</button></nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="rotationAxes" hidden><button data-axis="all" class="active" title="Mostrar os três anéis">XYZ</button><button data-axis="X" title="Girar no eixo X">X</button><button data-axis="Y" title="Girar no eixo Y">Y</button><button data-axis="Z" title="Girar no eixo Z">Z</button><button data-axis="XYZE" title="Giro livre nos três eixos">Livre</button></div><div id="error"></div><div class="hint" id="hint">Arraste para orbitar · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div id="sceneObjects"></div></details><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="1" max="100" value="20"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="1" max="100" value="15"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey" title="Gravar FaceRig e ossos juntos no keyframe do personagem">◆ Gravar pose + rosto</button></div></div><div class="faceSection"><div class="faceButtons"><button data-face-preset="happy">Feliz</button><button data-face-preset="sad">Triste</button><button data-face-preset="surprised">Surpresa</button></div></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.1"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar pose e rosto, sem posição geral nem escala (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar pose e rosto mantendo posição geral e escala (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioDelete" title="Excluir som selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · arraste para posicionar · alças para cortar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
 <!-- alexandre-vfx:start -->
 <script id="studio-vfx-pixi">
 var qd=Object.defineProperty,Kd=Object.defineProperties;var Zd=Object.getOwnPropertyDescriptors;var ir=Object.getOwnPropertySymbols;var $h=Object.prototype.hasOwnProperty,jh=Object.prototype.propertyIsEnumerable;var Wh=(m,et,pt)=>et in m?qd(m,et,{enumerable:!0,configurable:!0,writable:!0,value:pt}):m[et]=pt,bt=(m,et)=>{for(var pt in et||(et={}))$h.call(et,pt)&&Wh(m,pt,et[pt]);if(ir)for(var pt of ir(et))jh.call(et,pt)&&Wh(m,pt,et[pt]);return m},Qi=(m,et)=>Kd(m,Zd(et));var zn=(m,et)=>{var pt={};for(var Rt in m)$h.call(m,Rt)&&et.indexOf(Rt)<0&&(pt[Rt]=m[Rt]);if(m!=null&&ir)for(var Rt of ir(m))et.indexOf(Rt)<0&&jh.call(m,Rt)&&(pt[Rt]=m[Rt]);return pt};/*!
@@ -43507,7 +43510,7 @@ void main() {
     $("toolPose").classList.toggle("active", m === "pose");
     for (const [id, mode] of [["objectMove", "moveObject"], ["objectScale", "scaleObject"], ["objectRotate", "rotateObject"]]) $(id).classList.toggle("active", m === mode);
     $("hint").textContent = m === "add" ? "Clique no espa\xE7o para criar um filho \xB7 Clique em uma junta para continuar dela \xB7 A cadeia n\xE3o fecha." : m === "pose" ? "Arraste: junta + descendentes \xB7 Shift: s\xF3 a junta \xB7 Gire a c\xE2mera para mover em outra dire\xE7\xE3o" : "Arraste para orbitar \xB7 Bot\xE3o direito para deslocar \xB7 Scroll para aproximar";
-    if (m.endsWith("Object")) $("hint").textContent = m === "moveObject" ? "Clique num osso para selecionar \xB7 Setas para mover \xB7 Arraste fora do personagem para orbitar" : m === "scaleObject" ? "Escala do objeto inteiro" : "Clique num osso para selecionar \xB7 An\xE9is para girar \xB7 Arraste fora do personagem para orbitar";
+    if (m.endsWith("Object")) $("hint").textContent = m === "moveObject" ? "Mover: osso selecionado ou personagem inteiro · Clique em uma bolinha para selecionar o osso · Clique no corpo ou no espaço vazio para desmarcar" : m === "scaleObject" ? "Escala uniforme: osso selecionado ou personagem inteiro · Clique no corpo ou no espaço vazio para desmarcar o osso" : "Girar: osso selecionado ou personagem inteiro · Anéis ou giro Livre · Clique no corpo ou no espaço vazio para desmarcar o osso";
     select(selected);
   }
   function syncSliders() {
@@ -43528,14 +43531,14 @@ void main() {
         while (node) {
           const obj = objects.find((o) => o.root === node);
           if (obj) {
-            selectObject(obj.id);
+            selectObject(obj.id, true);
             break;
           }
           node = node.parent;
         }
       }
     }
-    let picked = null, best = 14;
+    let picked = null, best = 26;
     model.updateMatrixWorld(true);
     camera.updateMatrixWorld(true);
     if (visible) for (const b of bones) {
@@ -43589,7 +43592,7 @@ void main() {
       const p = b.getWorldPosition(new Vector3()).project(camera);
       return { x: (p.x + 1) * r.width / 2 + r.left, y: (1 - p.y) * r.height / 2 + r.top, z: p.z };
     };
-    let best = 16, chosen = null;
+    let best = 26, chosen = null;
     for (const b of bones) {
       const p = screenPoint(b);
       if (p.z < -1 || p.z > 1) continue;
@@ -43686,6 +43689,7 @@ void main() {
   var originalGizmoHover = objectGizmo.pointerHover.bind(objectGizmo);
   objectGizmo.pointerHover = function(pointer2) {
     originalGizmoHover(pointer2);
+    if (editing === "scaleObject" && this.axis !== null && !this.dragging) this.axis = "XYZ";
     if (editing === "rotateObject" && rotationAxisChoice !== "all" && this.axis !== null && !this.dragging) this.axis = rotationAxisChoice;
   };
   function configureRotationAxes() {
@@ -43720,7 +43724,7 @@ void main() {
     if (!timelinePlaying && !gizmoGesture && !drag && !objectDrag) controls.update();
   }
   function transformTarget() {
-    return selected && editing !== "scaleObject" && bones.includes(selected) ? selected : model;
+    return selected && bones.includes(selected) ? selected : model;
   }
   function syncObjectHandle() {
     const target = transformTarget();
@@ -43734,7 +43738,7 @@ void main() {
     target.parent.updateWorldMatrix(true, false);
     const local = target.parent.matrixWorld.clone().invert().multiply(objectTransformHandle.matrixWorld), scale = target.scale.clone();
     local.decompose(target.position, target.quaternion, target.scale);
-    if (target.isBone) target.scale.copy(scale);
+    if (target.isBone && editing !== "scaleObject") target.scale.copy(scale);
     model.updateMatrixWorld(true);
     updateCustomRig();
   }
@@ -43813,7 +43817,7 @@ void main() {
       if (root.isBone && objectGizmo.mode === "rotate" && !root.userData.explicitRotationBase) root.userData.explicitRotationBase = (rest.get(root)?.q || root.quaternion).toArray();
       const previous = root.userData.rotationPath;
       gizmoGesture = { object: root, owner: activeObject, keysBefore: new Map(activeObject.keyframes), mode: objectGizmo.mode, p: root.position.clone(), q: root.quaternion.clone(), s: root.scale.clone(), oldPath: previous, oldFrame: root.userData.rotationPathFrame, path: gestureRotationPath(root) };
-      if (autoKeyEnabled && activeObject.keyframes.size === 0 && currentFrame > 1) activeObject.keyframes.set(1, { pose: capturePose(activeObject), face: activeObject.faceRig ? { ...activeObject.faceRig.values } : void 0 });
+      if (autoKeyEnabled && timelineTrack() === activeObject && activeObject.keyframes.size === 0 && currentFrame > 1) activeObject.keyframes.set(1, { pose: capturePose(activeObject), face: activeObject.faceRig ? { ...activeObject.faceRig.values } : void 0 });
       controls.enabled = false;
     } else finishGizmoGesture(false);
   });
@@ -43850,8 +43854,8 @@ void main() {
   }
   function viewportToolAction(button, bone, gizmoAxis, meshHit) {
     if (button !== 0) return "camera";
-    if (bone) return "bone";
     if (gizmoAxis) return "gizmo";
+    if (bone) return "bone";
     return meshHit ? "object" : "camera";
   }
   renderer.domElement.addEventListener("pointerdown", (e) => {
@@ -43881,6 +43885,15 @@ void main() {
     if (action2 === "object") {
       e.preventDefault();
       e.stopImmediatePropagation();
+      let node = hit.object;
+      while (node) {
+        const owner = objects.find(object => object.root === node);
+        if (owner) {
+          selectObject(owner.id, true);
+          break;
+        }
+        node = node.parent;
+      }
       select(null);
       down = null;
       status("Personagem inteiro selecionado.");
@@ -44455,11 +44468,33 @@ void main() {
       return null;
     }
   }
+  function faceRestFrame(mesh, hit) {
+    mesh.updateWorldMatrix(true, false);
+    const localHit = mesh.worldToLocal(hit.point.clone());
+    if (!mesh.isSkinnedMesh || !hit.face) return { point: localHit, inverse: new Matrix4().identity() };
+    // Raycasts use the posed surface; facial masks use the original vertex positions.
+    // Map the clicked triangle back into its undeformed local coordinates.
+    mesh.skeleton.update();
+    const ids = [hit.face.a, hit.face.b, hit.face.c];
+    const restVertices = ids.map(id => new Vector3().fromBufferAttribute(mesh.geometry.attributes.position, id));
+    const posedVertices = ids.map(id => mesh.getVertexPosition(id, new Vector3()));
+    const basis = vertices => {
+      const x = vertices[1].clone().sub(vertices[0]), y = vertices[2].clone().sub(vertices[0]);
+      const z = new Vector3().crossVectors(x, y);
+      if (z.lengthSq() < 1e-20) return null;
+      z.normalize().multiplyScalar(Math.sqrt(x.length() * y.length()));
+      return new Matrix4().makeBasis(x, y, z).setPosition(vertices[0]);
+    };
+    const posed = basis(posedVertices), neutral = basis(restVertices);
+    if (!posed || !neutral) return { point: localHit, inverse: new Matrix4().identity() };
+    const inverse = neutral.multiply(posed.invert());
+    return { point: localHit.applyMatrix4(inverse), inverse };
+  }
   function fitFaceRegionSurface(obj, region) {
     const mesh = obj.root.getObjectByProperty("uuid", region.meshId);
     if (!mesh) return;
     const positions = mesh.geometry.attributes.position, uv = mesh.geometry.attributes.uv, center = new Vector3().fromArray(region.center), right = new Vector3().fromArray(region.right), up = new Vector3().fromArray(region.up), normal = new Vector3().fromArray(region.normal), rx = region.radius[0], ry = region.radius[1], reach = Math.max(rx, ry) * 2;
-    const scores = new Float64Array(24).fill(Infinity), indices = new Array(24), v = new Vector3();
+    const scores = new Float64Array(24).fill(Infinity), indices = new Array(24).fill(null), v = new Vector3();
     let centerScore = Infinity, centerId = null, depth = 0;
     for (let i = 0; i < positions.count; i++) {
       v.fromBufferAttribute(positions, i).sub(center);
@@ -44594,7 +44629,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
           }
           shader.fragmentShader = shader.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\n" + effects);
         };
-        material.customProgramCacheKey = () => "alexandre-painted-face-7";
+        material.customProgramCacheKey = () => "alexandre-painted-face-8";
         material.needsUpdate = true;
         return material;
       });
@@ -44616,11 +44651,13 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     commitCameraEdit();
     finishDrag(false);
     stop();
+    pauseTimeline();
     const rig = ensureFaceRig(activeObject), channel = FACE_CHANNELS.find((c) => c[0] === id);
     if (!channel) return;
     rig.values[id] = MathUtils.clamp(Number(value) || 0, channel[2], channel[3]);
     applyFaceRig(activeObject);
     syncFaceValues();
+    recordFaceKeyframe();
   }
   function syncFaceValues() {
     const values = activeObject?.faceRig?.values || faceDefaults();
@@ -44665,6 +44702,22 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       faceGuides.add(line);
     }
   }
+  function faceGuideSurfacePoint(mesh, region, slot, angle) {
+    const index = region.surfaceIndices?.[slot];
+    if (Number.isInteger(index) && index >= 0 && index < mesh.geometry.attributes.position.count) {
+      return mesh.getVertexPosition(index, new Vector3());
+    }
+    const point = new Vector3().fromArray(region.center)
+      .addScaledVector(new Vector3().fromArray(region.right), Math.cos(angle) * region.radius[0])
+      .addScaledVector(new Vector3().fromArray(region.up), Math.sin(angle) * region.radius[1]);
+    // Older projects have empty slots in the facial outline. These points must
+    // use the head's skin weights too, instead of remaining in the rest pose.
+    const anchor = region.surfaceCenterIndex;
+    if (mesh.isSkinnedMesh && Number.isInteger(anchor) && anchor >= 0 && anchor < mesh.geometry.attributes.position.count) {
+      mesh.applyBoneTransform(anchor, point);
+    }
+    return point;
+  }
   function updateFaceGuides() {
     faceGuides.visible = !faceRigHidden && !$("panelFace").hidden;
     if (!faceGuides.visible) return;
@@ -44677,13 +44730,8 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       mesh.updateWorldMatrix(true, false);
       const positions = guide.geometry.attributes.position, normal = new Vector3().fromArray(r.normal);
       for (let i = 0; i < positions.count; i++) {
-        const index = r.surfaceIndices?.[Math.round(i / (positions.count - 1) * 24) % 24];
-        let point;
-        if (index != null) point = mesh.getVertexPosition(index, new Vector3());
-        else {
-          const angle = i / (positions.count - 1) * Math.PI * 2;
-          point = new Vector3().fromArray(r.center).addScaledVector(new Vector3().fromArray(r.right), Math.cos(angle) * r.radius[0]).addScaledVector(new Vector3().fromArray(r.up), Math.sin(angle) * r.radius[1]);
-        }
+        const slot = Math.round(i / (positions.count - 1) * 24) % 24;
+        const point = faceGuideSurfacePoint(mesh, r, slot, i / (positions.count - 1) * Math.PI * 2);
         point.addScaledVector(normal, r.unit * 1e-3);
         positions.setXYZ(i, point.x, point.y, point.z);
       }
@@ -44743,6 +44791,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     commitCameraEdit();
     finishDrag(false);
     stop();
+    pauseTimeline();
     const face = ensureFaceRig(activeObject);
     for (const [id, , min, max] of FACE_CHANNELS) face.values[id] = MathUtils.clamp(Number(values[id]) || 0, min, max);
     applyFaceRig(activeObject);
@@ -44750,12 +44799,10 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     recordFaceKeyframe();
   }
   function recordFaceKeyframe(force = false) {
-    if (!activeObject || exportState || !autoKeyEnabled && !force) return;
+    if (!activeObject || timelineTrack() !== activeObject || exportState || !autoKeyEnabled && !force) return;
     ensureFaceRig(activeObject);
-    saveActiveObject();
-    const frame2 = Math.round(currentFrame), old = activeObject.keyframes.get(frame2);
-    activeObject.keyframes.set(frame2, { pose: old?.pose || capturePose(activeObject), face: { ...activeObject.faceRig.values } });
-    renderTimeline();
+    // Face, pose dos ossos e transformação geral são um único keyframe.
+    recordKeyframe(force);
   }
   for (const [id, label, min, max] of FACE_CHANNELS) {
     const row = document.createElement("label");
@@ -44831,10 +44878,10 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     const mesh = activeObject.root.getObjectByProperty("uuid", region.meshId);
     if (mesh) {
       mesh.updateWorldMatrix(true, false);
-      const normal = new Vector3().fromArray(region.normal).transformDirection(mesh.matrixWorld), world = mesh.localToWorld(center.clone()), reach = region.unit * mesh.getWorldScale(new Vector3()).length() * 2;
+      const normal = new Vector3().fromArray(region.normal).transformDirection(mesh.matrixWorld), anchor = center.clone(), world = mesh.localToWorld(anchor), reach = region.unit * mesh.getWorldScale(new Vector3()).length() * 2;
       const projection = new Raycaster(world.clone().addScaledVector(normal, reach), normal.clone().negate(), 0, reach * 2);
       const hit = projection.intersectObject(mesh, false)[0];
-      if (hit) center.copy(mesh.worldToLocal(hit.point.clone()));
+      if (hit) center.copy(faceRestFrame(mesh, hit).point);
     }
     region.center = center.toArray();
     applyFaceRig(activeObject);
@@ -44898,7 +44945,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       status("Clique sobre a malha do rosto.");
       return;
     }
-    const hit = hits[0], mesh = hit.object, inv = mesh.matrixWorld.clone().invert(), center = mesh.worldToLocal(hit.point.clone()), right = new Vector3(1, 0, 0).applyQuaternion(camera.quaternion).transformDirection(inv), up = new Vector3(0, 1, 0).applyQuaternion(camera.quaternion).transformDirection(inv), normal = new Vector3().crossVectors(right, up).normalize();
+    const hit = hits[0], mesh = hit.object, inv = mesh.matrixWorld.clone().invert(), frame = faceRestFrame(mesh, hit), center = frame.point, right = new Vector3(1, 0, 0).applyQuaternion(camera.quaternion).transformDirection(inv).transformDirection(frame.inverse), up = new Vector3(0, 1, 0).applyQuaternion(camera.quaternion).transformDirection(inv).transformDirection(frame.inverse), normal = new Vector3().crossVectors(right, up).normalize();
     const box = new Box3().setFromObject(model), size = box.getSize(new Vector3()), unit = Math.max(size.x, size.y, size.z) * 0.15 / Math.max(mesh.getWorldScale(new Vector3()).length() / Math.sqrt(3), 1e-6);
     const width = +$("faceRegionWidth").value, height = +$("faceRegionHeight").value, id = $("faceRegion").value;
     ensureFaceRig(activeObject).regions[id] = { meshId: mesh.uuid, anchor: center.toArray(), offsetX: 0, offsetY: 0, center: center.toArray(), right: right.toArray(), up: up.toArray(), normal: normal.toArray(), unit, widthPercent: width, heightPercent: height, radius: [unit * width / 100, unit * height / 100, unit * Math.max(width, height) / 150] };
@@ -45049,15 +45096,17 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       syncSkyUI();
       return;
     }
-    if (chooseTimeline || id === sceneVfxTrack.id) timelineSky = false;
+    if (chooseTimeline || id === sceneVfxTrack.id || id === cameraTrack.id) timelineSky = false;
     if (id === sceneVfxTrack.id) {
       timelineVFX = true;
+      timelineCamera = false;
       refreshObjectSelect();
       return;
     }
     if (chooseTimeline) timelineVFX = false;
     if (id === cameraTrack.id) {
       timelineCamera = true;
+      timelineVFX = false;
       refreshObjectSelect();
       return;
     }
@@ -45077,7 +45126,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     $("filename").textContent = obj.name;
     $("clips").replaceChildren(...clips.map((c, i) => new Option(c.name || `Anima\xE7\xE3o ${i + 1}`, i)));
     $("clipPanel").style.display = clips.length ? "block" : "none";
-    setMode("orbit");
+    setMode(editing === "add" && bound ? "pose" : editing);
     selectStudioVfxTarget(obj.id);
     refreshObjectSelect();
   }
@@ -45150,31 +45199,21 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     obj.root.updateMatrixWorld(true);
   }
   function recordKeyframe(force = false, channel = "all", target = null) {
-    if (!activeObject || exportState || !autoKeyEnabled && !force) return;
+    if (!activeObject || timelineTrack() !== activeObject || exportState || !autoKeyEnabled && !force) return;
     saveActiveObject();
     const frame2 = Math.round(currentFrame), captured = capturePose(activeObject), existing = activeObject.keyframes.get(frame2);
-    let pose = captured;
-    if (existing && channel === "bone" && target) {
-      pose = new Map(existing.pose);
-      pose.set(target.uuid, captured.get(target.uuid));
-    } else if (existing && ["translate", "rotate", "scale"].includes(channel)) {
-      pose = new Map(existing.pose);
-      const id = activeObject.root.uuid, old = existing.pose.get(id), current = captured.get(id);
-      if (old) {
-        const merged = { ...old };
-        if (channel === "translate") merged.p = current.p;
-        else if (channel === "scale") merged.s = current.s;
-        else {
-          merged.q = current.q;
-          merged.path = current.path?.map((q) => q.slice());
-        }
-        pose.set(id, merged);
-      } else pose.set(id, current);
-    } else if (existing) {
+    const pose = captured;
+    // Capture sempre o estado completo atual para somar FaceRig e ossos,
+    // independentemente da ferramenta que iniciou a gravação.
+    if (existing) {
       const id = activeObject.root.uuid, old = existing.pose.get(id), current = pose.get(id);
-      if (old?.path && !current.path && old.q.angleTo(current.q) < 1e-4) current.path = old.path.map((q) => q.slice());
+      if (old?.path && current && !current.path && old.q.angleTo(current.q) < 1e-4) current.path = old.path.map(q => q.slice());
     }
-    activeObject.keyframes.set(frame2, { pose, face: ["translate", "rotate", "scale"].includes(channel) && existing?.face ? { ...existing.face } : activeObject.faceRig ? { ...activeObject.faceRig.values } : void 0 });
+    activeObject.keyframes.set(frame2, {
+      ...existing,
+      pose,
+      face: activeObject.faceRig ? { ...activeObject.faceRig.values } : existing?.face
+    });
     if (frame2 > endFrame) {
       endFrame = frame2;
       $("timeEnd").value = endFrame;
@@ -45721,7 +45760,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       const previousAutoKey = autoKeyEnabled;
       autoKeyEnabled = false;
       try {
-        selectObject(obj.id);
+        selectObject(obj.id, true);
       } finally {
         autoKeyEnabled = previousAutoKey;
       }
@@ -47513,7 +47552,10 @@ ${notes}`;
     if (!key) return status("Escolha um frame com keyframe na faixa selecionada.");
     const type = studioTrackType(track);
     if (type === "camera") studioKeyClipboard = { type, data: serializeCamera(key.camera) };
-    else if (type === "object") studioKeyClipboard = { type, source: track.id, data: packPose(key.pose), nodes: [...key.pose.values()].map((v) => studioNodeDescription(track, v.node)), face: key.face ? { ...key.face } : null };
+    else if (type === "object") {
+      const pose = new Map([...key.pose].filter(([, value]) => value.node !== track.root && (value.node.isBone || value.m)));
+      studioKeyClipboard = { type, source: track.id, data: packPose(pose), nodes: [...pose.values()].map(value => studioNodeDescription(track, value.node)), face: key.face ? { ...key.face } : null };
+    }
     else studioKeyClipboard = { type, data: structuredClone(key) };
     updateEditingButtons();
     status("Keyframe copiado \xB7 " + track.name + " \xB7 Frame " + Math.round(currentFrame) + ".");
@@ -47550,18 +47592,23 @@ ${notes}`;
         if (!node && descriptor.bone) return status("Os personagens precisam ter ossos correspondentes para colar este keyframe.");
         if (node) mapped.set(descriptor.id, node);
       }
-      const pose = /* @__PURE__ */ new Map();
+      // Keep the destination's complete placement and scale; paste only its pose.
+      const pose = capturePose(track);
       for (const [id, value] of clip.data) {
         const node = mapped.get(id);
-        if (!node) continue;
-        const transform = { node, p: new Vector3().fromArray(value.p), q: new Quaternion().fromArray(value.q), s: new Vector3().fromArray(value.s) };
-        if (typeof value.v === "boolean") transform.v = value.v;
-        if (value.m) transform.m = value.m.slice();
-        if (value.g) transform.g = { ...value.g };
+        if (!node || node === track.root) continue;
+        const current = pose.get(node.uuid);
+        if (!current) continue;
+        const transform = { ...current };
+        if (node.isBone) {
+          transform.p = new Vector3().fromArray(value.p);
+          transform.q = new Quaternion().fromArray(value.q);
+          delete transform.path;
+        }
+        if (value.m && node.morphTargetInfluences) transform.m = value.m.slice();
         pose.set(node.uuid, transform);
       }
-      if (!pose.size) return status("Este objeto n\xE3o possui elementos compat\xEDveis com o keyframe.");
-      key = { pose, ...clip.face && track.faceRig ? { face: { ...clip.face } } : {} };
+      key = { pose, face: clip.face && track.faceRig ? { ...clip.face } : track.faceRig ? { ...track.faceRig.values } : undefined };
     } else key = structuredClone(clip.data);
     const frame2 = Math.round(currentFrame);
     track.keyframes.set(frame2, key);
@@ -47871,7 +47918,7 @@ ${notes}`;
     $("skyPanoramaName").textContent = skyPanorama.name || "Sem panorama";
   }
   function recordSkyKey(force = false) {
-    if (exportState || !autoKeyEnabled && !force) return;
+    if (timelineTrack() !== skyTrack || exportState || !autoKeyEnabled && !force) return;
     const frame2 = Math.round(currentFrame);
     if (!skyTrack.keyframes.size && frame2 > 1) skyTrack.keyframes.set(1, { ...skyDefaults, enabled: skyState.enabled });
     skyTrack.keyframes.set(frame2, { ...skyState });
@@ -48094,7 +48141,7 @@ ${notes}`;
     object.root.updateMatrixWorld(true);
     syncSceneGrounds((currentFrame - 1) / 24);
     if (activeObject === object) recordKeyframe();
-    else if (autoKeyEnabled) {
+    else if (autoKeyEnabled && timelineTrack() === object) {
       object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
     }
     syncGroundUI();
@@ -48144,7 +48191,7 @@ ${notes}`;
       object.root.userData.studioGround.color = "#ffffff";
       syncSceneGrounds((currentFrame - 1) / 24);
       if (activeObject === object) recordKeyframe();
-      else if (autoKeyEnabled) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
+      else if (autoKeyEnabled && timelineTrack() === object) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
       syncGroundUI();
       vfxLastDraw = 0;
       status("Textura aplicada ao ch\xE3o. Ajuste Repetir X e Repetir Z.");
@@ -48168,7 +48215,7 @@ ${notes}`;
     delete object.root.userData.groundSolidColor;
     syncSceneGrounds((currentFrame - 1) / 24);
     if (activeObject === object) recordKeyframe();
-    else if (autoKeyEnabled) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
+    else if (autoKeyEnabled && timelineTrack() === object) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
     syncGroundUI();
     vfxLastDraw = 0;
     status("Textura do ch\xE3o removida.");
@@ -49006,7 +49053,7 @@ ${notes}`;
   var vfxInputContext = vfxInput.getContext("2d");
   var vfxLastDraw = 0;
   function recordStudioVfx(force = false) {
-    if (!vfxState || exportState || !autoKeyEnabled && !force) return;
+    if (!vfxState || timelineTrack() !== sceneVfxTrack || exportState || !autoKeyEnabled && !force) return;
     const frame2 = Math.round(currentFrame);
     if (!sceneVfxTrack.keyframes.size && frame2 > 1) sceneVfxTrack.keyframes.set(1, JSON.parse(JSON.stringify(vfxDefaultState)));
     sceneVfxTrack.keyframes.set(frame2, JSON.parse(JSON.stringify(vfxState)));
@@ -49063,6 +49110,21 @@ ${notes}`;
     vfxState = sampleVfxBank(frame2, vfxState, [...sceneVfxTrack.keyframes]);
     vfxApi.setState(vfxState, false);
   }
+  function studioVfxReplacesSource(state) {
+    const c = state?.config || {};
+    // Lighting and particles add to the existing character. Only effects that
+    // move, dissolve or replace the source need it removed from the base pass.
+    return !!(
+      (c.mirrorActive && c.mirrorStrength > 0) || c.zoomActive ||
+      (c.rippleActive && c.rippleStrength > 0) ||
+      (c.shakeActive && c.shakeStrength > 0) ||
+      (c.scrollActive !== false && c.scrollSpeed) ||
+      (c.windActive !== false && state?.mask && c.windStrength > 0) ||
+      (c.impactActive !== false && c.impactStart != null) ||
+      (c.vaporActive !== false && c.vaporProgress > 0) ||
+      c.action?.kind || c.imageSmoke?.active || c.imageGlass?.active
+    );
+  }
   function renderStudioFrame(time, exporting = false) {
     updateBoneFollowers();
     refreshFollowPins();
@@ -49086,7 +49148,7 @@ ${notes}`;
       const target = objects.find((o) => o.id === id);
       if (id !== "__scene__" && (!target || !target.root.visible)) continue;
       vfxApi.setState(bank.state, false);
-      if (vfxApi.active()) passes.push({ id, target, state: bank.state });
+      if (vfxApi.active()) passes.push({ id, target, state: bank.state, replacesSource: studioVfxReplacesSource(bank.state) });
     }
     vfxApi.setState(vfxState, false);
     if (!passes.length) {
@@ -49107,7 +49169,7 @@ ${notes}`;
         renderer.render(scene, camera);
         renderer.shadowMap.autoUpdate = false;
       }
-      const hidden = [.../* @__PURE__ */ new Set([...passes.filter((p) => p.target).map((p) => p.target.root), ...objects.filter((o) => o.root.userData.environmentParticles).map((o) => o.root)])].map((root) => [root, root.visible]);
+      const hidden = [.../* @__PURE__ */ new Set([...passes.filter((p) => p.target && p.replacesSource).map((p) => p.target.root), ...objects.filter((o) => o.root.userData.environmentParticles).map((o) => o.root)])].map((root) => [root, root.visible]);
       try {
         for (const [node] of hidden) node.visible = false;
         renderer.render(scene, camera);
@@ -49242,11 +49304,60 @@ ${notes}`;
     const object = activeObject, isObject = !!object && !timelineSky && !timelineCamera && !timelineVFX;
     $("objectVisibility").disabled = !isObject;
     $("deleteSceneObject").disabled = !isObject;
+    $("duplicateSceneObject").disabled = !isObject;
     $("objectVisibility").textContent = object?.root.visible === false ? "Invis\xEDvel" : "Vis\xEDvel";
     $("objectVisibility").setAttribute("aria-pressed", String(object?.root.visible !== false));
   }
   $("objectVisibility").onclick = () => {
     if (!timelineSky && !timelineCamera && !timelineVFX) toggleSceneObject(activeObject);
+  };
+  $("duplicateSceneObject").onclick = async () => {
+    if (!activeObject || timelineTrack() !== activeObject || exportState || studioSaving) return;
+    const button = $("duplicateSceneObject");
+    button.disabled = true;
+    try {
+      commitCameraEdit();
+      finishDrag(false);
+      stop();
+      pauseTimeline();
+      saveActiveObject();
+      stashStudioVfxBank();
+      const source = activeObject, entry = packStudioObject(source), ids = new Map();
+      source.root.traverse(node => ids.set(node.uuid, MathUtils.generateUUID()));
+      // Remap internal references, including bones, poses, rig and animation bindings.
+      const remap = value => {
+        if (typeof value === "string") {
+          for (const [oldId, newId] of ids) value = value.split(oldId).join(newId);
+          return value;
+        }
+        if (ArrayBuffer.isView(value)) return value.slice();
+        if (Array.isArray(value)) return value.map(remap);
+        if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([k,v]) => [k, remap(v)]));
+        return value;
+      };
+      const data = remap(entry);
+      const baseName = source.root.userData.studioDuplicateBaseName || source.name.replace(/(?: \(cópia\))+$/, "");
+      const extension = /\.[a-z0-9]{1,8}$/i.exec(baseName)?.[0] || "";
+      const stem = extension ? baseName.slice(0, -extension.length) : baseName;
+      let number = 1;
+      while (objects.some(object => object.name === stem + " " + number + extension)) number++;
+      data.name = stem + " " + number + extension;
+      const copy = await unpackStudioObject(data);
+      copy.root.userData.studioDuplicateBaseName = baseName;
+      copy.root.name = data.name;
+      scene.add(copy.root);
+      objects.push(copy);
+      if (studioVfxBanks[source.id]) studioVfxBanks[copy.id] = structuredClone(studioVfxBanks[source.id]);
+      selectObject(copy.id, true);
+      rebuild();
+      refreshObjectSelect();
+      vfxLastDraw = 0;
+      status("Objeto duplicado: " + copy.name);
+    } catch (error) {
+      status("Falha ao duplicar objeto: " + error.message);
+    } finally {
+      syncSceneObjectButtons();
+    }
   };
   $("deleteSceneObject").onclick = () => {
     if (!activeObject || timelineSky || timelineCamera || timelineVFX || exportState || studioSaving) return;
@@ -49344,7 +49455,7 @@ ${notes}`;
     pauseTimeline();
     stop();
     const wasVisible = object.root.visible !== false, frame2 = Math.round(currentFrame);
-    if (autoKeyEnabled) {
+    if (autoKeyEnabled && timelineTrack() === object) {
       for (const key of object.keyframes.values()) {
         const root = key.pose.get(object.root.uuid);
         if (root && typeof root.v !== "boolean") root.v = wasVisible;
@@ -49352,7 +49463,7 @@ ${notes}`;
       if (frame2 > 1 && ![...object.keyframes.keys()].some((f) => f < frame2)) object.keyframes.set(1, { pose: capturePose(object), ...object.faceRig ? { face: { ...object.faceRig.values } } : {} });
     }
     object.root.visible = !wasVisible;
-    if (autoKeyEnabled) {
+    if (autoKeyEnabled && timelineTrack() === object) {
       const previous = object.keyframes.get(frame2), pose = previous ? new Map(previous.pose) : capturePose(object), root = pose.get(object.root.uuid) || capturePose(object).get(object.root.uuid);
       pose.set(object.root.uuid, { ...root, v: object.root.visible });
       object.keyframes.set(frame2, { ...previous, pose, ...!previous?.face && object.faceRig ? { face: { ...object.faceRig.values } } : {} });
@@ -49944,7 +50055,7 @@ ${notes}`;
     const size = Math.max(controls.target.distanceTo(camera.position) * 4e-3, 1e-3);
     for (const m of markers) {
       m.position.copy(m.userData.bone.getWorldPosition(new Vector3()));
-      m.scale.setScalar(size / 0.035);
+      m.scale.setScalar(size * 2 / 0.035);
     }
     for (const { line, b } of keys) {
       const a = b.getWorldPosition(new Vector3()), c = b.parent.getWorldPosition(new Vector3());
