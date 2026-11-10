@@ -890,9 +890,9 @@ main{grid-template-columns:64px minmax(0,1fr) 290px}main>aside{grid-column:3;gri
   var gifenc = __toESM(require_gifenc());
   window.__offlineGifenc = gifenc;
 })();
-</script><style>.timeKey.selected{background:#ffcc66!important;box-shadow:0 0 0 3px #ffcc6680!important;z-index:4}</style></head>
+</script><style>.timeKey.selected{background:#ffcc66!important;box-shadow:0 0 0 3px #ffcc6680!important;z-index:4}</style><style>.sceneObjectRow{grid-template-columns:16px minmax(0,1fr) 22px 22px 22px!important}</style></head>
 <body><header><div class="brand"><span>◈</span> Alexandre Studio</div><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar arquivo compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button id="tabShapes" class="workspace-tab" role="tab" aria-selected="false" aria-controls="panelShapes">Shape Keys</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button><button class="workspace-tab" id="tabObjects" role="tab" aria-selected="false" aria-controls="panelObjects">Objetos</button></div></header>
-<main><nav><button id="orbit" title="Navegar">↖</button><button id="toolPose" title="Modo pose">⟳</button><button id="frame" title="Enquadrar personagem (F)">⊡</button><button id="objectMove" title="Mover objeto no cenário" aria-label="Mover objeto">✥</button><button id="objectScale" title="Escalar osso selecionado ou personagem inteiro uniformemente" aria-label="Escalar osso selecionado ou personagem inteiro uniformemente">⤢</button><button id="objectRotate" title="Girar osso selecionado ou personagem inteiro" aria-label="Girar osso selecionado ou personagem inteiro">↻</button><button id="showBones" class="active" title="Mostrar ou ocultar ossos">◇</button><button id="viewportGridToggle" title="Mostrar ou esconder grade do viewport 3D" aria-label="Mostrar piso do viewport 3D" aria-pressed="false" style="font-size:10px;line-height:12px">Piso 3D</button><button id="followBones" title="Seguir ossos" style="font-size:10px;line-height:12px">Seguir<br>ossos</button><button id="objectVisibility" title="Mostrar ou ocultar o objeto selecionado" style="font-size:10px">Visível</button><button id="duplicateSceneObject" title="Duplicar objeto selecionado" style="font-size:10px;line-height:12px">Duplicar<br>objeto</button><button id="deleteSceneObject" title="Excluir objeto selecionado da cena" style="font-size:10px;line-height:12px">Excluir<br>objeto</button></nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="rotationAxes" hidden><button data-axis="all" class="active" title="Mostrar os três anéis">XYZ</button><button data-axis="X" title="Girar no eixo X">X</button><button data-axis="Y" title="Girar no eixo Y">Y</button><button data-axis="Z" title="Girar no eixo Z">Z</button><button data-axis="XYZE" title="Giro livre nos três eixos">Livre</button></div><div id="error"></div><div class="hint" id="hint">Arraste para orbitar · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div id="sceneObjects"></div></details></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><input id="shapeName" maxlength="100" placeholder="Nome da Shape Key"><button id="shapeNew" class="primary">＋ Criar Shape Key</button><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p><div id="shapeList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="1" max="100" value="20"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="1" max="100" value="15"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey" title="Gravar FaceRig e ossos juntos no keyframe do personagem">◆ Gravar pose + rosto</button></div></div><div class="faceSection"><div class="faceButtons"><button data-face-preset="happy">Feliz</button><button data-face-preset="sad">Triste</button><button data-face-preset="angry">Raiva</button><button data-face-preset="surprised">Surpresa</button></div></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.1"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar pose e rosto, sem posição geral nem escala (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar pose e rosto mantendo posição geral e escala (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioDelete" title="Excluir som selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · arraste para posicionar · alças para cortar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
+<main><nav><button id="orbit" title="Navegar">↖</button><button id="toolPose" title="Modo pose">⟳</button><button id="frame" title="Enquadrar personagem (F)">⊡</button><button id="baseGrab" title="Grab · corrigir malha" style="font-size:10px">Grab</button><button id="baseGrabUndo" title="Desfazer Grab" style="font-size:10px">↶ Grab</button><button id="objectMove" title="Mover objeto no cenário" aria-label="Mover objeto">✥</button><button id="objectScale" title="Escalar osso selecionado ou personagem inteiro uniformemente" aria-label="Escalar osso selecionado ou personagem inteiro uniformemente">⤢</button><button id="objectRotate" title="Girar osso selecionado ou personagem inteiro" aria-label="Girar osso selecionado ou personagem inteiro">↻</button><button id="showBones" class="active" title="Mostrar ou ocultar ossos">◇</button><button id="viewportGridToggle" title="Mostrar ou esconder grade do viewport 3D" aria-label="Mostrar piso do viewport 3D" aria-pressed="false" style="font-size:10px;line-height:12px">Piso 3D</button><button id="followBones" title="Seguir ossos" style="font-size:10px;line-height:12px">Seguir<br>ossos</button><button id="objectVisibility" title="Mostrar ou ocultar o objeto selecionado" style="font-size:10px">Visível</button><button id="duplicateSceneObject" title="Duplicar objeto selecionado" style="font-size:10px;line-height:12px">Duplicar<br>objeto</button><button id="deleteSceneObject" title="Excluir objeto selecionado da cena" style="font-size:10px;line-height:12px">Excluir<br>objeto</button></nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="rotationAxes" hidden><button data-axis="all" class="active" title="Mostrar os três anéis">XYZ</button><button data-axis="X" title="Girar no eixo X">X</button><button data-axis="Y" title="Girar no eixo Y">Y</button><button data-axis="Z" title="Girar no eixo Z">Z</button><button data-axis="XYZE" title="Giro livre nos três eixos">Livre</button></div><div id="error"></div><div class="hint" id="hint">Arraste para orbitar · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><input id="shapeName" maxlength="100" placeholder="Nome da Shape Key"><button id="shapeNew" class="primary">＋ Criar Shape Key</button><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p><div id="shapeList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="1" max="200" value="20"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="1" max="200" value="15"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey" title="Gravar FaceRig e ossos juntos no keyframe do personagem">◆ Gravar pose + rosto</button></div></div><div class="faceSection"><div class="faceButtons"><button data-face-preset="happy">Feliz</button><button data-face-preset="sad">Triste</button><button data-face-preset="angry">Raiva</button><button data-face-preset="surprised">Surpresa</button></div></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.1"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar pose e rosto, sem posição geral nem escala (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar pose e rosto mantendo posição geral e escala (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioDelete" title="Excluir som selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · arraste para posicionar · alças para cortar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
 <!-- alexandre-vfx:start -->
 <script id="studio-vfx-pixi">
 var qd=Object.defineProperty,Kd=Object.defineProperties;var Zd=Object.getOwnPropertyDescriptors;var ir=Object.getOwnPropertySymbols;var $h=Object.prototype.hasOwnProperty,jh=Object.prototype.propertyIsEnumerable;var Wh=(m,et,pt)=>et in m?qd(m,et,{enumerable:!0,configurable:!0,writable:!0,value:pt}):m[et]=pt,bt=(m,et)=>{for(var pt in et||(et={}))$h.call(et,pt)&&Wh(m,pt,et[pt]);if(ir)for(var pt of ir(et))jh.call(et,pt)&&Wh(m,pt,et[pt]);return m},Qi=(m,et)=>Kd(m,Zd(et));var zn=(m,et)=>{var pt={};for(var Rt in m)$h.call(m,Rt)&&et.indexOf(Rt)<0&&(pt[Rt]=m[Rt]);if(m!=null&&ir)for(var Rt of ir(m))et.indexOf(Rt)<0&&jh.call(m,Rt)&&(pt[Rt]=m[Rt]);return pt};/*!
@@ -43504,6 +43504,10 @@ void main() {
     if (m === "add" && bound) return status("Este modelo j\xE1 tem rig. Use Modo pose para mover os ossos.");
     finishDrag(true);
     stop();
+    if(typeof baseGrabStroke!=="undefined"&&baseGrabStroke)finishBaseGrab(null);
+    if(typeof baseGrabMode!=="undefined")baseGrabMode=false;
+    $("baseGrab").classList.remove("active");
+    if(typeof baseGrabHistory!=="undefined")updateBaseGrabButtons();
     objectGizmo.detach();
     editing = m;
     controls.enabled = true;
@@ -43788,7 +43792,7 @@ void main() {
     if (!timelinePlaying && !gizmoGesture && !drag && !objectDrag) controls.update();
   }
   function transformTarget() {
-    return selected && bones.includes(selected) ? selected : model;
+    return selected && bones.includes(selected) ? selected : studioFolderFor(activeObject)?.root || model;
   }
   function syncObjectHandle() {
     const target = transformTarget();
@@ -43854,8 +43858,8 @@ void main() {
       g.object.scale.copy(g.s);
       g.object.userData.rotationPath = g.oldPath;
       g.object.userData.rotationPathFrame = g.oldFrame;
-      if (g.keysBefore && activeObject === g.owner) {
-        activeObject.keyframes = new Map(g.keysBefore);
+      if (g.keysBefore && g.owner) {
+        g.owner.keyframes = new Map(g.keysBefore);
         renderTimeline();
       }
     } else {
@@ -43880,7 +43884,7 @@ void main() {
       if (!root) return;
       if (root.isBone && objectGizmo.mode === "rotate" && !root.userData.explicitRotationBase) root.userData.explicitRotationBase = (rest.get(root)?.q || root.quaternion).toArray();
       const previous = root.userData.rotationPath;
-      gizmoGesture = { object: root, owner: activeObject, keysBefore: new Map(activeObject.keyframes), mode: objectGizmo.mode, p: root.position.clone(), q: root.quaternion.clone(), s: root.scale.clone(), oldPath: previous, oldFrame: root.userData.rotationPathFrame, path: gestureRotationPath(root) };
+      gizmoGesture = { object: root, owner: objects.find(o=>o.root===root)||activeObject, keysBefore: new Map((objects.find(o=>o.root===root)||activeObject).keyframes), mode: objectGizmo.mode, p: root.position.clone(), q: root.quaternion.clone(), s: root.scale.clone(), oldPath: previous, oldFrame: root.userData.rotationPathFrame, path: gestureRotationPath(root) };
       if (autoKeyEnabled && timelineTrack() === activeObject && activeObject.keyframes.size === 0 && currentFrame > 1) activeObject.keyframes.set(1, { pose: capturePose(activeObject), face: activeObject.faceRig ? { ...activeObject.faceRig.values } : void 0 });
       controls.enabled = false;
     } else finishGizmoGesture(false);
@@ -44701,11 +44705,22 @@ void main() {
 float angle=afV3.${i === 2 ? "x" : "y"};float cs=cos(angle),sn=sin(angle);
 vec2 relative=vec2(d.x,d.y-shift);
 vec2 source=vec2(cs*relative.x+sn*relative.y,-sn*relative.x+cs*relative.y);
+vec2 sourceP=source/afS${i}.xy;
+float depthMask=1.0-smoothstep(0.75,1.0,abs(d.z)/max(afS${i}.z,0.000001));
+float edgeSoft=max(0.025,afSoft${i});
+float originalShape=pow(pow(abs(p.x),4.0)+pow(abs(p.y),4.0),0.25);
+float rotatedShape=pow(pow(abs(sourceP.x),4.0)+pow(abs(sourceP.y),4.0),0.25);
+float originalMask=(1.0-smoothstep(1.0-edgeSoft,1.0,originalShape))*depthMask;
+float rotatedMask=(1.0-smoothstep(1.0-edgeSoft,1.0,rotatedShape))*depthMask;
+mask=max(originalMask,rotatedMask);
 vec2 delta=afUvR${i}*(source.x-d.x)+afUvU${i}*(source.y-d.y);
+if(abs(angle)>0.0000001){
+diffuseColor.rgb=mix(diffuseColor.rgb,afSkin${i}*diffuse,originalMask);
 #ifdef USE_MAP
-vec4 moved=texture2D(map,vMapUv+delta);if(afHasPaint${i}<0.5)diffuseColor.rgb=mix(diffuseColor.rgb,moved.rgb*diffuse,mask);
+vec4 moved=texture2D(map,vMapUv+delta);if(afHasPaint${i}<0.5)diffuseColor.rgb=mix(diffuseColor.rgb,moved.rgb*diffuse,rotatedMask);
 #endif
-if(afHasPaint${i}>0.5&&(abs(shift)+abs(angle)>0.0000001)){vec2 paintUv=vec2(0.5+source.x/(4.0*afS${i}.x),0.5-source.y/(4.0*afS${i}.y));vec4 paint=texture2D(afPaint${i},paintUv);diffuseColor.rgb=mix(diffuseColor.rgb,paint.rgb*diffuse,mask*paint.a);} `;
+if(afHasPaint${i}>0.5){vec2 paintUv=vec2(0.5+source.x/(4.0*afS${i}.x),0.5-source.y/(4.0*afS${i}.y));vec4 paint=texture2D(afPaint${i},paintUv);diffuseColor.rgb=mix(diffuseColor.rgb,paint.rgb*diffuse,rotatedMask*paint.a);}
+} `;
             } else {
               action2 = `float width=max(0.4,1.0+afV1.w*0.35);float mouthX=clamp(p.x/0.55,-1.0,1.0);float smile=afV1.z*mouthX*mouthX*afS${i}.y*0.55;vec2 delta=afUvR${i}*(d.x/width-d.x)-afUvU${i}*smile;
 #ifdef USE_MAP
@@ -44718,7 +44733,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
           }
           shader.fragmentShader = shader.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\n" + effects);
         };
-        material.customProgramCacheKey = () => "alexandre-painted-face-10-existing-brows";
+        material.customProgramCacheKey = () => "alexandre-painted-face-11-moving-brow-mask";
         material.needsUpdate = true;
         return material;
       });
@@ -44788,17 +44803,29 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       line.frustumCulled = false;
       line.renderOrder = 30;
       line.userData.region = region;
+      line.userData.regionId = id;
       faceGuides.add(line);
     }
   }
-  function faceGuideSurfacePoint(mesh, region, slot, angle) {
-    const index = region.surfaceIndices?.[slot];
+  function faceGuideSurfacePoint(mesh, region, slot, angle, regionId = '') {
+    const brow=regionId==='browL'||regionId==='browR';
+    const index = brow?null:region.surfaceIndices?.[slot];
     if (Number.isInteger(index) && index >= 0 && index < mesh.geometry.attributes.position.count) {
       return mesh.getVertexPosition(index, new Vector3());
     }
+    let x=Math.cos(angle),y=Math.sin(angle);
+    if(brow){x=Math.sign(x)*Math.sqrt(Math.abs(x));y=Math.sign(y)*Math.sqrt(Math.abs(y));}
+    x*=region.radius[0];y*=region.radius[1];
+    if(brow){
+      const other=activeObject?.faceRig?.regions[regionId==='browL'?'browR':'browL'];
+      let inward=regionId==='browL'?1:-1;
+      if(other){const d=new Vector3().fromArray(other.center).sub(new Vector3().fromArray(region.center)).dot(new Vector3().fromArray(region.right));if(Math.abs(d)>1e-8)inward=Math.sign(d);}
+      const tilt=MathUtils.clamp(activeObject?.faceRig?.values[regionId]||0,-100,100)/100*Math.PI/6*inward;
+      const cs=Math.cos(tilt),sn=Math.sin(tilt),oldX=x;x=cs*x-sn*y;y=sn*oldX+cs*y;
+    }
     const point = new Vector3().fromArray(region.center)
-      .addScaledVector(new Vector3().fromArray(region.right), Math.cos(angle) * region.radius[0])
-      .addScaledVector(new Vector3().fromArray(region.up), Math.sin(angle) * region.radius[1]);
+      .addScaledVector(new Vector3().fromArray(region.right), x)
+      .addScaledVector(new Vector3().fromArray(region.up), y);
     // Older projects have empty slots in the facial outline. These points must
     // use the head's skin weights too, instead of remaining in the rest pose.
     const anchor = region.surfaceCenterIndex;
@@ -44820,7 +44847,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       const positions = guide.geometry.attributes.position, normal = new Vector3().fromArray(r.normal);
       for (let i = 0; i < positions.count; i++) {
         const slot = Math.round(i / (positions.count - 1) * 24) % 24;
-        const point = faceGuideSurfacePoint(mesh, r, slot, i / (positions.count - 1) * Math.PI * 2);
+        const point = faceGuideSurfacePoint(mesh, r, slot, i / (positions.count - 1) * Math.PI * 2, guide.userData.regionId);
         point.addScaledVector(normal, r.unit * 1e-3);
         positions.setXYZ(i, point.x, point.y, point.z);
       }
@@ -45178,6 +45205,8 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     renderTimeline();
   }
   function selectObject(id, chooseTimeline = false) {
+    if(!id)return;
+    if(typeof baseGrabStroke!=="undefined"&&baseGrabStroke)finishBaseGrab(null);
     if (id.startsWith('__shapes__')) {
       const objectId=id.slice(10);timelineShapes=false;selectObject(objectId,true);
       timelineShapes=true;timelineSky=timelineVFX=timelineCamera=false;refreshObjectSelect();return;
@@ -45230,6 +45259,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
   function capturePose(obj) {
     const entries = /* @__PURE__ */ new Map();
     for (const node of [obj.root, ...obj.bones]) entries.set(node.uuid, { node, p: node.position.clone(), q: node.quaternion.clone(), s: node.scale.clone(), ...node === obj.root ? { v: node.visible !== false } : {}, ...node === obj.root && node.userData.studioGround ? { g: { ...node.userData.studioGround } } : {}, ...node === obj.root && node.userData.rotationPathFrame === Math.round(currentFrame) && isFullRotationPath(node.userData.rotationPath) ? { path: node.userData.rotationPath.map((q) => q.slice()) } : {} });
+    if(obj.root.userData.studioFolder)return entries;
     obj.root.traverse((node) => {
       if (node.morphTargetInfluences) entries.set(node.uuid, { node, p: node.position.clone(), q: node.quaternion.clone(), s: node.scale.clone(), m: node.morphTargetInfluences.slice() });
     });
@@ -45296,6 +45326,11 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     obj.root.updateMatrixWorld(true);
   }
   function recordKeyframe(force = false, channel = "all", target = null) {
+    const folder=target&&objects.find(o=>o.root===target&&o.root.userData.studioFolder);
+    if(folder&&folder!==activeObject){
+      if(exportState||!autoKeyEnabled&&!force)return;
+      folder.keyframes.set(Math.round(currentFrame),{pose:capturePose(folder)});renderTimeline();return;
+    }
     if (!activeObject || timelineTrack() !== activeObject || exportState || !autoKeyEnabled && !force) return;
     saveActiveObject();
     const frame2 = Math.round(currentFrame), captured = capturePose(activeObject), existing = activeObject.keyframes.get(frame2);
@@ -45643,7 +45678,10 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     return { metadata: { version: 4.6, type: "BufferGeometry", generator: "AlexandreStudio" }, uuid: geometry.uuid, type: "BufferGeometry", name: geometry.name, userData: geometry.userData, data };
   }
   function serializeRoot(root) {
-    return serializeRuntimeFreeRoot(root, () => serializeRootGeometry(root));
+    const children=root.userData.studioFolder?root.children.filter(n=>objects.some(o=>o.root===n)):[];
+    const order=root.children.slice();for(const child of children)root.remove(child);
+    try{return serializeRuntimeFreeRoot(root, () => serializeRootGeometry(root));}
+    finally{for(const child of children)root.add(child);if(children.length)root.children.splice(0,root.children.length,...order);}
   }
   function serializeRootGeometry(root) {
     const swaps = [];
@@ -45765,6 +45803,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
           applyFaceRig(obj);
         }
       }
+      restoreStudioFolders();
       activeObject = objects.find((o) => o.id === data.activeId) || objects[0] || null;
       model = activeObject?.root || null;
       bones = activeObject?.bones || [];
@@ -49062,7 +49101,7 @@ ${notes}`;
   var studioOccludedEffectContext = studioOccludedEffect.getContext("2d");
   function renderStudioVfxSource(target) {
     const clear = renderer.getClearColor(new Color()), alpha = renderer.getClearAlpha(), background = scene.background, autoClear = renderer.autoClear, targetVisible = target.root.visible, materials = [], hidden = [];
-    for (const object of objects) if (object !== target) object.root.traverse((mesh) => {
+    for (const object of objects) if (object !== target && !object.root.userData.studioFolder && !studioInside(object.root,target.root)) object.root.traverse((mesh) => {
       if (!mesh.isMesh) {
         if (mesh.isPoints || mesh.isLineSegments) {
           hidden.push([mesh, mesh.visible]);
@@ -49308,7 +49347,7 @@ ${notes}`;
     const passes = [];
     for (const [id, bank] of studioVfxBankEntries()) {
       const target = objects.find((o) => o.id === id);
-      if (id !== "__scene__" && (!target || !target.root.visible)) continue;
+      if (id !== "__scene__" && (!target || !studioTreeVisible(target.root))) continue;
       vfxApi.setState(bank.state, false);
       if (vfxApi.active()) passes.push({ id, target, state: bank.state, replacesSource: studioVfxReplacesSource(bank.state) });
     }
@@ -49475,6 +49514,7 @@ ${notes}`;
   };
   $("duplicateSceneObject").onclick = async () => {
     if (!activeObject || exportState || studioSaving) return;
+    if(activeObject.root.userData.studioFolder)return status("Selecione um modelo da pasta para duplicar.");
     const button = $("duplicateSceneObject");
     button.disabled = true;
     try {
@@ -49507,7 +49547,7 @@ ${notes}`;
       const copy = await unpackStudioObject(data);
       copy.root.userData.studioDuplicateBaseName = baseName;
       copy.root.name = data.name;
-      scene.add(copy.root);
+      (source.root.parent||scene).add(copy.root);
       objects.push(copy);
       if (studioVfxBanks[source.id]) studioVfxBanks[copy.id] = structuredClone(studioVfxBanks[source.id]);
       selectObject(copy.id, true);
@@ -49532,7 +49572,8 @@ ${notes}`;
     const removed = activeObject, index = objects.indexOf(removed);
     objectGizmo.detach();
     clearRigView();
-    scene.remove(removed.root);
+    if(removed.root.userData.studioFolder)ungroupStudioFolder(removed,false);
+    removed.root.removeFromParent();
     objects.splice(index, 1);
     for (const object of objects) if (object.followBone?.ownerId === removed.id) object.followBone = null;
     if (studioVfxFollow?.ownerId === removed.id) studioVfxFollow = null;
@@ -49578,38 +49619,67 @@ ${notes}`;
     status("Objeto exclu\xEDdo: " + removed.name);
   };
   syncSceneObjectButtons();
-  function renderSceneObjectList() {
-    const list = $("sceneObjects");
-    if (!list) return;
-    list.replaceChildren();
-    $("sceneObjectCount").textContent = objects.length;
-    for (const object of objects) {
-      const row = document.createElement("div");
-      row.className = "sceneObjectRow";
-      row.classList.toggle("selected", object === activeObject);
-      const select2 = document.createElement("button");
-      select2.textContent = object.name;
-      select2.title = object.name;
-      select2.className = "sceneObjectName";
-      select2.onclick = () => selectObject(object.id, true);
-      const eye = document.createElement("button");
-      eye.textContent = object.root.visible ? "\u25C9" : "\u25CB";
-      eye.title = object.root.visible ? "Ocultar " + object.name : "Mostrar " + object.name;
-      eye.setAttribute("aria-label", eye.title);
-      eye.onclick = () => toggleSceneObject(object);
-      const remove = document.createElement("button");
-      remove.textContent = "\xD7";
-      remove.title = "Excluir " + object.name;
-      remove.setAttribute("aria-label", remove.title);
-      remove.onclick = () => {
-        if (studioSaving || exportState) return;
-        selectObject(object.id, true);
-        $("deleteSceneObject").click();
-      };
-      const rename=document.createElement('button');rename.textContent='✎';rename.title='Renomear '+object.name;rename.setAttribute('aria-label',rename.title);rename.onclick=()=>{selectObject(object.id,true);openStudioRename('objects')};
-      row.append(select2, rename, eye, remove);
-      list.append(row);
+  var studioObjectSelection=new Set();
+  function studioInside(node,ancestor){for(let p=node;p;p=p.parent)if(p===ancestor)return true;return false;}
+  function studioTreeVisible(node){for(let p=node;p;p=p.parent)if(!p.visible)return false;return true;}
+  function studioFolderFor(object){
+    if(!object)return null;
+    let folder=object.root.userData.studioFolder?object:null;
+    for(let parent=object.root.parent;parent;parent=parent.parent){const owner=objects.find(o=>o.root===parent&&parent.userData.studioFolder);if(owner)folder=owner;}
+    return folder;
+  }
+  function reparentStudioObject(object,parent){
+    object.root.parent?.updateWorldMatrix(true,false);parent.updateWorldMatrix(true,false);
+    const previous=object.root.parent?.matrixWorld.clone()||new Matrix4();
+    const conversion=parent.matrixWorld.clone().invert().multiply(previous),rotation=new Quaternion();conversion.decompose(new Vector3(),rotation,new Vector3());
+    parent.attach(object.root);
+    for(const key of object.keyframes.values()){
+      const value=key.pose?.get(object.root.uuid);if(!value)continue;
+      const m=conversion.clone().multiply(new Matrix4().compose(value.p,value.q,value.s));m.decompose(value.p,value.q,value.s);
+      if(value.path)value.path=value.path.map(q=>rotation.clone().multiply(new Quaternion().fromArray(q)).toArray());
     }
+    const owner=objects.find(o=>o.root===parent&&parent.userData.studioFolder);
+    if(owner)object.root.userData.studioFolderId=owner.id;else delete object.root.userData.studioFolderId;
+  }
+  function restoreStudioFolders(){
+    for(const object of objects){
+      const parent=objects.find(o=>o.id===object.root.userData.studioFolderId&&o.root.userData.studioFolder);
+      if(!parent||parent===object)continue;
+      let cycle=false;for(let node=parent.root;node;node=node.parent)if(node===object.root)cycle=true;
+      if(!cycle)parent.root.add(object.root);
+    }
+    scene.updateMatrixWorld(true);
+  }
+  function ungroupStudioFolder(folder,remove=true){
+    for(const member of objects.filter(o=>o.root.parent===folder.root))reparentStudioObject(member,folder.root.parent||scene);
+    if(remove){folder.root.removeFromParent();const index=objects.indexOf(folder);if(index>=0)objects.splice(index,1);if(activeObject===folder){activeObject=null;model=null;selectObject(objects[0]?.id,true);}}
+    refreshObjectSelect();syncObjectInspector();
+  }
+  function createStudioFolder(){
+    if(studioSaving||exportState)return;const members=objects.filter(o=>studioObjectSelection?.has(o.id)&&!o.root.userData.studioFolder);
+    if(members.length<2)return status("Marque pelo menos dois objetos na lista.");
+    commitCameraEdit();finishDrag(false);stop();pauseTimeline();saveActiveObject();
+    const root=new Group();root.name='Pasta';root.userData.studioFolder=true;scene.add(root);
+    const box=new Box3();for(const member of members)box.union(new Box3().setFromObject(member.root));if(!box.isEmpty())root.position.copy(box.getCenter(new Vector3()));root.updateMatrixWorld(true);
+    let number=1;while(objects.some(o=>o.name==='Pasta '+number))number++;
+    const folder={id:root.uuid,name:'Pasta '+number,root,bones:[],rest:new Map(),clips:[],mixer:new AnimationMixer(root),bound:false,selected:null,customRig:null,poseLibrary:[],keyframes:new Map()};
+    root.name=folder.name;objects.push(folder);for(const member of members)reparentStudioObject(member,root);
+    folder.keyframes.set(1,{pose:capturePose(folder)});studioObjectSelection.clear();refreshObjectSelect();selectObject(folder.id,true);syncObjectInspector();status("Pasta criada. Os modelos mantêm Shape Keys e VFX separados.");
+  }
+  function renderSceneObjectList(){
+    const list=$("sceneObjects");if(!list)return;list.replaceChildren();$("sceneObjectCount").textContent=objects.filter(o=>!o.root.userData.studioFolder).length;
+    if(!studioObjectSelection)studioObjectSelection=new Set();
+    function row(object,container){
+      const el=document.createElement('div');el.className='sceneObjectRow';el.classList.toggle('selected',object===activeObject);
+      const check=document.createElement('input');check.type='checkbox';check.checked=studioObjectSelection.has(object.id);check.setAttribute('aria-label','Selecionar '+object.name);check.style.cssText='width:14px;min-width:14px';check.onchange=()=>{if(check.checked)studioObjectSelection.add(object.id);else studioObjectSelection.delete(object.id)};
+      const choose=document.createElement('button');choose.className='sceneObjectName';choose.textContent=(object.root.userData.studioFolder?'📁 ':'')+object.name;choose.title=object.name;choose.onclick=()=>selectObject(object.id,true);
+      const rename=document.createElement('button');rename.textContent='✎';rename.onclick=()=>{selectObject(object.id,true);openStudioRename('objects')};
+      const eye=document.createElement('button');eye.textContent=object.root.visible?'◉':'○';eye.onclick=()=>toggleSceneObject(object);
+      const remove=document.createElement('button');remove.textContent='×';remove.title=object.root.userData.studioFolder?'Desagrupar pasta':'Excluir '+object.name;remove.onclick=()=>{if(studioSaving||exportState)return;if(object.root.userData.studioFolder){ungroupStudioFolder(object);return;}selectObject(object.id,true);$("deleteSceneObject").click()};
+      el.append(check,choose,rename,eye,remove);container.append(el);
+      if(object.root.userData.studioFolder){const children=document.createElement('div');children.style.cssText='margin-left:12px;border-left:1px solid #555;padding-left:4px';container.append(children);for(const child of objects.filter(o=>o.root.parent===object.root))row(child,children);}
+    }
+    for(const object of objects)if(!objects.some(o=>o.root===object.root.parent&&o.root.userData.studioFolder))row(object,list);
   }
   function toggleSceneObject(object) {
     if (!object || exportState || studioSaving) return;
@@ -50247,6 +50317,18 @@ ${notes}`;
     geometry.userData.studioSmoothLighting = 1;
     return true;
   }
+  function cumulativeAutoSmooth(geometry) {
+    const passes = Number(geometry.userData.studioAutoSmoothPasses) || 0;
+    if (!passes || !geometry.attributes.normal) autoSmoothGeometry(geometry);
+    const p = geometry.attributes.position, normal = geometry.attributes.normal;
+    const positions = new Float32Array(p.count * 3), normals = new Float32Array(p.count * 3);
+    for(let i=0;i<p.count;i++){positions.set([p.getX(i),p.getY(i),p.getZ(i)],i*3);normals.set([normal.getX(i),normal.getY(i),normal.getZ(i)],i*3);}
+    const smoothed = drawingSmoothNormalArray(positions,normals,geometry.index?.array,12);
+    geometry.setAttribute("normal",new Float32BufferAttribute(smoothed,3));
+    geometry.userData.studioAutoSmoothPasses = passes + 1;
+    geometry.userData.studioSmoothLighting = 1;
+    return geometry;
+  }
   function remeshStudioGeometry(source, facialRegions = []) {
     const geometry = source.clone(), p = geometry.attributes.position;
     if (!p || p.count < 3) return geometry;
@@ -50294,7 +50376,7 @@ ${notes}`;
       cache.set(key,id);return id;
     };
     // Conforming edge splits retain original vertex IDs, UV seams and skin weights.
-    for(let pass=0;pass<2&&triangles.length<100000;pass++){
+    for(let pass=0;pass<(source.userData.studioRemeshed?0:2)&&triangles.length<100000;pass++){
       const cache=new Map(),next=[];
       for(const t of triangles){
         const [a,b,c]=t.ids,ab=distance(a,b)>target?midpoint(a,b,cache):null,bc=distance(b,c)>target?midpoint(b,c,cache):null,ca=distance(c,a)>target?midpoint(c,a,cache):null;
@@ -50318,10 +50400,14 @@ ${notes}`;
       const key=[0,1,2].map(k=>Math.round(position[i*3+k]/tolerance)).join(',');
       let id=keys.get(key);if(id===undefined){id=nodes.length;keys.set(key,id);nodes.push({p:position.slice(i*3,i*3+3),neighbors:new Set(),boundary:false});}vertexNodes.push(id);
     }
-    for(const t of triangles)for(let k=0;k<3;k++){
-      const a=vertexNodes[t.ids[k]],b=vertexNodes[t.ids[(k+1)%3]];if(a===b)continue;
-      nodes[a].neighbors.add(b);nodes[b].neighbors.add(a);
-      const key=Math.min(a,b)+','+Math.max(a,b);edgeCounts.set(key,(edgeCounts.get(key)||0)+1);
+    for(const t of triangles){
+      const ids=t.ids.map(id=>vertexNodes[id]);
+      if(new Set(ids).size<3)continue;
+      for(let k=0;k<3;k++){
+        const a=ids[k],b=ids[(k+1)%3];
+        nodes[a].neighbors.add(b);nodes[b].neighbors.add(a);
+        const key=Math.min(a,b)+','+Math.max(a,b);edgeCounts.set(key,(edgeCounts.get(key)||0)+1);
+      }
     }
     for(const [key,count]of edgeCounts)if(count===1)for(const id of key.split(',').map(Number))nodes[id].boundary=true;
     const facialBounds = new Box3();
@@ -50335,16 +50421,36 @@ ${notes}`;
     const faceFade=Math.max(extent*.025,1e-6),protection=nodes.map(node=>{
       if(facialBounds.isEmpty())return 1;
       const distance=facialBounds.distanceToPoint(new Vector3().fromArray(node.p));
-      const t=MathUtils.clamp(distance/faceFade,0,1);return t*t*(3-2*t);
+      const t=MathUtils.clamp(distance/faceFade,0,1);return .25 + .75*t*t*(3-2*t);
     });
-    const original=nodes.map(n=>n.p.slice()),limit=Math.min(extent*.018,median*3);
-    for(let pass=0;pass<18;pass++)for(const factor of [.5,-.53]){
+    const original=nodes.map(n=>n.p.slice()),limit=extent*.08;
+    // Positive fairing removes high-frequency bumps; restore closed-mesh volume
+    // explicitly instead of cancelling almost the entire smoothing displacement.
+    const volume = () => {
+      let total=0;
+      for(const triangle of triangles){
+        const a=nodes[vertexNodes[triangle.ids[0]]].p,b=nodes[vertexNodes[triangle.ids[1]]].p,c=nodes[vertexNodes[triangle.ids[2]]].p;
+        total+=a[0]*(b[1]*c[2]-b[2]*c[1])+a[1]*(b[2]*c[0]-b[0]*c[2])+a[2]*(b[0]*c[1]-b[1]*c[0]);
+      }
+      return total/6;
+    };
+    const closed=[...edgeCounts.values()].every(count=>count>=2),originalVolume=closed?volume():0;
+    for(let pass=0;pass<30;pass++){
       const next=nodes.map((node,id)=>{
-        if(node.boundary||node.neighbors.size<3||protection[id]===0)return node.p;
+        if(node.boundary||node.neighbors.size<3)return node.p;
         const mean=[0,0,0];for(const other of node.neighbors)for(let k=0;k<3;k++)mean[k]+=nodes[other].p[k]/node.neighbors.size;
-        const result=node.p.map((v,k)=>v+factor*protection[id]*(mean[k]-v)),delta=result.map((v,k)=>v-original[id][k]),length=Math.hypot(...delta);
+        const strength=.45*(.6+.4*protection[id]);
+        const result=node.p.map((v,k)=>v+strength*(mean[k]-v)),delta=result.map((v,k)=>v-original[id][k]),length=Math.hypot(...delta);
         return length>limit?original[id].map((v,k)=>v+delta[k]*limit/length):result;
       });nodes.forEach((node,id)=>node.p=next[id]);
+    }
+    if(closed&&Math.abs(originalVolume)>extent**3*1e-10){
+      const currentVolume=volume(),ratio=originalVolume/currentVolume;
+      if(Number.isFinite(ratio)&&ratio>0){
+        const center=[0,0,0];for(const node of nodes)for(let k=0;k<3;k++)center[k]+=node.p[k]/nodes.length;
+        const scale=Math.cbrt(ratio);
+        for(const node of nodes)for(let k=0;k<3;k++)node.p[k]=center[k]+(node.p[k]-center[k])*scale;
+      }
     }
     for(let i=0;i<vertexNodes.length;i++)for(let k=0;k<3;k++)position[i*3+k]=nodes[vertexNodes[i]].p[k];
     for(const [name,attr]of Object.entries(attributes)){
@@ -50363,9 +50469,74 @@ ${notes}`;
     geometry.setAttribute("normal",new Float32BufferAttribute(organicNormals,3));
     geometry.computeBoundingBox();geometry.computeBoundingSphere();
     geometry.userData.studioRemeshed=true;
+    geometry.userData.studioMeshSmoothPasses=(Number(source.userData.studioMeshSmoothPasses)||0)+1;
+    geometry.userData.studioAutoSmoothPasses=0;
     return geometry;
   }
-  function updateRemeshButtons() {}
+  var studioRemeshUndo = new WeakMap();
+  function updateRemeshButtons() {
+    const busy = !!exportState || !!studioSaving;
+    $("applyAutoSmooth").disabled = !activeObject || busy;
+    $("applyRemesh").disabled = !activeObject || busy;
+    $("undoRemesh").disabled = !activeObject || busy || !studioRemeshUndo?.get(activeObject)?.length;
+    $("smoothInfo").textContent = activeObject?.name || "Nenhum objeto selecionado.";
+  }
+  function refreshProcessedMesh(mesh) {
+    mesh.geometry.computeBoundingBox();mesh.geometry.computeBoundingSphere();
+    if(mesh.isSkinnedMesh){mesh.boundingBox=null;mesh.boundingSphere=null;}
+    for(const material of Array.isArray(mesh.material)?mesh.material:[mesh.material])if(material){material.flatShading=false;material.needsUpdate=true;}
+  }
+  async function applyStudioSmoothing(remesh) {
+    if(!activeObject||studioSaving||exportState)return;
+    commitCameraEdit();finishDrag(false);stop();pauseTimeline();saveActiveObject();
+    const object=activeObject,meshes=[],prepared=[];
+    object.root.traverse(mesh=>{if(mesh.isMesh&&mesh.geometry?.attributes.position)meshes.push(mesh);});
+    if(!meshes.length)return status("O objeto não possui malha.");
+    const before=meshes.map(mesh=>({mesh,geometry:mesh.geometry}));
+    const regions=object.faceRig?structuredClone(object.faceRig.regions):null;
+    studioSetSaveBusy(true);updateRemeshButtons();
+    try{
+      for(const mesh of meshes){
+        await new Promise(resolve=>requestAnimationFrame(resolve));
+        let geometry;
+        if(remesh)geometry=remeshStudioGeometry(mesh.geometry,Object.values(object.faceRig?.regions||{}).filter(region=>region.meshId===mesh.uuid));
+        else{geometry=cumulativeAutoSmooth(mesh.geometry.clone());}
+        prepared.push({mesh,geometry});
+      }
+      for(const {mesh,geometry} of prepared){
+        const old=mesh.geometry.attributes.position;mesh.geometry=geometry;
+        if(remesh&&object.faceRig)for(const region of Object.values(object.faceRig.regions)){
+          const id=region.surfaceCenterIndex;if(region.meshId!==mesh.uuid||!Number.isInteger(id))continue;
+          const delta=new Vector3().fromBufferAttribute(geometry.attributes.position,id).sub(new Vector3().fromBufferAttribute(old,id));
+          for(const field of ['center','anchor'])if(region[field])region[field]=new Vector3().fromArray(region[field]).add(delta).toArray();
+        }
+        refreshProcessedMesh(mesh);
+      }
+
+      if(object.faceRig){applyFaceRig(object);refreshFaceGuides();}
+      updateCustomRig(object.customRig,object.root);vfxLastDraw=0;
+      const history=studioRemeshUndo.get(object)||[];
+      history.push({before,regions});
+      if(history.length>20)history.shift();
+      studioRemeshUndo.set(object,history);
+      status((remesh?"Malha suavizada novamente: ":"Auto Smooth reaplicado: ")+object.name);
+    }catch(error){
+      for(const item of before)item.mesh.geometry=item.geometry;
+      if(regions&&object.faceRig)object.faceRig.regions=regions;
+      for(const item of prepared)item.geometry.dispose();
+      status("Falha ao suavizar: "+error.message);
+    }finally{studioSetSaveBusy(false);syncObjectInspector();}
+  }
+  $("applyAutoSmooth").onclick=()=>applyStudioSmoothing(false);
+  $("applyRemesh").onclick=()=>applyStudioSmoothing(true);
+  $("undoRemesh").onclick=()=>{
+    if(!activeObject||studioSaving||exportState)return;
+    const history=studioRemeshUndo.get(activeObject),saved=history?.pop();if(!saved)return;
+    for(const {mesh,geometry}of saved.before){const current=mesh.geometry;mesh.geometry=geometry;if(current!==geometry)current.dispose();refreshProcessedMesh(mesh);}
+    if(saved.regions&&activeObject.faceRig){activeObject.faceRig.regions=saved.regions;applyFaceRig(activeObject);refreshFaceGuides();}
+    if(!history.length)studioRemeshUndo.delete(activeObject);updateCustomRig(activeObject.customRig,activeObject.root);vfxLastDraw=0;syncObjectInspector();status("Suavização desfeita.");
+  };
+
   function syncContextTools(name) {
     if (!name) name = ["Poses","Shapes","Expressions","Face","Scene","VFX","Objects"].find(tab => !$("panel"+tab).hidden) || "Objects";
     const label = {Shapes:"Shape Keys",Objects:"Objetos",Poses:"Poses e ossos",Expressions:"Expressões",Face:"FaceRig",Scene:"Cena",VFX:"VFX"}[name];
@@ -50373,6 +50544,7 @@ ${notes}`;
     for (const id of ["orbit","frame","objectMove","objectScale","objectRotate","objectVisibility","duplicateSceneObject","deleteSceneObject","toolPose","showBones","followBones","viewportGridToggle"]) $(id).hidden = false;
   }
   function syncObjectInspector() {
+    if(typeof baseGrabHistory!=="undefined")updateBaseGrabButtons();
     syncStudioRenameField();
     const selector = $("inspectorObject");
     if (!selector) return;
@@ -50411,7 +50583,7 @@ ${notes}`;
 
   // Shape Keys use native morph targets; metadata and keys travel with root.userData.
   var shapeGrab = false, shapeSelection = null, shapeStroke = null, shapeUndo = null;
-  function shapeMeshes(obj = activeObject) { const a=[]; obj?.root.traverse(n=>{if(n.isMesh && n.geometry?.attributes.position)a.push(n)}); return a; }
+  function shapeMeshes(obj = activeObject) { if(obj?.root.userData.studioFolder)return []; const a=[]; obj?.root.traverse(n=>{if(n.isMesh && n.geometry?.attributes.position)a.push(n)}); return a; }
   function shapeData(obj = activeObject) { return obj ? (obj.root.userData.studioShapes ||= {items:[],keys:{}}) : {items:[],keys:{}}; }
   function shapeEntries(item,obj=activeObject) { return shapeMeshes(obj).flatMap(mesh=>{const index=mesh.geometry.morphAttributes.position?.findIndex(a=>a.name===item.id) ?? -1;return index<0?[]:[{mesh,index,attr:mesh.geometry.morphAttributes.position[index]}]}); }
   function shapeTargetEntries(id,obj=activeObject) { return shapeEntries({id},obj); }
@@ -50457,7 +50629,7 @@ ${notes}`;
   }
   function refreshShapes() {
     const data=shapeData(); $('shapeObject').textContent=activeObject?.name||'Nenhum objeto';
-    $('shapeNew').disabled=!shapeMeshes().length; $('shapeGrab').classList.toggle('active',shapeGrab);$('shapeGrab').textContent=shapeGrab?'Grab ativado':'Pincel Grab';if(shapeCursor&&!shapeGrab)shapeCursor.style.display='none';
+    $('shapeNew').disabled=!shapeMeshes().length; $('shapeGrab').classList.toggle('active',shapeGrab);$('shapeGrab').textContent=shapeGrab?'Grab ativado':'Pincel Grab';if(shapeCursor&&!shapeGrab&&!baseGrabMode)shapeCursor.style.display='none';
     $('shapeUndo').disabled=!shapeUndo || shapeUndo.obj!==activeObject;
     $('shapeList').replaceChildren();
     for(const item of data.items){
@@ -50524,7 +50696,8 @@ ${notes}`;
     controls.enabled=false;renderer.domElement.setPointerCapture(e.pointerId);refreshShapes();
   },true);
   renderer.domElement.addEventListener('pointermove',e=>{
-    const r=+$('shapeRadius').value;shapeCursor.style.display=shapeGrab&&!$('panelShapes').hidden?'block':'none';shapeCursor.style.width=shapeCursor.style.height=r*2+'px';shapeCursor.style.left=e.clientX-r+'px';shapeCursor.style.top=e.clientY-r+'px';
+    if(baseGrabMode)return;
+    const r=+$('shapeRadius').value;shapeCursor.style.display=baseGrabMode||shapeGrab&&!$('panelShapes').hidden?'block':'none';shapeCursor.style.width=shapeCursor.style.height=r*2+'px';shapeCursor.style.left=e.clientX-r+'px';shapeCursor.style.top=e.clientY-r+'px';
     if(!shapeStroke)return;e.preventDefault();e.stopImmediatePropagation();const s=shapeStroke,raycast=new Raycaster();raycast.setFromCamera(shapePointer(e),camera);const p=raycast.ray.intersectPlane(s.plane,new Vector3());if(!p)return;
     const delta=p.sub(s.start);
     for(const v of s.points){const local=delta.clone().applyMatrix4(v.inv).sub(new Vector3().applyMatrix4(v.inv)).multiplyScalar(v.w/s.influence).add(v.base);s.entry.attr.setXYZ(v.i,local.x,local.y,local.z)}
@@ -50541,6 +50714,113 @@ ${notes}`;
     if($('shapePlayhead')){$('shapePlayhead').style.left=(frame-1)/Math.max(1,endFrame-1)*100+'%';$('shapeFrame').value=Math.round(frame)}
   }
   $('inspectorObject').addEventListener('change',()=>{shapeGrab=false;shapeSelection=null;refreshShapes()});
+  var baseGrabMode=false,baseGrabStroke=null,baseGrabHistory=[],baseGrabSymmetry=false,baseGrabPointer=null;
+  function updateBaseGrabCursor(event=baseGrabPointer){
+    if(!event||!baseGrabMode){if(!shapeGrab)shapeCursor.style.display='none';return;}
+    baseGrabPointer={clientX:event.clientX,clientY:event.clientY};
+    const radius=Number($('baseGrabRadius').value)||60;
+    shapeCursor.style.display='block';shapeCursor.style.width=shapeCursor.style.height=radius*2+'px';shapeCursor.style.left=event.clientX-radius+'px';shapeCursor.style.top=event.clientY-radius+'px';
+  }
+  $('baseGrabRadius').addEventListener('input',()=>updateBaseGrabCursor());
+  $('baseGrabSymmetry').onclick=()=>{baseGrabSymmetry=!baseGrabSymmetry;$('baseGrabSymmetry').classList.toggle('active',baseGrabSymmetry);$('baseGrabSymmetry').setAttribute('aria-pressed',String(baseGrabSymmetry));};
+  function updateBaseGrabButtons(){
+    $('baseGrab').classList.toggle('active',baseGrabMode);
+    $('baseGrab').setAttribute('aria-pressed',String(baseGrabMode));
+    $('objectGrabToggle').classList.toggle('active',baseGrabMode);
+    $('objectGrabToggle').textContent=baseGrabMode?'Desativar Grab':'Ativar Grab';
+    $('objectGrabToggle').setAttribute('aria-pressed',String(baseGrabMode));
+    $('objectGrabToggle').disabled=!activeObject||!!studioSaving||!!exportState;
+    $('baseGrabUndo').disabled=!baseGrabHistory.some(e=>e.object===activeObject||studioFolderFor(e.object)===activeObject);
+    $('objectGrabUndo').disabled=$('baseGrabUndo').disabled;
+  }
+  function refreshBaseGrabGeometry(mesh){
+    const g=mesh.geometry;g.computeVertexNormals();autoSmoothGeometry(g);g.userData.studioAutoSmoothPasses=0;
+    if(g.boundsTree)g.disposeBoundsTree?.();g.computeBoundingBox();g.computeBoundingSphere();
+    if(mesh.isSkinnedMesh){mesh.boundingBox=null;mesh.boundingSphere=null;}
+  }
+  function applyBaseGrabDelta(stroke,delta){
+    const g=stroke.mesh.geometry,position=g.attributes.position;
+    for(const point of stroke.points){
+      let movement=delta.clone().multiplyScalar(point.weight);
+      if(stroke.mirrorMatrix){
+        const mirrored=delta.clone().applyMatrix4(stroke.mirrorMatrix).sub(new Vector3().applyMatrix4(stroke.mirrorMatrix));
+        const mirroredWeight=point.mirrorWeight||0,sum=point.weight+mirroredWeight,max=Math.max(point.weight,mirroredWeight);
+        if(point.center)movement=delta.clone().add(mirrored).multiplyScalar(.5*max);
+        else movement.addScaledVector(mirrored,mirroredWeight).multiplyScalar(sum?max/sum:0);
+      }
+      const local=movement.applyMatrix4(point.inverse).sub(new Vector3().applyMatrix4(point.inverse));
+      position.setXYZ(point.i,point.base.x+local.x,point.base.y+local.y,point.base.z+local.z);
+      if(!g.morphTargetsRelative)for(let k=0;k<(g.morphAttributes.position?.length||0);k++){
+        const attr=g.morphAttributes.position[k],base=point.morphs[k];attr.setXYZ(point.i,base.x+local.x,base.y+local.y,base.z+local.z);attr.needsUpdate=true;
+      }
+    }
+    position.needsUpdate=true;stroke.changed ||= delta.lengthSq()>1e-16;
+    // Invalidate acceleration bounds while the vertices move; rebuild at stroke end.
+    g.boundingSphere=null;g.boundingBox=null;if(stroke.mesh.isSkinnedMesh){stroke.mesh.boundingSphere=null;stroke.mesh.boundingBox=null;}
+  }
+  function finishBaseGrab(event,cancel=false){
+    const stroke=baseGrabStroke;if(!stroke||event&&event.pointerId!==stroke.id)return;
+    event?.preventDefault();event?.stopImmediatePropagation();baseGrabStroke=null;
+    if(cancel||!stroke.changed){const edited=stroke.mesh.geometry;stroke.mesh.geometry=stroke.before;if(edited!==stroke.before)edited.dispose();}
+    else{
+      refreshBaseGrabGeometry(stroke.mesh);baseGrabHistory.push(stroke);if(baseGrabHistory.length>20)baseGrabHistory.shift();
+      if(stroke.object.faceRig)for(const region of Object.values(stroke.object.faceRig.regions)){if(region.meshId!==stroke.mesh.uuid||!Number.isInteger(region.surfaceCenterIndex))continue;const i=region.surfaceCenterIndex,delta=new Vector3().fromBufferAttribute(stroke.mesh.geometry.attributes.position,i).sub(new Vector3().fromBufferAttribute(stroke.before.attributes.position,i));for(const field of ['center','anchor'])if(region[field])region[field]=new Vector3().fromArray(region[field]).add(delta).toArray();}
+      if(stroke.object.faceRig){applyFaceRig(stroke.object);refreshFaceGuides();}
+    }
+    controls.enabled=true;if(renderer.domElement.hasPointerCapture(stroke.id))renderer.domElement.releasePointerCapture(stroke.id);updateBaseGrabButtons();
+  }
+  $('baseGrab').onclick=()=>{if(!activeObject)return status('Selecione um modelo.');const enabled=!baseGrabMode;setMode('orbit');pauseTimeline();stop();shapeGrab=false;baseGrabMode=enabled;updateBaseGrabButtons();renderer.domElement.style.cursor=enabled?'crosshair':'';updateBaseGrabCursor();status(enabled?'Grab: arraste para corrigir a malha.':'Grab desativado.')};
+  $('baseGrabUndo').onclick=()=>{
+    if(studioSaving||exportState)return;finishBaseGrab(null,true);
+    const index=baseGrabHistory.findLastIndex(e=>e.object===activeObject||studioFolderFor(e.object)===activeObject);if(index<0)return;
+    const stroke=baseGrabHistory[index];if(stroke.mesh.geometry!==stroke.edited)return status('Desfaça as alterações posteriores de malha antes deste Grab.');
+    baseGrabHistory.splice(index,1);stroke.mesh.geometry=stroke.before;stroke.edited.dispose();
+    if(stroke.regions&&stroke.object.faceRig){stroke.object.faceRig.regions=structuredClone(stroke.regions);applyFaceRig(stroke.object);refreshFaceGuides();}
+    updateBaseGrabButtons();status('Grab desfeito.');
+  };
+  vp.addEventListener('pointerdown',event=>{
+    if(!baseGrabMode||event.target!==renderer.domElement||event.button!==0||exportState||studioSaving||!activeObject)return;
+    event.preventDefault();event.stopImmediatePropagation();pauseTimeline();stop();activeObject.root.updateWorldMatrix(true,true);
+    const candidates=[];activeObject.root.traverse(mesh=>{if(mesh.isMesh&&mesh.geometry?.attributes.position){if(mesh.isSkinnedMesh)mesh.skeleton.update();candidates.push(mesh)}});
+    const raycast=new Raycaster();raycast.setFromCamera(shapePointer(event),camera);const hit=raycast.intersectObjects(candidates,false).find(h=>h.object.visible);if(!hit)return;
+    const mesh=hit.object;let owner=null;for(let node=mesh;node&&!owner;node=node.parent)owner=objects.find(o=>o.root===node);if(!owner)return;
+    owner.root.updateWorldMatrix(true,true);
+    const rect=renderer.domElement.getBoundingClientRect(),radius=+$('baseGrabRadius').value,reach=radius*4*camera.position.distanceTo(hit.point)*Math.tan(camera.fov*Math.PI/360)/rect.height;
+    const worldToOwner=owner.root.matrixWorld.clone().invert(),mirrorMatrix=baseGrabSymmetry?owner.root.matrixWorld.clone().multiply(new Matrix4().makeScale(-1,1,1)).multiply(worldToOwner):null;
+    const mirroredHit=mirrorMatrix?hit.point.clone().applyMatrix4(mirrorMatrix):null,mirrorScreen=mirroredHit?.clone().project(camera);
+    const mirrorX=mirrorScreen?(mirrorScreen.x+1)*rect.width/2+rect.left:0,mirrorY=mirrorScreen?(1-mirrorScreen.y)*rect.height/2+rect.top:0;
+    const points=[],world=new Vector3(),position=mesh.geometry.attributes.position;
+    mesh.geometry.computeBoundingBox();const centerTolerance=Math.max(mesh.geometry.boundingBox.getSize(new Vector3()).length()*1e-6,1e-8);
+    for(let i=0;i<position.count;i++){
+      mesh.getVertexPosition(i,world);world.applyMatrix4(mesh.matrixWorld);const screen=world.clone().project(camera);if(screen.z<-1||screen.z>1)continue;
+      const px=(screen.x+1)*rect.width/2+rect.left,py=(1-screen.y)*rect.height/2+rect.top;
+      const distance=Math.hypot(px-event.clientX,py-event.clientY),mirrorDistance=mirrorMatrix?Math.hypot(px-mirrorX,py-mirrorY):Infinity;
+      const weight=distance<radius&&world.distanceTo(hit.point)<reach?(1-(distance/radius)**2)**2:0;
+      const mirrorWeight=mirrorMatrix&&mirrorScreen.z>=-1&&mirrorScreen.z<=1&&mirrorDistance<radius&&world.distanceTo(mirroredHit)<reach?(1-(mirrorDistance/radius)**2)**2:0;
+      if(!weight&&!mirrorWeight)continue;
+      const inverse=shapeBrushMatrix(mesh,i);if(Math.abs(inverse.determinant())<1e-12)continue;
+      points.push({i,weight,mirrorWeight,center:!!mirrorMatrix&&Math.abs(world.clone().applyMatrix4(worldToOwner).x)<centerTolerance,inverse:inverse.invert(),base:new Vector3().fromBufferAttribute(position,i),morphs:(mesh.geometry.morphAttributes.position||[]).map(attr=>new Vector3().fromBufferAttribute(attr,i))});
+    }
+    if(!points.length)return;const before=mesh.geometry,edited=before.clone();if(edited.boundsTree)delete edited.boundsTree;mesh.geometry=edited;
+    const plane=new Plane().setFromNormalAndCoplanarPoint(camera.getWorldDirection(new Vector3()),hit.point),start=raycast.ray.intersectPlane(plane,new Vector3());if(!start){mesh.geometry=before;edited.dispose();return;}
+    baseGrabStroke={id:event.pointerId,object:owner,mesh,before,edited,points,plane,start,mirrorMatrix,changed:false,regions:owner.faceRig?structuredClone(owner.faceRig.regions):null};
+    controls.enabled=false;renderer.domElement.setPointerCapture(event.pointerId);
+  },true);
+  vp.addEventListener('pointermove',event=>{
+    if(baseGrabMode)updateBaseGrabCursor(event);
+    const stroke=baseGrabStroke;if(!stroke||event.pointerId!==stroke.id)return;event.preventDefault();event.stopImmediatePropagation();
+    const raycast=new Raycaster();raycast.setFromCamera(shapePointer(event),camera);const point=raycast.ray.intersectPlane(stroke.plane,new Vector3());if(point)applyBaseGrabDelta(stroke,point.sub(stroke.start));
+  },true);
+  vp.addEventListener('pointerup',event=>finishBaseGrab(event),true);vp.addEventListener('pointercancel',event=>finishBaseGrab(event,true),true);
+  renderer.domElement.addEventListener('lostpointercapture',event=>finishBaseGrab(event,true));
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&baseGrabStroke){event.preventDefault();finishBaseGrab(null,true)}},true);
+  window.addEventListener('blur',()=>finishBaseGrab(null,true));
+  $('objectGrabToggle').onclick=()=>$('baseGrab').click();
+  $('objectGrabUndo').onclick=()=>$('baseGrabUndo').click();
+  updateBaseGrabButtons();
+  $('folderCreate').onclick=createStudioFolder;
+  $('folderAdd').onclick=()=>{const folder=studioFolderFor(activeObject);if(!folder)return status('Selecione a pasta de destino.');if(studioSaving||exportState)return;commitCameraEdit();pauseTimeline();saveActiveObject();for(const obj of objects.filter(o=>studioObjectSelection.has(o.id)&&!o.root.userData.studioFolder&&o!==folder))reparentStudioObject(obj,folder.root);studioObjectSelection.clear();refreshObjectSelect();syncObjectInspector()};
+  $('folderUngroup').onclick=()=>{if(studioSaving||exportState)return;const folder=studioFolderFor(activeObject);if(folder){commitCameraEdit();finishDrag(false);pauseTimeline();saveActiveObject();ungroupStudioFolder(folder)}};
   refreshShapes();
 
   function sampleTimeline(frame) { sampleTimelineBase(frame); sampleShapeTimeline(frame); }
@@ -50659,8 +50939,8 @@ ${notes}`;
   function openStudioRename(category='objects'){pauseTimeline();stop();$('renameCategory').value=category;$('renameSearch').value='';$('renameMessage').textContent='';renderRenameItems();if(!renameDialog.open)renameDialog.showModal()}
   $('renameClose').onclick=()=>renameDialog.close();$('renameCategory').onchange=renderRenameItems;$('renameSearch').oninput=renderRenameItems;
   const nameRow=document.createElement('div');nameRow.className='studioNameRow';nameRow.innerHTML='<input id="studioObjectName" maxlength="100" aria-label="Nome do objeto selecionado" placeholder="Nome do objeto"><button id="studioObjectNameSave" title="Salvar nome do objeto">Salvar nome</button>';
-  $('inspectorTarget').append(nameRow);
-  const renameOpen=document.createElement('button');renameOpen.id='studioRenameOpen';renameOpen.textContent='✎ Renomear itens';renameOpen.onclick=()=>openStudioRename();$('inspectorTarget').append(renameOpen);
+  $('panelObjects').querySelector('.objectSettings').prepend(nameRow);
+  const renameOpen=document.createElement('button');renameOpen.id='studioRenameOpen';renameOpen.textContent='✎ Renomear itens';renameOpen.onclick=()=>openStudioRename();nameRow.after(renameOpen);
   function syncStudioRenameField(){const input=$('studioObjectName');if(!input)return;input.value=activeObject?.name||'';input.disabled=!activeObject;$('studioObjectNameSave').disabled=!activeObject}
   function saveStudioObjectName(){if(!activeObject||exportState||studioSaving)return;const name=$('studioObjectName').value.trim();if(!name){syncStudioRenameField();return}studioRenameObject(activeObject,name);syncStudioRenameField();status('Objeto renomeado: '+name)}
   $('studioObjectNameSave').onclick=saveStudioObjectName;$('studioObjectName').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();saveStudioObjectName()}};
