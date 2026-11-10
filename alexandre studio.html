@@ -46,6 +46,9 @@ main{grid-template-columns:64px 290px minmax(0,1fr)}main>nav{grid-column:1;grid-
 /* Painel de propriedades novamente à direita. */
 main{grid-template-columns:64px minmax(0,1fr) 290px}main>aside{grid-column:3;grid-row:1;border-right:0;border-left:1px solid #343845}main>#viewport{grid-column:2;grid-row:1}
 @media(min-width:1600px){main{grid-template-columns:64px minmax(0,1fr) 300px}}@media(max-width:900px){main{grid-template-columns:48px minmax(0,1fr) 250px}}@media(max-width:620px){main{grid-template-columns:44px minmax(0,1fr) 190px}}
+
+/* VFX has its own effect selector; scope is available under Application. */
+aside:has(#panelVFX:not([hidden])) #inspectorTarget{display:none}
 </style>
 <script>(() => {
   var __create = Object.create;
@@ -6854,15 +6857,82 @@ let followEffectKind='particles',followIdentitySerial=0;
 function ensureEffectFollowIds(config=settings){config.particles.id??='studio-particle-base';for(const layer of config.particles.layers||[])layer.id??='particle-'+Date.now()+'-'+(++followIdentitySerial);for(const [kind,list]of [['fire',config.fires||[]],['light',config.lights||[]]])for(const item of list)item.id??=(kind==='light'&&list.length===1?'studio-light-base':kind+'-'+Date.now()+'-'+(++followIdentitySerial));}
 function effectFollowSubject(){ensureEffectFollowIds();if(followEffectKind==='particles'){const layer=getSelectedParticleLayer();return {key:'particle:'+layer.id,layerId:layer.id,kind:'particle',name:layer.presetName||particlePresetLabel(layer.presetKey||'custom'),x:layer.x??.5,y:layer.y??.5,internal:layer.presetKey==='aura'}}if(followEffectKind==='fires'){const fire=settings.fires[settings.selectedFireIndex];return fire?{key:'fire:'+fire.id,kind:'fire',name:'Fogo '+(settings.selectedFireIndex+1),x:fire.posX??.5,y:fire.posY??.5}:null}if(followEffectKind==='lights'){const light=settings.lights[settings.selectedLightIndex];return light?{key:'light:'+light.id,kind:'light',name:'Luz '+(settings.selectedLightIndex+1),x:light.posX??.5,y:light.posY??.5}:null}if(followEffectKind==='action')return {key:'action',kind:'action',name:actionNames[settings.action.kind]||'Ação na imagem',x:settings.action.x??.5,y:settings.action.y??.5};if(followEffectKind==='impact')return {key:'impact',kind:'impact',name:'Impacto na água',x:.5,y:.5};if(followEffectKind==='sceneLight'){const light=settings.extensions.sceneLight||{};return {key:'extension:sceneLight',kind:'sceneLight',name:'Luz 3D',x:light.x??0,y:light.y??0,z:light.z??0}}return {key:'image',kind:'image',name:'Filtro da imagem',x:.5,y:.5,internal:true}}
 function requestEffectFollow(){const subject=effectFollowSubject();if(!subject||subject.internal)return;changed();bridge.followPick?.(subject)}
-function syncEffectFollowUI(){const subject=effectFollowSubject(),info=subject?bridge.followInfo?.(subject):null;const label=root.querySelector('#as-vfx-follow-status'),button=root.querySelector('#as-vfx-follow'),remove=root.querySelector('#as-vfx-unfollow');if(!label)return;button.disabled=!subject||subject.internal;remove.disabled=!info;label.textContent=!subject?'Adicione ou selecione um efeito.':subject.internal?'Efeito interno: acompanha a malha.':subject.name+(info?' → '+info:' · sem osso');for(const local of root.querySelectorAll('button[data-vfx-follow-kind]')){const previous=followEffectKind;followEffectKind=local.dataset.vfxFollowKind;const current=effectFollowSubject();followEffectKind=previous;local.disabled=!current||current.internal;local.textContent=current&&bridge.followInfo?.(current)?'Trocar osso':'Seguir osso'}}
-function mountEffectFollowUI(){const tools=realDocument.createElement('div');tools.className='as-vfx-follow-tools';tools.innerHTML='<div><button id="as-vfx-follow" type="button">Seguir osso</button><button id="as-vfx-unfollow" type="button">Soltar osso</button></div><small id="as-vfx-follow-status"></small>';tools.style.cssText='display:block;width:100%;margin:0';tools.firstElementChild.style.cssText='display:flex;gap:6px;width:100%';tools.querySelector('small').style.cssText='display:block;margin-top:3px;color:#c3b6ed;font-size:10px;line-height:1.3;min-height:13px';for(const button of tools.querySelectorAll('button'))button.style.cssText='flex:1;padding:4px 6px;font-size:11px';heading.append(tools);tools.querySelector('#as-vfx-follow').onclick=requestEffectFollow;tools.querySelector('#as-vfx-unfollow').onclick=()=>{const subject=effectFollowSubject();if(subject)bridge.followRemove?.(subject);syncEffectFollowUI()};for(const [selector,kind]of [['#particle-preset','particles'],['#fire-selector','fires'],['#light-selector','lights'],['#action-kind','action'],['#toggle-impact','impact']]){const card=root.querySelector(selector)?.closest('.effect-card');if(!card)continue;card.dataset.vfxFollowKind=kind;const button=realDocument.createElement('button');button.type='button';button.className='as-vfx-follow-local';button.dataset.vfxFollowKind=kind;button.textContent='Seguir osso';button.onclick=()=>{followEffectKind=kind;requestEffectFollow()};card.querySelector('.vfx-content').prepend(button)}for(const type of ['pointerdown','focusin'])root.addEventListener(type,e=>{const card=e.target.closest('.effect-card');if(card)followEffectKind=card.dataset.vfxFollowKind||'image'});for(const type of ['click','change'])root.addEventListener(type,e=>{const card=e.target.closest('.effect-card');if(!card)return;followEffectKind=card.dataset.vfxFollowKind||'image';queueMicrotask(syncEffectFollowUI)});syncEffectFollowUI()}
+function syncEffectFollowUI(){syncPlacementUI();const subject=effectFollowSubject(),info=subject?bridge.followInfo?.(subject):null;const label=root.querySelector('#as-vfx-follow-status'),button=root.querySelector('#as-vfx-follow'),remove=root.querySelector('#as-vfx-unfollow');if(!label)return;button.disabled=!subject||subject.internal;remove.disabled=!info;label.textContent=!subject?'Adicione ou selecione um efeito.':subject.internal?'Efeito interno: acompanha a malha.':subject.name+(info?' → '+info:' · sem osso');for(const local of root.querySelectorAll('button[data-vfx-follow-kind]')){const previous=followEffectKind;followEffectKind=local.dataset.vfxFollowKind;const current=effectFollowSubject();followEffectKind=previous;local.disabled=!current||current.internal;local.textContent=current&&bridge.followInfo?.(current)?'Trocar osso':'Seguir osso'}}
+function vfxPickerItems(){
+ ensureEffectFollowIds();const items=[];
+ const layers=settings.particles.layers?.length?settings.particles.layers:[settings.particles];
+ layers.forEach((p,i)=>items.push({key:'particle:'+p.id,kind:'particles',index:i,label:'Partículas · '+(p.presetName||particlePresetLabel(p.presetKey||'custom'))}));
+ for(const [kind,list,prefix] of [['fires',settings.fires,'Fogo'],['lights',settings.lights,'Luz']])list.forEach((p,i)=>items.push({key:(kind==='fires'?'fire:':'light:')+p.id,kind,index:i,label:prefix+' '+(i+1)}));
+ items.push({key:'action',kind:'action',label:'Ação · '+(actionNames[settings.action.kind]||'Imagem')},{key:'impact',kind:'impact',label:'Impacto na água'});
+ if(settings.extensions.sceneLight)items.push({key:'extension:sceneLight',kind:'sceneLight',label:'Luz 3D'});
+ root.querySelectorAll('.effect-card').forEach((card,i)=>{if(!card.dataset.vfxFollowKind)items.push({key:'image:'+i,kind:'image',card,label:card.querySelector('h3')?.textContent.trim()||'Filtro'})});
+ return items;
+}
+function syncPlacementUI(){
+ const panel=root.querySelector('#vfx-placement');if(!panel)return;
+ const subject=effectFollowSubject(),picker=panel.querySelector('#vfx-effect-picker'),items=vfxPickerItems();
+ const previous=picker.value;picker.replaceChildren();
+ for(const item of items){const option=realDocument.createElement('option');option.value=item.key;option.textContent=item.label;picker.append(option)}
+ picker.value=subject?.key==='image'&&previous.startsWith('image:')?previous:subject?.key||'';
+ const movable=subject&&!subject.internal&&subject.kind!=='sceneLight';
+ bridge.selectPlacement?.(movable?subject:null);
+ panel.querySelector('#vfx-move').disabled=!movable;panel.querySelector('#vfx-rotate').disabled=!movable;panel.querySelector('#vfx-scale').disabled=!movable;
+ panel.querySelector('#as-vfx-follow').disabled=!subject||subject.internal;
+ const info=subject?bridge.followInfo?.(subject):null;
+ panel.querySelector('#as-vfx-unfollow').disabled=!info;
+ const reference=panel.querySelector('#vfx-reference');reference.hidden=!movable;
+ if(movable){const state=bridge.placement?.(subject);if(state){reference.replaceChildren();for(const item of [{id:'',name:'Livre na cena'},...state.objects]){const option=realDocument.createElement('option');option.value=item.id;option.textContent=item.name;reference.append(option)}reference.value=state.ownerId;reference.title=state.boneId?'Vinculado ao osso · use Soltar para liberar':'Referência do movimento'}}
+}
+function syncEffectFollowUI(){syncPlacementUI()}
+function mountPlacementUI(){
+ const style=realDocument.createElement('style');style.textContent=`
+ .vfx-heading{display:flex!important;flex-direction:column;align-items:stretch;gap:7px!important;padding:8px!important;flex:0 0 auto;overflow:hidden}
+ .vfx-heading>div{min-width:0;max-width:100%}
+ #vfx-placement{display:flex!important;flex-direction:column;align-items:stretch!important;gap:7px!important;width:100%;box-sizing:border-box}
+ #vfx-placement select{width:100%;min-width:0;box-sizing:border-box;padding:7px!important;margin:0!important}
+ #vfx-placement select[hidden]{display:none!important}
+ #vfx-placement .vfx-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ #vfx-placement .vfx-links{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #vfx-placement button{min-width:0;min-height:29px;padding:5px!important}
+ #vfx-placement label{display:block;color:#bfc6d8;font-size:10px;margin:0 0 3px}
+ .as-vfx-follow-local,.as-vfx-follow-tools{display:none!important}
+ .scroll-area{padding:8px!important;min-height:100px}
+ .effect-card{margin-bottom:8px!important}
+ .vfx-heading details{font-size:10px;color:#aab4c8}.vfx-heading details select{width:100%}
+ `;root.append(style);
+ const panel=realDocument.createElement('div');panel.id='vfx-placement';
+ panel.innerHTML='<div><label for="vfx-effect-picker">VFX selecionado</label><select id="vfx-effect-picker" aria-label="Escolher VFX"></select></div><div class="vfx-actions"><button id="vfx-move" type="button">✥ Mover</button><button id="vfx-rotate" type="button">↻ Girar</button><button id="vfx-scale" type="button">⤢ Escalar</button></div><div class="vfx-actions vfx-links"><button id="as-vfx-follow" type="button">Vincular osso</button><button id="as-vfx-unfollow" type="button">Soltar</button></div><select id="vfx-reference" aria-label="Referência do movimento" title="Referência do movimento"></select>';
+ heading.append(panel);
+ panel.querySelector('#vfx-move').onclick=()=>bridge.selectPlacement?.(effectFollowSubject(),true,'translate');
+ panel.querySelector('#vfx-rotate').onclick=()=>bridge.selectPlacement?.(effectFollowSubject(),true,'rotate');
+ panel.querySelector('#vfx-scale').onclick=()=>bridge.selectPlacement?.(effectFollowSubject(),true,'scale');
+ panel.querySelector('#as-vfx-follow').onclick=requestEffectFollow;
+ panel.querySelector('#as-vfx-unfollow').onclick=()=>{bridge.followRemove?.(effectFollowSubject());syncPlacementUI()};
+ panel.querySelector('#vfx-reference').onchange=e=>{bridge.placement?.(effectFollowSubject(),{ownerId:e.target.value,boneId:''});syncPlacementUI()};
+ panel.querySelector('#vfx-effect-picker').onchange=e=>{
+ const item=vfxPickerItems().find(item=>item.key===e.target.value);if(!item)return;
+ followEffectKind=item.kind;
+ if(item.kind==='particles'){selectedParticleLayerIndex=item.index;syncParticleUI()}
+ if(item.kind==='fires'){settings.selectedFireIndex=item.index;updateFireSelector()}
+ if(item.kind==='lights'){settings.selectedLightIndex=item.index;updateLightSelector()}
+ const card=item.card||root.querySelector('.effect-card[data-vfx-follow-kind="'+item.kind+'"]');
+ if(card){for(const other of root.querySelectorAll('.effect-card .vfx-content'))other.style.display='none';const content=card.querySelector('.vfx-content');if(content)content.style.display='block';card.scrollIntoView({block:'nearest'})}
+ syncPlacementUI();
+ };
+ syncPlacementUI();
+}
+function mountEffectFollowUI(){
+ for(const [selector,kind]of [['#particle-preset','particles'],['#fire-selector','fires'],['#light-selector','lights'],['#action-kind','action'],['#toggle-impact','impact']]){const card=root.querySelector(selector)?.closest('.effect-card');if(card)card.dataset.vfxFollowKind=kind}
+ for(const type of ['pointerdown','focusin'])root.addEventListener(type,e=>{const card=e.target.closest('.effect-card');if(card)followEffectKind=card.dataset.vfxFollowKind||'image'});
+ for(const type of ['click','change'])root.addEventListener(type,e=>{const card=e.target.closest('.effect-card');if(!card)return;followEffectKind=card.dataset.vfxFollowKind||'image';queueMicrotask(syncEffectFollowUI)});
+}
 
 ensureEffectFollowIds();
 const defaults=clone(captureEffectConfig()),defaultSignature=JSON.stringify(defaults);
 const heading=realDocument.createElement('div');heading.className='vfx-heading';heading.innerHTML='<span class="target">VFX · Cena 3D · 24 fps</span><div><label><input id="as-vfx-enabled" type="checkbox" checked>Ativar VFX</label><button id="as-vfx-reset">Zerar</button><button id="as-vfx-key">◆ Gravar</button></div>';document.getElementById('sidebar').prepend(heading);
 root.querySelectorAll('button[id^="btn-kf-"]').forEach(button=>button.remove());
 setupActionUI();
-const cards=[...root.querySelectorAll('.effect-card')];mountEffectFollowUI();
+const cards=[...root.querySelectorAll('.effect-card')];mountEffectFollowUI();mountPlacementUI();
 
 function initialize(source,w,h){if(ready)return;initPixi(source,w,h);app.stop();app.ticker.stop();app.renderer.events?.destroy();ready=true;lastCanvas=source;inputTexture=sprite.texture;}
 let maskVersion=0,encodedMaskVersion=-1,encodedMask=null;function capturedMask(){if(!ready||!windMaskPainted)return pendingMask;if(encodedMaskVersion!==maskVersion){encodedMask=app.renderer.extract.canvas(maskTexture).toDataURL();encodedMaskVersion=maskVersion}return encodedMask}function renderState(){ensureEffectFollowIds();return {version:1,enabled:master,config:clone(captureEffectConfig()),mask:capturedMask()}}
@@ -6880,7 +6950,7 @@ ensureImageEffectTarget=async function(kind){if(!createImageAssetForCurrent(kind
 let maskRestorePromise=null;const restoredMaskCache=new Map();function restoreMask(){if(!pendingMask||!ready)return Promise.resolve();if(pendingMask===loadedMask)return maskRestorePromise||Promise.resolve();const requested=pendingMask;function apply(texture){if(pendingMask!==requested)return;const view=new PIXI.Sprite(texture);view.width=compositionWidth;view.height=compositionHeight;app.renderer.render(view,{renderTexture:maskTexture,clear:true});windMaskPainted=true;view.destroy({texture:false,baseTexture:false});loadedMask=requested}const cached=restoredMaskCache.get(requested);if(cached?.texture){apply(cached.texture);return Promise.resolve()}if(cached?.promise)return cached.promise.then(texture=>apply(texture));const entry={};entry.promise=new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>{entry.texture=PIXI.Texture.from(image);apply(entry.texture);resolve(entry.texture)};image.onerror=()=>{restoredMaskCache.delete(requested);reject(new Error('Não foi possível restaurar a máscara de vento.'))};image.src=requested});restoredMaskCache.set(requested,entry);maskRestorePromise=entry.promise;return entry.promise}
 async function prepare(source,width,height){initialize(source,width,height);sizeEngine(width,height);await restoreMask()}
 function hasEffects(){const config=captureEffectConfig(),extensions=config.extensions;config.extensions={};return master&&(document.getElementById('toggle-wind-edit').checked||JSON.stringify(config)!==defaultSignature||Object.values(extensions||{}).some(e=>e.enabled)||windMaskPainted||!!pendingMask)}
-function render(source,time,width,height,exporting=false){if(!hasEffects())return source;const originalFollowSettings={particles:settings.particles,action:settings.action,fires:settings.fires,lights:settings.lights,mirrorX:settings.mirrorX,mirrorY:settings.mirrorY};settings.particles=clone(settings.particles);for(const layer of [settings.particles,...(settings.particles.layers||[])]){if(layer.presetKey==='aura')continue;const anchor=bridge.followAnchor?.('particle:'+layer.id);if(anchor){layer.x=(layer.x??.5)+anchor.dx;layer.y=(layer.y??.5)+anchor.dy}}for(const [field,kind]of [['fires','fire'],['lights','light']]){settings[field]=clone(settings[field]);for(const item of settings[field]){const anchor=bridge.followAnchor?.(kind+':'+item.id);if(anchor){item.posX=(item.posX??.5)+anchor.dx;item.posY=(item.posY??.5)+anchor.dy}}}const anchor=bridge.followAnchor?.('action');if(anchor)settings.action={...settings.action,x:(settings.action.x??.5)+anchor.dx,y:(settings.action.y??.5)+anchor.dy};const mirrorAnchor=bridge.followAnchor?.('mirror');if(mirrorAnchor){settings.mirrorX+=mirrorAnchor.dx*100;settings.mirrorY+=mirrorAnchor.dy*100;}rendering=true;try{FW=width;FH=height;currentTime=time;initialize(source,width,height);sizeEngine(width,height);const resolution=exporting?1:.5;if(app.renderer.resolution!==resolution){app.renderer.resolution=resolution;app.renderer.resize(width,height)}liveSource=source;entryFor(dummyLayer).source=source;
+function render(source,time,width,height,exporting=false){if(!hasEffects())return source;const originalFollowSettings={particles:settings.particles,action:settings.action,fires:settings.fires,lights:settings.lights,mirrorX:settings.mirrorX,mirrorY:settings.mirrorY};settings.particles=clone(settings.particles);for(const layer of [settings.particles,...(settings.particles.layers||[])]){if(layer.presetKey==='aura')continue;const anchor=bridge.followAnchor?.('particle:'+layer.id);if(anchor){layer.x=(layer.x??.5)+anchor.dx;layer.y=(layer.y??.5)+anchor.dy;const k=anchor.scale??1;for(const prop of ["sizeStart","sizeEnd","width","height","speed","gravity"])if(typeof layer[prop]==="number")layer[prop]*=k;if(!k)layer.count=0}}for(const [field,kind]of [['fires','fire'],['lights','light']]){settings[field]=clone(settings[field]);for(const item of settings[field]){const anchor=bridge.followAnchor?.(kind+':'+item.id);if(anchor){item.posX=(item.posX??.5)+anchor.dx;item.posY=(item.posY??.5)+anchor.dy;item.size*=anchor.scale??1;if(anchor.scale===0)item.opacity=0}}}const anchor=bridge.followAnchor?.('action');if(anchor)settings.action={...settings.action,x:(settings.action.x??.5)+anchor.dx,y:(settings.action.y??.5)+anchor.dy};const mirrorAnchor=bridge.followAnchor?.('mirror');if(mirrorAnchor){settings.mirrorX+=mirrorAnchor.dx*100;settings.mirrorY+=mirrorAnchor.dy*100;}rendering=true;try{FW=width;FH=height;currentTime=time;initialize(source,width,height);sizeEngine(width,height);const resolution=exporting?1:.5;if(app.renderer.resolution!==resolution){app.renderer.resolution=resolution;app.renderer.resize(width,height)}liveSource=source;entryFor(dummyLayer).source=source;
 restoreMask().catch(error=>console.error('Máscara VFX: '+error.message));
 const input=actionImage(dummyLayer,source,settings.action,time,{left:0,top:0,width,height});if(lastCanvas!==input){inputTexture=PIXI.Texture.from(input);sprite.texture=inputTexture;for(const z of zoomLayers)z.texture=inputTexture;lastCanvas=input}inputTexture.baseTexture.resource.update();sprite.width=width;sprite.height=height;sprite.tileScale.set(1);sprite.tilePosition.set(0);
 for(const kind of ['smoke','glass']){const config=settings[imageEffectKeys[kind]],asset=imageEffectAssets.get(config.assetId);if(config.active&&(!asset||asset.inputSource!==source||asset.width!==width||asset.height!==height))createImageAssetForCurrent(kind);if(asset)asset.texture.baseTexture.resource.update()}
@@ -43927,7 +43997,7 @@ void main() {
     return meshHit ? "object" : "camera";
   }
   renderer.domElement.addEventListener("pointerdown", (e) => {
-    if (!editing.endsWith("Object") || exportState || faceMarking || !$("panelVFX").hidden && vfxApi?.windEditing()) return;
+    if (vfxMoveSubject && !$("panelVFX").hidden || !editing.endsWith("Object") || exportState || faceMarking || !$("panelVFX").hidden && vfxApi?.windEditing()) return;
     const bone = e.button === 0 ? pickBone(e) : null;
     setPointerRay(e);
     objectGizmo.pointerHover({ x: pointer.x, y: pointer.y, button: e.button });
@@ -43993,7 +44063,7 @@ void main() {
   renderer.domElement.addEventListener("pointerup", finishViewportToolGesture, true);
   renderer.domElement.addEventListener("pointercancel", finishViewportToolGesture, true);
   renderer.domElement.addEventListener("pointermove", (e) => {
-    if (!editing.endsWith("Object") || exportState || viewportToolGesture || gizmoGesture || e.buttons) return;
+    if (vfxMoveSubject && !$("panelVFX").hidden || !editing.endsWith("Object") || exportState || viewportToolGesture || gizmoGesture || e.buttons) return;
     objectGizmo.enabled = true;
     setPointerRay(e);
     objectGizmo.pointerHover({ x: pointer.x, y: pointer.y, button: e.button });
@@ -48947,18 +49017,108 @@ ${notes}`;
     if (Object.hasOwn(studioVfxLayerFollows, direct)) return studioVfxLayerFollows[direct]?.disabled ? null : studioVfxLayerFollows[direct];
     return studioVfxLayerFollows[studioVfxFollowKey(bankId, "all")] || studioVfxLayerFollows[key?.replace(/^particle:/, "")] || (studioVfxFollow && (studioVfxFollow.bankId === bankId || !studioVfxFollow.bankId && studioVfxFollow.ownerId === bankId) ? studioVfxFollow : null);
   }
-  function studioFollowAnchor(effectKey) {
-    const binding = studioVfxBinding(effectKey);
-    const bone = followBoneNode(binding);
-    if (!bone) return null;
+  function studioVfxNode(binding) {
+    const owner=objects.find(o=>o.id===binding?.ownerId);
+    return binding?.boneId ? followBoneNode(binding) : owner?.root;
+  }
+  function studioVfxOrientation(binding){
+    const q=binding.rotation3D?new Quaternion().fromArray(binding.rotation3D):camera.getWorldQuaternion(new Quaternion());
+    const node=studioVfxNode(binding);
+    if(binding.rotation3D&&node)q.premultiply(node.getWorldQuaternion(new Quaternion()));
+    return q.normalize();
+  }
+  function studioVfxWorld(binding) {
+    const p=new Vector3(...(binding.position3D||[0,0,0])), node=studioVfxNode(binding);
+    if(node){node.updateWorldMatrix(true,false);p.applyMatrix4(node.matrixWorld)}
+    return p;
+  }
+  function studioVfxPlacement(subject, edit) {
+    const bank=studioVfxTargetId||"__scene__", key=studioVfxFollowKey(bank,subject.key);
+    let binding=studioVfxBinding(subject.key,bank);
+    if(edit){
+      const rotation=binding?.rotation3D?studioVfxOrientation(binding):null;
+      const world=binding?.position3D?studioVfxWorld(binding):new Vector3(subject.x*2-1,1-subject.y*2,0).unproject(camera);
+      if(!binding?.position3D){const depth=Math.max(1,camera.position.distanceTo(controls.target));world.copy(camera.position).add(world.sub(camera.position).normalize().multiplyScalar(depth))}
+      let ownerId=edit.ownerId, boneId=edit.boneId;
+      if(ownerId===undefined){ownerId=binding?.ownerId;boneId=binding?.boneId}
+      const node=studioVfxNode({ownerId,boneId});if(node){node.updateWorldMatrix(true,false);node.worldToLocal(world)}
+      if(rotation&&node)rotation.premultiply(node.getWorldQuaternion(new Quaternion()).invert());
+      binding={scale3D:binding?.scale3D?.slice(),rotation3D:rotation?.toArray(),bankId:bank,effectKey:subject.key,kind:subject.kind,origin:[subject.x??.5,subject.y??.5],ownerId,boneId,position3D:edit.position||world.toArray(),referenceSize:binding?.referenceSize};
+      studioVfxLayerFollows[key]=binding;
+      if(!binding.referenceSize)binding.referenceSize=studioVfxProjection(binding).size;
+      vfxLastDraw=0;
+    }
+    return {position:binding?.position3D||[0,0,0],ownerId:binding?.ownerId||'',boneId:binding?.boneId||'',active:!!binding?.position3D,objects:objects.map(o=>({id:o.id,name:o.name}))};
+  }
+  function studioVfxProjection(binding){
     camera.updateMatrixWorld(true);
-    const p = bone.getWorldPosition(new Vector3()).project(camera);
-    return { dx: (p.x + 1) / 2 - binding.origin[0], dy: (1 - p.y) / 2 - binding.origin[1] };
+    const world=studioVfxWorld(binding),view=world.clone().applyMatrix4(camera.matrixWorldInverse),p=world.clone().project(camera),node=studioVfxNode(binding);
+    const scale=node?node.getWorldScale(new Vector3()):new Vector3(1,1,1);
+    const size=Math.max(.000001,Math.cbrt(Math.abs(scale.x*scale.y*scale.z))*(camera.isPerspectiveCamera?1/Math.max(.001,-view.z):camera.zoom));
+    return {p,size,visible:view.z< -camera.near&&view.z> -camera.far};
+  }
+  function studioFollowAnchor(effectKey) {
+    const binding=studioVfxBinding(effectKey);if(!binding)return null;
+    if(binding.position3D){const {p,size,visible}=studioVfxProjection(binding);return {dx:(p.x+1)/2-binding.origin[0],dy:(1-p.y)/2-binding.origin[1],scale:visible?size/(binding.referenceSize||size):0}}
+    const node=studioVfxNode(binding);if(!node)return null;
+    const p=node.getWorldPosition(new Vector3()).project(camera);
+    return {dx:(p.x+1)/2-binding.origin[0],dy:(1-p.y)/2-binding.origin[1]};
   }
   function studioVfxFollowInfo(subject) {
-    const binding = studioVfxBinding(subject.key, studioVfxTargetId || "__scene__"), bone = followBoneNode(binding);
-    return bone ? bone.name || "Osso" : null;
+    const binding=studioVfxBinding(subject.key,studioVfxTargetId||"__scene__"),node=studioVfxNode(binding);
+    return node?node.name||"Objeto":binding?.position3D?"Espaço 3D":null;
   }
+  var vfxMoveHandle=new Object3D();scene.add(vfxMoveHandle);
+  var vfxMoveGizmo=new TransformControls(camera,renderer.domElement);
+  vfxMoveGizmo.setMode("translate");vfxMoveGizmo.setSpace("world");vfxMoveGizmo.setSize(.85);
+  var vfxMoveHelper=vfxMoveGizmo.getHelper();scene.add(vfxMoveHelper);
+  var vfxMoveSubject=null,vfxMoveStart=null;
+  function selectVfxPlacement(subject,focus=false,mode){
+    if(!subject||subject.internal){vfxMoveSubject=null;vfxMoveGizmo.detach();return}
+    if(vfxMoveGizmo.dragging)return;
+    const bank=studioVfxTargetId||"__scene__";
+    if(!studioVfxBinding(subject.key,bank)?.position3D)studioVfxPlacement(subject,{});
+    vfxMoveSubject={...subject,bankId:bank};
+    const binding=studioVfxBinding(subject.key,bank);
+    if(mode)vfxMoveGizmo.setMode(mode);
+    vfxMoveGizmo.setSpace(vfxMoveGizmo.mode==='translate'?'world':'local');
+    vfxMoveHandle.position.copy(studioVfxWorld(binding));
+    vfxMoveHandle.quaternion.copy(studioVfxOrientation(binding));
+    vfxMoveHandle.scale.fromArray(binding.scale3D||[1,1,1]);
+    objectGizmo.detach();vfxMoveGizmo.attach(vfxMoveHandle);
+    if(focus){setMode("orbit");objectGizmo.detach();vfxMoveGizmo.attach(vfxMoveHandle);status(vfxMoveGizmo.mode==="scale"?"Arraste o centro para escala uniforme ou as alças para escalar por eixo.":vfxMoveGizmo.mode==="rotate"?"Arraste os anéis X, Y ou Z para girar o VFX.":"Arraste X, Y ou Z para mover o VFX.")}
+  }
+  function syncVfxMoveHandle(){
+    if(!vfxMoveSubject)return;
+    if($("panelVFX").hidden||exportState){vfxMoveHelper.visible=false;vfxMoveGizmo.enabled=false;return}
+    vfxMoveHelper.visible=true;vfxMoveGizmo.enabled=true;
+    if(!vfxMoveGizmo.dragging){const binding=studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId);if(binding?.position3D){vfxMoveHandle.position.copy(studioVfxWorld(binding));vfxMoveHandle.quaternion.copy(studioVfxOrientation(binding));vfxMoveHandle.scale.fromArray(binding.scale3D||[1,1,1])}}
+  }
+  vfxMoveGizmo.addEventListener("dragging-changed",e=>{
+    controls.enabled=!e.value;
+    if(e.value){pauseTimeline();vfxMoveStart={scale:vfxMoveHandle.scale.clone(),scale3D:studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId)?.scale3D?.slice(),position:vfxMoveHandle.position.clone(),quaternion:vfxMoveHandle.quaternion.clone(),rotation3D:studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId)?.rotation3D?.slice()}}
+    else{vfxMoveStart=null;vfxApi?.syncFollowUI()}
+  });
+  function applyVfxMoveHandle(){
+    if(!vfxMoveSubject)return;
+    const binding=studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId);if(!binding)return;
+    const point=vfxMoveHandle.position.clone(),node=studioVfxNode(binding);
+    if(node){node.updateWorldMatrix(true,false);node.worldToLocal(point)}
+    binding.position3D=point.toArray();
+    if(vfxMoveGizmo.mode==='scale'){binding.scale3D=vfxMoveHandle.scale.toArray().map(v=>Math.max(.001,Math.abs(v)))}
+    if(vfxMoveGizmo.mode==='rotate'){
+      const q=vfxMoveHandle.quaternion.clone();if(node)q.premultiply(node.getWorldQuaternion(new Quaternion()).invert());
+      binding.rotation3D=q.normalize().toArray();
+    }
+    vfxLastDraw=0;
+  }
+  vfxMoveGizmo.addEventListener("objectChange",applyVfxMoveHandle);
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&vfxMoveStart){
+    const saved=vfxMoveStart;vfxMoveGizmo.reset();vfxMoveHandle.position.copy(saved.position);vfxMoveHandle.quaternion.copy(saved.quaternion);vfxMoveHandle.scale.copy(saved.scale);applyVfxMoveHandle();
+    const binding=studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId);binding.rotation3D=saved.rotation3D;binding.scale3D=saved.scale3D;
+    controls.enabled=true;vfxApi?.syncFollowUI();
+  }},true);
+
   var followPinView = new Group();
   scene.add(followPinView);
   var followPinGeometry = new SphereGeometry(1, 12, 8);
@@ -49006,6 +49166,9 @@ ${notes}`;
     } else {
       camera.updateMatrixWorld(true);
       const bankId = subject.bankId || studioVfxTargetId || "__scene__", binding = { ownerId: owner.id, boneId: bone.uuid, bankId, effectKey: subject.key || "all", kind: subject.kind, origin: [subject.x ?? 0.5, subject.y ?? 0.5], ...subject.kind === "sceneLight" ? { origin3D: [subject.x, subject.y, subject.z] } : {} };
+      owner.root.updateMatrixWorld(true);bone.updateWorldMatrix(true,false);
+      binding.position3D=[0,0,0];
+      binding.referenceSize=studioVfxProjection(binding).size;
       studioVfxLayerFollows[studioVfxFollowKey(bankId, subject.key)] = binding;
     }
     vfxApi?.syncFollowUI();
@@ -49017,6 +49180,12 @@ ${notes}`;
     if (subject.type === "object") subject.object.followBone = null;
     else {
       const bank = subject.bankId || studioVfxTargetId || "__scene__";
+      const previous=studioVfxBinding(subject.key,bank);
+      if(previous?.position3D){
+        const world=studioVfxWorld(previous),rotation=previous.rotation3D?studioVfxOrientation(previous).toArray():undefined;
+        studioVfxLayerFollows[studioVfxFollowKey(bank,subject.key)]={...previous,ownerId:'',boneId:'',position3D:world.toArray(),rotation3D:rotation};
+        vfxLastDraw=0;vfxApi?.syncFollowUI();status("VFX livre na cena; posição preservada.");return;
+      }
       delete studioVfxLayerFollows[studioVfxFollowKey(bank, subject.key)];
       if (subject.layerId) delete studioVfxLayerFollows[subject.layerId];
       if (studioVfxFollow?.bankId === bank || studioVfxFollow?.ownerId === bank) studioVfxFollow = null;
@@ -49326,8 +49495,87 @@ ${notes}`;
       c.action?.kind || c.imageSmoke?.active || c.imageGlass?.active
     );
   }
+  // Render emitters separately so every layer has its own camera-space depth.
+  function splitStudioSpatialEffects(state, bankId) {
+    const base=JSON.parse(JSON.stringify(state)), c=base.config, layers=[];
+    function add(kind,item){
+      const key=(kind==='particle'?'particle:':kind+':')+item.id;
+      let binding=studioVfxBinding(key,bankId);
+      if(!binding?.position3D){
+        const target=objects.find(o=>o.id===bankId),center=target?new Box3().setFromObject(target.root).getCenter(new Vector3()):controls.target;
+        camera.updateMatrixWorld(true);const depth=center.clone().project(camera).z;
+        const world=new Vector3((item.x??item.posX??.5)*2-1,1-(item.y??item.posY??.5)*2,depth).unproject(camera);
+        const node=studioVfxNode(binding);if(node){node.updateWorldMatrix(true,false);node.worldToLocal(world)}
+        binding={...binding,bankId,effectKey:key,kind,origin:binding?.origin||[item.x??item.posX??.5,item.y??item.posY??.5],position3D:world.toArray()};
+        binding.referenceSize=studioVfxProjection(binding).size;
+        studioVfxLayerFollows[studioVfxFollowKey(bankId,key)]=binding;
+      }
+      const isolated=JSON.parse(JSON.stringify(vfxDefaultState));isolated.enabled=true;isolated.mask=null;
+      const neutral=isolated.config;
+      for(const prop of Object.keys(neutral))if(prop.endsWith('Active'))neutral[prop]=false;
+      neutral.action.kind='';neutral.imageSmoke.active=false;neutral.imageGlass.active=false;
+      neutral.extensions={};neutral.fires=[];neutral.lights=[];neutral.particles.active=false;
+      if(kind==='particle')neutral.particles={...c.particles,...item,active:true,layers:[]};
+      if(kind==='fire'){neutral.fireActive=true;neutral.fires=[item]}
+      if(kind==='light')neutral.lights=[item];
+      layers.push({key,state:isolated,binding});
+    }
+    if(c.fireActive!==false){for(const fire of c.fires||[])if(fire.intensity>0)add('fire',fire);c.fires=[]}
+    for(const light of c.lights||[])if(light.active)add('light',light);c.lights=[];
+    if(c.particles?.active){
+      const list=c.particles.layers?.length?c.particles.layers:[c.particles];
+      const internal=new Set(['aura','shatterGlass','crumple','burnImage']);
+      const keep=[];
+      for(const item of list){if(internal.has(item.presetKey))keep.push(item);else if(item.active!==false)add('particle',item)}
+      c.particles.layers=keep;c.particles.active=keep.length>0;
+    }
+    return {base,layers};
+  }
+  var studioSpatialInput=document.createElement('canvas');studioSpatialInput.width=1920;studioSpatialInput.height=1080;
+  var studioSpatialScene=new Scene();
+  var studioSpatialTexture=new CanvasTexture(studioSpatialInput);
+  studioSpatialTexture.colorSpace=SRGBColorSpace;
+  studioSpatialTexture.generateMipmaps=false;studioSpatialTexture.minFilter=LinearFilter;
+  var studioSpatialMaterial=new MeshBasicMaterial({map:studioSpatialTexture,transparent:true,side:DoubleSide,depthTest:true,depthWrite:false,toneMapped:false});
+  var studioSpatialPlane=new Mesh(new PlaneGeometry(1,1),studioSpatialMaterial);
+  studioSpatialPlane.frustumCulled=false;studioSpatialScene.add(studioSpatialPlane);
+  function occludeStudioSpatialEffect(binding,processed,reuseDepth=false){
+    const projection=studioVfxProjection(binding);if(!projection.visible)return null;
+    const width=renderer.domElement.width,height=renderer.domElement.height;
+    if(studioOccludedEffect.width!==width||studioOccludedEffect.height!==height){studioOccludedEffect.width=width;studioOccludedEffect.height=height}
+    const clear=renderer.getClearColor(new Color()),alpha=renderer.getClearAlpha(),autoClear=renderer.autoClear,background=scene.background;
+    const hidden=scene.children.filter(o=>o.userData.isStudioSky||o.type==='GridHelper'||o.type==='AxesHelper').map(o=>[o,o.visible]);
+    try{
+      for(const [o]of hidden)o.visible=false;
+      scene.background=null;renderer.autoClear=true;
+      if(!reuseDepth)renderer.render(scene,camera); // actual meshes, including skinned characters, write depth
+      renderer.setClearColor(0,0);renderer.autoClear=false;
+      renderer.clear(true,false,false); // preserve the mesh depth buffer
+      const world=studioVfxWorld(binding),view=world.clone().applyMatrix4(camera.matrixWorldInverse);
+      const planeHeight=camera.isPerspectiveCamera?2*Math.max(.001,-view.z)*Math.tan(camera.fov*Math.PI/360)/camera.zoom:(camera.top-camera.bottom)/camera.zoom;
+      const planeWidth=planeHeight*(camera.isPerspectiveCamera?camera.aspect:(camera.right-camera.left)/(camera.top-camera.bottom));
+      // UVs remain full frame; shift vertices so rotation pivots at the emitter.
+      const px=(projection.p.x+1)/2,py=(1-projection.p.y)/2;
+      const vertices=studioSpatialPlane.geometry.attributes.position;
+      vertices.setXYZ(0,-px*planeWidth,py*planeHeight,0);
+      vertices.setXYZ(1,(1-px)*planeWidth,py*planeHeight,0);
+      vertices.setXYZ(2,-px*planeWidth,(py-1)*planeHeight,0);
+      vertices.setXYZ(3,(1-px)*planeWidth,(py-1)*planeHeight,0);vertices.needsUpdate=true;
+      studioSpatialPlane.position.copy(world);studioSpatialPlane.quaternion.copy(studioVfxOrientation(binding));
+      studioSpatialPlane.scale.fromArray(binding.scale3D||[1,1,1]);
+      studioSpatialTexture.image=processed;studioSpatialTexture.needsUpdate=true;
+      renderer.render(studioSpatialScene,camera);
+      const ctx=studioOccludedEffectContext;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,width,height);
+      ctx.drawImage(renderer.domElement,0,0,width,height);return studioOccludedEffect;
+    }finally{
+      studioOccludedEffectContext.globalCompositeOperation='source-over';
+      scene.background=background;renderer.autoClear=autoClear;renderer.setClearColor(clear,alpha);
+      for(const [o,visible]of hidden)o.visible=visible;
+    }
+  }
   function renderStudioFrame(time, exporting = false) {
     updateBoneFollowers();
+    syncVfxMoveHandle();
     refreshFollowPins();
     const environmentTime = environmentFxTime(time, exporting);
     syncEnvironmentEmitters(environmentTime);
@@ -49349,7 +49597,7 @@ ${notes}`;
       const target = objects.find((o) => o.id === id);
       if (id !== "__scene__" && (!target || !studioTreeVisible(target.root))) continue;
       vfxApi.setState(bank.state, false);
-      if (vfxApi.active()) passes.push({ id, target, state: bank.state, replacesSource: studioVfxReplacesSource(bank.state) });
+      if (vfxApi.active()) {const split=splitStudioSpatialEffects(bank.state,id);passes.push({id,target,state:split.base,spatial:split.layers,replacesSource:studioVfxReplacesSource(split.base)})}
     }
     vfxApi.setState(vfxState, false);
     if (!passes.length) {
@@ -49357,7 +49605,7 @@ ${notes}`;
       renderer.render(scene, camera);
       return renderer.domElement;
     }
-    const helpers = scene.children.filter((o) => o === followPinView || o === rigView || o === objectGizmoHelper || o === faceGuides).map((o) => [o, o.visible]);
+    const helpers = scene.children.filter((o) => o === vfxMoveHelper || o === followPinView || o === rigView || o === objectGizmoHelper || o === faceGuides).map((o) => [o, o.visible]);
     for (const [node] of helpers) node.visible = false;
     if (vfxComposite.width !== renderer.domElement.width || vfxComposite.height !== renderer.domElement.height) {
       vfxComposite.width = renderer.domElement.width;
@@ -49399,6 +49647,18 @@ ${notes}`;
         vfxCompositeContext.clearRect(0, 0, vfxComposite.width, vfxComposite.height);
         vfxCompositeContext.drawImage(processed, 0, 0, vfxComposite.width, vfxComposite.height);
       }
+      const spatial=passes.flatMap(pass=>pass.spatial.map(layer=>({...layer,bankId:pass.id})));
+      // Back-to-front alpha compositing also orders emitters against each other.
+      spatial.sort((a,b)=>studioVfxProjection(b.binding).p.z-studioVfxProjection(a.binding).p.z);
+      let spatialDepthReady=false;
+      for(const layer of spatial){
+        if(!studioVfxProjection(layer.binding).visible)continue;
+        studioVfxRenderTarget=layer.bankId;vfxApi.setState(layer.state,false);
+        const processed=vfxApi.render(studioSpatialInput,clockTime,1920,1080,exporting);
+        const occluded=occludeStudioSpatialEffect(layer.binding,processed,spatialDepthReady);
+        spatialDepthReady=true;
+        if(occluded)vfxCompositeContext.drawImage(occluded,0,0,vfxComposite.width,vfxComposite.height);
+      }
     } catch (e) {
       vfxComposite.hidden = true;
       status("Falha no VFX: " + e.message);
@@ -49426,7 +49686,7 @@ ${notes}`;
     return vfxComposite;
   }
   function mountStudioVfx() {
-    vfxApi = window.AlexandreStudioVFX.mount($("studioVfxHost"), { THREE: three_module_exports, followAnchor: studioFollowAnchor, followInfo: studioVfxFollowInfo, followPick: (effect) => {
+    vfxApi = window.AlexandreStudioVFX.mount($("studioVfxHost"), { THREE: three_module_exports, placement: studioVfxPlacement, selectPlacement: selectVfxPlacement, followAnchor: studioFollowAnchor, followInfo: studioVfxFollowInfo, followPick: (effect) => {
       vfxState = vfxApi.capture();
       stashStudioVfxBank();
       beginFollowPin({ type: "vfx", ...effect, bankId: studioVfxTargetId || "__scene__" });
@@ -49463,7 +49723,9 @@ ${notes}`;
     selectStudioVfxTarget(id);
   };
   fillSurfaceSelect();
-  vfxApi.root.querySelector(".vfx-heading").append(surfaceSelect);
+  const scopeDetails=document.createElement("details"),scopeSummary=document.createElement("summary");
+  scopeSummary.textContent="Aplicação dos efeitos";scopeDetails.append(scopeSummary,surfaceSelect);
+  vfxApi.root.querySelector(".vfx-heading").append(scopeDetails);
   vfxDefaultState = vfxApi.defaults();
   if (!vfxState.config.extensions?.sceneLight) {
     vfxState.config.extensions = { ...vfxState.config.extensions, sceneLight: { enabled: false, power: 2, x: 2, y: 3, z: 3, color: "#ffffff" } };
