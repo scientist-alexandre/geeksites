@@ -140,6 +140,8 @@
 
         /* Botões e Inputs */
         .buttons-container {
+            flex-wrap: wrap;
+            gap: 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -199,12 +201,15 @@
             cursor: pointer;
             width: 80px;
         }
+        .right-controls { flex-wrap: wrap; justify-content: flex-end; }
+        .controls:focus-within { opacity: 1; }
     </style>
 </head>
 <body>
 
 <div class="video-container" id="videoContainer">
-    <video id="mainVideo"></video>
+    <video id="mainVideo" playsinline></video>
+    <div id="exportStatus" role="status" aria-live="polite" style="position:absolute;top:12px;left:12px;color:white;background:#222c;padding:8px;border-radius:5px">Abra um vídeo pela pasta 📂.</div>
     
     <div class="controls">
         <div class="progress-area" id="progressArea">
@@ -270,13 +275,43 @@
     let trimStart = 0;
     let trimEnd = 0;
     let isExporting = false;
+    let sourceURL;
+    let sourceFile;
+    const exportStatus = document.getElementById('exportStatus');
+    function saveBlob(blob, filename) {
+        if (!blob || !blob.size) throw new Error('O arquivo gerado está vazio.');
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+    function waitMedia(element, event, action) {
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => done(new Error('Tempo esgotado ao preparar o vídeo.')), 15000);
+            const success = () => done();
+            const failure = () => done(new Error('Não foi possível ler este vídeo.'));
+            function done(error) {
+                clearTimeout(timeout);
+                element.removeEventListener(event, success);
+                element.removeEventListener('error', failure);
+                error ? reject(error) : resolve();
+            }
+            element.addEventListener(event, success, {once:true});
+            element.addEventListener('error', failure, {once:true});
+            try { action(); } catch(error) { done(error); }
+        });
+    }
 
     // Gerenciamento de exibição dos controles (Inatividade)
     function resetControlsTimer() {
         videoContainer.classList.remove('hide-controls');
         clearTimeout(controlsTimer);
         // Só inicia o timer para esconder se o vídeo estiver rodando
-        if (!video.paused) {
+        if (!video.paused && !isExporting) {
             controlsTimer = setTimeout(() => {
                 videoContainer.classList.add('hide-controls');
             }, 3000);
@@ -304,12 +339,13 @@
 
     // Toggle Play/Pause
     function togglePlay() {
+        if (!video.src) return;
         if (video.paused) {
             // Se estiver fora da seleção ou no fim dela, reinicia no começo do corte.
             if (video.currentTime < trimStart || video.currentTime >= trimEnd - 0.03) {
                 video.currentTime = trimStart;
             }
-            video.play();
+            video.play().catch(error => exportStatus.textContent = error.message);
         } else {
             video.pause();
         }
@@ -373,7 +409,7 @@
 
     function enableTrimDrag(handle, edge) {
         handle.addEventListener('pointerdown', (event) => {
-            if (!Number.isFinite(video.duration)) return;
+            if (isExporting || !Number.isFinite(video.duration)) return;
             event.preventDefault();
             event.stopPropagation();
             handle.setPointerCapture(event.pointerId);
@@ -403,6 +439,7 @@
     // Volume
     volumeSlider.addEventListener('input', (e) => {
         video.volume = e.target.value;
+        video.muted = false;
         muteBtn.textContent = video.volume === 0 ? '🔇' : '🔊';
     });
 
@@ -412,12 +449,16 @@
     fileInput.addEventListener('change', function() {
         const file = this.files[0];
         if (file) {
-            const url = URL.createObjectURL(file);
+            video.pause();
+            sourceFile = file;
+            if (sourceURL) URL.revokeObjectURL(sourceURL);
+            const url = sourceURL = URL.createObjectURL(file);
+            exportStatus.textContent = file.name;
             video.src = url;
             // Garante que o estado do loop seja aplicado ao novo vídeo
             video.loop = loopBtn.classList.contains('active');
             video.playbackRate = parseFloat(speedSelect.value);
-            video.play();
+            video.play().catch(() => { exportStatus.textContent = 'Vídeo aberto. Pressione ▶ para reproduzir.'; });
             playPauseBtn.textContent = '⏸';
         }
     });
@@ -443,111 +484,99 @@
             }
 
             const frameTime = Math.floor(video.currentTime * 1000);
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `frame-${frameTime}ms.png`;
-            link.click();
-            URL.revokeObjectURL(link.href);
+            saveBlob(blob, `frame-${frameTime}ms.png`);
+            exportStatus.textContent = 'Foto PNG enviada para Downloads.';
         }, 'image/png');
     });
 
-    // Exporta o intervalo marcado como vídeo ou somente áudio, em tempo real.
-    async function exportSelection(audioOnly = false) {
-        if (!video.src || !Number.isFinite(video.duration) || isExporting) {
-            if (!video.src) alert('Abra um vídeo antes de fazer o corte.');
+    const processorSource = "\nlet engine;\nself.onmessage = async ({data}) => {\n try {\n  if (data.type === 'init') {\n   engine = await createFFmpegCore({wasmBinary:data.wasm});\n   engine.setLogger(({message}) => self.postMessage({type:'log',message}));\n   engine.setProgress(({time}) => self.postMessage({type:'progress',time}));\n   self.postMessage({type:'ready'});\n  } else {\n   engine.FS.writeFile('input',data.input);\n   engine.exec('-nostdin','-y',...data.args);\n   if(engine.ret !== 0) throw new Error('Falha ao processar o arquivo. Verifique se h\u00e1 \u00e1udio e se o formato \u00e9 compat\u00edvel.');\n   const output=engine.FS.readFile(data.output);\n   self.postMessage({type:'done',output},[output.buffer]);\n  }\n } catch(error) { self.postMessage({type:'error',message:String(error)}); }\n};\n";
+    let processorAssets;
+    async function loadProcessorAssets() {
+        if (!processorAssets) {
+            processorAssets = (async () => {
+                const base = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd/';
+                const responses = await Promise.all([
+                    fetch(base + 'ffmpeg-core.js', {signal: AbortSignal.timeout(120000)}),
+                    fetch(base + 'ffmpeg-core.wasm', {signal: AbortSignal.timeout(120000)})
+                ]);
+                if (responses.some(response => !response.ok)) throw new Error('Não foi possível baixar o processador. Verifique sua conexão e tente novamente.');
+                const [js, wasm] = await Promise.all([responses[0].text(), responses[1].arrayBuffer()]);
+                return {js, wasm};
+            })().catch(error => { processorAssets = null; throw error; });
+        }
+        return processorAssets;
+    }
+    // FFmpeg roda num worker local: nenhuma reprodução ou envio de vídeo.
+    async function processSelection(audioOnly = false) {
+        if (isExporting) return;
+        if (!sourceFile || !Number.isFinite(video.duration)) {
+            exportStatus.textContent = 'Abra um vídeo e aguarde o carregamento.';
             return;
         }
-
-        const captureStream = video.captureStream || video.mozCaptureStream;
-        if (!captureStream || typeof MediaRecorder === 'undefined') {
-            alert('Seu navegador não suporta a exportação. Use uma versão recente do Chrome ou Edge.');
-            return;
-        }
-
+        const start = trimStart, duration = trimEnd - trimStart;
+        if (!(duration > 0)) return;
         isExporting = true;
-        downloadClipBtn.disabled = true;
-        downloadAudioBtn.disabled = true;
-        const oldTime = video.currentTime;
-        const oldRate = video.playbackRate;
-        const oldLoop = video.loop;
-        const wasPaused = video.paused;
-
+        const controls = [downloadClipBtn, downloadAudioBtn, loadBtn, fileInput, trimStartHandle, trimEndHandle];
+        controls.forEach(control => control.disabled = true);
+        let worker, workerURL;
         try {
-            video.pause();
-            video.loop = false;
-            video.playbackRate = 1;
-            if (Math.abs(video.currentTime - trimStart) > 0.01) {
-                await new Promise((resolve) => {
-                    video.addEventListener('seeked', resolve, { once: true });
-                    video.currentTime = trimStart;
-                });
-            } else {
-                video.currentTime = trimStart;
-            }
-
-            const capturedStream = captureStream.call(video);
-            const stream = audioOnly
-                ? new MediaStream(capturedStream.getAudioTracks())
-                : capturedStream;
-            if (audioOnly && stream.getAudioTracks().length === 0) {
-                throw new Error('O vídeo não possui uma faixa de áudio disponível.');
-            }
-
-            const mimeTypes = audioOnly
-                ? ['audio/webm;codecs=opus', 'audio/webm']
-                : ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
-            const mimeType = mimeTypes.find((type) => MediaRecorder.isTypeSupported(type)) || '';
-            const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-            const chunks = [];
-            recorder.addEventListener('dataavailable', (event) => {
-                if (event.data.size) chunks.push(event.data);
+            exportStatus.textContent = 'Carregando processador pela internet (cerca de 31 MB na primeira vez)…';
+            await new Promise(resolve => setTimeout(resolve, 0));
+            const assets = await loadProcessorAssets();
+            workerURL = URL.createObjectURL(new Blob([assets.js, '\n', processorSource], {type:'application/javascript'}));
+            worker = new Worker(workerURL);
+            const output = audioOnly ? 'output.mp3' : 'output.mp4';
+            let lastLog = '';
+            const result = new Promise((resolve, reject) => {
+                worker.onerror = event => reject(new Error(event.message || 'Falha no processador local.'));
+                worker.onmessage = async ({data}) => {
+                    try {
+                        if (data.type === 'error') reject(new Error(data.message + (lastLog ? ' '+lastLog : '')));
+                        if (data.type === 'log') lastLog = data.message;
+                        if (data.type === 'progress') {
+                            const percent = Math.min(99, Math.max(0, Math.round(data.time / 1000000 / duration * 100)));
+                            exportStatus.textContent = `Processando ${audioOnly ? 'áudio' : 'corte'}: ${percent}%`;
+                        }
+                        if (data.type === 'ready') {
+                            exportStatus.textContent = 'Lendo arquivo e processando…';
+                            const input = new Uint8Array(await sourceFile.arrayBuffer());
+                            const args = ['-i','input','-ss',String(start),'-t',String(duration)];
+                            if (audioOnly) args.push('-map','0:a:0','-vn','-c:a','libmp3lame','-q:a','2');
+                            else args.push('-map','0:v:0','-map','0:a:0?','-c:v','libx264','-preset','ultrafast','-crf','20','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k','-movflags','+faststart');
+                            args.push(output);
+                            worker.postMessage({type:'run',input,args,output},[input.buffer]);
+                        }
+                        if (data.type === 'done') resolve(data.output);
+                    } catch(error) { reject(error); }
+                };
             });
-
-            const finished = new Promise((resolve) => recorder.addEventListener('stop', resolve, { once: true }));
-            const stopAtEnd = () => {
-                trimInfo.textContent = `Exportando: ${formatTime(Math.max(0, video.currentTime - trimStart))} / ${formatTime(trimEnd - trimStart)}`;
-                if (video.currentTime >= trimEnd || video.ended) {
-                    video.pause();
-                    if (recorder.state !== 'inactive') recorder.stop();
-                }
-            };
-
-            video.addEventListener('timeupdate', stopAtEnd);
-            recorder.start(250);
-            await video.play();
-            await finished;
-            video.removeEventListener('timeupdate', stopAtEnd);
-
-            const fallbackType = audioOnly ? 'audio/webm' : 'video/webm';
-            const blob = new Blob(chunks, { type: recorder.mimeType || fallbackType });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            const fileType = audioOnly ? 'audio' : 'video-cortado';
-            link.download = `${fileType}-${Math.floor(trimStart * 1000)}-${Math.floor(trimEnd * 1000)}.webm`;
-            link.click();
-            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-        } catch (error) {
+            const wasm = new Uint8Array(assets.wasm.slice(0));
+            worker.postMessage({type:'init',wasm},[wasm.buffer]);
+            const data = await result;
+            saveBlob(new Blob([data],{type:audioOnly ? 'audio/mpeg' : 'video/mp4'}), `${audioOnly ? 'audio' : 'video-cortado'}-${Math.round(start*1000)}-${Math.round(trimEnd*1000)}.${audioOnly ? 'mp3' : 'mp4'}`);
+            exportStatus.textContent = `${audioOnly ? 'Áudio MP3' : 'Corte MP4'} enviado para Downloads, sem reproduzir o vídeo.`;
+        } catch(error) {
             console.error(error);
-            alert(error.message || 'Não foi possível exportar o corte deste vídeo.');
+            exportStatus.textContent = error.message === 'Failed to fetch' ? 'Não foi possível carregar o processador. Conecte-se à internet e tente novamente.' : (error.message || 'Falha no processamento. Tente um arquivo menor.');
         } finally {
-            video.pause();
-            video.currentTime = oldTime;
-            video.playbackRate = oldRate;
-            video.loop = oldLoop;
-            if (!wasPaused) video.play().catch(() => {});
+            worker?.terminate();
+            if (workerURL) URL.revokeObjectURL(workerURL);
             isExporting = false;
-            downloadClipBtn.disabled = false;
-            downloadAudioBtn.disabled = false;
-            updateTrimUI();
+            controls.forEach(control => control.disabled = false);
         }
     }
 
-    downloadClipBtn.addEventListener('click', () => exportSelection(false));
-    downloadAudioBtn.addEventListener('click', () => exportSelection(true));
+    downloadClipBtn.addEventListener('click', () => processSelection(false));
+    downloadAudioBtn.addEventListener('click', () => processSelection(true));
 
     // Controle de Velocidade
     speedSelect.addEventListener('change', () => {
         video.playbackRate = parseFloat(speedSelect.value);
+    });
+
+    muteBtn.addEventListener('click', () => {
+        video.muted = !video.muted;
+        muteBtn.textContent = video.muted ? '🔇' : '🔊';
     });
 
     // Toggle Loop
