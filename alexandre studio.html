@@ -31,7 +31,7 @@ button,canvas,label,output,summary{-webkit-user-drag:none}
 /* Duas faixas dividem a altura atual da timeline. */
 .timeGrid,.studioAudioRow{flex:1 1 0;min-height:0}.timeGrid .trackLabel{padding:8px 12px 0}.studioAudioRow{display:grid;grid-template-columns:180px minmax(0,1fr);border-top:1px solid #525165}
 #timeContent{height:100%;min-height:35px}#timeRuler{height:18px}.tick{padding-top:1px}.trackBand{top:19px;height:20px}.timeKey{top:23px;width:10px;height:10px}
-.studioAudioLabel{padding:2px 8px;background:#242d35;border-right:1px solid #424753;min-width:0;font-size:10px;overflow:hidden}.studioAudioLabel>div{display:flex;align-items:center;gap:6px;height:19px}.studioAudioLabel b{margin-right:auto;color:#9ad6dc}.studioAudioLabel button{font-size:12px;padding:0 6px;line-height:16px}.studioAudioLabel select{width:100%;padding:0 3px;font-size:9px;height:16px;background:#19222c;color:#d5e6ed;border:1px solid #46515f}
+.studioAudioLabel{padding:2px 8px;background:#242d35;border-right:1px solid #424753;min-width:0;font-size:10px;overflow:hidden}.studioAudioLabel>div{display:flex;align-items:center;gap:6px;height:19px}.studioAudioLabel b{margin-right:auto;color:#9ad6dc}.studioAudioLabel button{font-size:12px;padding:0 6px;line-height:16px}#studioAudioCut.active{background:#7051c9;color:#fff;border-color:#b19bff}#studioAudioScroll.cutting .studioAudioClip,#studioAudioScroll.cutting .studioAudioHandle{cursor:crosshair}#studioAudioScroll.cutting .studioAudioClip:hover{outline:2px solid #b9a4ff}.studioAudioLabel select{width:100%;padding:0 3px;font-size:9px;height:16px;background:#19222c;color:#d5e6ed;border:1px solid #46515f}
 #studioAudioScroll{position:relative;overflow:auto;min-width:0;background:#172128;touch-action:none}#studioAudioContent{height:100%;min-height:34px;min-width:100%;position:relative}#studioAudioEmpty{position:absolute;left:30px;top:10px;font-size:10px;color:#7e9aa5;pointer-events:none}#studioAudioHead{position:absolute;top:0;bottom:0;width:2px;background:#70b4ff;z-index:100;pointer-events:none}.studioAudioClip{position:absolute;top:3px;height:28px;min-width:2px;border:1px solid hsl(var(--audioHue) 45% 55%);background:hsl(var(--audioHue) 35% 28% / .8);border-radius:4px;cursor:grab;overflow:hidden;touch-action:none;isolation:isolate}.studioAudioClip.selected{z-index:5;border-color:#e9faff;box-shadow:0 0 0 1px #b1eaff}.studioAudioClip:active{cursor:grabbing}.studioAudioName{position:absolute;inset:1px 9px auto;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;text-shadow:0 1px 3px #000;pointer-events:none}.studioAudioWave{position:absolute;inset:0;width:100%;height:100%;opacity:.4;pointer-events:none}.studioAudioWave path{stroke:#cbfcff;stroke-width:.65;fill:none}.studioAudioHandle{position:absolute;top:0;bottom:0;width:8px;background:#d8f6ff44;cursor:ew-resize;z-index:3}.studioAudioHandle:after{content:'';position:absolute;top:8px;bottom:8px;left:3px;border-left:1px solid #effaff}.studioAudioHandle.left{left:0}.studioAudioHandle.right{right:0}
 @media(min-width:1600px){.studioAudioRow{grid-template-columns:200px minmax(0,1fr)}}@media(max-width:850px){.studioAudioRow{grid-template-columns:130px minmax(0,1fr)}}
 .as-vfx-follow-tools{margin:8px 0;font-size:11px}.as-vfx-follow-tools>div{display:flex;gap:6px}.as-vfx-follow-tools button{flex:1;padding:6px!important}.as-vfx-follow-tools small{display:block;margin-top:6px;color:#c3b6ed;line-height:1.4}.as-vfx-follow-local{width:100%;padding:7px!important;margin:0 0 9px!important;background:#473c67!important;color:#eee!important}
@@ -49,7 +49,7 @@ main{grid-template-columns:64px minmax(0,1fr) 290px}main>aside{grid-column:3;gri
 
 /* VFX has its own effect selector; scope is available under Application. */
 aside:has(#panelVFX:not([hidden])) #inspectorTarget{display:none}
-</style>
+.sequencePanel{padding:12px}.sequencePanel>button,.sequencePanel select,.sequencePanel input[type=range],#sequenceDelete{width:100%;box-sizing:border-box}.sequencePanel label{display:block;margin:12px 0;font-size:12px}.sequencePanel select{margin-top:6px}.sequenceButtons{display:flex;gap:5px;margin:10px 0}.sequenceButtons button{flex:1;min-width:0;padding:7px 4px}.sequencePanel output{float:right;color:#b8a5ff}.sequencePanel .muted{line-height:1.5}#sequenceControls[hidden]{display:none!important}</style>
 <script>(() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
@@ -894,8 +894,8 @@ aside:has(#panelVFX:not([hidden])) #inspectorTarget{display:none}
   window.__offlineGifenc = gifenc;
 })();
 </script><style>.timeKey.selected{background:#ffcc66!important;box-shadow:0 0 0 3px #ffcc6680!important;z-index:4}</style><style>.sceneObjectRow{grid-template-columns:16px minmax(0,1fr) 22px 22px 22px!important}</style></head>
-<body><header><div class="brand"><span>◈</span> Alexandre Studio</div><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar arquivo compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button id="tabShapes" class="workspace-tab" role="tab" aria-selected="false" aria-controls="panelShapes">Shape Keys</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button><button class="workspace-tab" id="tabObjects" role="tab" aria-selected="false" aria-controls="panelObjects">Objetos</button></div></header>
-<main><nav><button id="orbit" title="Navegar">↖</button><button id="toolPose" title="Modo pose">⟳</button><button id="frame" title="Enquadrar personagem (F)">⊡</button><button id="baseGrab" title="Grab · corrigir malha" style="font-size:10px">Grab</button><button id="baseGrabUndo" title="Desfazer Grab" style="font-size:10px">↶ Grab</button><button id="objectMove" title="Mover objeto no cenário" aria-label="Mover objeto">✥</button><button id="objectScale" title="Escalar osso selecionado ou personagem inteiro uniformemente" aria-label="Escalar osso selecionado ou personagem inteiro uniformemente">⤢</button><button id="objectRotate" title="Girar osso selecionado ou personagem inteiro" aria-label="Girar osso selecionado ou personagem inteiro">↻</button><button id="showBones" class="active" title="Mostrar ou ocultar ossos">◇</button><button id="viewportGridToggle" title="Mostrar ou esconder grade do viewport 3D" aria-label="Mostrar piso do viewport 3D" aria-pressed="false" style="font-size:10px;line-height:12px">Piso 3D</button><button id="followBones" title="Seguir ossos" style="font-size:10px;line-height:12px">Seguir<br>ossos</button><button id="objectVisibility" title="Mostrar ou ocultar o objeto selecionado" style="font-size:10px">Visível</button><button id="duplicateSceneObject" title="Duplicar objeto selecionado" style="font-size:10px;line-height:12px">Duplicar<br>objeto</button><button id="deleteSceneObject" title="Excluir objeto selecionado da cena" style="font-size:10px;line-height:12px">Excluir<br>objeto</button></nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="rotationAxes" hidden><button data-axis="all" class="active" title="Mostrar os três anéis">XYZ</button><button data-axis="X" title="Girar no eixo X">X</button><button data-axis="Y" title="Girar no eixo Y">Y</button><button data-axis="Z" title="Girar no eixo Z">Z</button><button data-axis="XYZE" title="Giro livre nos três eixos">Livre</button></div><div id="error"></div><div class="hint" id="hint">Arraste para orbitar · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><input id="shapeName" maxlength="100" placeholder="Nome da Shape Key"><button id="shapeNew" class="primary">＋ Criar Shape Key</button><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p><div id="shapeList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="1" max="200" value="20"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="1" max="200" value="15"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey" title="Gravar FaceRig e ossos juntos no keyframe do personagem">◆ Gravar pose + rosto</button></div></div><div class="faceSection"><div class="faceButtons"><button data-face-preset="happy">Feliz</button><button data-face-preset="sad">Triste</button><button data-face-preset="angry">Raiva</button><button data-face-preset="surprised">Surpresa</button></div></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.1"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar pose e rosto, sem posição geral nem escala (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar pose e rosto mantendo posição geral e escala (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioDelete" title="Excluir som selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · arraste para posicionar · alças para cortar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
+<body><header><div class="brand"><span>◈</span> Alexandre Studio</div><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar arquivo compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button id="tabShapes" class="workspace-tab" role="tab" aria-selected="false" aria-controls="panelShapes">Shape Keys</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button><button class="workspace-tab" id="tabSequences" role="tab" aria-selected="false" aria-controls="panelSequences">Sequências</button><button class="workspace-tab" id="tabObjects" role="tab" aria-selected="false" aria-controls="panelObjects">Objetos</button></div></header>
+<main><nav><button id="orbit" title="Navegar">↖</button><button id="toolPose" title="Modo pose">⟳</button><button id="frame" title="Enquadrar personagem (F)">⊡</button><button id="baseGrab" title="Grab · corrigir malha" style="font-size:10px">Grab</button><button id="baseGrabUndo" title="Desfazer Grab" style="font-size:10px">↶ Grab</button><button id="objectMove" title="Mover objeto no cenário" aria-label="Mover objeto">✥</button><button id="objectScale" title="Escalar osso selecionado ou personagem inteiro uniformemente" aria-label="Escalar osso selecionado ou personagem inteiro uniformemente">⤢</button><button id="objectRotate" title="Girar osso selecionado ou personagem inteiro" aria-label="Girar osso selecionado ou personagem inteiro">↻</button><button id="showBones" class="active" title="Mostrar ou ocultar ossos">◇</button><button id="viewportGridToggle" title="Mostrar ou esconder grade do viewport 3D" aria-label="Mostrar piso do viewport 3D" aria-pressed="false" style="font-size:10px;line-height:12px">Piso 3D</button><button id="followBones" title="Seguir ossos" style="font-size:10px;line-height:12px">Seguir<br>ossos</button><button id="objectVisibility" title="Mostrar ou ocultar o objeto selecionado" style="font-size:10px">Visível</button><button id="duplicateSceneObject" title="Duplicar objeto selecionado" style="font-size:10px;line-height:12px">Duplicar<br>objeto</button><button id="deleteSceneObject" title="Excluir objeto selecionado da cena" style="font-size:10px;line-height:12px">Excluir<br>objeto</button></nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="rotationAxes" hidden><button data-axis="all" class="active" title="Mostrar os três anéis">XYZ</button><button data-axis="X" title="Girar no eixo X">X</button><button data-axis="Y" title="Girar no eixo Y">Y</button><button data-axis="Z" title="Girar no eixo Z">Z</button><button data-axis="XYZE" title="Giro livre nos três eixos">Livre</button></div><div id="error"></div><div class="hint" id="hint">Arraste para orbitar · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelSequences" role="tabpanel" aria-labelledby="tabSequences" hidden><div class="sequencePanel"><h3 id="sequenceHeading">Sequências</h3><button id="sequenceImport" class="primary">＋ Importar pasta de imagens</button><input id="sequenceFiles" type="file" accept="image/*" webkitdirectory directory multiple hidden><label>Sequência na cena<select id="sequenceSelect" aria-label="Sequência na cena"></select></label><div id="sequenceControls" hidden><div class="sequenceButtons"><button id="sequencePlay">▶ Play</button><button id="sequencePause">Ⅱ Pausar</button><button id="sequenceRestart">↺ Início</button></div><label><input id="sequenceLoop" type="checkbox"> Loop</label><label><input id="sequenceVisible" type="checkbox"> Visível na cena</label><div class="sequenceButtons"><button id="sequenceKeyPlay">◆ Play no frame</button><button id="sequenceKeyPause">◆ Pause no frame</button></div><button id="sequenceOpenTrack">Abrir timeline do objeto</button><label id="sequenceFpsLabel">Velocidade (FPS)<input id="sequenceFps" type="number" min="1" max="120" step="1" value="24" aria-label="Velocidade da sequência em FPS"></label><label>Posição / início <output id="sequenceTime">0.00 s</output><input id="sequenceSeek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Posição do vídeo"></label><div class="sequenceButtons"><button id="sequenceMove">Mover</button><button id="sequenceRotate">Girar</button><button id="sequenceScale">Escalar</button></div><button id="sequenceDelete">Excluir sequência</button><p class="muted" id="sequenceInfo"></p></div><p class="muted">A pasta vira um plano animado em 3D. As imagens são ordenadas pelo nome: 1, 2, 3… 10. PNG/WebP mantêm a transparência. Play e Pausar controlam a prévia. Use ◆ Play / Pause no frame para programar a reprodução na timeline geral do objeto e na exportação. Cada imagem é um quadro. Ajuste o FPS para definir a velocidade.</p></div></section><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><input id="shapeName" maxlength="100" placeholder="Nome da Shape Key"><button id="shapeNew" class="primary">＋ Criar Shape Key</button><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p><div id="shapeList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="1" max="200" value="20"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="1" max="200" value="15"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey" title="Gravar FaceRig e ossos juntos no keyframe do personagem">◆ Gravar pose + rosto</button></div></div><div class="faceSection"><div class="faceButtons"><button data-face-preset="happy">Feliz</button><button data-face-preset="sad">Triste</button><button data-face-preset="angry">Raiva</button><button data-face-preset="surprised">Surpresa</button></div></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.1"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar todos os canais do keyframe selecionado (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar os canais copiados no frame atual (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioCut" title="Cortar áudio: ative e clique no ponto do clipe (S divide no cursor)" aria-label="Cortar áudio" aria-pressed="false">✂</button><button id="studioAudioDelete" title="Excluir trecho de áudio selecionado (Delete)" aria-label="Excluir trecho de áudio selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · ✂ para dividir · selecione e Delete para apagar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
 <!-- alexandre-vfx:start -->
 <script id="studio-vfx-pixi">
 var qd=Object.defineProperty,Kd=Object.defineProperties;var Zd=Object.getOwnPropertyDescriptors;var ir=Object.getOwnPropertySymbols;var $h=Object.prototype.hasOwnProperty,jh=Object.prototype.propertyIsEnumerable;var Wh=(m,et,pt)=>et in m?qd(m,et,{enumerable:!0,configurable:!0,writable:!0,value:pt}):m[et]=pt,bt=(m,et)=>{for(var pt in et||(et={}))$h.call(et,pt)&&Wh(m,pt,et[pt]);if(ir)for(var pt of ir(et))jh.call(et,pt)&&Wh(m,pt,et[pt]);return m},Qi=(m,et)=>Kd(m,Zd(et));var zn=(m,et)=>{var pt={};for(var Rt in m)$h.call(m,Rt)&&et.indexOf(Rt)<0&&(pt[Rt]=m[Rt]);if(m!=null&&ir)for(var Rt of ir(m))et.indexOf(Rt)<0&&jh.call(m,Rt)&&(pt[Rt]=m[Rt]);return pt};/*!
@@ -6871,8 +6871,8 @@ function vfxPickerItems(){
 function syncPlacementUI(){
  const panel=root.querySelector('#vfx-placement');if(!panel)return;
  const subject=effectFollowSubject(),picker=panel.querySelector('#vfx-effect-picker'),items=vfxPickerItems();
- const previous=picker.value;picker.replaceChildren();
- for(const item of items){const option=realDocument.createElement('option');option.value=item.key;option.textContent=item.label;picker.append(option)}
+ const previous=picker.value,signature=JSON.stringify(items.map(item=>[item.key,item.label]));
+ if(picker.dataset.items!==signature){picker.replaceChildren();for(const item of items){const option=realDocument.createElement('option');option.value=item.key;option.textContent=item.label;picker.append(option)}picker.dataset.items=signature}
  picker.value=subject?.key==='image'&&previous.startsWith('image:')?previous:subject?.key||'';
  const movable=subject&&!subject.internal&&subject.kind!=='sceneLight';
  bridge.selectPlacement?.(movable?subject:null);
@@ -6880,7 +6880,7 @@ function syncPlacementUI(){
  panel.querySelector('#as-vfx-follow').disabled=!subject||subject.internal;
  const info=subject?bridge.followInfo?.(subject):null;
  panel.querySelector('#as-vfx-unfollow').disabled=!info;
- const reference=panel.querySelector('#vfx-reference');reference.hidden=!movable;
+ const reference=panel.querySelector('#vfx-reference');reference.hidden=true;
  if(movable){const state=bridge.placement?.(subject);if(state){reference.replaceChildren();for(const item of [{id:'',name:'Livre na cena'},...state.objects]){const option=realDocument.createElement('option');option.value=item.id;option.textContent=item.name;reference.append(option)}reference.value=state.ownerId;reference.title=state.boneId?'Vinculado ao osso · use Soltar para liberar':'Referência do movimento'}}
 }
 function syncEffectFollowUI(){syncPlacementUI()}
@@ -6937,12 +6937,13 @@ const cards=[...root.querySelectorAll('.effect-card')];mountEffectFollowUI();mou
 function initialize(source,w,h){if(ready)return;initPixi(source,w,h);app.stop();app.ticker.stop();app.renderer.events?.destroy();ready=true;lastCanvas=source;inputTexture=sprite.texture;}
 let maskVersion=0,encodedMaskVersion=-1,encodedMask=null;function capturedMask(){if(!ready||!windMaskPainted)return pendingMask;if(encodedMaskVersion!==maskVersion){encodedMask=app.renderer.extract.canvas(maskTexture).toDataURL();encodedMaskVersion=maskVersion}return encodedMask}function renderState(){ensureEffectFollowIds();return {version:1,enabled:master,config:clone(captureEffectConfig()),mask:capturedMask()}}
 let pendingMask=null,loadedMask=null;
-function setState(state,updateUI=true){syncing=true;try{master=state?.enabled!==false;Object.assign(settings,clone(defaults),clone(state?.config||{}));ensureEffectFollowIds();settings.keyframes=[];for(const [id,extension]of extensionRegistry)settings.extensions[id]??={enabled:false,...clone(extension.defaults||{})};const bank=ensureEffectBank('scene');bank.config=clone(captureEffectConfig());bank.initial=clone(bank.config);if(state?.mask!==pendingMask){pendingMask=state?.mask||null;loadedMask=null;encodedMask=null;encodedMaskVersion=-1;if(!pendingMask&&ready){app.renderer.render(new PIXI.Container(),{renderTexture:maskTexture,clear:true});windMaskPainted=false}}if(updateUI){currentTime=bridge.time();seek(currentTime,true);syncActionUI();syncMirrorUI();syncParticleUI();syncImageEffectUI('smoke');syncImageEffectUI('glass');updateFireSelector();updateLightSelector();for(const[prop,id]of Object.entries(extraEffectControls))document.getElementById(id).checked=settings[prop]!==false;for(const input of root.querySelectorAll('input[data-extension]')){const value=settings.extensions[input.dataset.extension]?.[input.dataset.control];if(input.type==='checkbox')input.checked=!!value;else if(value!==undefined)input.value=value}heading.querySelector('#as-vfx-enabled').checked=master;syncEffectFollowUI()}}finally{syncing=false}}
-function changed(force=false){if(syncing||rendering)return;currentTime=bridge.time();const bank=ensureEffectBank('scene');bank.config=clone(captureEffectConfig());bridge.change(renderState(),force)}
+let loadedVfxState=null;
+function setState(state,updateUI=true){if(!updateUI&&state&&state===loadedVfxState)return;loadedVfxState=state;syncing=true;try{master=state?.enabled!==false;Object.assign(settings,clone(defaults),clone(state?.config||{}));ensureEffectFollowIds();settings.keyframes=[];for(const [id,extension]of extensionRegistry)settings.extensions[id]??={enabled:false,...clone(extension.defaults||{})};const bank=ensureEffectBank('scene');bank.config=captureEffectConfig();bank.initial=clone(bank.config);if(state?.mask!==pendingMask){pendingMask=state?.mask||null;loadedMask=null;encodedMask=null;encodedMaskVersion=-1;if(!pendingMask&&ready){app.renderer.render(new PIXI.Container(),{renderTexture:maskTexture,clear:true});windMaskPainted=false}}if(updateUI){currentTime=bridge.time();seek(currentTime,true);syncActionUI();syncMirrorUI();syncParticleUI();syncImageEffectUI('smoke');syncImageEffectUI('glass');updateFireSelector();updateLightSelector();for(const[prop,id]of Object.entries(extraEffectControls))document.getElementById(id).checked=settings[prop]!==false;for(const input of root.querySelectorAll('input[data-extension]')){const value=settings.extensions[input.dataset.extension]?.[input.dataset.control];if(input.type==='checkbox')input.checked=!!value;else if(value!==undefined)input.value=value}heading.querySelector('#as-vfx-enabled').checked=master;syncEffectFollowUI()}}finally{syncing=false}}
+function changed(force=false){if(syncing||rendering)return;loadedVfxState=null;currentTime=bridge.time();const bank=ensureEffectBank('scene');bank.config=clone(captureEffectConfig());bridge.change(renderState(),force)}
 heading.querySelector('#as-vfx-enabled').onchange=e=>{master=e.target.checked;changed()};heading.querySelector('#as-vfx-reset').onclick=()=>{setState({enabled:true,config:defaults});changed()};heading.querySelector('#as-vfx-key').onclick=()=>changed(true);
 // The 3D timeline owns keyframes. UI changes never re-record bones or object transforms.
 for(const type of ['input','change','click'])root.addEventListener(type,event=>{if(syncing||event.target.closest('.vfx-heading')||event.target.type==='file')return;if(type==='click'&&!event.target.closest('button'))return;queueMicrotask(()=>changed())});
-for(const type of ['input','change','click'])root.addEventListener(type,()=>{currentTime=bridge.time()},true);
+for(const type of ['input','change','click'])root.addEventListener(type,()=>{loadedVfxState=null;currentTime=bridge.time()},true);
 const originalSeek=seek;applySettingsToCanvas=function(){};restartLivePreview=function(id=''){currentTime=bridge.time();if(id==='btn-preview-impact'||id.startsWith('exp-')){explosionActive=true;explosionProgress=0;settings.impactStart=currentTime;ensureEffectBank('scene').impactPreview=true;settings.action.start=currentTime}bridge.invalidate?.()};addKeyframe=function(){changed(true)};
 function createImageAssetForCurrent(kind){if(!ready||!liveSource)return false;entryFor(dummyLayer).source=liveSource;createImageAsset(dummyLayer,kind,settings[imageEffectKeys[kind]].assetId);return true}
 imageEffectTarget=function(){return sprite?{sprite,layer:null,url:'scene',name:'Cena 3D'}:null};syncImageEffectTargets=function(){for(const kind of ['smoke','glass']){const label=document.getElementById('imagefx-'+kind+'-target-name');if(label)label.textContent='Imagem renderizada da cena 3D'}};
@@ -6959,10 +6960,18 @@ const maskEditing=document.getElementById('toggle-wind-edit').checked;if(exporti
 settings.keyframes=settings.impactStart==null?[]:[{type:'impact',effectTarget:'scene',time:settings.impactStart,expStrength:settings.expStrength,expSpeed:settings.expSpeed,expRippleStrength:settings.expRippleStrength,expRippleSpeed:settings.expRippleSpeed,expFunnel:settings.expFunnel}];applyGlobalSceneSettings(false);const impactAnchor=bridge.followAnchor?.('impact');const impactCenter=[.5+(impactAnchor?.dx||0),.5+(impactAnchor?.dy||0)];impactSprite.position.set(impactCenter[0]*width,impactCenter[1]*height);impactFunnelFilter.uniforms.uCenter=impactCenter;updateImageEffects(time,false);app.renderer.render(app.stage);document.getElementById('toggle-wind-edit').checked=maskEditing;
 if(output.width!==width||output.height!==height){output.width=width;output.height=height}output2d.clearRect(0,0,width,height);output2d.drawImage(app.view,0,0,width,height);sceneCracks(output2d,false);let result=output;for(const [id,extension]of extensionRegistry){const values=settings.extensions[id];if(values?.enabled&&extension.render)result=extension.render({canvas:result,time,width,height,values,PIXI})||result}return result;
 }finally{Object.assign(settings,originalFollowSettings);settings.keyframes=[];rendering=false}}
+// Shared finishing/deformation applies to every emitter from the same VFX bank.
+function inheritPostEffects(target,source){
+ const groups=new Set(['ripple','impact','wind','mirror','shake','vapor','color','vignette']);
+ for(const [prop,type]of Object.entries(effectPropertyTypes))if(groups.has(type)&&source.config[prop]!==undefined)target.config[prop]=clone(source.config[prop]);
+ target.config.impactStart=source.config.impactStart??null;
+ target.mask=source.mask||null;
+ return target;
+}
 let brushKey='';function paint(x,y){if(!ready)return;const softness=Number(document.getElementById('wind-brush-softness').value)/100,opacity=Number(document.getElementById('wind-brush-opacity').value)/100,key=softness+'|'+opacity;if(key!==brushKey){const canvas=realDocument.createElement('canvas');canvas.width=canvas.height=128;const context=canvas.getContext('2d'),gradient=context.createRadialGradient(64,64,Math.min(63.5,64*(1-softness)),64,64,64);gradient.addColorStop(0,'rgba(255,255,255,'+opacity+')');gradient.addColorStop(1,'rgba(255,255,255,0)');context.fillStyle=gradient;context.fillRect(0,0,128,128);const old=maskBrush.texture;maskBrush.texture=PIXI.Texture.from(canvas);old.destroy(true);brushKey=key}maskBrush.blendMode=document.getElementById('wind-brush-mode').value==='erase'?PIXI.BLEND_MODES.ERASE:PIXI.BLEND_MODES.NORMAL;paintMask({getLocalPosition:()=>new PIXI.Point(x*compositionWidth,y*compositionHeight)});maskVersion++;bridge.invalidate?.()}
-function registerEffect(extension){if(!extension?.id||!extension.title||extensionRegistry.has(extension.id))throw new Error('VFX precisa de id único e título.');extensionRegistry.set(extension.id,extension);settings.extensions[extension.id]={enabled:false,...clone(extension.defaults||{})};const card=realDocument.createElement('div');card.className='effect-card';const title=realDocument.createElement('h3');title.textContent=extension.title;const content=realDocument.createElement('div');content.className='vfx-content';title.onclick=()=>content.style.display=content.style.display==='block'?'none':'block';for(const control of [{id:'enabled',label:'Ativo',type:'checkbox'},...(extension.controls||[])]){const label=realDocument.createElement('label');label.textContent=control.label;const input=realDocument.createElement('input');input.dataset.extension=extension.id;input.dataset.control=control.id;input.type=control.type||'range';if(input.type==='checkbox')input.checked=!!settings.extensions[extension.id][control.id];else{input.min=control.min??0;input.max=control.max??100;input.step=control.step??1;input.value=settings.extensions[extension.id][control.id]??control.value??0}input.oninput=()=>{settings.extensions[extension.id][control.id]=input.type==='checkbox'?input.checked:input.type==='color'?input.value:Number(input.value);changed()};label.append(input);content.append(label)}card.append(title,content);document.querySelector('.scroll-area').append(card);cards.push(card);if(extension.id==='sceneLight'){card.dataset.vfxFollowKind='sceneLight';const follow=realDocument.createElement('button');follow.type='button';follow.dataset.vfxFollowKind='sceneLight';follow.className='as-vfx-follow-local';follow.textContent='Seguir osso';follow.onclick=()=>{followEffectKind='sceneLight';requestEffectFollow()};content.prepend(follow)}}
+function registerEffect(extension){loadedVfxState=null;if(!extension?.id||!extension.title||extensionRegistry.has(extension.id))throw new Error('VFX precisa de id único e título.');extensionRegistry.set(extension.id,extension);settings.extensions[extension.id]={enabled:false,...clone(extension.defaults||{})};const card=realDocument.createElement('div');card.className='effect-card';const title=realDocument.createElement('h3');title.textContent=extension.title;const content=realDocument.createElement('div');content.className='vfx-content';title.onclick=()=>content.style.display=content.style.display==='block'?'none':'block';for(const control of [{id:'enabled',label:'Ativo',type:'checkbox'},...(extension.controls||[])]){const label=realDocument.createElement('label');label.textContent=control.label;const input=realDocument.createElement('input');input.dataset.extension=extension.id;input.dataset.control=control.id;input.type=control.type||'range';if(input.type==='checkbox')input.checked=!!settings.extensions[extension.id][control.id];else{input.min=control.min??0;input.max=control.max??100;input.step=control.step??1;input.value=settings.extensions[extension.id][control.id]??control.value??0}input.oninput=()=>{settings.extensions[extension.id][control.id]=input.type==='checkbox'?input.checked:input.type==='color'?input.value:Number(input.value);changed()};label.append(input);content.append(label)}card.append(title,content);document.querySelector('.scroll-area').append(card);cards.push(card);if(extension.id==='sceneLight'){card.dataset.vfxFollowKind='sceneLight';const follow=realDocument.createElement('button');follow.type='button';follow.dataset.vfxFollowKind='sceneLight';follow.className='as-vfx-follow-local';follow.textContent='Seguir osso';follow.onclick=()=>{followEffectKind='sceneLight';requestEffectFollow()};content.prepend(follow)}}
 document.getElementById('btn-clear-wind').addEventListener('click',()=>{pendingMask=null;loadedMask=null;encodedMask=null;maskVersion++;windMaskPainted=false});
-const api={root,followSubject:effectFollowSubject,syncFollowUI:syncEffectFollowUI,registerEffect,commitPaint:()=>changed(),defaults:()=>({version:1,enabled:true,config:{...clone(defaults),extensions:Object.fromEntries([...extensionRegistry].map(([id,e])=>[id,{enabled:false,...clone(e.defaults||{})}]))},mask:null}),capture:renderState,setState,prepare,render,active:hasEffects,paint,windEditing:()=>!!document.getElementById('toggle-wind-edit').checked,dispose(){app?.destroy(true,{children:true,texture:true,baseTexture:true});host.replaceChildren()},catalog:()=>cards.map(c=>c.querySelector('h3')?.textContent.trim()),interpolate:interpolateParticleSnapshot};global.AlexandreStudioVFX.instances.push(api);for(const extension of global.AlexandreStudioVFX.extensions)api.registerEffect(extension);return api;
+const api={root,inheritPostEffects,followSubject:effectFollowSubject,syncFollowUI:syncEffectFollowUI,registerEffect,commitPaint:()=>changed(),defaults:()=>({version:1,enabled:true,config:{...clone(defaults),extensions:Object.fromEntries([...extensionRegistry].map(([id,e])=>[id,{enabled:false,...clone(e.defaults||{})}]))},mask:null}),capture:renderState,setState,prepare,render,active:hasEffects,paint,windEditing:()=>!!document.getElementById('toggle-wind-edit').checked,dispose(){app?.destroy(true,{children:true,texture:true,baseTexture:true});host.replaceChildren()},catalog:()=>cards.map(c=>c.querySelector('h3')?.textContent.trim()),interpolate:interpolateParticleSnapshot};global.AlexandreStudioVFX.instances.push(api);for(const extension of global.AlexandreStudioVFX.extensions)api.registerEffect(extension);return api;
 }};
 })(window);
 
@@ -43465,6 +43474,7 @@ void main() {
     return a;
   }
   function disposeTree(root) {
+    disposeSequenceRuntime(root);
     disposeSceneGround(root);
     const geometries = /* @__PURE__ */ new Set(), materials = /* @__PURE__ */ new Set(), textures = /* @__PURE__ */ new Set();
     root.traverse((o) => {
@@ -43572,6 +43582,7 @@ void main() {
   function setMode(m) {
     if (m !== "orbit" && !model) return status("Importe um GLB primeiro.");
     if (m === "add" && bound) return status("Este modelo j\xE1 tem rig. Use Modo pose para mover os ossos.");
+    clearVfxPlacement();
     finishDrag(true);
     stop();
     if(typeof baseGrabStroke!=="undefined"&&baseGrabStroke)finishBaseGrab(null);
@@ -43955,7 +43966,7 @@ void main() {
       if (root.isBone && objectGizmo.mode === "rotate" && !root.userData.explicitRotationBase) root.userData.explicitRotationBase = (rest.get(root)?.q || root.quaternion).toArray();
       const previous = root.userData.rotationPath;
       gizmoGesture = { object: root, owner: objects.find(o=>o.root===root)||activeObject, keysBefore: new Map((objects.find(o=>o.root===root)||activeObject).keyframes), mode: objectGizmo.mode, p: root.position.clone(), q: root.quaternion.clone(), s: root.scale.clone(), oldPath: previous, oldFrame: root.userData.rotationPathFrame, path: gestureRotationPath(root) };
-      if (autoKeyEnabled && timelineTrack() === activeObject && activeObject.keyframes.size === 0 && currentFrame > 1) activeObject.keyframes.set(1, { pose: capturePose(activeObject), face: activeObject.faceRig ? { ...activeObject.faceRig.values } : void 0 });
+      if (autoKeyEnabled && isObjectTimeline(activeObject) && activeObject.keyframes.size === 0 && currentFrame > 1) activeObject.keyframes.set(1, { pose: capturePose(activeObject), face: activeObject.faceRig ? { ...activeObject.faceRig.values } : void 0 });
       controls.enabled = false;
     } else finishGizmoGesture(false);
   });
@@ -44300,9 +44311,269 @@ void main() {
     controls.enableDamping = true;
     recordCameraKeyframe();
   }
-  var tabIds = ["Poses", "Shapes", "Expressions", "Face", "Scene", "VFX", "Objects"];
+
+  var studioSequenceRuntimes=new Map();
+  var studioSequenceUiAt=0;
+  var timelineSequenceId=null,studioSequenceTracks=new WeakMap();
+  function getSequenceTrack(object){
+    if(!object?.root.userData.studioSequence)return null;
+    let track=studioSequenceTracks.get(object.root);if(track){track.name=object.name;return track}
+    const config=object.root.userData.studioSequence;config.playbackKeys??={};
+    function invalidate(){const r=studioSequenceRuntimes.get(object.root);if(r){r.lastFrame=-1;r.previewOverride=false}vfxLastDraw=0}
+    class SequenceKeys extends Map{
+      set(frame,value){frame=+frame;config.playbackKeys[frame]=structuredClone(value);super.set(frame,structuredClone(value));invalidate();return this}
+      delete(frame){delete config.playbackKeys[frame];const result=super.delete(+frame);invalidate();return result}
+      clear(){config.playbackKeys={};super.clear();invalidate()}
+    }
+    const keys=new SequenceKeys();for(const [frame,value]of Object.entries(config.playbackKeys))Map.prototype.set.call(keys,+frame,value);
+    track={id:'__sequence__'+object.id,name:object.name,keyframes:keys};studioSequenceTracks.set(object.root,track);return track;
+  }
+  function sequencePlaybackAt(root,time){
+    const c=root.userData.studioSequence,track=getSequenceTrack(objects.find(o=>o.root===root));
+    if(!track?.keyframes.size)return {playing:!!c.playing,time:Math.max(0,(Number(c.time)||0)+(c.playing?time:0)),loop:c.loop};
+    const base=c.playbackBase||{playing:false,time:0};
+    let playing=!!base.playing,position=Number(base.time)||0,anchor=0;
+    for(const [frame,key]of [...track.keyframes].sort((a,b)=>a[0]-b[0])){
+      const at=(frame-1)/24;if(at>time+1e-8)break;
+      if(playing)position+=Math.max(0,at-anchor);
+      if(Number.isFinite(key.seek))position=key.seek;
+      playing=!!key.playing;anchor=at;
+    }
+    if(playing)position+=Math.max(0,time-anchor);
+    return {playing,time:Math.max(0,position),loop:c.loop};
+  }
+  function recordSequenceKey(playing){
+    const object=sequenceObject();if(!object||exportState||studioSaving)return;
+    pauseTimeline();const c=object.root.userData.studioSequence,r=studioSequenceRuntimes.get(object.root),time=(currentFrame-1)/24;
+    const previous=sequencePlaybackAt(object.root,time);
+    c.playbackBase??={playing:false,time:c.time||0,loop:c.loop};
+    const value={playing:playing??!r.video.paused,time:sequenceTimeAt({...previous,playing:false},r.video,0),loop:c.loop};
+    const frame=Math.round(currentFrame);getSequenceTrack(object).keyframes.set(frame,value);
+    selectObject('__sequence__'+object.id,true);renderTimeline();syncSequenceUI();
+    status((value.playing?'Play':'Pause')+' gravado no frame '+frame+' da sequência.');
+  }
+  function sequenceObject(){return activeObject?.root.userData.studioSequence?activeObject:null}
+  function sequenceTimeAt(config,video,time){
+    const duration=video.duration||config.duration||0;
+    let t=Math.max(0,(Number(config.time)||0)+(config.playing?time:0));
+    if(config.loop&&duration>0)t%=duration;
+    return Math.min(t,Math.max(0,duration-.001));
+  }
+  function waitSequenceEvent(video,event,trigger){
+    return new Promise((resolve,reject)=>{
+      const done=()=>{clearTimeout(timer);video.removeEventListener(event,done);video.removeEventListener('error',fail);resolve()};
+      const fail=()=>{clearTimeout(timer);video.removeEventListener(event,done);video.removeEventListener('error',fail);reject(new Error('Não foi possível decodificar o vídeo. Tente MP4 (H.264) ou WebM.'))};
+      const timer=setTimeout(fail,15000);video.addEventListener(event,done,{once:true});video.addEventListener('error',fail,{once:true});
+      try{trigger()}catch(error){fail()}
+    });
+  }
+
+  function imageSequenceIndex(runtime,time){
+    const c=runtime.root.userData.studioSequence;
+    return Math.max(0,Math.min(c.frames.length-1,Math.floor(time*(c.fps||24)+1e-6)));
+  }
+  async function imageSequenceBitmap(runtime,index){
+    if(runtime.cache.has(index)){const bitmap=runtime.cache.get(index);runtime.cache.delete(index);runtime.cache.set(index,bitmap);return bitmap}
+    if(runtime.pending.has(index))return runtime.pending.get(index);
+    const task=(async()=>{
+      const frame=runtime.root.userData.studioSequence.frames[index];
+      const bitmap=await createImageBitmap(await(await fetch(frame.dataUrl)).blob());
+      if(runtime.disposed){bitmap.close();throw new Error('Sequência removida.')}
+      runtime.cache.set(index,bitmap);
+      let bytes=0;for(const image of runtime.cache.values())bytes+=image.width*image.height*4;
+      while(runtime.cache.size>1&&(runtime.cache.size>3||bytes>64*1024*1024)){
+        const [old,image]=runtime.cache.entries().next().value;runtime.cache.delete(old);bytes-=image.width*image.height*4;image.close();
+      }
+      return bitmap;
+    })();runtime.pending.set(index,task);
+    try{return await task}finally{runtime.pending.delete(index)}
+  }
+  async function showImageSequenceFrame(runtime,time){
+    const index=imageSequenceIndex(runtime,time);
+    const serial=++runtime.frameSerial;
+    if(index===runtime.displayedFrame)return;
+    const bitmap=await imageSequenceBitmap(runtime,index);
+    if(runtime.disposed||serial!==runtime.frameSerial)return;
+    const canvas=runtime.canvas,g=canvas.getContext('2d');
+    if(!canvas.width||!runtime.initialized){canvas.width=bitmap.width;canvas.height=bitmap.height;runtime.initialized=true}
+    g.clearRect(0,0,canvas.width,canvas.height);
+    const scale=Math.min(canvas.width/bitmap.width,canvas.height/bitmap.height),w=bitmap.width*scale,h=bitmap.height*scale;
+    g.drawImage(bitmap,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
+    runtime.displayedFrame=index;runtime.texture.needsUpdate=true;vfxLastDraw=0;
+  }
+  function requestImageSequenceFrame(runtime,time){
+    runtime.requestedTime=time;
+    if(runtime.loading||runtime.disposed||imageSequenceIndex(runtime,time)===runtime.displayedFrame)return;
+    runtime.loading=showImageSequenceFrame(runtime,time).catch(error=>{if(!runtime.disposed){runtime.video.pause();runtime.root.userData.studioSequence.playing=false;status('Falha no quadro da sequência: '+error.message)}}).finally(()=>{runtime.loading=null});
+  }
+  async function ensureImageSequenceRuntime(root){
+    const c=root.userData.studioSequence;if(!c.frames?.length)throw new Error('A sequência não contém imagens.');
+    c.fps=Math.max(1,Math.min(120,Number(c.fps)||24));c.duration=c.frames.length/c.fps;
+    const canvas=document.createElement('canvas');canvas.width=0;canvas.height=0;
+    const texture=new CanvasTexture(canvas);texture.colorSpace=SRGBColorSpace;texture.generateMipmaps=false;texture.minFilter=texture.magFilter=LinearFilter;texture.userData.studioImageSequence=true;
+    const r={kind:'images',root,canvas,texture,cache:new Map(),pending:new Map(),frameSerial:0,displayedFrame:-1,lastFrame:-1,playPending:false,disposed:false};
+    let savedTime=Number(c.time)||0,paused=true,epoch=performance.now();
+    const clock={
+      get duration(){return c.frames.length/c.fps},
+      get currentTime(){let t=savedTime+(paused?0:(performance.now()-epoch)/1000);return clock.loop?t%clock.duration:Math.min(t,clock.duration)},
+      set currentTime(value){savedTime=Math.max(0,Math.min(Number(value)||0,Math.max(0,clock.duration-.000001)));epoch=performance.now();requestImageSequenceFrame(r,savedTime)},
+      get paused(){return paused},get ended(){return !clock.loop&&clock.currentTime>=clock.duration-.001},get seeking(){return false},
+      loop:!!c.loop,
+      play(){if(clock.ended)savedTime=0;else savedTime=clock.currentTime;epoch=performance.now();paused=false;return Promise.resolve()},
+      pause(){savedTime=clock.currentTime;paused=true},
+      get videoWidth(){return canvas.width},get videoHeight(){return canvas.height}
+    };r.video=clock;
+    studioSequenceRuntimes.set(root,r);
+    try{
+      await showImageSequenceFrame(r,Math.min(savedTime,clock.duration-.000001));
+      const mesh=root.getObjectByProperty('uuid',c.meshId)||root.children.find(n=>n.isMesh);
+      if(!mesh)throw new Error('Plano da sequência não encontrado.');
+      mesh.userData.studioSequenceSurface=true;
+      const material=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;
+      material.map=texture;material.transparent=true;material.side=DoubleSide;material.toneMapped=false;material.needsUpdate=true;
+      c.width=canvas.width;c.height=canvas.height;return r;
+    }catch(error){disposeSequenceRuntime(root);throw error}
+  }
+
+  async function ensureSequenceRuntime(root,sourceUrl){
+    if(studioSequenceRuntimes.has(root))return studioSequenceRuntimes.get(root);
+    if(root.userData.studioSequence.kind==='images')return ensureImageSequenceRuntime(root);
+    const config=root.userData.studioSequence,video=document.createElement('video');
+    video.muted=true;video.playsInline=true;video.preload='auto';video.loop=false;
+    try{await waitSequenceEvent(video,'loadeddata',()=>{video.src=sourceUrl||config.dataUrl;video.load()})}catch(error){video.removeAttribute('src');video.load();throw error}
+    if(!Number.isFinite(video.duration)){
+      await waitSequenceEvent(video,'seeked',()=>{video.currentTime=1e10});
+      if(video.currentTime>.0001||video.seeking)await waitSequenceEvent(video,'seeked',()=>{video.currentTime=0});
+    }
+    if(!Number.isFinite(video.duration)||video.duration<=0)throw new Error('Duração do vídeo inválida.');
+    video.loop=!!config.loop;
+    let mesh=root.getObjectByProperty('uuid',config.meshId);
+    if(!mesh){root.traverse(node=>{if(!mesh&&node.isMesh)mesh=node})}
+    if(!mesh)throw new Error('Plano da sequência não encontrado.');
+    mesh.userData.studioSequenceSurface=true;
+    const texture=new VideoTexture(video);texture.colorSpace=SRGBColorSpace;texture.generateMipmaps=false;texture.minFilter=texture.magFilter=LinearFilter;texture.needsUpdate=true;
+    const material=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;
+    material.map=texture;material.transparent=true;material.side=DoubleSide;material.toneMapped=false;material.needsUpdate=true;
+    const runtime={root,video,texture,objectUrl:sourceUrl||null,lastFrame:-1,playPending:false};
+    studioSequenceRuntimes.set(root,runtime);
+    config.duration=video.duration;config.width=video.videoWidth;config.height=video.videoHeight;
+    if(config.time>0)await seekSequence(runtime,Math.min(config.time,Math.max(0,video.duration-.001)));
+    video.addEventListener('ended',()=>{if(!config.loop){config.playing=false;config.time=video.currentTime;syncSequenceUI()}});
+    video.addEventListener('seeked',()=>{texture.needsUpdate=true;vfxLastDraw=0});
+    return runtime;
+  }
+  async function seekSequence(runtime,time){
+    if(runtime.kind==='images'){runtime.video.currentTime=time;await showImageSequenceFrame(runtime,time);return}
+    const video=runtime.video;
+    if(Math.abs(video.currentTime-time)<.0001&&!video.seeking){runtime.texture.needsUpdate=true;return}
+    await waitSequenceEvent(video,'seeked',()=>{video.currentTime=time});
+    runtime.texture.needsUpdate=true;
+  }
+  function disposeSequenceRuntime(root){
+    if(!studioSequenceRuntimes)return;
+    for(const [owner,runtime]of studioSequenceRuntimes)if(owner===root||root.getObjectById(owner.id)){
+      runtime.video.pause();runtime.texture.dispose();runtime.disposed=true;
+      if(runtime.kind==='images'){for(const image of runtime.cache.values())image.close();runtime.cache.clear()}else{runtime.video.removeAttribute('src');runtime.video.load()}
+      if(runtime.objectUrl)URL.revokeObjectURL(runtime.objectUrl);studioSequenceRuntimes.delete(owner);
+    }
+  }
+  async function importSequences(files){
+    if(exportState||studioSaving)return;
+    const supported=/\.(png|jpe?g|webp|avif|bmp)$/i;
+    const images=files.filter(file=>supported.test(file.name)&&(!file.webkitRelativePath||file.webkitRelativePath.split('/').length===2));
+    const collator=new Intl.Collator(undefined,{numeric:true,sensitivity:'base'});
+    images.sort((a,b)=>collator.compare(a.name,b.name)||a.name.localeCompare(b.name));
+    if(!images.length){$('sequenceFiles').value='';return status('A pasta selecionada não contém PNG, JPG, WebP, AVIF ou BMP diretamente nela.')}
+    pauseTimeline();commitCameraEdit();finishDrag(false);saveActiveObject();
+    let root;
+    try{
+      const folderName=images[0].webkitRelativePath?.split('/')[0]||'Sequência de imagens';
+      const frames=[];
+      for(let i=0;i<images.length;i++){
+        const file=images[i];status('Importando imagens: '+(i+1)+' / '+images.length);
+        const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Falha ao ler '+file.name));reader.readAsDataURL(file)});
+        frames.push({name:file.name,dataUrl});
+        if(i%16===15)await new Promise(resolve=>setTimeout(resolve,0));
+      }
+      root=new Group();root.name=folderName;root.position.copy(controls.target);
+      const mesh=new Mesh(new PlaneGeometry(4,2.25),new MeshBasicMaterial({color:0xffffff,side:DoubleSide,transparent:true,toneMapped:false}));
+      mesh.userData.studioSequenceSurface=true;root.add(mesh);
+      root.userData.studioSequence={kind:'images',name:folderName,frames,fps:24,meshId:mesh.uuid,loop:true,playing:false,time:0};
+      const runtime=await ensureSequenceRuntime(root);
+      mesh.geometry.dispose();mesh.geometry=new PlaneGeometry(4,4*runtime.canvas.height/runtime.canvas.width);
+      root.quaternion.copy(camera.quaternion);scene.add(root);root.updateMatrixWorld(true);
+      const object={id:root.uuid,name:folderName,root,bones:[],rest:new Map(),clips:[],mixer:new AnimationMixer(root),bound:false,selected:null,customRig:null,poseLibrary:[],keyframes:new Map()};
+      objects.push(object);object.keyframes.set(1,{pose:capturePose(object)});
+      refreshObjectSelect();selectObject(object.id,true);setMode('moveObject');syncObjectInspector();
+      status(frames.length+' imagens importadas em ordem numérica como um objeto 3D.');
+    }catch(error){if(root)disposeTree(root);status('Falha ao importar a sequência: '+error.message)}
+    finally{$('sequenceFiles').value='';syncSequenceUI()}
+  }
+  function syncSequenceUI(){
+    const select=$('sequenceSelect');if(!select)return;
+    const list=objects.filter(o=>o.root.userData.studioSequence),object=sequenceObject();
+    select.replaceChildren(new Option('Selecionar sequência…',''),...list.map(o=>new Option(o.name,o.id)));select.value=object?.id||'';
+    $('sequenceHeading').textContent=object?.name||'Sequências';
+    $('sequenceControls').hidden=!object;
+    if(!object)return;
+    const c=object.root.userData.studioSequence,r=studioSequenceRuntimes?.get(object.root);
+    $('sequenceLoop').checked=!!c.loop;$('sequenceVisible').checked=object.root.visible!==false;
+    const previewPlaying=r&&(!r.video.paused||r.playPending);$('sequencePlay').disabled=!!previewPlaying;$('sequencePause').disabled=!previewPlaying;
+    $('sequenceFpsLabel').hidden=c.kind!=='images';if(document.activeElement!==$('sequenceFps'))$('sequenceFps').value=c.fps||24;
+    $('sequenceSeek').step=c.kind==='images'?String(1/(c.fps||24)):'0.01';
+    $('sequenceSeek').max=String(Math.max(0,(c.duration||1)-(c.kind==='images'?1/(c.fps||24):.001)));$('sequenceSeek').value=String(r?.video.currentTime||c.time||0);
+    $('sequenceTime').textContent=(r?.video.currentTime||c.time||0).toFixed(2)+' / '+(c.duration||0).toFixed(2)+' s';
+    $('sequenceInfo').textContent=(c.width||0)+' × '+(c.height||0)+(c.kind==='images'?' · '+c.frames.length+' imagens · '+c.fps+' FPS':'')+' · '+object.name;
+  }
+  function syncSequencePlayback(time,exporting=false){
+    if(!studioSequenceRuntimes)return;
+    for(const [root,r]of studioSequenceRuntimes){
+      const c=root.userData.studioSequence,v=r.video;
+      if(exporting||document.hidden||!studioTreeVisible(root)){v.pause();continue}
+      const changed=r.lastFrame!==currentFrame;r.lastFrame=currentFrame;
+      const object=objects.find(o=>o.root===root),keyed=!!getSequenceTrack(object)?.keyframes.size;
+      if(changed||timelinePlaying)r.previewOverride=false;
+      const state=sequencePlaybackAt(root,time);v.loop=!!state.loop;
+      if(timelinePlaying||changed){
+        const desired=sequenceTimeAt({...state,playing:false},v,0);
+        if(!v.seeking&&Math.abs(v.currentTime-desired)>.025)v.currentTime=desired;
+      }
+      const shouldPlay=keyed&&!r.previewOverride?timelinePlaying&&state.playing:c.playing;
+      const ended=!v.loop&&v.currentTime>=v.duration-.001;
+      if(r.kind==='images')requestImageSequenceFrame(r,v.currentTime);
+      if(ended&&r.kind==='images'&&!keyed){c.playing=false;c.time=Math.max(0,v.duration-1/(c.fps||24));v.pause()}
+      if(shouldPlay&&!ended){
+        if(v.paused&&!r.playPending){r.playPending=true;v.play().catch(error=>{if(error.name!=='AbortError'){c.playing=false;r.previewOverride=false;status('Não foi possível reproduzir o vídeo: '+error.message)}}).finally(()=>{r.playPending=false;syncSequenceUI()})}
+        vfxLastDraw=0;
+      }else if(!v.paused)v.pause();
+    }
+    const now=performance.now(),object=sequenceObject(),r=object&&studioSequenceRuntimes.get(object.root);
+    if(r&&!$('panelSequences').hidden&&now-studioSequenceUiAt>150){studioSequenceUiAt=now;syncSequenceUI()}
+  }
+  async function prepareSequenceFrame(time){
+    await Promise.all([...studioSequenceRuntimes.values()].filter(r=>studioTreeVisible(r.root)).map(async r=>{r.video.pause();const state=sequencePlaybackAt(r.root,time);await seekSequence(r,sequenceTimeAt({...state,playing:false},r.video,0))}));
+  }
+  $('sequenceImport').onclick=()=>$('sequenceFiles').click();
+  $('sequenceFiles').onchange=e=>importSequences([...e.target.files]);
+  $('sequenceSelect').onchange=e=>{if(e.target.value)selectObject(e.target.value,true);syncSequenceUI()};
+  $('sequencePlay').onclick=()=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence,r=studioSequenceRuntimes.get(o.root);if(r.video.ended){r.video.currentTime=0;c.time=0}c.playing=true;r.previewOverride=true;syncSequencePlayback((currentFrame-1)/24);syncSequenceUI()};
+  $('sequencePause').onclick=()=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence,r=studioSequenceRuntimes.get(o.root);c.playing=false;c.time=r.video.currentTime;r.previewOverride=true;r.video.pause();syncSequenceUI()};
+  $('sequenceRestart').onclick=()=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence,r=studioSequenceRuntimes.get(o.root);c.time=0;r.video.currentTime=0;vfxLastDraw=0;syncSequenceUI()};
+  $('sequenceLoop').onchange=e=>{const o=sequenceObject();if(o){o.root.userData.studioSequence.loop=e.target.checked;syncSequenceUI()}};
+  $('sequenceFps').onchange=e=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence;if(c.kind!=='images')return;c.fps=Math.max(1,Math.min(120,Math.round(Number(e.target.value)||24)));c.duration=c.frames.length/c.fps;const r=studioSequenceRuntimes.get(o.root);r.lastFrame=-1;r.video.currentTime=Math.min(r.video.currentTime,Math.max(0,c.duration-1/c.fps));syncSequenceUI()};
+  $('sequenceKeyPlay').onclick=()=>recordSequenceKey(true);
+  $('sequenceKeyPause').onclick=()=>recordSequenceKey(false);
+  $('sequenceOpenTrack').onclick=()=>{const o=sequenceObject();if(o)selectObject('__sequence__'+o.id,true)};
+  $('sequenceVisible').onchange=()=>{if(sequenceObject())$('objectVisibility').click();syncSequenceUI()};
+  $('sequenceSeek').oninput=e=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence,r=studioSequenceRuntimes.get(o.root);c.playing=false;c.time=Number(e.target.value);r.video.pause();r.video.currentTime=Math.min(c.time,Math.max(0,r.video.duration-.001));vfxLastDraw=0;syncSequenceUI()};
+  for(const [id,tool]of [['sequenceMove','objectMove'],['sequenceRotate','objectRotate'],['sequenceScale','objectScale']])$(id).onclick=()=>{if(sequenceObject())$(tool).click()};
+  $('sequenceDelete').onclick=()=>{if(sequenceObject())$('deleteSceneObject').click();syncSequenceUI()};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)for(const r of studioSequenceRuntimes.values())r.video.pause()});
+
+  var tabIds = ["Poses", "Shapes", "Expressions", "Face", "Scene", "VFX", "Sequences", "Objects"];
   for (const name of tabIds) {
     $("tab" + name).onclick = () => {
+      if (name === "Sequences") syncSequenceUI();
       if (name === "Shapes") refreshShapes();
       if (name !== "Shapes" && typeof shapeGrab !== "undefined") shapeGrab = false;
       if (name === "Poses") refreshPoseLibrary();
@@ -44321,7 +44592,7 @@ void main() {
         $("panel" + other).hidden = !active;
       }
       if (name === "VFX") {
-        selectObject(sceneVfxTrack.id, true);
+        selectObject(activeObject?.id||sceneVfxTrack.id,true);
         syncStudioVfxUI();
       }
       if (name === "Objects") {
@@ -44375,7 +44646,10 @@ void main() {
     };
     return { direction: new Vector3(x, y, z), line, group };
   });
+  var studioViewGizmoQuaternion=null;
   function updateViewGizmo() {
+    if(studioViewGizmoQuaternion?.equals(camera.quaternion))return;
+    studioViewGizmoQuaternion=camera.quaternion.clone();
     const inverse = camera.quaternion.clone().invert();
     const sorted = axisWidgets.map((w) => ({ w, p: w.direction.clone().applyQuaternion(inverse) })).sort((a, b) => a.p.z - b.p.z);
     for (let i = 0; i < sorted.length; i++) {
@@ -44985,7 +45259,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     recordFaceKeyframe();
   }
   function recordFaceKeyframe(force = false) {
-    if (!activeObject || timelineTrack() !== activeObject || exportState || !autoKeyEnabled && !force) return;
+    if (!activeObject || !isObjectTimeline(activeObject) || exportState || !autoKeyEnabled && !force) return;
     ensureFaceRig(activeObject);
     // Face, pose dos ossos e transformação geral são um único keyframe.
     recordKeyframe(force);
@@ -45258,8 +45532,57 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
   function saveActiveObject() {
     if (activeObject) Object.assign(activeObject, { root: model, bones, rest, customRig, mixer, clips, bound, selected });
   }
+  var studioUnifiedTracks=new WeakMap();
+  function objectVfxKeys(object){
+    if(studioVfxTargetId===object.id)return sceneVfxTrack.keyframes;
+    return new Map(studioVfxBanks?.[object.id]?.keys||[]);
+  }
+  function writeObjectVfxKeys(object,keys){
+    if(studioVfxTargetId===object.id)sceneVfxTrack.keyframes=keys;
+    const previous=studioVfxBanks[object.id]||{};
+    studioVfxBanks[object.id]={...previous,state:studioVfxTargetId===object.id?vfxState:previous.state||JSON.parse(JSON.stringify(vfxDefaultState)),keys:[...keys]};
+    vfxLastDraw=0;
+  }
+  function unifiedObjectTrack(object){
+    if(!object)return null;if(!studioUnifiedTracks)studioUnifiedTracks=new WeakMap();
+    let track=studioUnifiedTracks.get(object);if(track){track.name=object.name;track.root=object.root;return track}
+    const stores=()=>({pose:object.keyframes,shapes:getShapeTrack(object).keyframes,vfx:objectVfxKeys(object),sequence:object.root.userData.studioSequence?getSequenceTrack(object).keyframes:null});
+    class UnifiedKeys extends Map{
+      *keys(){const values=new Set();for(const store of Object.values(stores()))if(store)for(const frame of store.keys())values.add(+frame);yield* [...values].sort((a,b)=>a-b)}
+      get size(){return [...this.keys()].length}
+      has(frame){return Object.values(stores()).some(store=>store?.has(+frame))}
+      get(frame){frame=+frame;const all=stores();if(!this.has(frame))return undefined;const key={unified:true};
+        const pose=all.pose.get(frame);if(pose){key.pose=pose.pose;key.face=pose.face}
+        for(const channel of ['shapes','vfx','sequence'])if(all[channel]?.has(frame))key[channel]=all[channel].get(frame);
+        return key;
+      }
+      set(frame,key){frame=+frame;const all=stores();
+        if(key.pose)all.pose.set(frame,{pose:key.pose,face:key.face});
+        if(Object.hasOwn(key,'shapes'))all.shapes.set(frame,structuredClone(key.shapes));
+        if(Object.hasOwn(key,'sequence')&&all.sequence)all.sequence.set(frame,structuredClone(key.sequence));
+        if(Object.hasOwn(key,'vfx')){all.vfx.set(frame,structuredClone(key.vfx));writeObjectVfxKeys(object,all.vfx)}
+        return this;
+      }
+      delete(frame){frame=+frame;const all=stores();let changed=false;for(const store of Object.values(all))if(store)changed=store.delete(frame)||changed;writeObjectVfxKeys(object,all.vfx);return changed}
+      clear(){for(const frame of [...this.keys()])this.delete(frame)}
+      *entries(){for(const frame of this.keys())yield [frame,this.get(frame)]}
+      *values(){for(const frame of this.keys())yield this.get(frame)}
+      [Symbol.iterator](){return this.entries()}
+      forEach(callback,thisArg){for(const [frame,key]of this)callback.call(thisArg,key,frame,this)}
+    }
+    track={id:object.id,name:object.name,root:object.root,object,keyframes:new UnifiedKeys()};studioUnifiedTracks.set(object,track);return track;
+  }
+  function isObjectTimeline(object){const track=timelineTrack();return !!object&&(track===object||track?.object===object)}
   function timelineTrack() {
-    return timelineShapes && activeObject ? getShapeTrack(activeObject) : timelineSky ? skyTrack : timelineVFX ? sceneVfxTrack : timelineCamera ? cameraTrack : activeObject;
+    return timelineSky?skyTrack:timelineVFX?sceneVfxTrack:timelineCamera?cameraTrack:unifiedObjectTrack(activeObject);
+  }
+  function recordUnifiedKeyframe(){
+    if(!activeObject||exportState||studioSaving)return;
+    const object=activeObject,frame=Math.round(currentFrame),parts={unified:true,pose:capturePose(object),face:object.faceRig?{...object.faceRig.values}:undefined};
+    const shapes={};for(const item of shapeData(object).items)shapes[item.id]=shapeValue(item,object);parts.shapes=shapes;
+    const bank=studioVfxBanks[object.id];parts.vfx=JSON.parse(JSON.stringify(studioVfxTargetId===object.id?vfxState:bank?.state||vfxDefaultState));
+    if(object.root.userData.studioSequence){const state=sequencePlaybackAt(object.root,(frame-1)/24);object.root.userData.studioSequence.playbackBase??={playing:false,time:object.root.userData.studioSequence.time||0};parts.sequence={playing:state.playing,time:state.time}}
+    unifiedObjectTrack(object).keyframes.set(frame,parts);renderTimeline();status('Keyframe geral gravado · '+object.name+' · Frame '+frame+'.');
   }
   function refreshObjectSelect() {
     syncObjectInspector();
@@ -45270,17 +45593,17 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     refreshPoseLibrary();
     refreshFaceUI();
     const select2 = $("objectSelect");
-    select2.replaceChildren(new Option(cameraTrack.name, cameraTrack.id), new Option(sceneVfxTrack.name, sceneVfxTrack.id), new Option(skyTrack.name, skyTrack.id), ...objects.flatMap((o) => [new Option(o.name, o.id), new Option("Shape Keys · " + o.name, "__shapes__" + o.id)]));
-    select2.value = timelineShapes && activeObject ? "__shapes__" + activeObject.id : timelineSky ? skyTrack.id : timelineVFX ? sceneVfxTrack.id : timelineCamera ? cameraTrack.id : activeObject?.id || cameraTrack.id;
+    select2.replaceChildren(new Option(cameraTrack.name,cameraTrack.id),new Option('VFX da cena',sceneVfxTrack.id),new Option(skyTrack.name,skyTrack.id),...objects.map(o=>new Option(o.name,o.id)));
+    select2.value=timelineSky?skyTrack.id:timelineVFX?sceneVfxTrack.id:timelineCamera?cameraTrack.id:activeObject?.id||cameraTrack.id;
     renderTimeline();
   }
   function selectObject(id, chooseTimeline = false) {
     if(!id)return;
+    if(id.startsWith('__sequence__'))return selectObject(id.slice(12),true);
+    if(id.startsWith('__shapes__'))return selectObject(id.slice(10),true);
+    timelineSequenceId=null;timelineShapes=false;
+    clearVfxPlacement();
     if(typeof baseGrabStroke!=="undefined"&&baseGrabStroke)finishBaseGrab(null);
-    if (id.startsWith('__shapes__')) {
-      const objectId=id.slice(10);timelineShapes=false;selectObject(objectId,true);
-      timelineShapes=true;timelineSky=timelineVFX=timelineCamera=false;refreshObjectSelect();return;
-    }
     if (chooseTimeline) timelineShapes=false;
 
     commitCameraEdit();
@@ -45296,6 +45619,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     if (id === sceneVfxTrack.id) {
       timelineVFX = true;
       timelineCamera = false;
+      selectStudioVfxTarget("__scene__");
       refreshObjectSelect();
       return;
     }
@@ -45401,7 +45725,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       if(exportState||!autoKeyEnabled&&!force)return;
       folder.keyframes.set(Math.round(currentFrame),{pose:capturePose(folder)});renderTimeline();return;
     }
-    if (!activeObject || timelineTrack() !== activeObject || exportState || !autoKeyEnabled && !force) return;
+    if (!activeObject || !isObjectTimeline(activeObject) || exportState || !autoKeyEnabled && !force) return;
     saveActiveObject();
     const frame2 = Math.round(currentFrame), captured = capturePose(activeObject), existing = activeObject.keyframes.get(frame2);
     const pose = captured;
@@ -45516,7 +45840,10 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       el.className = "timeKey";
       el.dataset.frame = f;
       el.style.left = 24 + (f - 1) * pixelsPerFrame + "px";
-      el.title = "Frame " + f + " · Ctrl: selecionar · Shift: intervalo · arraste para mover";
+      const unified=timelineTrack()?.object?timelineTrack().keyframes.get(f):null;
+      const videoKey=unified?.sequence;
+      const channels=unified?[unified.pose?'Pose/movimento':null,unified.shapes?'Shape Keys':null,unified.vfx?'VFX':null,videoKey?(videoKey.playing?'Play':'Pause'):null].filter(Boolean).join(' + '):'';
+      el.title = (channels?channels+" · ":"")+"Frame " + f + " · Ctrl: selecionar · Shift: intervalo · arraste para mover";
       el.setAttribute("aria-label", "Keyframe " + f);
       keysEl.append(el);
     }
@@ -45550,11 +45877,10 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
   $("timeInsert").onclick = () => {
     finishDrag(false);
     stop();
-    if (timelineShapes) recordShapeKey();
-    else if (timelineSky) recordSkyKey(true);
-    else if (timelineVFX) recordStudioVfx(true);
-    else if (timelineCamera) recordCameraKeyframe(true, true);
-    else recordKeyframe(true);
+    if(timelineSky)recordSkyKey(true);
+    else if(timelineVFX)recordStudioVfx(true);
+    else if(timelineCamera)recordCameraKeyframe(true,true);
+    else recordUnifiedKeyframe();
   };
   $("timeDelete").onclick = () => {
     pauseTimeline();
@@ -45706,7 +46032,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
   function buildProject(includeObjects = true) {
     saveActiveObject();
     stashStudioVfxBank();
-    return { format: "MiniStudio3D", version: 1, fps: 24, audio: serializeStudioAudio(), sky: { state: { ...skyState }, keys: [...skyTrack.keyframes], panorama: skyPanorama, effects: serializePanoramaFx() }, timelineSky, vfx: { banks: studioVfxBanks, state: vfxState, keys: [...sceneVfxTrack.keyframes], targetId: studioVfxTargetId, follow: studioVfxFollow, layerFollows: studioVfxLayerFollows }, timelineVFX, interpolation: animationInterpolation, endFrame, currentFrame: Math.round(currentFrame), pixelsPerFrame, autoKeyEnabled, activeId: activeObject?.id, timelineCamera, camera: serializeCamera(captureCamera()), cameraKeys: [...cameraTrack.keyframes].map(([f, k]) => [f, { camera: serializeCamera(k.camera) }]), objects: includeObjects ? objects.map((o) => packStudioObject(o)) : [] };
+    return { format: "MiniStudio3D", version: 1, fps: 24, audio: serializeStudioAudio(), sky: { state: { ...skyState }, keys: [...skyTrack.keyframes], panorama: skyPanorama, effects: serializePanoramaFx() }, timelineSky, timelineSequenceId, vfx: { banks: studioVfxBanks, state: vfxState, keys: [...sceneVfxTrack.keyframes], targetId: studioVfxTargetId, follow: studioVfxFollow, layerFollows: studioVfxLayerFollows }, timelineVFX, interpolation: animationInterpolation, endFrame, currentFrame: Math.round(currentFrame), pixelsPerFrame, autoKeyEnabled, activeId: activeObject?.id, timelineCamera, camera: serializeCamera(captureCamera()), cameraKeys: [...cameraTrack.keyframes].map(([f, k]) => [f, { camera: serializeCamera(k.camera) }]), objects: includeObjects ? objects.map((o) => packStudioObject(o)) : [] };
   }
   function studioEncodeArray(array) {
     const bytes = new Uint8Array(array.buffer, array.byteOffset, array.byteLength);
@@ -45843,6 +46169,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     const obj = { id: root.uuid, name: entry.name, root, bones: entry.boneIds.map((id) => lookup.get(id)).filter(Boolean), bound: !!entry.bound, selected: null, basePoseId: entry.basePoseId || null, poseLibrary: (entry.poseLibrary || []).map((p) => ({ id: p.id, name: String(p.name || "Pose"), pose: unpackPose(p.pose, lookup) })), clips: (entry.clips || []).map((c) => AnimationClip.parse(c)), mixer: new AnimationMixer(root), customRig: rig, rest: new Map(entry.rest.map(([id, v]) => [lookup.get(id), { p: new Vector3().fromArray(v.p), q: new Quaternion().fromArray(v.q) }]).filter(([b]) => b)), keyframes: new Map((entry.keyframes || []).map(([f, k]) => [Number(f), { pose: unpackPose(k.pose, lookup), face: k.face }])) };
     obj.followBone = entry.followBone || null;
     obj.faceRig = entry.faceRig || null;
+    if(root.userData.studioSequence)await ensureSequenceRuntime(root);
     return obj;
   }
   async function readProject(file) {
@@ -45855,8 +46182,27 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       const data = file.studioData || await studioReadDocument(file);
       if (data.format === "AlexandreStudioFolder") return status("Este projeto usa arquivos da pasta. Use Arquivo \u2192 Carregar pasta de projeto.");
       if (data.format !== "MiniStudio3D" || data.version !== 1 || !Array.isArray(data.objects) || !Array.isArray(data.cameraKeys)) throw new Error("Formato de projeto inv\xE1lido.");
-      const loaded = file.studioLoaded || [];
+      let loaded = file.studioLoaded || [];
       if (!file.studioLoaded) for (const entry of data.objects) loaded.push(await unpackStudioObject(entry));
+      // Discard only the obsolete Empty objects created by this editor.
+      const removedEmptyIds=new Set(loaded.filter(o=>o.root.userData.studioEmpty===true).map(o=>o.id));
+      if(removedEmptyIds.size){
+        loaded=loaded.filter(o=>!removedEmptyIds.has(o.id));
+        for(const object of loaded){
+          if(removedEmptyIds.has(object.followBone?.ownerId))object.followBone=null;
+          if(removedEmptyIds.has(object.root.userData.studioFolderId))delete object.root.userData.studioFolderId;
+        }
+        if(data.vfx){
+          data.vfx={...data.vfx,banks:Object.fromEntries(Object.entries(data.vfx.banks||{}).filter(([id])=>!removedEmptyIds.has(id))),layerFollows:Object.fromEntries(Object.entries(data.vfx.layerFollows||{}).filter(([,b])=>!removedEmptyIds.has(b?.ownerId)&&!removedEmptyIds.has(b?.bankId)))};
+          if(removedEmptyIds.has(data.vfx.follow?.ownerId)||removedEmptyIds.has(data.vfx.follow?.bankId))data.vfx.follow=null;
+          if(removedEmptyIds.has(data.vfx.targetId)){
+            const target=loaded.find(o=>o.id===data.activeId)||loaded[0];
+            data.vfx.targetId=target?.id||'__scene__';
+            const bank=data.vfx.banks[data.vfx.targetId];
+            data.vfx.state=bank?.state||JSON.parse(JSON.stringify(vfxDefaultState));data.vfx.keys=bank?.keys||[];
+          }
+        }
+      }
       const restoredCamera = deserializeCamera(data.camera), restoredCameraKeys = new Map(data.cameraKeys.map(([f, k]) => [Number(f), { camera: deserializeCamera(k.camera) }]));
       objectGizmo.detach();
       clearRigView();
@@ -45889,10 +46235,12 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       pauseTimeline();
       await restoreStudioAudio(data.audio);
       await restoreSceneSky(data.sky);
+      timelineSequenceId=null;timelineShapes=false;
       timelineCamera = !!data.timelineCamera;
       timelineVFX = !!data.timelineVFX;
       studioVfxBanks = data.vfx?.banks || {};
       studioVfxTargetId = data.vfx?.targetId || null;
+      if(timelineVFX&&studioVfxTargetId===activeObject?.id)timelineVFX=false;
       studioVfxFollow = data.vfx?.follow || null;
       studioVfxLayerFollows = data.vfx?.layerFollows || {};
       vfxState = data.vfx?.state || vfxDefaultState;
@@ -45989,6 +46337,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       entry.keyframes = [];
       entry.clips = [];
       const obj = await unpackStudioObject(entry);
+      if(obj.root.userData.studioEmpty===true)return status("Empty antigo ignorado.");
       commitCameraEdit();
       finishDrag(true);
       stop();
@@ -47696,6 +48045,7 @@ ${notes}`;
         if (state.cancel) throw new DOMException("Exporta\xE7\xE3o cancelada.", "AbortError");
         if (state.error) throw state.error;
         sampleTimeline(i + 1);
+        await prepareSequenceFrame(i/24);
         await prepareStudioVfxExport();
         const timestamp = Math.round(i * 1e6 / 24), duration = Math.round((i + 1) * 1e6 / 24) - timestamp;
         const frame2 = new VideoFrame(renderStudioFrame(i / 24, true), { timestamp, duration });
@@ -47773,7 +48123,7 @@ ${notes}`;
     if (exportState) exportState.cancel = true;
   };
   function studioTrackType(track) {
-    return track?.id?.startsWith("__shapes__") ? "shapes" : track?.id === "__camera__" ? "camera" : track?.id === "__sky__" ? "sky" : track?.id === "__vfx__" ? "vfx" : track ? "object" : null;
+    return track?.object ? "objectAll" : track?.id?.startsWith("__sequence__") ? "sequence" : track?.id?.startsWith("__shapes__") ? "shapes" : track?.id === "__camera__" ? "camera" : track?.id === "__sky__" ? "sky" : track?.id === "__vfx__" ? "vfx" : track ? "object" : null;
   }
   function updateEditingButtons() {
     const track = timelineTrack(), frame2 = Math.round(currentFrame);
@@ -47794,7 +48144,12 @@ ${notes}`;
     const track = timelineTrack(), key = track?.keyframes.get(Math.round(currentFrame));
     if (!key) return status("Escolha um frame com keyframe na faixa selecionada.");
     const type = studioTrackType(track);
-    if (type === "camera") studioKeyClipboard = { type, data: serializeCamera(key.camera) };
+    if(type==='objectAll'){
+      const data={unified:true};if(key.pose)data.pose=packPose(key.pose);if(key.face)data.face=structuredClone(key.face);
+      for(const name of ['shapes','vfx','sequence'])if(Object.hasOwn(key,name))data[name]=structuredClone(key[name]);
+      studioKeyClipboard={type,source:track.id,data,nodes:key.pose?[...key.pose.values()].map(v=>studioNodeDescription(track.object,v.node)):[],shapes:shapeData(track.object).items.map(item=>({id:item.id,name:item.name}))};
+    }
+    else if (type === "camera") studioKeyClipboard = { type, data: serializeCamera(key.camera) };
     else if (type === "object") {
       const pose = new Map([...key.pose].filter(([, value]) => value.node !== track.root && (value.node.isBone || value.m)));
       studioKeyClipboard = { type, source: track.id, data: packPose(pose), nodes: [...pose.values()].map(value => studioNodeDescription(track, value.node)), face: key.face ? { ...key.face } : null };
@@ -47825,7 +48180,17 @@ ${notes}`;
     const track = timelineTrack(), clip = studioKeyClipboard, type = studioTrackType(track);
     if (type !== clip.type) return status("Cole numa faixa do mesmo tipo: objeto, c\xE2mera, VFX ou c\xE9u.");
     let key;
-    if (type === "camera") key = { camera: deserializeCamera(structuredClone(clip.data)) };
+    if(type==='objectAll'){
+      key=structuredClone(clip.data);delete key.pose;
+      if(clip.data.pose){
+        const lookup=new Map();track.root.traverse(node=>lookup.set(node.uuid,node));const mapped=new Map();
+        for(const descriptor of clip.nodes){const node=clip.source===track.id?lookup.get(descriptor.id):resolveClipboardNode(track.object,descriptor);if(!node&&descriptor.bone)return status('Os personagens precisam ter ossos correspondentes.');if(node)mapped.set(descriptor.id,node)}
+        const pose=unpackPose(clip.data.pose,mapped);key.pose=new Map([...pose.values()].map(v=>[v.node.uuid,v]));
+      }
+      if(key.shapes&&clip.source!==track.id){const values={};for(const item of clip.shapes||[]){const destination=shapeData(track.object).items.find(v=>v.name===item.name);if(destination&&Object.hasOwn(key.shapes,item.id))values[destination.id]=key.shapes[item.id]}key.shapes=values}
+      if(!track.object.root.userData.studioSequence)delete key.sequence;
+    }
+    else if (type === "camera") key = { camera: deserializeCamera(structuredClone(clip.data)) };
     else if (type === "object") {
       const lookup = /* @__PURE__ */ new Map();
       track.root.traverse((n) => lookup.set(n.uuid, n));
@@ -48412,7 +48777,7 @@ ${notes}`;
     object.root.updateMatrixWorld(true);
     syncSceneGrounds((currentFrame - 1) / 24);
     if (activeObject === object) recordKeyframe();
-    else if (autoKeyEnabled && timelineTrack() === object) {
+    else if (autoKeyEnabled && isObjectTimeline(object)) {
       object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
     }
     syncGroundUI();
@@ -48462,7 +48827,7 @@ ${notes}`;
       object.root.userData.studioGround.color = "#ffffff";
       syncSceneGrounds((currentFrame - 1) / 24);
       if (activeObject === object) recordKeyframe();
-      else if (autoKeyEnabled && timelineTrack() === object) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
+      else if (autoKeyEnabled && isObjectTimeline(object)) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
       syncGroundUI();
       vfxLastDraw = 0;
       status("Textura aplicada ao ch\xE3o. Ajuste Repetir X e Repetir Z.");
@@ -48486,7 +48851,7 @@ ${notes}`;
     delete object.root.userData.groundSolidColor;
     syncSceneGrounds((currentFrame - 1) / 24);
     if (activeObject === object) recordKeyframe();
-    else if (autoKeyEnabled && timelineTrack() === object) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
+    else if (autoKeyEnabled && isObjectTimeline(object)) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
     syncGroundUI();
     vfxLastDraw = 0;
     status("Textura do ch\xE3o removida.");
@@ -48601,6 +48966,10 @@ ${notes}`;
     }
   }
   function serializeRuntimeFreeRoot(root, callback) {
+    const videoMaps=[];root.traverse(node=>{for(const material of node.material?(Array.isArray(node.material)?node.material:[node.material]):[])if(material.map?.isVideoTexture||material.map?.userData?.studioImageSequence){videoMaps.push([material,material.map]);material.map=null}});
+    try{return serializeRuntimeFreeRootWithoutVideo(root,callback)}finally{for(const [material,map]of videoMaps)material.map=map}
+  }
+  function serializeRuntimeFreeRootWithoutVideo(root, callback) {
     const hidden = [];
     root.traverse((node) => {
       if (node !== root && node.userData.environmentRuntime) hidden.push([node, node.parent, node.parent.children.indexOf(node)]);
@@ -49014,6 +49383,15 @@ ${notes}`;
   }
   function studioVfxBinding(key, bankId = studioVfxRenderTarget || studioVfxTargetId || "__scene__") {
     const direct = studioVfxFollowKey(bankId, key);
+    const existing=studioVfxLayerFollows[direct];
+    const owner=objects.find(o=>o.id===bankId);
+    if(existing?.position3D&&owner&&!existing.ownerId&&!existing.freeInScene){
+      owner.root.updateWorldMatrix(true,false);
+      existing.position3D=owner.root.worldToLocal(new Vector3().fromArray(existing.position3D)).toArray();
+      const q=existing.rotation3D?new Quaternion().fromArray(existing.rotation3D):camera.getWorldQuaternion(new Quaternion());
+      existing.rotation3D=q.premultiply(owner.root.getWorldQuaternion(new Quaternion()).invert()).toArray();
+      existing.ownerId=owner.id;
+    }
     if (Object.hasOwn(studioVfxLayerFollows, direct)) return studioVfxLayerFollows[direct]?.disabled ? null : studioVfxLayerFollows[direct];
     return studioVfxLayerFollows[studioVfxFollowKey(bankId, "all")] || studioVfxLayerFollows[key?.replace(/^particle:/, "")] || (studioVfxFollow && (studioVfxFollow.bankId === bankId || !studioVfxFollow.bankId && studioVfxFollow.ownerId === bankId) ? studioVfxFollow : null);
   }
@@ -49036,11 +49414,11 @@ ${notes}`;
     const bank=studioVfxTargetId||"__scene__", key=studioVfxFollowKey(bank,subject.key);
     let binding=studioVfxBinding(subject.key,bank);
     if(edit){
-      const rotation=binding?.rotation3D?studioVfxOrientation(binding):null;
+      const rotation=binding?.rotation3D?studioVfxOrientation(binding):camera.getWorldQuaternion(new Quaternion());
       const world=binding?.position3D?studioVfxWorld(binding):new Vector3(subject.x*2-1,1-subject.y*2,0).unproject(camera);
       if(!binding?.position3D){const depth=Math.max(1,camera.position.distanceTo(controls.target));world.copy(camera.position).add(world.sub(camera.position).normalize().multiplyScalar(depth))}
       let ownerId=edit.ownerId, boneId=edit.boneId;
-      if(ownerId===undefined){ownerId=binding?.ownerId;boneId=binding?.boneId}
+      if(ownerId===undefined){ownerId=binding?.ownerId??(objects.some(o=>o.id===bank)?bank:'');boneId=binding?.boneId}
       const node=studioVfxNode({ownerId,boneId});if(node){node.updateWorldMatrix(true,false);node.worldToLocal(world)}
       if(rotation&&node)rotation.premultiply(node.getWorldQuaternion(new Quaternion()).invert());
       binding={scale3D:binding?.scale3D?.slice(),rotation3D:rotation?.toArray(),bankId:bank,effectKey:subject.key,kind:subject.kind,origin:[subject.x??.5,subject.y??.5],ownerId,boneId,position3D:edit.position||world.toArray(),referenceSize:binding?.referenceSize};
@@ -49073,11 +49451,17 @@ ${notes}`;
   vfxMoveGizmo.setMode("translate");vfxMoveGizmo.setSpace("world");vfxMoveGizmo.setSize(.85);
   var vfxMoveHelper=vfxMoveGizmo.getHelper();scene.add(vfxMoveHelper);
   var vfxMoveSubject=null,vfxMoveStart=null;
+  function clearVfxPlacement(){
+    if(!vfxMoveGizmo)return;
+    vfxMoveSubject=null;vfxMoveGizmo.detach();vfxMoveGizmo.enabled=false;vfxMoveHelper.visible=false;
+  }
   function selectVfxPlacement(subject,focus=false,mode){
-    if(!subject||subject.internal){vfxMoveSubject=null;vfxMoveGizmo.detach();return}
+    if(!focus){if(vfxMoveSubject&&(vfxMoveSubject.key!==subject?.key||vfxMoveSubject.bankId!==(studioVfxTargetId||"__scene__")))clearVfxPlacement();return}
+    if(!subject||subject.internal){clearVfxPlacement();return}
     if(vfxMoveGizmo.dragging)return;
     const bank=studioVfxTargetId||"__scene__";
     if(!studioVfxBinding(subject.key,bank)?.position3D)studioVfxPlacement(subject,{});
+    if(focus)setMode("orbit");
     vfxMoveSubject={...subject,bankId:bank};
     const binding=studioVfxBinding(subject.key,bank);
     if(mode)vfxMoveGizmo.setMode(mode);
@@ -49086,11 +49470,11 @@ ${notes}`;
     vfxMoveHandle.quaternion.copy(studioVfxOrientation(binding));
     vfxMoveHandle.scale.fromArray(binding.scale3D||[1,1,1]);
     objectGizmo.detach();vfxMoveGizmo.attach(vfxMoveHandle);
-    if(focus){setMode("orbit");objectGizmo.detach();vfxMoveGizmo.attach(vfxMoveHandle);status(vfxMoveGizmo.mode==="scale"?"Arraste o centro para escala uniforme ou as alças para escalar por eixo.":vfxMoveGizmo.mode==="rotate"?"Arraste os anéis X, Y ou Z para girar o VFX.":"Arraste X, Y ou Z para mover o VFX.")}
+    if(focus){objectGizmo.detach();vfxMoveGizmo.attach(vfxMoveHandle);status(vfxMoveGizmo.mode==="scale"?"Arraste o centro para escala uniforme ou as alças para escalar por eixo.":vfxMoveGizmo.mode==="rotate"?"Arraste os anéis X, Y ou Z para girar o VFX.":"Arraste X, Y ou Z para mover o VFX.")}
   }
   function syncVfxMoveHandle(){
     if(!vfxMoveSubject)return;
-    if($("panelVFX").hidden||exportState){vfxMoveHelper.visible=false;vfxMoveGizmo.enabled=false;return}
+    if($("panelVFX").hidden||exportState){clearVfxPlacement();return}
     vfxMoveHelper.visible=true;vfxMoveGizmo.enabled=true;
     if(!vfxMoveGizmo.dragging){const binding=studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId);if(binding?.position3D){vfxMoveHandle.position.copy(studioVfxWorld(binding));vfxMoveHandle.quaternion.copy(studioVfxOrientation(binding));vfxMoveHandle.scale.fromArray(binding.scale3D||[1,1,1])}}
   }
@@ -49113,7 +49497,7 @@ ${notes}`;
     vfxLastDraw=0;
   }
   vfxMoveGizmo.addEventListener("objectChange",applyVfxMoveHandle);
-  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&vfxMoveStart){
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!vfxMoveStart){clearVfxPlacement();return}if(e.key==="Escape"&&vfxMoveStart){
     const saved=vfxMoveStart;vfxMoveGizmo.reset();vfxMoveHandle.position.copy(saved.position);vfxMoveHandle.quaternion.copy(saved.quaternion);vfxMoveHandle.scale.copy(saved.scale);applyVfxMoveHandle();
     const binding=studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId);binding.rotation3D=saved.rotation3D;binding.scale3D=saved.scale3D;
     controls.enabled=true;vfxApi?.syncFollowUI();
@@ -49168,6 +49552,7 @@ ${notes}`;
       const bankId = subject.bankId || studioVfxTargetId || "__scene__", binding = { ownerId: owner.id, boneId: bone.uuid, bankId, effectKey: subject.key || "all", kind: subject.kind, origin: [subject.x ?? 0.5, subject.y ?? 0.5], ...subject.kind === "sceneLight" ? { origin3D: [subject.x, subject.y, subject.z] } : {} };
       owner.root.updateMatrixWorld(true);bone.updateWorldMatrix(true,false);
       binding.position3D=[0,0,0];
+      binding.rotation3D=camera.getWorldQuaternion(new Quaternion()).premultiply(bone.getWorldQuaternion(new Quaternion()).invert()).toArray();
       binding.referenceSize=studioVfxProjection(binding).size;
       studioVfxLayerFollows[studioVfxFollowKey(bankId, subject.key)] = binding;
     }
@@ -49183,7 +49568,7 @@ ${notes}`;
       const previous=studioVfxBinding(subject.key,bank);
       if(previous?.position3D){
         const world=studioVfxWorld(previous),rotation=previous.rotation3D?studioVfxOrientation(previous).toArray():undefined;
-        studioVfxLayerFollows[studioVfxFollowKey(bank,subject.key)]={...previous,ownerId:'',boneId:'',position3D:world.toArray(),rotation3D:rotation};
+        studioVfxLayerFollows[studioVfxFollowKey(bank,subject.key)]={...previous,ownerId:'',boneId:'',freeInScene:true,position3D:world.toArray(),rotation3D:rotation};
         vfxLastDraw=0;vfxApi?.syncFollowUI();status("VFX livre na cena; posição preservada.");return;
       }
       delete studioVfxLayerFollows[studioVfxFollowKey(bank, subject.key)];
@@ -49368,7 +49753,7 @@ ${notes}`;
     let enabled = skyState.enabled || objects.some((o) => o.root.visible && o.root.userData.studioGround);
     for (const [id, bank] of studioVfxBankEntries()) {
       const values = bank.state?.config?.extensions?.sceneLight;
-      if (bank.state?.enabled === false || !values?.enabled) continue;
+      if (bank.state?.enabled === false || !values?.enabled || objects.find(o=>o.id===id)?.root.userData.studioEmpty) continue;
       enabled = true;
       let light2 = studioBankLights.get(id);
       if (!light2) {
@@ -49395,7 +49780,7 @@ ${notes}`;
       return;
     }
     for (const object of objects) object.root.traverse((mesh) => {
-      if (!mesh.isMesh) return;
+      if (!mesh.isMesh || mesh.userData.studioSequenceSurface) return;
       const convert = (source) => {
         if (!source.isMeshBasicMaterial) return source;
         let lit = studioLitMaterials.get(source);
@@ -49423,10 +49808,12 @@ ${notes}`;
   var vfxInputContext = vfxInput.getContext("2d");
   var vfxLastDraw = 0;
   function recordStudioVfx(force = false) {
-    if (!vfxState || timelineTrack() !== sceneVfxTrack || exportState || !autoKeyEnabled && !force) return;
+    const owner=objects.find(o=>o.id===studioVfxTargetId);
+    if (!vfxState || exportState || !autoKeyEnabled&&!force || !force&&(owner?!isObjectTimeline(owner):timelineTrack()!==sceneVfxTrack))return;
     const frame2 = Math.round(currentFrame);
     if (!sceneVfxTrack.keyframes.size && frame2 > 1) sceneVfxTrack.keyframes.set(1, JSON.parse(JSON.stringify(vfxDefaultState)));
     sceneVfxTrack.keyframes.set(frame2, JSON.parse(JSON.stringify(vfxState)));
+    stashStudioVfxBank();
     renderTimeline();
   }
   function syncStudioVfxUI() {
@@ -49440,6 +49827,7 @@ ${notes}`;
   }
   function selectStudioVfxTarget(id) {
     id = id || "__scene__";
+    clearVfxPlacement();
     if (studioVfxTargetId === id) {
       fillSurfaceSelect();
       return;
@@ -49502,10 +49890,12 @@ ${notes}`;
       const key=(kind==='particle'?'particle:':kind+':')+item.id;
       let binding=studioVfxBinding(key,bankId);
       if(!binding?.position3D){
-        const target=objects.find(o=>o.id===bankId),center=target?new Box3().setFromObject(target.root).getCenter(new Vector3()):controls.target;
+        const target=objects.find(o=>o.id===bankId),center=target?(target.root.userData.studioEmpty?target.root.getWorldPosition(new Vector3()):new Box3().setFromObject(target.root).getCenter(new Vector3())):controls.target;
         camera.updateMatrixWorld(true);const depth=center.clone().project(camera).z;
         const world=new Vector3((item.x??item.posX??.5)*2-1,1-(item.y??item.posY??.5)*2,depth).unproject(camera);
+        binding={...binding,ownerId:binding?.ownerId??(target?.id||'')};
         const node=studioVfxNode(binding);if(node){node.updateWorldMatrix(true,false);node.worldToLocal(world)}
+        if(!binding.rotation3D){const q=camera.getWorldQuaternion(new Quaternion());if(node)q.premultiply(node.getWorldQuaternion(new Quaternion()).invert());binding.rotation3D=q.toArray()}
         binding={...binding,bankId,effectKey:key,kind,origin:binding?.origin||[item.x??item.posX??.5,item.y??item.posY??.5],position3D:world.toArray()};
         binding.referenceSize=studioVfxProjection(binding).size;
         studioVfxLayerFollows[studioVfxFollowKey(bankId,key)]=binding;
@@ -49518,6 +49908,7 @@ ${notes}`;
       if(kind==='particle')neutral.particles={...c.particles,...item,active:true,layers:[]};
       if(kind==='fire'){neutral.fireActive=true;neutral.fires=[item]}
       if(kind==='light')neutral.lights=[item];
+      vfxApi.inheritPostEffects(isolated,state);
       layers.push({key,state:isolated,binding});
     }
     if(c.fireActive!==false){for(const fire of c.fires||[])if(fire.intensity>0)add('fire',fire);c.fires=[]}
@@ -49574,6 +49965,7 @@ ${notes}`;
     }
   }
   function renderStudioFrame(time, exporting = false) {
+    syncSequencePlayback(time,exporting);
     updateBoneFollowers();
     syncVfxMoveHandle();
     refreshFollowPins();
@@ -49584,7 +49976,7 @@ ${notes}`;
     syncSceneGrounds(time, exporting);
     syncSceneSky();
     syncStudioLighting();
-    syncStudioTextureQuality();
+    syncStudioTextureQuality(exporting);
     if (model?.visible === false) {
       rigView.visible = false;
       faceGuides.visible = false;
@@ -49719,12 +50111,12 @@ ${notes}`;
   surfaceSelect.onfocus = fillSurfaceSelect;
   surfaceSelect.onchange = () => {
     const id = surfaceSelect.value;
-    if (objects.some((o) => o.id === id)) selectObject(id, false);
+    if (objects.some((o) => o.id === id)) selectObject(id, true);
     selectStudioVfxTarget(id);
   };
   fillSurfaceSelect();
   const scopeDetails=document.createElement("details"),scopeSummary=document.createElement("summary");
-  scopeSummary.textContent="Aplicação dos efeitos";scopeDetails.append(scopeSummary,surfaceSelect);
+  scopeSummary.textContent="Alvo dos efeitos";scopeDetails.open=true;scopeDetails.append(scopeSummary,surfaceSelect);
   vfxApi.root.querySelector(".vfx-heading").append(scopeDetails);
   vfxDefaultState = vfxApi.defaults();
   if (!vfxState.config.extensions?.sceneLight) {
@@ -49934,7 +50326,7 @@ ${notes}`;
     function row(object,container){
       const el=document.createElement('div');el.className='sceneObjectRow';el.classList.toggle('selected',object===activeObject);
       const check=document.createElement('input');check.type='checkbox';check.checked=studioObjectSelection.has(object.id);check.setAttribute('aria-label','Selecionar '+object.name);check.style.cssText='width:14px;min-width:14px';check.onchange=()=>{if(check.checked)studioObjectSelection.add(object.id);else studioObjectSelection.delete(object.id)};
-      const choose=document.createElement('button');choose.className='sceneObjectName';choose.textContent=(object.root.userData.studioFolder?'📁 ':'')+object.name;choose.title=object.name;choose.onclick=()=>selectObject(object.id,true);
+      const choose=document.createElement('button');choose.className='sceneObjectName';choose.textContent=(object.root.userData.studioFolder?'📁 ':object.root.userData.studioEmpty?'◇ ':'')+object.name;choose.title=object.name;choose.onclick=()=>selectObject(object.id,true);
       const rename=document.createElement('button');rename.textContent='✎';rename.onclick=()=>{selectObject(object.id,true);openStudioRename('objects')};
       const eye=document.createElement('button');eye.textContent=object.root.visible?'◉':'○';eye.onclick=()=>toggleSceneObject(object);
       const remove=document.createElement('button');remove.textContent='×';remove.title=object.root.userData.studioFolder?'Desagrupar pasta':'Excluir '+object.name;remove.onclick=()=>{if(studioSaving||exportState)return;if(object.root.userData.studioFolder){ungroupStudioFolder(object);return;}selectObject(object.id,true);$("deleteSceneObject").click()};
@@ -49950,7 +50342,7 @@ ${notes}`;
     pauseTimeline();
     stop();
     const wasVisible = object.root.visible !== false, frame2 = Math.round(currentFrame);
-    if (autoKeyEnabled && timelineTrack() === object) {
+    if (autoKeyEnabled && isObjectTimeline(object)) {
       for (const key of object.keyframes.values()) {
         const root = key.pose.get(object.root.uuid);
         if (root && typeof root.v !== "boolean") root.v = wasVisible;
@@ -49958,7 +50350,7 @@ ${notes}`;
       if (frame2 > 1 && ![...object.keyframes.keys()].some((f) => f < frame2)) object.keyframes.set(1, { pose: capturePose(object), ...object.faceRig ? { face: { ...object.faceRig.values } } : {} });
     }
     object.root.visible = !wasVisible;
-    if (autoKeyEnabled && timelineTrack() === object) {
+    if (autoKeyEnabled && isObjectTimeline(object)) {
       const previous = object.keyframes.get(frame2), pose = previous ? new Map(previous.pose) : capturePose(object), root = pose.get(object.root.uuid) || capturePose(object).get(object.root.uuid);
       pose.set(object.root.uuid, { ...root, v: object.root.visible });
       object.keyframes.set(frame2, { ...previous, pose, ...!previous?.face && object.faceRig ? { face: { ...object.faceRig.values } } : {} });
@@ -50018,6 +50410,7 @@ ${notes}`;
   var studioAudioSources = [];
   var studioAudioClips = [];
   var studioAudioSelected = null;
+  var studioAudioCutting = false;
   var studioAudioContext = null;
   var studioAudioNodes = [];
   var studioAudioAnchor = null;
@@ -50029,6 +50422,26 @@ ${notes}`;
   }
   function audioSelectedClip() {
     return studioAudioClips.find((c) => c.id === studioAudioSelected);
+  }
+  function setStudioAudioCutting(enabled) {
+    studioAudioCutting=!!enabled;
+    $("studioAudioCut").classList.toggle("active",studioAudioCutting);
+    $("studioAudioCut").setAttribute("aria-pressed",String(studioAudioCutting));
+    $("studioAudioScroll").classList.toggle("cutting",studioAudioCutting);
+  }
+  function splitStudioAudioClip(clip,time) {
+    if(!clip||exportState||studioSaving)return false;
+    const cut=Math.round(time*24)/24,delta=cut-clip.start,minimum=1/24;
+    if(delta<minimum-1e-8||clip.duration-delta<minimum-1e-8){status("Escolha um ponto dentro do áudio, a pelo menos um frame das bordas.");return false}
+    pauseTimeline();stopStudioAudio();
+    const right={...clip,id:MathUtils.generateUUID(),start:cut,offset:clip.offset+delta,duration:clip.duration-delta};
+    clip.duration=delta;
+    studioAudioClips.splice(studioAudioClips.indexOf(clip)+1,0,right);
+    studioAudioSelected=right.id;
+    setStudioAudioCutting(false);
+    renderStudioAudio();
+    status("Áudio dividido. Selecione o trecho que não quer e clique em × ou pressione Delete.");
+    return true;
   }
   function audioClipEnd(c) {
     return c.start + c.duration;
@@ -50053,6 +50466,7 @@ ${notes}`;
     studioAudioSources = [];
     studioAudioClips = [];
     studioAudioSelected = null;
+    setStudioAudioCutting(false);
     for (const source of data?.sources || []) {
       try {
         const bytes = await (await fetch(source.dataUrl)).arrayBuffer(), buffer = await audioContext().decodeAudioData(bytes);
@@ -50196,6 +50610,21 @@ ${notes}`;
       studioAudioNodes.push(source);
     }
   }
+  $("studioAudioCut").onclick=()=>{
+    if(exportState||studioSaving)return;
+    pauseTimeline();setStudioAudioCutting(!studioAudioCutting);
+    if(studioAudioCutting)status("Corte: clique no ponto do áudio que deseja dividir. Esc cancela.");
+    $("studioAudioScroll").focus({preventScroll:true});
+  };
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&studioAudioCutting){setStudioAudioCutting(false);status("Ferramenta de corte desativada.");return}
+    if(!document.activeElement?.closest('.studioAudioRow')||e.target.closest('input,textarea,[contenteditable="true"]'))return;
+    if(e.key==="Delete"||e.key==="Backspace"){
+      e.preventDefault();e.stopImmediatePropagation();$("studioAudioDelete").click();
+    }else if(e.key.toLowerCase()==="s"&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+      e.preventDefault();e.stopImmediatePropagation();splitStudioAudioClip(audioSelectedClip(),(currentFrame-1)/24);
+    }
+  },true);
   $("studioAudioImport").onclick = () => $("studioAudioFiles").click();
   $("studioAudioFiles").onchange = (e) => importStudioAudio([...e.target.files]);
   $("studioAudioSelect").onchange = (e) => {
@@ -50203,14 +50632,15 @@ ${notes}`;
     renderStudioAudio();
   };
   $("studioAudioDelete").onclick = () => {
-    if (exportState || studioSaving) return;
-    pauseTimeline();
+    if (exportState || studioSaving || !audioSelectedClip()) return;
+    pauseTimeline();stopStudioAudio();
     studioAudioClips = studioAudioClips.filter((c) => c.id !== studioAudioSelected);
     const used = new Set(studioAudioClips.map((c) => c.sourceId));
     for (const source of studioAudioSources) if (!used.has(source.id)) studioAudioBuffers.delete(source.id);
     studioAudioSources = studioAudioSources.filter((s) => used.has(s.id));
     studioAudioSelected = null;
     renderStudioAudio();
+    status("Trecho de áudio excluído. Os demais trechos mantêm suas posições.");
   };
   var studioAudioScroll = $("studioAudioScroll");
   var studioAudioScrolling = false;
@@ -50234,7 +50664,13 @@ ${notes}`;
     if (e.button !== 0 || exportState || studioSaving) return;
     e.preventDefault();
     pauseTimeline();
+    studioAudioScroll.focus({preventScroll:true});
     const node = e.target.closest(".studioAudioClip"), clip = studioAudioClips.find((c) => c.id === node?.dataset.id);
+    if(clip&&studioAudioCutting){
+      const r=studioAudioScroll.getBoundingClientRect();
+      splitStudioAudioClip(clip,(e.clientX-r.left+studioAudioScroll.scrollLeft-24)/(24*pixelsPerFrame));
+      return;
+    }
     if (!clip) {
       const r = studioAudioScroll.getBoundingClientRect();
       setTimelineFrame(1 + (e.clientX - r.left + studioAudioScroll.scrollLeft - 24) / pixelsPerFrame);
@@ -50387,12 +50823,16 @@ ${notes}`;
     }
   }
   var studioFilteredTextures = /* @__PURE__ */ new WeakSet();
-  function syncStudioTextureQuality() {
+  var studioTextureScanAt=-Infinity,studioTextureScanRoots=[];
+  function syncStudioTextureQuality(force=false) {
+    const now=performance.now();
+    if(!force&&now-studioTextureScanAt<1000&&objects.length===studioTextureScanRoots.length&&objects.every((o,i)=>o.root===studioTextureScanRoots[i]))return;
+    studioTextureScanAt=now;studioTextureScanRoots=objects.map(o=>o.root);
     for (const object of objects) object.root.traverse((mesh) => {
       if (!mesh.isMesh) return;
       for (const material of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) for (const key of ["map", "normalMap", "roughnessMap", "metalnessMap", "emissiveMap", "aoMap", "alphaMap"]) {
         const texture = material[key];
-        if (!texture || studioFilteredTextures.has(texture) || texture.isRenderTargetTexture || texture.isDataTexture || texture.isCompressedTexture || texture.isVideoTexture || !texture.image?.width) continue;
+        if (!texture || studioFilteredTextures.has(texture) || texture.isRenderTargetTexture || texture.isDataTexture || texture.isCompressedTexture || texture.isVideoTexture || texture.userData?.studioImageSequence || !texture.image?.width) continue;
         studioFilteredTextures.add(texture);
         if (texture.userData?.studioTriangleAtlas) {
           texture.generateMipmaps = false;
@@ -50800,14 +51240,15 @@ ${notes}`;
   };
 
   function syncContextTools(name) {
-    if (!name) name = ["Poses","Shapes","Expressions","Face","Scene","VFX","Objects"].find(tab => !$("panel"+tab).hidden) || "Objects";
-    const label = {Shapes:"Shape Keys",Objects:"Objetos",Poses:"Poses e ossos",Expressions:"Expressões",Face:"FaceRig",Scene:"Cena",VFX:"VFX"}[name];
+    if (!name) name = ["Poses","Shapes","Expressions","Face","Scene","VFX","Sequences","Objects"].find(tab => !$("panel"+tab).hidden) || "Objects";
+    const label = {Sequences:"Sequências",Shapes:"Shape Keys",Objects:"Objetos",Poses:"Poses e ossos",Expressions:"Expressões",Face:"FaceRig",Scene:"Cena",VFX:"VFX"}[name];
     $("inspectorContext").textContent = label;
     for (const id of ["orbit","frame","objectMove","objectScale","objectRotate","objectVisibility","duplicateSceneObject","deleteSceneObject","toolPose","showBones","followBones","viewportGridToggle"]) $(id).hidden = false;
   }
   function syncObjectInspector() {
     if(typeof baseGrabHistory!=="undefined")updateBaseGrabButtons();
     syncStudioRenameField();
+    syncSequenceUI();
     const selector = $("inspectorObject");
     if (!selector) return;
     selector.replaceChildren(...objects.map(object => new Option(object.name,object.id)));
@@ -50900,7 +51341,7 @@ ${notes}`;
       const row=document.createElement('label');row.className='faceRange';row.textContent='Intensidade';
       const slider=document.createElement('input');slider.type='range';slider.min=0;slider.max=1;slider.step=.01;slider.value=shapeValue(item);slider.dataset.shapeValue=item.id;
       const out=document.createElement('output');out.textContent=Math.round(slider.value*100)+'%';
-      slider.oninput=()=>{pauseTimeline();shapeSet(item,+slider.value);out.textContent=Math.round(slider.value*100)+'%';if(timelineShapes&&autoKeyEnabled)recordShapeKey()};
+      slider.oninput=()=>{pauseTimeline();shapeSet(item,+slider.value);out.textContent=Math.round(slider.value*100)+'%';if(isObjectTimeline(activeObject)&&autoKeyEnabled)recordShapeKey()};
       row.append(slider,out);
       const actions=document.createElement('div');actions.className='poseActions';
       const edit=document.createElement('button');edit.textContent='Editar forma';edit.title='Corrigir a forma mantendo a intensidade atual do slider';edit.onclick=()=>{pauseTimeline();stop();setMode('orbit');shapeSelection=item.id;shapeEditTarget(item);shapeGrab=true;refreshShapes();status('Editando '+item.name+' em '+Math.round(shapeValue(item)*100)+'%. Arraste com Grab para corrigir a forma.')};
@@ -51092,7 +51533,8 @@ ${notes}`;
   function resizeViewport() {
     if (exportState) return;
     const w = Math.max(1, Math.min(vp.clientWidth, vp.clientHeight * 16 / 9)), h = w * 9 / 16;
-    renderer.setPixelRatio(Math.min(2, Math.max(1, 1920 / w)));
+    // Editing uses at most 1280 physical pixels; export sets its own full resolution.
+    renderer.setPixelRatio(Math.min(1, 1280 / w));
     renderer.setSize(w, h);
     if (vfxComposite) {
       vfxComposite.style.width = w + "px";
@@ -51103,9 +51545,15 @@ ${notes}`;
   }
   new ResizeObserver(resizeViewport).observe(vp);
   var clock = new Clock();
+  var studioPreviewElapsed=0,studioPreviewAt=-Infinity;
   renderer.setAnimationLoop(() => {
-    const dt = clock.getDelta();
-    if (exportState || studioSaving) return;
+    studioPreviewElapsed+=clock.getDelta();
+    if (exportState || studioSaving || document.hidden) {studioPreviewElapsed=0;return;}
+    const previewNow=performance.now();
+    // Limit the complete editor update, not just the final VFX composite.
+    if(previewNow-studioPreviewAt<1000/30-.5)return;
+    studioPreviewAt=previewNow;
+    const dt=studioPreviewElapsed;studioPreviewElapsed=0;
     if (timelinePlaying) {
       timelineFraction = 1 + (timelineFraction - 1 + dt * 24) % endFrame;
       currentFrame = timelineFraction;
@@ -51124,11 +51572,11 @@ ${notes}`;
       for (const obj of objects) if (obj !== activeObject) updateCustomRig(obj.customRig, obj.root);
     }
     const size = Math.max(controls.target.distanceTo(camera.position) * 4e-3, 1e-3);
-    for (const m of markers) {
+    for (const m of rigView.visible ? markers : []) {
       m.position.copy(m.userData.bone.getWorldPosition(new Vector3()));
       m.scale.setScalar(size * 2 / 0.035);
     }
-    for (const { line, b } of keys) {
+    for (const { line, b } of rigView.visible ? keys : []) {
       const a = b.getWorldPosition(new Vector3()), c = b.parent.getWorldPosition(new Vector3());
       const delta = a.clone().sub(c), length = delta.length();
       line.visible = length > 1e-8;
