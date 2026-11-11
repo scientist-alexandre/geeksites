@@ -5846,8 +5846,11 @@ varying vec2 vTextureCoord;
                 return next===undefined?cloneTimelineValue(value):interpolateParticleSnapshot(value,next,ratio);
             });
             if(from && to && typeof from==='object' && typeof to==='object'){
+                const actionEvent=typeof from.kind==='string'&&typeof from.start==='number'&&typeof to.kind==='string'&&typeof to.start==='number';
+                // A trigger's kind and start are events, not values that move with the playhead.
+                if(actionEvent&&from.kind!==to.kind)return cloneTimelineValue(ratio>=1?to:from);
                 const value=cloneTimelineValue(from);
-                for(const key of Object.keys(from))if(to[key]!==undefined && !['seed','timelineStart','timelineEnd'].includes(key))value[key]=interpolateParticleSnapshot(from[key],to[key],ratio);
+                for(const key of Object.keys(from))if(to[key]!==undefined && !['seed','timelineStart','timelineEnd'].includes(key))value[key]=actionEvent&&key==='start'?cloneTimelineValue(ratio>=1?to[key]:from[key]):interpolateParticleSnapshot(from[key],to[key],ratio);
                 if(from.presetKey==='aura' && to.presetKey==='aura'){
                     value.outerGlow=interpolateParticleSnapshot(from.outerGlow ?? 0,to.outerGlow ?? 0,ratio);
                 }
@@ -6697,7 +6700,7 @@ function createImageAsset(layer,kind,oldId=null){
 const actionNames={breakObject:'Objeto quebrando',screenCracks:'Rachaduras na tela',cinemaExplosion:'Explosão cinematográfica',groundImpact:'Impacto no chão',burnImage:'Imagem pegando fogo',ashDissolve:'Desintegração em cinzas',hotMetal:'Metal superaquecendo',electricShock:'Choque elétrico'};
 function setupActionUI(){
  const card=realDocument.createElement('div');card.className='effect-card';
- card.innerHTML='<h3>Ação na imagem</h3><div class="vfx-content"><label for="action-kind">Efeito</label><select id="action-kind"><option value="">Desativado</option>'+Object.entries(actionNames).map(([id,name])=>'<option value="'+id+'">'+name+'</option>').join('')+'</select><p style="font-size:10px">Escolha o efeito no quadro em que ele deve começar. A quebra e a deformação usam a imagem da camada.</p>'+[['x','Impacto X',-2,3,.01],['y','Impacto Y',-2,3,.01],['radius','Área do impacto',.03,.45,.01],['strength','Força',0,2,.05],['duration','Duração em segundos',.2,10,.1],['pieces','Fragmentos',8,100,1],['gravity','Gravidade',0,800,10]].map(([id,label,min,max,step])=>'<div class="label-group"><label for="action-'+id+'">'+label+' <span id="val-action-'+id+'"></span></label><input type="range" id="action-'+id+'" min="'+min+'" max="'+max+'" step="'+step+'"></div>').join('')+'<button type="button" class="btn-trigger" id="action-restart">Reiniciar neste quadro</button></div>';
+ card.innerHTML='<h3>Ação na imagem</h3><div class="vfx-content"><label for="action-kind">Efeito</label><select id="action-kind"><option value="">Desativado</option>'+Object.entries(actionNames).map(([id,name])=>'<option value="'+id+'">'+name+'</option>').join('')+'</select><p style="font-size:10px">Escolha a ação no frame de início. Ela recebe a imagem já modificada pelas ações anteriores. Desativado limpa a composição de ações.</p>'+[['x','Impacto X',-2,3,.01],['y','Impacto Y',-2,3,.01],['radius','Área do impacto',.03,.45,.01],['strength','Força',0,2,.05],['duration','Duração em segundos',.2,10,.1],['pieces','Fragmentos',8,100,1],['gravity','Gravidade',0,800,10]].map(([id,label,min,max,step])=>'<div class="label-group"><label for="action-'+id+'">'+label+' <span id="val-action-'+id+'"></span></label><input type="range" id="action-'+id+'" min="'+min+'" max="'+max+'" step="'+step+'"></div>').join('')+'<button type="button" class="btn-trigger" id="action-restart">Reiniciar neste quadro</button></div>';
  document.querySelector('.scroll-area').prepend(card);
  card.querySelector('h3').addEventListener('click',()=>{
   const content=card.querySelector('.vfx-content'),open=content.style.display==='block';
@@ -6705,7 +6708,8 @@ function setupActionUI(){
   content.style.display=open?'none':'block';
  });
  document.getElementById('action-kind').addEventListener('change',event=>{
-  settings.action={...initialSettingsState.action,kind:event.target.value,start:nativeTime()};
+  const previous={...settings.action},chain=previous._chain||[];delete previous._chain;
+  settings.action={...initialSettingsState.action,kind:event.target.value,start:nativeTime(),_chain:previous.kind&&event.target.value?[...chain,{...previous,_freezeAt:nativeTime()}]:[]};
   if(settings.action.kind)addActionParticles(settings.action.kind);
   else{
    settings.particles.layers=(settings.particles.layers||[]).filter(item=>!item.actionOwner);
@@ -6735,7 +6739,8 @@ function syncActionUI(){
  }
 }
 function addActionParticles(kind){
- settings.particles.layers=(settings.particles.layers||[]).filter(item=>!item.actionOwner);
+ settings.particles.layers||=[];
+ for(const layer of settings.particles.layers)if(layer.actionOwner&&layer.timelineEnd==null)layer.timelineEnd=nativeTime();
  const preset=particlePresets[kind];
  if(!preset){
   if(!settings.particles.layers.length)settings.particles.active=false;
@@ -6744,23 +6749,30 @@ function addActionParticles(kind){
  const layer=JSON.parse(JSON.stringify({...particlePresetDefaults,...preset}));
  layer.id=createParticleLayerId();layer.presetKey=kind;layer.presetName=actionNames[kind];layer.timelineStart=nativeTime();layer.actionOwner=kind;
  layer.timelineEnd=null;layer.x=settings.action.x;layer.y=settings.action.y;delete layer.layers;
- settings.particles.layers=(settings.particles.layers||[]).filter(item=>!item.actionOwner);
  settings.particles.layers.push(layer);settings.particles.active=true;selectedParticleLayerIndex=settings.particles.layers.length-1;
  resetParticlePool();syncParticleUI();
 }
 function actionImage(layer,source,config,time,bounds){
+ if(!config?.kind)return source;
+ let result=source;
+ for(const stage of config._chain||[])result=actionImagePass(layer,result,stage,Math.min(time,stage._freezeAt??time),bounds);
+ return actionImagePass(layer,result,config,time,bounds);
+}
+function actionImagePass(layer,source,config,time,bounds){
  const cfg={...initialSettingsState.action,...config};
- if(!cfg.kind||cfg.kind==='crumple'||cfg.kind==='groundSplit'||cfg.kind==='screenCracks'||cfg.kind==='shatterGlass'||time<=cfg.start)return source;
+ if(!cfg.kind||cfg.kind==='crumple'||cfg.kind==='groundSplit'||time<=cfg.start)return source;
  const e=entryFor(layer);
- if(!e.actionCanvas)e.actionCanvas=realDocument.createElement('canvas');
- const canvas=e.actionCanvas,w=source.width,h=source.height;
+ e.actionCanvases??=[realDocument.createElement('canvas'),realDocument.createElement('canvas')];
+ const canvas=source===e.actionCanvases[0]?e.actionCanvases[1]:e.actionCanvases[0],w=source.width,h=source.height;
  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
  const g=canvas.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);
  const progress=Math.min(1,Math.max(0,(time-cfg.start)/cfg.duration));
  const age=Math.max(0,time-cfg.start);
  const cx=cfg.x*FW-bounds.left,cy=cfg.y*FH-bounds.top;
  const smooth=progress*progress*(3-2*progress),force=cfg.strength;
- if(['breakObject','cinemaExplosion'].includes(cfg.kind)){
+ if(['screenCracks','shatterGlass'].includes(cfg.kind)){
+  g.drawImage(source,0,0);g.save();g.globalCompositeOperation='source-atop';drawActionCracks(g,cfg,time);g.restore();
+ }else if(['breakObject','cinemaExplosion'].includes(cfg.kind)){
   const count=Math.max(2,Math.ceil(Math.sqrt(cfg.pieces/2))),cellW=w/count,cellH=h/count;
   // Fixed triangular fragments preserve the original texture and alpha.
   for(let row=0;row<count;row++)for(let col=0;col<count;col++)for(let side=0;side<2;side++){
@@ -6796,6 +6808,49 @@ function actionImage(layer,source,config,time,bounds){
 }
 
 
+function drawActionCracks(g,action,time){
+ if(time<=action.start)return;
+  const progress=Math.min(1,(time-action.start)/Math.max(.05,action.duration));
+  const growth=Math.min(1,progress*5),cx=action.x*FW,cy=action.y*FH;
+  const radius=Math.hypot(FW,FH)*Math.min(1,action.radius*3)*Math.max(.05,action.strength);
+  const spokes=Math.max(6,Math.min(20,Math.round(action.pieces/5)));
+  const rings=[];
+  g.save();g.setTransform(1,0,0,1,0,0);g.beginPath();g.rect(0,0,FW,FH);g.clip();
+  function stroke(points,width){
+   g.beginPath();points.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));
+   g.strokeStyle='rgba(8,13,20,.85)';g.lineWidth=width+1.3;g.stroke();
+   g.save();g.translate(.7,-.7);g.strokeStyle='rgba(224,247,255,.86)';g.lineWidth=width;g.stroke();g.restore();
+  }
+  for(let ray=0;ray<spokes;ray++){
+   const angle=(ray+particleRandom(ray,0,991)*.45)/spokes*Math.PI*2;
+   const reach=radius*(.55+particleRandom(ray,1,991)*.45);
+   const points=[[cx,cy]],nodes=[];
+   for(let step=1;step<=6;step++){
+    const fraction=step/6,dist=reach*fraction;
+    const turn=angle+(particleRandom(ray,step+3,991)-.5)*.17;
+    const node=[cx+Math.cos(turn)*dist,cy+Math.sin(turn)*dist];
+    nodes.push(node);
+    if(fraction<=growth)points.push(node);
+    else{
+     const previous=step===1?[cx,cy]:nodes[step-2],partial=Math.max(0,(growth-(step-1)/6)*6);
+     points.push([previous[0]+(node[0]-previous[0])*partial,previous[1]+(node[1]-previous[1])*partial]);break;
+    }
+   }
+   stroke(points,Math.max(.7,FW*.0006));
+   rings.push(nodes);
+   if(growth>.4&&nodes.length>2){
+    const base=nodes[1],branchAngle=angle+.48;
+    stroke([base,[base[0]+Math.cos(branchAngle)*reach*.12,base[1]+Math.sin(branchAngle)*reach*.12],[base[0]+Math.cos(branchAngle+.25)*reach*.23,base[1]+Math.sin(branchAngle+.25)*reach*.23]],.6);
+   }
+  }
+  for(let ray=0;ray<rings.length;ray++)for(let ring=0;ring<3;ring++){
+   const from=rings[ray][ring],to=rings[(ray+1)%rings.length][ring];
+   if(from&&to&&growth>(ring+1)/6&&particleRandom(ray,ring+20,991)>.24){
+    stroke([from,[(from[0]+to[0])*.5+(cx-(from[0]+to[0])*.5)*.08,(from[1]+to[1])*.5+(cy-(from[1]+to[1])*.5)*.08],to],.5);
+   }
+  }
+  g.restore();
+}
 function sceneCracks(g,showUI){
  const time=showUI?timeNow():nativeTime();
  for(const layer of layers){
@@ -6953,17 +7008,18 @@ async function prepare(source,width,height){initialize(source,width,height);size
 function hasEffects(){const config=captureEffectConfig(),extensions=config.extensions;config.extensions={};return master&&(document.getElementById('toggle-wind-edit').checked||JSON.stringify(config)!==defaultSignature||Object.values(extensions||{}).some(e=>e.enabled)||windMaskPainted||!!pendingMask)}
 function render(source,time,width,height,exporting=false){if(!hasEffects())return source;const originalFollowSettings={particles:settings.particles,action:settings.action,fires:settings.fires,lights:settings.lights,mirrorX:settings.mirrorX,mirrorY:settings.mirrorY};settings.particles=clone(settings.particles);for(const layer of [settings.particles,...(settings.particles.layers||[])]){if(layer.presetKey==='aura')continue;const anchor=bridge.followAnchor?.('particle:'+layer.id);if(anchor){layer.x=(layer.x??.5)+anchor.dx;layer.y=(layer.y??.5)+anchor.dy;const k=anchor.scale??1;for(const prop of ["sizeStart","sizeEnd","width","height","speed","gravity"])if(typeof layer[prop]==="number")layer[prop]*=k;if(!k)layer.count=0}}for(const [field,kind]of [['fires','fire'],['lights','light']]){settings[field]=clone(settings[field]);for(const item of settings[field]){const anchor=bridge.followAnchor?.(kind+':'+item.id);if(anchor){item.posX=(item.posX??.5)+anchor.dx;item.posY=(item.posY??.5)+anchor.dy;item.size*=anchor.scale??1;if(anchor.scale===0)item.opacity=0}}}const anchor=bridge.followAnchor?.('action');if(anchor)settings.action={...settings.action,x:(settings.action.x??.5)+anchor.dx,y:(settings.action.y??.5)+anchor.dy};const mirrorAnchor=bridge.followAnchor?.('mirror');if(mirrorAnchor){settings.mirrorX+=mirrorAnchor.dx*100;settings.mirrorY+=mirrorAnchor.dy*100;}rendering=true;try{FW=width;FH=height;currentTime=time;initialize(source,width,height);sizeEngine(width,height);const resolution=exporting?1:.5;if(app.renderer.resolution!==resolution){app.renderer.resolution=resolution;app.renderer.resize(width,height)}liveSource=source;entryFor(dummyLayer).source=source;
 restoreMask().catch(error=>console.error('Máscara VFX: '+error.message));
-const input=actionImage(dummyLayer,source,settings.action,time,{left:0,top:0,width,height});if(lastCanvas!==input){inputTexture=PIXI.Texture.from(input);sprite.texture=inputTexture;for(const z of zoomLayers)z.texture=inputTexture;lastCanvas=input}inputTexture.baseTexture.resource.update();sprite.width=width;sprite.height=height;sprite.tileScale.set(1);sprite.tilePosition.set(0);
+const input=source;if(lastCanvas!==input){inputTexture=PIXI.Texture.from(input);sprite.texture=inputTexture;for(const z of zoomLayers)z.texture=inputTexture;lastCanvas=input}inputTexture.baseTexture.resource.update();sprite.width=width;sprite.height=height;sprite.tileScale.set(1);sprite.tilePosition.set(0);
 for(const kind of ['smoke','glass']){const config=settings[imageEffectKeys[kind]],asset=imageEffectAssets.get(config.assetId);if(config.active&&(!asset||asset.inputSource!==source||asset.width!==width||asset.height!==height))createImageAssetForCurrent(kind);if(asset)asset.texture.baseTexture.resource.update()}
 imageEffectHiddenTargets.forEach(target=>{if(!target.destroyed)target.renderable=true});imageEffectHiddenTargets.clear();sprite.renderable=true;zoomContainer.renderable=true;
 const maskEditing=document.getElementById('toggle-wind-edit').checked;if(exporting)document.getElementById('toggle-wind-edit').checked=false;
 settings.keyframes=settings.impactStart==null?[]:[{type:'impact',effectTarget:'scene',time:settings.impactStart,expStrength:settings.expStrength,expSpeed:settings.expSpeed,expRippleStrength:settings.expRippleStrength,expRippleSpeed:settings.expRippleSpeed,expFunnel:settings.expFunnel}];applyGlobalSceneSettings(false);const impactAnchor=bridge.followAnchor?.('impact');const impactCenter=[.5+(impactAnchor?.dx||0),.5+(impactAnchor?.dy||0)];impactSprite.position.set(impactCenter[0]*width,impactCenter[1]*height);impactFunnelFilter.uniforms.uCenter=impactCenter;updateImageEffects(time,false);app.renderer.render(app.stage);document.getElementById('toggle-wind-edit').checked=maskEditing;
-if(output.width!==width||output.height!==height){output.width=width;output.height=height}output2d.clearRect(0,0,width,height);output2d.drawImage(app.view,0,0,width,height);sceneCracks(output2d,false);let result=output;for(const [id,extension]of extensionRegistry){const values=settings.extensions[id];if(values?.enabled&&extension.render)result=extension.render({canvas:result,time,width,height,values,PIXI})||result}return result;
+if(output.width!==width||output.height!==height){output.width=width;output.height=height}output2d.clearRect(0,0,width,height);output2d.drawImage(app.view,0,0,width,height);let result=actionImage(dummyLayer,output,settings.action,time,{left:0,top:0,width,height});for(const [id,extension]of extensionRegistry){const values=settings.extensions[id];if(values?.enabled&&extension.render)result=extension.render({canvas:result,time,width,height,values,PIXI})||result}return result;
 }finally{Object.assign(settings,originalFollowSettings);settings.keyframes=[];rendering=false}}
 // Shared finishing/deformation applies to every emitter from the same VFX bank.
 function inheritPostEffects(target,source){
  const groups=new Set(['ripple','impact','wind','mirror','shake','vapor','color','vignette']);
  for(const [prop,type]of Object.entries(effectPropertyTypes))if(groups.has(type)&&source.config[prop]!==undefined)target.config[prop]=clone(source.config[prop]);
+ target.config.action=clone(source.config.action);
  target.config.impactStart=source.config.impactStart??null;
  target.mask=source.mask||null;
  return target;
@@ -6971,7 +7027,87 @@ function inheritPostEffects(target,source){
 let brushKey='';function paint(x,y){if(!ready)return;const softness=Number(document.getElementById('wind-brush-softness').value)/100,opacity=Number(document.getElementById('wind-brush-opacity').value)/100,key=softness+'|'+opacity;if(key!==brushKey){const canvas=realDocument.createElement('canvas');canvas.width=canvas.height=128;const context=canvas.getContext('2d'),gradient=context.createRadialGradient(64,64,Math.min(63.5,64*(1-softness)),64,64,64);gradient.addColorStop(0,'rgba(255,255,255,'+opacity+')');gradient.addColorStop(1,'rgba(255,255,255,0)');context.fillStyle=gradient;context.fillRect(0,0,128,128);const old=maskBrush.texture;maskBrush.texture=PIXI.Texture.from(canvas);old.destroy(true);brushKey=key}maskBrush.blendMode=document.getElementById('wind-brush-mode').value==='erase'?PIXI.BLEND_MODES.ERASE:PIXI.BLEND_MODES.NORMAL;paintMask({getLocalPosition:()=>new PIXI.Point(x*compositionWidth,y*compositionHeight)});maskVersion++;bridge.invalidate?.()}
 function registerEffect(extension){loadedVfxState=null;if(!extension?.id||!extension.title||extensionRegistry.has(extension.id))throw new Error('VFX precisa de id único e título.');extensionRegistry.set(extension.id,extension);settings.extensions[extension.id]={enabled:false,...clone(extension.defaults||{})};const card=realDocument.createElement('div');card.className='effect-card';const title=realDocument.createElement('h3');title.textContent=extension.title;const content=realDocument.createElement('div');content.className='vfx-content';title.onclick=()=>content.style.display=content.style.display==='block'?'none':'block';for(const control of [{id:'enabled',label:'Ativo',type:'checkbox'},...(extension.controls||[])]){const label=realDocument.createElement('label');label.textContent=control.label;const input=realDocument.createElement('input');input.dataset.extension=extension.id;input.dataset.control=control.id;input.type=control.type||'range';if(input.type==='checkbox')input.checked=!!settings.extensions[extension.id][control.id];else{input.min=control.min??0;input.max=control.max??100;input.step=control.step??1;input.value=settings.extensions[extension.id][control.id]??control.value??0}input.oninput=()=>{settings.extensions[extension.id][control.id]=input.type==='checkbox'?input.checked:input.type==='color'?input.value:Number(input.value);changed()};label.append(input);content.append(label)}card.append(title,content);document.querySelector('.scroll-area').append(card);cards.push(card);if(extension.id==='sceneLight'){card.dataset.vfxFollowKind='sceneLight';const follow=realDocument.createElement('button');follow.type='button';follow.dataset.vfxFollowKind='sceneLight';follow.className='as-vfx-follow-local';follow.textContent='Seguir osso';follow.onclick=()=>{followEffectKind='sceneLight';requestEffectFollow()};content.prepend(follow)}}
 document.getElementById('btn-clear-wind').addEventListener('click',()=>{pendingMask=null;loadedMask=null;encodedMask=null;maskVersion++;windMaskPainted=false});
-const api={root,inheritPostEffects,followSubject:effectFollowSubject,syncFollowUI:syncEffectFollowUI,registerEffect,commitPaint:()=>changed(),defaults:()=>({version:1,enabled:true,config:{...clone(defaults),extensions:Object.fromEntries([...extensionRegistry].map(([id,e])=>[id,{enabled:false,...clone(e.defaults||{})}]))},mask:null}),capture:renderState,setState,prepare,render,active:hasEffects,paint,windEditing:()=>!!document.getElementById('toggle-wind-edit').checked,dispose(){app?.destroy(true,{children:true,texture:true,baseTexture:true});host.replaceChildren()},catalog:()=>cards.map(c=>c.querySelector('h3')?.textContent.trim()),interpolate:interpolateParticleSnapshot};global.AlexandreStudioVFX.instances.push(api);for(const extension of global.AlexandreStudioVFX.extensions)api.registerEffect(extension);return api;
+
+// Animation channels are per effect/instance; UI selection is not animation data.
+let lastTimelineGroups=[];
+const timelineChannelCache=new WeakMap();
+function timelineChannels(state){
+ if(!state)return {};
+ if(timelineChannelCache.has(state))return timelineChannelCache.get(state);
+ const result={'master':state.enabled!==false,'mask':state.mask||null},config=state.config||{};
+ for(const [prop,value]of Object.entries(config)){
+  if(['lights','fires','particles','extensions','selectedLightIndex','selectedFireIndex'].includes(prop))continue;
+  const kind=prop==='impactStart'?'impact':effectPropertyTypes[prop]||prop;
+  const copied=clone(value);if(prop==='action'&&copied)delete copied._chain;
+  (result['fx:'+kind]||={})[prop]=copied;
+ }
+ for(const [field,prefix]of [['lights','light:'],['fires','fire:']])for(const [index,item]of (config[field]||[]).entries())result[prefix+(item.id||index)]=clone(item);
+ if(config.particles){const base=clone(config.particles);delete base.layers;result['particles:base']=base;for(const [index,layer]of (config.particles.layers||[]).entries())result['particle:'+(layer.id||index)]=clone(layer)}
+ for(const [id,values]of Object.entries(config.extensions||{}))result['extension:'+id]=clone(values);
+ timelineChannelCache.set(state,result);return result;
+}
+function changedTimelineGroups(before,after,remember=true){
+ const a=timelineChannels(before),b=timelineChannels(after);
+ const groups=[...new Set([...Object.keys(a),...Object.keys(b)])].filter(key=>JSON.stringify(a[key])!==JSON.stringify(b[key]));
+ if(remember&&groups.length)lastTimelineGroups=groups;
+ return groups;
+}
+let neutralTimelineDefaults=null;
+function neutralTimelineGroup(group,value){
+ if(value===undefined||value===null)return true;
+ if(group==='master')return false;
+ if(group.startsWith('light:'))return value.active===false||value.opacity===0;
+ if(group.startsWith('fire:'))return !(value.intensity>0);
+ if(group.startsWith('extension:'))return !value.enabled;
+ if(group.startsWith('particle:')||group==='particles:base')return value.active===false;
+ if(group.startsWith('fx:')){
+  const type=group.slice(3),active=effectActivationProps[type];if(active&&value[active]===false)return true;
+  if(type==='imageSmoke'||type==='imageGlass')return !value[type]?.active;
+  if(type==='action')return !value.action?.kind;
+ }
+ neutralTimelineDefaults??=timelineChannels({enabled:true,config:defaults,mask:null});
+ return JSON.stringify(value)===JSON.stringify(neutralTimelineDefaults[group]);
+}
+function legacyTimelineGroups(before,after){
+ const groups=changedTimelineGroups(before,after,false),values=timelineChannels(after);
+ // Old whole-bank snapshots often reset untouched effects to defaults. Preserve
+ // those effects when another channel is clearly being edited at that frame.
+ const meaningful=groups.some(group=>!neutralTimelineGroup(group,values[group]));
+ return meaningful?groups.filter(group=>group==='master'||!neutralTimelineGroup(group,values[group])):groups;
+}
+function timelineRecordedGroups(state,previous,includeSelected=false){
+ const values=timelineChannels(state),groups=new Set(Object.keys(values).filter(group=>!neutralTimelineGroup(group,values[group])));
+ if(previous&&!previous._vfxAll)for(const group of previous._vfxChannels||[])groups.add(group);
+ if(includeSelected)for(const group of selectedTimelineGroups(state))groups.add(group);
+ return [...groups];
+}
+function selectedTimelineGroups(state){
+ const subject=effectFollowSubject(),groups=timelineChannels(state);
+ if(subject?.kind==='light')return [subject.key];
+ if(subject?.kind==='fire')return [subject.key,'fx:fire'].filter(key=>Object.hasOwn(groups,key));
+ if(subject?.kind==='particle')return ['particles:base',subject.key].filter(key=>Object.hasOwn(groups,key));
+ if(subject?.kind==='sceneLight')return ['extension:sceneLight'];
+ if(subject?.kind==='action')return ['fx:action'];
+ if(subject?.kind==='impact')return ['fx:impact'];
+ return lastTimelineGroups.length?lastTimelineGroups:Object.keys(groups);
+}
+function stateFromTimelineChannels(base,channels){
+ const state=clone(base),config=state.config||={};
+ state.enabled=channels.master!==false;state.mask=channels.mask||null;
+ config.lights=[];config.fires=[];config.extensions={};
+ config.particles={...(config.particles||{}),...(channels['particles:base']||{}),layers:[]};
+ for(const [group,value]of Object.entries(channels)){
+  if(group.startsWith('fx:')&&value)Object.assign(config,clone(value));
+  else if(group.startsWith('light:')&&value)config.lights.push(clone(value));
+  else if(group.startsWith('fire:')&&value)config.fires.push(clone(value));
+  else if(group.startsWith('particle:')&&value)config.particles.layers.push(clone(value));
+  else if(group.startsWith('extension:')&&value)config.extensions[group.slice(10)]=clone(value);
+ }
+ delete state._vfxChannels;delete state._vfxAll;
+ return state;
+}
+
+const api={root,timelineChannels,changedTimelineGroups,legacyTimelineGroups,timelineRecordedGroups,selectedTimelineGroups,stateFromTimelineChannels,inheritPostEffects,followSubject:effectFollowSubject,syncFollowUI:syncEffectFollowUI,registerEffect,commitPaint:()=>changed(),defaults:()=>({version:1,enabled:true,config:{...clone(defaults),extensions:Object.fromEntries([...extensionRegistry].map(([id,e])=>[id,{enabled:false,...clone(e.defaults||{})}]))},mask:null}),capture:renderState,setState,prepare,render,active:hasEffects,paint,windEditing:()=>!!document.getElementById('toggle-wind-edit').checked,dispose(){app?.destroy(true,{children:true,texture:true,baseTexture:true});host.replaceChildren()},catalog:()=>cards.map(c=>c.querySelector('h3')?.textContent.trim()),interpolate:interpolateParticleSnapshot};global.AlexandreStudioVFX.instances.push(api);for(const extension of global.AlexandreStudioVFX.extensions)api.registerEffect(extension);return api;
 }};
 })(window);
 
@@ -45580,7 +45716,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     if(!activeObject||exportState||studioSaving)return;
     const object=activeObject,frame=Math.round(currentFrame),parts={unified:true,pose:capturePose(object),face:object.faceRig?{...object.faceRig.values}:undefined};
     const shapes={};for(const item of shapeData(object).items)shapes[item.id]=shapeValue(item,object);parts.shapes=shapes;
-    const bank=studioVfxBanks[object.id];parts.vfx=JSON.parse(JSON.stringify(studioVfxTargetId===object.id?vfxState:bank?.state||vfxDefaultState));
+    const bank=studioVfxBanks[object.id];parts.vfx=JSON.parse(JSON.stringify(studioVfxTargetId===object.id?vfxState:bank?.state||vfxDefaultState));delete parts.vfx._vfxAll;parts.vfx._vfxChannels=vfxApi.timelineRecordedGroups(parts.vfx,objectVfxKeys(object).get(frame),!$("panelVFX").hidden);
     if(object.root.userData.studioSequence){const state=sequencePlaybackAt(object.root,(frame-1)/24);object.root.userData.studioSequence.playbackBase??={playing:false,time:object.root.userData.studioSequence.time||0};parts.sequence={playing:state.playing,time:state.time}}
     unifiedObjectTrack(object).keyframes.set(frame,parts);renderTimeline();status('Keyframe geral gravado · '+object.name+' · Frame '+frame+'.');
   }
@@ -46172,6 +46308,17 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
     if(root.userData.studioSequence)await ensureSequenceRuntime(root);
     return obj;
   }
+  function repairStudioActionTiming(data){
+    const seen=new Set(),vfx=data?.vfx;let repaired=0;
+    function fix(state){
+      if(!state||seen.has(state))return;seen.add(state);
+      const action=state.config?.action;if(!action?.kind)return;
+      const emitter=state.config.particles?.layers?.filter(layer=>layer.actionOwner===action.kind&&Number.isFinite(layer.timelineStart)).sort((a,b)=>b.timelineStart-a.timelineStart)[0];
+      if(emitter&&Math.abs(action.start-emitter.timelineStart)>1e-7){action.start=emitter.timelineStart;repaired++}
+    }
+    if(vfx){fix(vfx.state);for(const [,state]of vfx.keys||[])fix(state);for(const bank of Object.values(vfx.banks||{})){fix(bank.state);for(const [,state]of bank.keys||[])fix(state)}}
+    return repaired;
+  }
   async function readProject(file) {
     if (!file) return;
     try {
@@ -46180,6 +46327,7 @@ if(afHasPaint${i}>0.5&&(abs(afV1.z)+abs(afV1.w)>0.0001)){vec2 paintUv=vec2(0.5+d
       stop();
       status("Carregando projeto\u2026");
       const data = file.studioData || await studioReadDocument(file);
+      repairStudioActionTiming(data);
       if (data.format === "AlexandreStudioFolder") return status("Este projeto usa arquivos da pasta. Use Arquivo \u2192 Carregar pasta de projeto.");
       if (data.format !== "MiniStudio3D" || data.version !== 1 || !Array.isArray(data.objects) || !Array.isArray(data.cameraKeys)) throw new Error("Formato de projeto inv\xE1lido.");
       let loaded = file.studioLoaded || [];
@@ -49807,13 +49955,20 @@ ${notes}`;
   vfxInput.height = 1080;
   var vfxInputContext = vfxInput.getContext("2d");
   var vfxLastDraw = 0;
-  function recordStudioVfx(force = false) {
+  function recordStudioVfx(force = false, groups = null) {
     const owner=objects.find(o=>o.id===studioVfxTargetId);
     if (!vfxState || exportState || !autoKeyEnabled&&!force || !force&&(owner?!isObjectTimeline(owner):timelineTrack()!==sceneVfxTrack))return;
     const frame2 = Math.round(currentFrame);
-    if (!sceneVfxTrack.keyframes.size && frame2 > 1) sceneVfxTrack.keyframes.set(1, JSON.parse(JSON.stringify(vfxDefaultState)));
-    sceneVfxTrack.keyframes.set(frame2, JSON.parse(JSON.stringify(vfxState)));
+    if(!groups)groups=vfxApi.selectedTimelineGroups(vfxState);
+    if(!groups.length)return;
+    if (!sceneVfxTrack.keyframes.size && frame2 > 1){const baseline=JSON.parse(JSON.stringify(vfxDefaultState));baseline._vfxChannels=Object.keys(vfxApi.timelineChannels(baseline));sceneVfxTrack.keyframes.set(1,baseline)}
+    const previous=sceneVfxTrack.keyframes.get(frame2),key=JSON.parse(JSON.stringify(vfxState));
+    const earlier=[...sceneVfxTrack.keyframes].filter(([f])=>f<frame2).sort((a,b)=>a[0]-b[0]).at(-1)?.[1];
+    const previousGroups=previous?previous._vfxAll?vfxApi.timelineRecordedGroups(previous):previous._vfxChannels||(earlier?vfxApi.legacyTimelineGroups(earlier,previous):Object.keys(vfxApi.timelineChannels(previous))):[];
+    key._vfxChannels=[...new Set([...previousGroups,...groups])];
+    sceneVfxTrack.keyframes.set(frame2,key);
     stashStudioVfxBank();
+    vfxState=sampleVfxBank(currentFrame,vfxState,[...sceneVfxTrack.keyframes]);vfxApi.setState(vfxState,false);stashStudioVfxBank();
     renderTimeline();
   }
   function syncStudioVfxUI() {
@@ -49847,19 +50002,42 @@ ${notes}`;
     const id = studioVfxTargetId || "__scene__";
     return [...Object.entries(studioVfxBanks).filter(([key]) => key !== id), [id, { state: vfxState, keys: [...sceneVfxTrack.keyframes] }]];
   }
+  var studioVfxCurveCache=new WeakMap();
   function sampleVfxBank(frame2, state, keys2) {
-    if (!keys2.length) return state;
-    const sorted = keys2.slice().sort((a2, b2) => a2[0] - b2[0]);
-    let left = sorted[0], right = sorted.at(-1);
-    for (const item of sorted) {
-      if (item[0] <= frame2) left = item;
-      if (item[0] >= frame2) {
-        right = item;
-        break;
-      }
+    if(!keys2.length)return state;
+    const sorted=keys2.slice().sort((a,b)=>a[0]-b[0]),base=vfxApi.timelineChannels(vfxDefaultState),result={...vfxApi.timelineChannels(state)},series=new Map();
+    const cached=studioVfxCurveCache.get(sorted[0][1]);
+    let curves=cached&&cached.keys.length===sorted.length&&sorted.every(([f,key],i)=>cached.keys[i][0]===f&&cached.keys[i][1]===key)?cached.series:null;
+    if(!curves){
+    let previous=null;
+    for(const [frame,key]of sorted){
+      const values=vfxApi.timelineChannels(key);
+      // Older projects contain complete snapshots: infer the groups actually changed.
+      const groups=key._vfxAll?vfxApi.timelineRecordedGroups(key):key._vfxChannels||(!previous?Object.keys(values):vfxApi.legacyTimelineGroups(previous,key));
+      for(const group of groups){if(!series.has(group))series.set(group,[]);series.get(group).push([+frame,Object.hasOwn(values,group)?values[group]:null])}
+      previous=key;
     }
-    const a = left[1], b = right[1], t = animationBlend(left[0] === right[0] ? 0 : MathUtils.clamp((frame2 - left[0]) / (right[0] - left[0]), 0, 1));
-    return { version: 1, enabled: t < 1 ? a.enabled : b.enabled, mask: t < 1 ? a.mask : b.mask, config: vfxApi.interpolate(a.config, b.config, t) };
+    curves=series;studioVfxCurveCache.set(sorted[0][1],{keys:sorted,series:curves});
+    }
+    for(const [group,points]of curves){
+      let left=points[0],right=points.at(-1);
+      if(frame2<left[0]){result[group]=Object.hasOwn(base,group)?base[group]:null;continue}
+      for(const point of points){if(point[0]<=frame2)left=point;if(point[0]>=frame2){right=point;break}}
+      if(frame2>=points.at(-1)[0]){result[group]=points.at(-1)[1];continue}
+      const t=animationBlend(left[0]===right[0]?0:MathUtils.clamp((frame2-left[0])/(right[0]-left[0]),0,1));
+      result[group]=t>=1?right[1]:left[1]===null||right[1]===null?left[1]:vfxApi.interpolate(left[1],right[1],t);
+    }
+    const composed=vfxApi.stateFromTimelineChannels(state,result);
+    const points=curves.get('fx:action')||[];let previousAction=null,chain=[];
+    for(const [frame,value]of points){
+      if(frame>frame2)break;
+      const action=value?.action;
+      if(!action?.kind){previousAction=null;chain=[];continue}
+      if(previousAction&&previousAction.kind!==action.kind)chain.push({...previousAction,_freezeAt:(frame-1)/24});
+      previousAction={...action};delete previousAction._chain;
+    }
+    if(composed.config.action?.kind)composed.config.action._chain=chain;
+    return composed;
   }
   function sampleStudioVfx(frame2) {
     if (!vfxApi) return;
@@ -50086,10 +50264,12 @@ ${notes}`;
       if (exportState) return;
       pauseTimeline();
       if (!studioVfxTargetId && activeObject) studioVfxTargetId = activeObject.id;
+      const groups=vfxApi.changedTimelineGroups(vfxState,state);
       vfxState = state;
       vfxPreviewEpoch = performance.now();
       vfxLastDraw = 0;
-      recordStudioVfx(force);
+      if(groups.length||force)recordStudioVfx(force,groups.length?groups:vfxApi.selectedTimelineGroups(state));
+      else stashStudioVfxBank();
     }, invalidate: () => {
       vfxPreviewEpoch = performance.now();
       vfxLastDraw = 0;
