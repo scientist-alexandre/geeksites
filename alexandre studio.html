@@ -73,6 +73,7 @@ header .workspace-tabs{min-width:0;flex:1 1 auto;overflow-x:auto}
 #studioAudioScroll::-webkit-scrollbar-track{background:#171c23}
 #studioAudioScroll::-webkit-scrollbar-thumb{background:#68738b;border:3px solid #171c23;border-radius:7px}
 #studioAudioScroll::-webkit-scrollbar-thumb:hover{background:#a494d4}
+.studioFolderToggle{flex:0 0 20px;min-width:20px!important;padding:4px 2px!important;font-size:15px!important;line-height:17px;color:#c8baff;background:#343047;border-color:#4b4268}
 </style>
 <script>(() => {
   var __create = Object.create;
@@ -51096,6 +51097,8 @@ ${notes}`;
   };
   syncSceneObjectButtons();
   var studioObjectSelection=new Set();
+  // Estado visual independente: recolher pastas não altera seleção nem a cena.
+  var studioCollapsedFolders=new Set();
   function studioInside(node,ancestor){for(let p=node;p;p=p.parent)if(p===ancestor)return true;return false;}
   function studioTreeVisible(node){for(let p=node;p;p=p.parent)if(!p.visible)return false;return true;}
   function studioFolderFor(object){
@@ -51200,12 +51203,29 @@ ${notes}`;
     function row(object,container){
       const el=document.createElement('div');el.className='sceneObjectRow';el.classList.toggle('selected',object===activeObject);
       const check=document.createElement('input');check.type='checkbox';check.checked=studioObjectSelection.has(object.id);check.setAttribute('aria-label','Selecionar '+object.name);check.style.cssText='width:14px;min-width:14px';check.onchange=()=>{if(check.checked)studioObjectSelection.add(object.id);else studioObjectSelection.delete(object.id)};
-      const choose=document.createElement('button');choose.className='sceneObjectName';choose.textContent=(object.root.userData.studioFolder?'📁 ':object.root.userData.studioEmpty?'◇ ':'')+object.name;choose.title=object.name;choose.onclick=()=>selectObject(object.id,true);
+      const isFolder=!!object.root.userData.studioFolder;
+      if(isFolder){
+        const toggle=document.createElement('button');
+        toggle.className='studioFolderToggle';
+        toggle.type='button';
+        const collapsed=studioCollapsedFolders.has(object.id);
+        toggle.textContent=collapsed?'▸':'▾';
+        toggle.title=collapsed?'Expandir pasta':'Recolher pasta';
+        toggle.setAttribute('aria-label',(collapsed?'Expandir ':'Recolher ')+object.name);
+        toggle.setAttribute('aria-expanded',String(!collapsed));
+        toggle.onclick=()=>{
+          if(studioCollapsedFolders.has(object.id))studioCollapsedFolders.delete(object.id);
+          else studioCollapsedFolders.add(object.id);
+          renderSceneObjectList();
+        };
+        el.append(toggle);
+      }
+      const choose=document.createElement('button');choose.className='sceneObjectName';choose.textContent=(isFolder?'📁 ':object.root.userData.studioEmpty?'◇ ':'')+object.name;choose.title=object.name;choose.onclick=()=>selectObject(object.id,true);
       const rename=document.createElement('button');rename.textContent='✎';rename.onclick=()=>{selectObject(object.id,true);openStudioRename('objects')};
       const eye=document.createElement('button');eye.textContent=object.root.visible?'◉':'○';eye.onclick=()=>toggleSceneObject(object);
       const remove=document.createElement('button');remove.textContent='×';remove.title=object.root.userData.studioFolder?'Desagrupar pasta':'Excluir '+object.name;remove.onclick=()=>{if(studioSaving||exportState)return;if(object.root.userData.studioFolder){ungroupStudioFolder(object);return;}selectObject(object.id,true);$("deleteSceneObject").click()};
       el.append(check,choose,rename,eye,remove);container.append(el);
-      if(object.root.userData.studioFolder){const children=document.createElement('div');children.style.cssText='margin-left:12px;border-left:1px solid #555;padding-left:4px';container.append(children);for(const child of objects.filter(o=>o.root.parent===object.root))row(child,children);}
+      if(isFolder&&!studioCollapsedFolders.has(object.id)){const children=document.createElement('div');children.style.cssText='margin-left:12px;border-left:1px solid #555;padding-left:4px';container.append(children);for(const child of objects.filter(o=>o.root.parent===object.root))row(child,children);}
     }
     for(const object of objects)if(!objects.some(o=>o.root===object.root.parent&&o.root.userData.studioFolder))row(object,list);
   }
