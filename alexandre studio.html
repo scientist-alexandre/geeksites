@@ -47044,8 +47044,37 @@ diffuseColor.rgb=mix(diffuseColor.rgb,lid,cover);
     return character;
   }
   function buildCharacterPackage(obj) {
+    if (obj.root.userData.studioFolder) {
+      // A folder is a registered object, and each of its members must be
+      // serialized as an independent object (including nested folders).
+      const included = [obj, ...objects.filter(o => o !== obj && (
+        studioInside(o.root, obj.root) ||
+        o.root.userData.studioFolderId === obj.id
+      ))];
+      const characters = included.map(o => {
+        const entry = stripStudioCharacterAnimation(packStudioObject(o));
+        const directParent = included.find(p => p !== o && o.root.parent === p.root);
+        entry.folderParentId = directParent?.id || o.root.userData.studioFolderId || null;
+        return entry;
+      });
+      // Do not allow a broken export to create an unusable .character file.
+      if (characters.some(e => !e.root?.object)) throw new Error('Falha ao preparar um objeto da pasta.');
+      return { format: 'AlexandreStudioCharacter', version: 2, characters };
+    }
     const character = stripStudioCharacterAnimation(packStudioObject(obj));
-    return { format: "AlexandreStudioCharacter", version: 1, character };
+    return { format: 'AlexandreStudioCharacter', version: 1, character };
+  }
+  function studioCharacterEntries(data) {
+    if (!data || data.format !== 'AlexandreStudioCharacter')
+      throw new Error('Este arquivo não é um personagem .character do Alexandre Studio.');
+    // Support files created by earlier folder exporters as well as v1 characters.
+    const raw = Array.isArray(data.characters) ? data.characters
+      : Array.isArray(data.objects) ? data.objects
+      : data.character ? [data.character] : [];
+    const entries = raw.filter(e => e && typeof e === 'object' && e.root?.object);
+    if (!entries.length) throw new Error('O arquivo não contém objetos 3D válidos. Exporte novamente selecionando a pasta em Objetos.');
+    if (entries.length !== raw.length) throw new Error(`O arquivo contém ${raw.length - entries.length} objeto(s) incompleto(s). Exporte a pasta novamente.`);
+    return { entries: remapCharacterIds(entries), isFolder: Array.isArray(data.characters) || Array.isArray(data.objects) };
   }
   function remapCharacterIds(entry) {
     const ids = /* @__PURE__ */ new Map(), uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -47067,10 +47096,11 @@ diffuseColor.rgb=mix(diffuseColor.rgb,lid,cover);
       finishDrag(false);
       stop();
       saveActiveObject();
-      const data = buildCharacterPackage(activeObject), name = activeObject.name.replace(/\.[^/.]+$/, "").replace(/[<>:"/\\|?*]/g, "_");
+      const data = buildCharacterPackage(activeObject);
       downloadBlob(new Blob([JSON.stringify(data)], { type: "application/json" }), "alexandre studio.character");
-      status("Personagem salvo com ossos, poses e FaceRig, sem keyframes.");
+      status(data.characters ? "Pasta salva com todos os objetos agrupados, sem keyframes." : "Personagem salvo com ossos, poses e FaceRig, sem keyframes.");
     } catch (e) {
+      console.error("Erro ao exportar personagem:", e);
       status("Falha ao salvar personagem: " + e.message);
     }
   }
@@ -47078,38 +47108,62 @@ diffuseColor.rgb=mix(diffuseColor.rgb,lid,cover);
     if (!file || exportState) return;
     try {
       const data = await studioReadDocument(file);
-      if (data.format !== "AlexandreStudioCharacter" || data.version !== 1 || !data.character?.root) throw new Error("Arquivo de personagem inv\xE1lido.");
-      const entry = stripStudioCharacterAnimation(remapCharacterIds(data.character));
-      entry.keyframes = [];
-      entry.clips = [];
-      const obj = await unpackStudioObject(entry);
-      if(obj.root.userData.studioEmpty===true)return status("Empty antigo ignorado.");
+      const { entries, isFolder } = studioCharacterEntries(data);
+      const loaded = [];
+      for (let i = 0; i < entries.length; i++) {
+        const entry = stripStudioCharacterAnimation(entries[i]);
+        entry.keyframes = [];
+        entry.clips = [];
+        entry.boneIds ||= [];
+        entry.rest ||= [];
+        entry.poseLibrary ||= [];
+        // Identify the failing object in the status message.
+        let obj;
+        try { obj = await unpackStudioObject(entry); }
+        catch (error) { throw new Error(`Objeto ${i + 1} (${entry.name || 'sem nome'}): ${error.message}`); }
+        if (obj.root.userData.studioEmpty !== true) loaded.push({ obj, entry });
+      }
+      if (!loaded.length) return status("Empty antigo ignorado.");
       commitCameraEdit();
       finishDrag(true);
       stop();
       saveActiveObject();
-      objects.push(obj);
-      scene.add(obj.root);
-      if (obj.faceRig) {
-        installFaceShaders(obj);
-        for (const region of Object.values(obj.faceRig.regions || {})) fitFaceRegionSurface(obj, region);
-        applyFaceRig(obj);
+      for (const {obj} of loaded) {
+        objects.push(obj);
+        scene.add(obj.root);
       }
+      if (isFolder) {
+        const bySavedId = new Map(loaded.map(({obj,entry}) => [entry.id, obj]));
+        for (const {obj,entry} of loaded) {
+          const parent = bySavedId.get(entry.folderParentId || entry.root?.object?.userData?.studioFolderId);
+          if (parent && parent !== obj && parent.root.userData.studioFolder) {
+            parent.root.add(obj.root);
+            obj.root.userData.studioFolderId = parent.id;
+          }
+        }
+      }
+      for (const {obj} of loaded) {
+        if (obj.faceRig) {
+          installFaceShaders(obj);
+          for (const region of Object.values(obj.faceRig.regions || {})) fitFaceRegionSurface(obj, region);
+          applyFaceRig(obj);
+        }
+      }
+      const obj = loaded[0].obj;
       const previousAutoKey = autoKeyEnabled;
       autoKeyEnabled = false;
-      try {
-        selectObject(obj.id, true);
-      } finally {
-        autoKeyEnabled = previousAutoKey;
+      try { selectObject(obj.id, true); }
+      finally { autoKeyEnabled = previousAutoKey; }
+      for (const {obj: member} of loaded) {
+        member.keyframes.clear();
+        getShapeTrack(member).keyframes.clear();
       }
-      // Select this character's clean unified track, including its shape channel.
-      obj.keyframes.clear();
-      getShapeTrack(obj).keyframes.clear();
       timelineCamera=false;timelineVFX=false;timelineSky=false;timelineShapes=false;timelineSequenceId=null;
       refreshObjectSelect();renderTimeline();refreshShapes();
-      status("Personagem carregado com Shape Keys, poses e FaceRig. Timeline do personagem limpa.");
+      status(isFolder ? "Pasta importada com todos os objetos e hierarquia preservada." : "Personagem importado. Timeline limpa.");
     } catch (e) {
-      status("N\xE3o foi poss\xEDvel carregar personagem: " + e.message);
+      console.error("Erro ao importar personagem:", e);
+      status("Não foi possível carregar personagem: " + e.message);
     } finally {
       $("characterFile").value = "";
     }
