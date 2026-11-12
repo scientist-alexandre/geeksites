@@ -45045,10 +45045,12 @@ void main() {
       const damping = controls.enableDamping;
       controls.enableDamping = false;
       controls.update();
-      controls.target.lerpVectors(a.target, b.target, t);
       const orientation = new Quaternion().slerpQuaternions(a.quaternion, b.quaternion, t);
       const distance = MathUtils.lerp(a.position.distanceTo(a.target), b.position.distanceTo(b.target), t);
-      camera.position.copy(controls.target).add(new Vector3(0, 0, distance).applyQuaternion(orientation));
+      // Interpolate the saved world position independently of the viewing direction.
+      // Rebuild the navigation target in front of the camera, never an orbit origin.
+      camera.position.lerpVectors(a.position, b.position, t);
+      controls.target.copy(camera.position).add(new Vector3(0, 0, -distance).applyQuaternion(orientation));
       camera.up.lerpVectors(a.up, b.up, t).normalize();
       for (const k of ["fov", "zoom", "near", "far"]) camera[k] = MathUtils.lerp(a[k], b[k], t);
       camera.updateProjectionMatrix();
@@ -45974,9 +45976,18 @@ diffuseColor.rgb=mix(diffuseColor.rgb,lid,cover);
     syncFaceRegion();
     status("Região marcada. Ajuste largura e altura e teste os controles.");
   }, true);
+  function isLibraryRootBone(obj, bone) {
+    // O primeiro osso de cada hierarquia controla o deslocamento global do personagem.
+    // Nao aplicar sua transformacao evita mover/girar/escalar o personagem ao reutilizar poses.
+    return bone === obj.root || !bone.parent?.isBone || !obj.bones.includes(bone.parent);
+  }
   function captureBonePose(obj) {
     const pose = /* @__PURE__ */ new Map();
-    for (const bone of obj.bones) pose.set(bone.uuid, { node: bone, p: bone.position.clone(), q: bone.quaternion.clone(), s: bone.scale.clone() });
+    // A biblioteca guarda somente as articulacoes, nunca a transformacao do osso raiz.
+    for (const bone of obj.bones) {
+      if (isLibraryRootBone(obj, bone)) continue;
+      pose.set(bone.uuid, { node: bone, p: bone.position.clone(), q: bone.quaternion.clone(), s: bone.scale.clone() });
+    }
     return pose;
   }
   function saveLibraryPose() {
@@ -46003,15 +46014,23 @@ diffuseColor.rgb=mix(diffuseColor.rgb,lid,cover);
     const saved = activeObject.poseLibrary?.find((p) => p.id === id);
     if (!saved) return;
     commitCameraEdit();
-    finishDrag(true);
+    finishDrag(false);
+    // Preserve placement even for older libraries containing an object/root bone.
+    const root = activeObject.root;
+    const placement = { p: root.position.clone(), q: root.quaternion.clone(), s: root.scale.clone() };
     setMode("pose");
     for (const bone of activeObject.bones) {
+      // Tambem ignora o osso raiz em poses antigas que ainda o contenham.
+      if (isLibraryRootBone(activeObject, bone)) continue;
       const transform = saved.pose.get(bone.uuid);
       if (!transform) continue;
       bone.position.copy(transform.p);
       bone.quaternion.copy(transform.q);
       bone.scale.copy(transform.s);
     }
+    root.position.copy(placement.p);
+    root.quaternion.copy(placement.q);
+    root.scale.copy(placement.s);
     model.updateMatrixWorld(true);
     updateCustomRig();
     recordKeyframe();
