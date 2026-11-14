@@ -200,6 +200,8 @@ header #studioCameraOrbitPanel label{display:flex;align-items:center;gap:4px;min
 header #studioCameraOrbitTarget{flex:1 1 auto;width:95px!important;min-width:35px;max-width:125px!important;padding:4px 2px!important;font-size:10px!important}
 @media(max-width:1100px){header{height:38px;min-height:38px;gap:0;padding:0 3px}header .workspace-tab{font-size:9px;padding:0 3px}header #boneDisplayTools{gap:3px;padding:0 3px}header #boneDisplayTools input{width:32px}header #boneDisplayTools button{font-size:8px;padding:3px}header #studioCameraOrbitPanel{flex-basis:145px!important;font-size:9px!important}header #studioCameraOrbitTarget{width:70px!important;font-size:9px!important}}
 @media(max-width:900px){header>details{font-size:9px}header>details>summary{padding:0 3px}header .workspace-tab{font-size:8px;padding:0 2px;letter-spacing:-.3px}header #boneDisplayTools{font-size:8px;gap:2px}header #boneDisplayTools input{width:24px}header #boneDisplayTools button{font-size:7px;padding:3px 2px}header #boneDisplayTools output{font-size:7px;min-width:19px}header #studioCameraOrbitPanel{flex-basis:120px!important;min-width:75px;font-size:8px!important;padding:0 2px!important}header #studioCameraOrbitTarget{width:50px!important;font-size:8px!important}}
+
+.imagePanel{padding:12px;font-size:12px}.imagePanel>button{width:100%;margin:5px 0}.imagePanel>label{display:block;margin:12px 0}.imagePanel label select{margin-top:5px}.imageButtons,.imageNumbers{display:flex;gap:5px;margin:8px 0}.imageButtons>*{flex:1;min-width:0}.imagePanel input{width:100%;min-width:0;background:#171b23;color:#e8e2f2;border:1px solid #454b59;border-radius:4px;padding:6px}.imageNumbers label{flex:1;min-width:0}.imagePanel h3{margin:16px 0 8px}.imagePanel button{font-size:11px;padding:7px}.imagePanel .muted{font-size:11px}
 </style>
 <script>(() => {
   var __create = Object.create;
@@ -1045,7 +1047,7 @@ header #studioCameraOrbitTarget{flex:1 1 auto;width:95px!important;min-width:35p
   window.__offlineGifenc = gifenc;
 })();
 </script><style>.timeKey.selected{background:#ffcc66!important;box-shadow:0 0 0 3px #ffcc6680!important;z-index:4}</style><style>.sceneObjectRow{grid-template-columns:16px minmax(0,1fr) 22px 22px 22px!important}</style><style>.studioMorphPanel{margin:15px 0;padding:12px;border:1px solid #685689;border-radius:8px;background:#2a2739}.studioMorphPanel h3{margin:1px 0 12px;color:#e3d2ff}.studioMorphPanel>label{display:block;margin:10px 0;font-size:11px;color:#cdc4e5}.studioMorphPanel input[type=range]{width:100%;accent-color:#ac92f0}.studioMorphPanel input[type=number]{width:100%;padding:6px;background:#161923;border:1px solid #494557;color:#eee;border-radius:4px}.studioMorphPanel output{float:right;color:#d0b4ff}.studioMorphPair{display:grid;grid-template-columns:1fr 1fr;gap:9px}.studioMorphPair label{min-width:0;font-size:11px}.studioMorphPanel .muted{font-size:11px}</style></head>
-<body><header><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar projeto compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button id="tabShapes" class="workspace-tab" role="tab" aria-selected="false" aria-controls="panelShapes">Shape Keys</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabHand" role="tab" aria-selected="false" aria-controls="panelHand">Mão</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button><button class="workspace-tab" id="tabSequences" role="tab" aria-selected="false" aria-controls="panelSequences">Sequências</button><button class="workspace-tab" id="tabObjects" role="tab" aria-selected="false" aria-controls="panelObjects">Objetos</button><button class="workspace-tab" id="tabMorph" role="tab" aria-selected="false" aria-controls="panelMorph">Morph</button></div><div id="boneDisplayTools"><label>Tamanho dos ossos <input id="boneDisplaySize" type="range" min="2" max="20" step="0.5" value="6" aria-label="Raio visual das juntas em pixels"><output id="boneDisplayValue">6 px</output></label></div></header>
+<body><input id="imagePlaneFiles" type="file" accept="image/png,image/jpeg,image/webp,image/avif,image/bmp" multiple hidden><header><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="importImagePlane">Importar imagens como planos…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar projeto compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button id="tabShapes" class="workspace-tab" role="tab" aria-selected="false" aria-controls="panelShapes">Shape Keys</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabHand" role="tab" aria-selected="false" aria-controls="panelHand">Mão</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button><button class="workspace-tab" id="tabSequences" role="tab" aria-selected="false" aria-controls="panelSequences">Sequências</button><button class="workspace-tab" id="tabImages" role="tab" aria-selected="false" aria-controls="panelImages">Imagens</button><button class="workspace-tab" id="tabObjects" role="tab" aria-selected="false" aria-controls="panelObjects">Objetos</button><button class="workspace-tab" id="tabMorph" role="tab" aria-selected="false" aria-controls="panelMorph">Morph</button></div><div id="boneDisplayTools"><label>Tamanho dos ossos <input id="boneDisplaySize" type="range" min="2" max="20" step="0.5" value="6" aria-label="Raio visual das juntas em pixels"><output id="boneDisplayValue">6 px</output></label></div></header>
 <main><nav aria-label="Ferramentas da cena">
 <button id="orbit" title="Navegar pela cena">Navegar</button>
 <button id="toolPose" title="Modo pose" aria-keyshortcuts="Space">Modo pose</button>
@@ -1068,7 +1070,7 @@ header #studioCameraOrbitTarget{flex:1 1 auto;width:95px!important;min-width:35p
 <label class="faceRange">Altura da região<input id="handRegionHeight" type="range" min="0.1" max="200" step="0.1" value="14"></label>
 <label class="faceRange">Posição horizontal<input id="handRegionX" type="range" min="-100" max="100" step="0.1" value="0"></label>
 <label class="faceRange">Posição vertical<input id="handRegionY" type="range" min="-100" max="100" step="0.1" value="0"></label>
-<label class="faceRange">Suavidade da região<input id="handRegionSoftness" type="range" min="5" max="90" step="1" value="30"></label><p class="muted">Selecione a mão, clique em marcar e escolha o ponto na personagem. Todos os ajustes ficam nesta aba.</p><label class="faceRange"><input id="handGeometryMode" type="checkbox" checked> Mãos 3D com cinco dedos</label><div class="faceButtons"><button id="rebuildHandGeometry">Atualizar mãos 3D</button></div><label class="faceRange">Largura das mãos<input id="studioHandWidth" type="range" min="65" max="145" step="1" value="100"><output id="studioHandWidthOut">100%</output></label><p class="muted">Ajusta a largura sem mudar a extensão dos dedos. Use Atualizar mãos 3D após marcar as regiões.</p></div><div id="handSliders" class="handGroups"><div class="handGroup" id="handGroupL"><span class="handGroupTitle">Mão esquerda</span><div class="handGroupBody" id="handGroupLBody"></div></div><div class="handGroup" id="handGroupR"><span class="handGroupTitle">Mão direita</span><div class="handGroupBody" id="handGroupRBody"></div></div></div><div class="faceButtons"><button id="handReset">Zerar controles das mãos</button><button id="handKey">◆ Gravar mãos</button></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" title="Altura relativa ao piso 3D (Y = 0)" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.01"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar todos os canais do keyframe selecionado (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar os canais copiados no frame atual (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="cameraAuto360" title="Criar um giro automático de câmera em torno do objeto, somente entre os frames escolhidos">＋ Câmera 360°</button><label>Início<input id="cameraAuto360Start" aria-label="Keyframe inicial do giro de câmera" type="number" min="1" max="100000" step="1" value="1"></label><label>Fim<input id="cameraAuto360End" aria-label="Keyframe final do giro de câmera" type="number" min="2" max="100000" step="1" value="250"></label><label>Direção<select id="cameraAuto360Direction" aria-label="Direção do giro automático de câmera"><option value="right">Direita</option><option value="left">Esquerda</option><option value="up">Cima</option><option value="down">Baixo</option></select></label><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioCut" title="Cortar áudio: ative e clique no ponto do clipe (S divide no cursor)" aria-label="Cortar áudio" aria-pressed="false">✂</button><button id="studioAudioDelete" title="Excluir trecho de áudio selecionado (Delete)" aria-label="Excluir trecho de áudio selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · ✂ para dividir · selecione e Delete para apagar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><div id="studioTurnControls" hidden style="display:none!important"><input id="studioTurnX" value="0"><input id="studioTurnY" value="0"><input id="studioTurnZ" value="0"><button id="studioTurnSave"></button></div><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
+<label class="faceRange">Suavidade da região<input id="handRegionSoftness" type="range" min="5" max="90" step="1" value="30"></label><p class="muted">Selecione a mão, clique em marcar e escolha o ponto na personagem. Todos os ajustes ficam nesta aba.</p><label class="faceRange"><input id="handGeometryMode" type="checkbox" checked> Mãos 3D com cinco dedos</label><div class="faceButtons"><button id="rebuildHandGeometry">Atualizar mãos 3D</button></div><label class="faceRange">Largura das mãos<input id="studioHandWidth" type="range" min="65" max="145" step="1" value="100"><output id="studioHandWidthOut">100%</output></label><p class="muted">Ajusta a largura sem mudar a extensão dos dedos. Use Atualizar mãos 3D após marcar as regiões.</p></div><div id="handSliders" class="handGroups"><div class="handGroup" id="handGroupL"><span class="handGroupTitle">Mão esquerda</span><div class="handGroupBody" id="handGroupLBody"></div></div><div class="handGroup" id="handGroupR"><span class="handGroupTitle">Mão direita</span><div class="handGroupBody" id="handGroupRBody"></div></div></div><div class="faceButtons"><button id="handReset">Zerar controles das mãos</button><button id="handKey">◆ Gravar mãos</button></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" title="Altura relativa ao piso 3D (Y = 0)" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.01"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section><section id="panelImages" hidden><div class="imagePanel"><h2>IMAGENS · CENÁRIO 2,5D</h2><label>Imagem em edição<select id="imageObjectSelect" aria-label="Plano de imagem"></select></label><div id="imageGridInfo" class="muted"></div><div class="imageButtons"><button id="imageSubdivide">Subdividir ×2</button><button id="imageUndo">Desfazer</button></div><button id="imageUnsubdivide" title="Reduzir as divisões pela metade">Desfazer subdivisão</button><button id="imageEditToggle">Editar malha</button><label>Selecionar<select id="imageSelectType"><option value="vertex">Vértices</option><option value="edge">Arestas</option><option value="face">Faces (espaços)</option></select></label><label>Arrastar no eixo<select id="imageDragAxis"><option value="free">Livre · plano da tela</option><option value="X">X · horizontal</option><option value="Y">Y · altura</option><option value="Z">Z · profundidade</option></select></label><div class="imageButtons"><button id="imageSelectAll">Selecionar tudo</button><button id="imageClearSelection">Limpar seleção</button></div><div id="imageSelectionInfo" class="muted"></div><label>Espelhar no eixo da cena<select id="imageMirrorAxis"><option value="X">X · direita ↔ esquerda</option><option value="Z">Z · frente ↔ trás</option><option value="Y">Y · cima ↔ baixo</option></select></label><label>Centro do espelhamento<select id="imageMirrorReference" aria-label="Imagem que marca o centro da construção"></select></label><button id="imageMirror" title="Refletir a cópia em relação ao centro escolhido">Criar cópia espelhada</button></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar todos os canais do keyframe selecionado (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar os canais copiados no frame atual (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="cameraAuto360" title="Criar um giro automático de câmera em torno do objeto, somente entre os frames escolhidos">＋ Câmera 360°</button><label>Início<input id="cameraAuto360Start" aria-label="Keyframe inicial do giro de câmera" type="number" min="1" max="100000" step="1" value="1"></label><label>Fim<input id="cameraAuto360End" aria-label="Keyframe final do giro de câmera" type="number" min="2" max="100000" step="1" value="250"></label><label>Direção<select id="cameraAuto360Direction" aria-label="Direção do giro automático de câmera"><option value="right">Direita</option><option value="left">Esquerda</option><option value="up">Cima</option><option value="down">Baixo</option></select></label><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioCut" title="Cortar áudio: ative e clique no ponto do clipe (S divide no cursor)" aria-label="Cortar áudio" aria-pressed="false">✂</button><button id="studioAudioDelete" title="Excluir trecho de áudio selecionado (Delete)" aria-label="Excluir trecho de áudio selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · ✂ para dividir · selecione e Delete para apagar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><div id="studioTurnControls" hidden style="display:none!important"><input id="studioTurnX" value="0"><input id="studioTurnY" value="0"><input id="studioTurnZ" value="0"><button id="studioTurnSave"></button></div><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
 <!-- alexandre-vfx:start -->
 <script id="studio-vfx-pixi">
 var qd=Object.defineProperty,Kd=Object.defineProperties;var Zd=Object.getOwnPropertyDescriptors;var ir=Object.getOwnPropertySymbols;var $h=Object.prototype.hasOwnProperty,jh=Object.prototype.propertyIsEnumerable;var Wh=(m,et,pt)=>et in m?qd(m,et,{enumerable:!0,configurable:!0,writable:!0,value:pt}):m[et]=pt,bt=(m,et)=>{for(var pt in et||(et={}))$h.call(et,pt)&&Wh(m,pt,et[pt]);if(ir)for(var pt of ir(et))jh.call(et,pt)&&Wh(m,pt,et[pt]);return m},Qi=(m,et)=>Kd(m,Zd(et));var zn=(m,et)=>{var pt={};for(var Rt in m)$h.call(m,Rt)&&et.indexOf(Rt)<0&&(pt[Rt]=m[Rt]);if(m!=null&&ir)for(var Rt of ir(m))et.indexOf(Rt)<0&&jh.call(m,Rt)&&(pt[Rt]=m[Rt]);return pt};/*!
@@ -5076,7 +5078,7 @@ varying vec2 vTextureCoord;
         function syncParticleUI() {
             const root = settings.particles;
             const p = getSelectedParticleLayer();
-            document.getElementById('toggle-particles').checked = root.active;
+            document.getElementById('toggle-particles').checked = p.active !== false;
             particleInputs.forEach(([id, prop, decimals]) => {
                 const input = document.getElementById(id);
                 if (!input) return;
@@ -5145,8 +5147,15 @@ varying vec2 vTextureCoord;
             document.getElementById('val-aura-outer-glow').innerText = e.target.value + '%';
         });
 
+        function setSelectedParticleActive(active){
+            const layer=getSelectedParticleLayer();
+            layer.active=!!active;
+            const layers=settings.particles.layers;
+            // The shared renderer stays on while at least one layer is enabled.
+            settings.particles.active=layers?.length?layers.some(item=>item.active!==false):!!active;
+        }
         document.getElementById('toggle-particles').addEventListener('change', e => {
-            settings.particles.active = e.target.checked;
+            setSelectedParticleActive(e.target.checked);
             if (!isPlaying) applySettingsToCanvas();
         });
 
@@ -5278,13 +5287,15 @@ varying vec2 vTextureCoord;
 
         document.getElementById('btn-remove-fire').onclick = () => {
             if (settings.fires.length === 0) return;
-            settings.fires.splice(settings.selectedFireIndex, 1);
+            ensureEffectFollowIds();
+            const removedEffect=settings.fires.splice(settings.selectedFireIndex, 1)[0];
             const removedFilter = fireFilters.splice(settings.selectedFireIndex, 1)[0];
             if (removedFilter) removedFilter.destroy();
             filterStackSignature = '';
             settings.selectedFireIndex = Math.max(0, settings.selectedFireIndex - 1);
             updateFireSelector();
             seek(currentTime);
+            if(removedEffect?.id)bridge.removeEffect?.({kind:'fire',id:removedEffect.id});
         };
 
         document.getElementById('fire-selector').onchange = (e) => {
@@ -5304,13 +5315,15 @@ varying vec2 vTextureCoord;
 
         document.getElementById('btn-remove-light').onclick = () => {
             if (settings.lights.length <= 1) return;
-            settings.lights.splice(settings.selectedLightIndex, 1);
+            ensureEffectFollowIds();
+            const removedEffect=settings.lights.splice(settings.selectedLightIndex, 1)[0];
             const removedFilter = lightFilters.splice(settings.selectedLightIndex, 1)[0];
             if (removedFilter) removedFilter.destroy();
             filterStackSignature = '';
             settings.selectedLightIndex = Math.max(0, settings.selectedLightIndex - 1);
             updateLightSelector();
             seek(currentTime);
+            if(removedEffect?.id)bridge.removeEffect?.({kind:'light',id:removedEffect.id});
         };
 
         document.getElementById('light-selector').onchange = (e) => {
@@ -7288,7 +7301,7 @@ function stateFromTimelineChannels(base,channels){
  return state;
 }
 
-const api={root,timelineChannels,changedTimelineGroups,legacyTimelineGroups,timelineRecordedGroups,selectedTimelineGroups,stateFromTimelineChannels,inheritPostEffects,followSubject:effectFollowSubject,syncFollowUI:syncEffectFollowUI,registerEffect,commitPaint:()=>changed(),defaults:()=>({version:1,enabled:true,config:{...clone(defaults),extensions:Object.fromEntries([...extensionRegistry].map(([id,e])=>[id,{enabled:false,...clone(e.defaults||{})}]))},mask:null}),capture:renderState,setState,prepare,render,active:hasEffects,paint,windEditing:()=>!!document.getElementById('toggle-wind-edit').checked,dispose(){app?.destroy(true,{children:true,texture:true,baseTexture:true});host.replaceChildren()},catalog:()=>cards.map(c=>c.querySelector('h3')?.textContent.trim()),interpolate:interpolateParticleSnapshot};global.AlexandreStudioVFX.instances.push(api);for(const extension of global.AlexandreStudioVFX.extensions)api.registerEffect(extension);return api;
+const api={root,timelineChannels,neutralTimelineGroup,changedTimelineGroups,legacyTimelineGroups,timelineRecordedGroups,selectedTimelineGroups,stateFromTimelineChannels,inheritPostEffects,followSubject:effectFollowSubject,syncFollowUI:syncEffectFollowUI,registerEffect,commitPaint:()=>changed(),defaults:()=>({version:1,enabled:true,config:{...clone(defaults),extensions:Object.fromEntries([...extensionRegistry].map(([id,e])=>[id,{enabled:false,...clone(e.defaults||{})}]))},mask:null}),capture:renderState,setState,prepare,render,active:hasEffects,paint,windEditing:()=>!!document.getElementById('toggle-wind-edit').checked,dispose(){app?.destroy(true,{children:true,texture:true,baseTexture:true});host.replaceChildren()},catalog:()=>cards.map(c=>c.querySelector('h3')?.textContent.trim()),interpolate:interpolateParticleSnapshot};global.AlexandreStudioVFX.instances.push(api);for(const extension of global.AlexandreStudioVFX.extensions)api.registerEffect(extension);return api;
 }};
 })(window);
 
@@ -43868,7 +43881,9 @@ void main() {
     const size = box.getSize(new Vector3()), center = box.getCenter(new Vector3());
     const d = Math.max(size.x, size.y, size.z, 0.1) * 1.9;
     controls.target.copy(center);
-    camera.position.copy(center).add(new Vector3(d * 0.65, d * 0.35, d));
+    camera.position.copy(center).add(new Vector3(0, 0, d));
+    camera.up.set(0,1,0);
+    controls._sphericalDelta.set(0,0,0);controls._panOffset.set(0,0,0);controls._scale=1;
     camera.near = d / 1e3;
     camera.far = Math.max(2e3, d * 100);
     camera.updateProjectionMatrix();
@@ -43905,6 +43920,7 @@ void main() {
     if (b && editing === "add") status("Continuar de " + b.name + ": clique no espa\xE7o para criar um filho. Nenhuma liga\xE7\xE3o \xE9 fechada.");
   }
   function setMode(m) {
+    if(m!=="orbit"&&typeof imageEditEnabled!=="undefined"&&imageEditEnabled)imageSetEdit(false);
     if (m !== "orbit" && !model) return status("Importe um GLB primeiro.");
     if (m === "add" && bound) return status("Este modelo j\xE1 tem rig. Use Modo pose para mover os ossos.");
     clearVfxPlacement();
@@ -44809,17 +44825,56 @@ void main() {
   }
   async function load(file) {
     if (!file) return;
+    if(studioIsPlaneImage(file))return importImagePlanes([file]);
     if (!/\.glb$/i.test(file.name)) return status("Escolha um arquivo .glb.");
     status("Importando " + file.name + "\u2026");
     try {
       const gltf = await loader.parseAsync(await file.arrayBuffer(), "");
+      gltf.scene.quaternion.identity();
       adopt(gltf.scene, file.name, gltf.animations);
     } catch (e) {
       status("N\xE3o foi poss\xEDvel importar: " + e.message);
     }
     $("file").value = "";
   }
-  var actions = { import: () => $("file").click(), add: () => setMode("add"), toolPose: () => setMode("pose"), objectMove: () => setMode("moveObject"), objectScale: () => setMode("scaleObject"), objectRotate: () => setMode("rotateObject"), orbit: () => setMode("orbit"), bind, reset, frame, showBones: () => {
+  function studioIsPlaneImage(file){return /\.(png|jpe?g|webp|avif|bmp)$/i.test(file.name);}
+  function studioReadPlaneImage(file){
+    return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Não foi possível ler '+file.name));reader.readAsDataURL(file);});
+  }
+  async function importImagePlanes(files){
+    if(exportState||studioSaving)return;
+    const images=Array.from(files).filter(studioIsPlaneImage);if(!images.length)return;
+    pauseTimeline();commitCameraEdit();finishDrag(false);stop();saveActiveObject();
+    const center=controls.target.clone(),right=new Vector3(1,0,0);
+    let added=0;const failed=[];
+    for(let i=0;i<images.length;i++){
+      const file=images[i];let texture,geometry,material,root,object;
+      try{
+        status('Importando plano: '+file.name);
+        const source=await studioReadPlaneImage(file);texture=await new TextureLoader().loadAsync(source);
+        const width=texture.image.naturalWidth||texture.image.width,height=texture.image.naturalHeight||texture.image.height;
+        if(!width||!height)throw new Error('Imagem sem dimensões válidas.');
+        texture.colorSpace=SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+        geometry=new PlaneGeometry(4,4*height/width);
+        material=new MeshBasicMaterial({map:texture,color:0xffffff,side:DoubleSide,transparent:true,alphaTest:.01,toneMapped:false});
+        const mesh=new Mesh(geometry,material);mesh.name=file.name;mesh.castShadow=false;mesh.receiveShadow=false;
+        root=new Group();root.name=file.name;root.userData.studioImagePlane={name:file.name,width,height};root.add(mesh);
+        root.position.copy(center).addScaledVector(right,(i-(images.length-1)/2)*4.4);root.quaternion.identity();
+        root.updateMatrixWorld(true);
+        object={id:root.uuid,name:file.name,root,bones:[],rest:new Map(),clips:[],mixer:new AnimationMixer(root),bound:false,selected:null,customRig:null,poseLibrary:[],basePoseId:null,keyframes:new Map()};
+        object.keyframes.set(1,{pose:capturePose(object)});
+        scene.add(root);objects.push(object);added++;
+      }catch(error){
+        if(root?.parent)root.parent.remove(root);
+        geometry?.dispose();material?.dispose();texture?.dispose();
+        failed.push(file.name+': '+error.message);
+      }
+    }
+    if(added){refreshObjectSelect();selectObject(objects.at(-1).id,true);frame();setMode('moveObject');syncObjectInspector();vfxLastDraw=0;}
+    status((added?added+' plano(s) de imagem adicionado(s). W mover · E escalar · R girar.':'Nenhuma imagem importada.')+(failed.length?' Falha: '+failed.join('; '):''));
+  }
+  $('imagePlaneFiles').onchange=async event=>{try{await importImagePlanes(event.target.files);}finally{event.target.value='';}};
+  var actions = { importImagePlane: () => $("imagePlaneFiles").click(), import: () => $("file").click(), add: () => setMode("add"), toolPose: () => setMode("pose"), objectMove: () => setMode("moveObject"), objectScale: () => setMode("scaleObject"), objectRotate: () => setMode("rotateObject"), orbit: () => setMode("orbit"), bind, reset, frame, showBones: () => {
     visible = !visible;
     rigView.visible = visible;
     $("showBones").classList.toggle("active", visible);
@@ -45046,10 +45101,10 @@ void main() {
       root.userData.studioSequence={kind:'images',name:folderName,frames,fps:24,meshId:mesh.uuid,loop:true,playing:false,time:0};
       const runtime=await ensureSequenceRuntime(root);
       mesh.geometry.dispose();mesh.geometry=new PlaneGeometry(4,4*runtime.canvas.height/runtime.canvas.width);
-      root.quaternion.copy(camera.quaternion);scene.add(root);root.updateMatrixWorld(true);
+      root.quaternion.identity();scene.add(root);root.updateMatrixWorld(true);
       const object={id:root.uuid,name:folderName,root,bones:[],rest:new Map(),clips:[],mixer:new AnimationMixer(root),bound:false,selected:null,customRig:null,poseLibrary:[],keyframes:new Map()};
       objects.push(object);object.keyframes.set(1,{pose:capturePose(object)});
-      refreshObjectSelect();selectObject(object.id,true);setMode('moveObject');syncObjectInspector();
+      refreshObjectSelect();selectObject(object.id,true);frame();setMode('moveObject');syncObjectInspector();
       status(frames.length+' imagens importadas em ordem numérica como um objeto 3D.');
     }catch(error){if(root)disposeTree(root);status('Falha ao importar a sequência: '+error.message)}
     finally{$('sequenceFiles').value='';syncSequenceUI()}
@@ -46138,9 +46193,11 @@ void main() {
 
   // Cinema Morph em aba independente. Mantém a mesma instância e os mesmos listeners.
   $('studioMorphMount').appendChild($('studioMorphPanel'));
-  var tabIds = ["Poses", "Shapes", "Expressions", "Face", "Hand", "Scene", "VFX", "Sequences", "Objects", "Morph"];
+  var tabIds = ["Poses", "Shapes", "Expressions", "Face", "Hand", "Scene", "VFX", "Sequences", "Images", "Objects", "Morph"];
   for (const name of tabIds) {
     $("tab" + name).onclick = () => {
+      if(name!=="Images"&&imageEditEnabled)imageSetEdit(false);
+      if(name==="Images")syncImagePanel();
       if (name === "Sequences") syncSequenceUI();
       if (name === "Morph") syncStudioMorphUI();
       if (name === "Shapes") refreshShapes();
@@ -48258,7 +48315,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
         for(const item of shapeData(owner).items)shapeSet(item,baseline.shapes[item.id]??0,owner);
       }
     }
-    if(track.id===sceneVfxTrack.id){studioVfxCurveCache=new WeakMap();stashStudioVfxBank();vfxLastDraw=0;}
+    if(track.id===sceneVfxTrack.id){if(!track.keyframes.size){vfxState=JSON.parse(JSON.stringify(vfxDefaultState));vfxApi.setState(vfxState,true);}studioVfxCurveCache=new WeakMap();stashStudioVfxBank();vfxLastDraw=0;}
     selectedTimeFrames.clear();
     // Deleting a marker must update the actual scene, not only the timeline UI.
     setTimelineFrame(currentFrame,true);
@@ -50523,7 +50580,7 @@ ${notes}`;
       stop();
       saveActiveObject();
       document.querySelectorAll("header details").forEach((d) => d.open = false);
-      const saved = { camera: captureCamera(), frame: currentFrame, pixelRatio: renderer.getPixelRatio(), poses: objects.map((o) => capturePose(o)), helpers: scene.children.filter((o) => o === rigView || o === objectGizmoHelper || o === faceGuides || o.type === "GridHelper" || o.type === "AxesHelper").map((o) => [o, o.visible]) };
+      const saved = { camera: captureCamera(), frame: currentFrame, pixelRatio: renderer.getPixelRatio(), poses: objects.map((o) => capturePose(o)), helpers: scene.children.filter((o) => o === imageEditOverlay || o === rigView || o === objectGizmoHelper || o === faceGuides || o.type === "GridHelper" || o.type === "AxesHelper").map((o) => [o, o.visible]) };
       state.saved = saved;
       exportState = state;
       controls.enabled = false;
@@ -51996,21 +52053,41 @@ ${notes}`;
   var vfxMoveGizmo=new TransformControls(camera,renderer.domElement);
   vfxMoveGizmo.setMode("translate");vfxMoveGizmo.setSpace("world");vfxMoveGizmo.setSize(.85);
   var vfxMoveHelper=vfxMoveGizmo.getHelper();scene.add(vfxMoveHelper);
-  var vfxMoveSubject=null,vfxMoveStart=null;
+  var vfxMoveSubject=null,vfxMoveStart=null,vfxMovePointerId=null,vfxMoveFinishing=false;
+  function finishVfxPlacementDrag(){
+    if(!vfxMoveGizmo||vfxMoveFinishing)return;
+    vfxMoveFinishing=true;
+    try{
+      renderer.domElement.removeEventListener('pointermove',vfxMoveGizmo._onPointerMove);
+      if(vfxMoveGizmo.dragging)vfxMoveGizmo.pointerUp(null);
+      vfxMoveGizmo.dragging=false;vfxMoveGizmo.axis=null;vfxMoveStart=null;
+      const pointerId=vfxMovePointerId;vfxMovePointerId=null;
+      if(pointerId!==null&&renderer.domElement.hasPointerCapture(pointerId))renderer.domElement.releasePointerCapture(pointerId);
+      controls.enabled=true;vfxLastDraw=0;
+    }finally{vfxMoveFinishing=false;}
+  }
+  renderer.domElement.addEventListener('pointerdown',event=>{if(vfxMoveSubject&&event.button===0)vfxMovePointerId=event.pointerId;},true);
+  renderer.domElement.addEventListener('pointercancel',finishVfxPlacementDrag);
+  renderer.domElement.addEventListener('lostpointercapture',()=>{if(vfxMoveGizmo.dragging||vfxMoveStart)finishVfxPlacementDrag();});
+  window.addEventListener('pointerup',event=>{if(vfxMovePointerId===event.pointerId)finishVfxPlacementDrag();});
+  window.addEventListener('blur',finishVfxPlacementDrag);
+  renderer.domElement.addEventListener('pointermove',event=>{if(vfxMoveGizmo.dragging&&event.buttons===0)finishVfxPlacementDrag();},true);
   function clearVfxPlacement(){
     if(!vfxMoveGizmo)return;
+    finishVfxPlacementDrag();
     vfxMoveSubject=null;vfxMoveGizmo.detach();vfxMoveGizmo.enabled=false;vfxMoveHelper.visible=false;
   }
   function selectVfxPlacement(subject,focus=false,mode){
     if(!focus){if(vfxMoveSubject&&(vfxMoveSubject.key!==subject?.key||vfxMoveSubject.bankId!==(studioVfxTargetId||"__scene__")))clearVfxPlacement();return}
     if(!subject||subject.internal){clearVfxPlacement();return}
-    if(vfxMoveGizmo.dragging)return;
+    if(vfxMoveGizmo.dragging||vfxMoveStart)finishVfxPlacementDrag();
     const bank=studioVfxTargetId||"__scene__";
     if(bank==="__scene__"){clearVfxPlacement();return;}
     if(!studioVfxBinding(subject.key,bank)?.position3D)studioVfxPlacement(subject,{});
     if(focus)setMode("orbit");
     vfxMoveSubject={...subject,bankId:bank};
     const binding=studioVfxBinding(subject.key,bank);
+    if(!binding){clearVfxPlacement();status('Selecione um efeito válido para mover.');return;}
     if(mode)vfxMoveGizmo.setMode(mode);
     vfxMoveGizmo.setSpace(vfxMoveGizmo.mode==='translate'?'world':'local');
     vfxMoveHandle.position.copy(studioVfxWorld(binding));
@@ -52027,6 +52104,7 @@ ${notes}`;
   }
   vfxMoveGizmo.addEventListener("dragging-changed",e=>{
     controls.enabled=!e.value;
+    if(e.value&&!vfxMoveSubject){vfxMoveGizmo.dragging=false;controls.enabled=true;return;}
     if(e.value){pauseTimeline();vfxMoveStart={billboard:studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId)?.billboard,scale:vfxMoveHandle.scale.clone(),scale3D:studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId)?.scale3D?.slice(),position:vfxMoveHandle.position.clone(),quaternion:vfxMoveHandle.quaternion.clone(),rotation3D:studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId)?.rotation3D?.slice()}}
     else{vfxMoveStart=null;vfxApi?.syncFollowUI()}
   });
@@ -52047,7 +52125,7 @@ ${notes}`;
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!vfxMoveStart){clearVfxPlacement();return}if(e.key==="Escape"&&vfxMoveStart){
     const saved=vfxMoveStart;vfxMoveGizmo.reset();vfxMoveHandle.position.copy(saved.position);vfxMoveHandle.quaternion.copy(saved.quaternion);vfxMoveHandle.scale.copy(saved.scale);applyVfxMoveHandle();
     const binding=studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId);binding.rotation3D=saved.rotation3D;binding.scale3D=saved.scale3D;binding.billboard=saved.billboard;
-    controls.enabled=true;vfxApi?.syncFollowUI();
+    finishVfxPlacementDrag();controls.enabled=true;vfxApi?.syncFollowUI();
   }},true);
 
   var followPinView = new Group();
@@ -52806,18 +52884,44 @@ ${notes}`;
     }
     visit(state);
   }
+  function studioStateWithoutEffect(state,effect){
+    if(!state)return state;
+    // Replace snapshots instead of mutating objects cached by timelineChannels.
+    const next=JSON.parse(JSON.stringify(state));
+    if(effect.kind==='particle')stripStudioRemovedParticle(next,effect.id);
+    else {
+      const field=effect.kind==='fire'?'fires':'lights';
+      const visit=node=>{
+        if(!node||typeof node!=='object')return;
+        if(Array.isArray(node[field]))node[field]=node[field].filter(item=>item.id!==effect.id);
+        for(const value of Object.values(node))if(value&&typeof value==='object')visit(value);
+      };visit(next);
+    }
+    if(Array.isArray(next._vfxChannels))next._vfxChannels=next._vfxChannels.filter(group=>group!==effect.kind+':'+effect.id);
+    return next;
+  }
+  function studioPruneRemovedEffectKeys(keys,state){
+    const hasEffect=snapshot=>Object.entries(vfxApi.timelineChannels(snapshot)).some(([group,value])=>group!=='master'&&group!=='mask'&&!vfxApi.neutralTimelineGroup(group,value));
+    // A bank with no surviving effect must not leave empty timeline markers.
+    if(!hasEffect(state)&&!keys.some(([,snapshot])=>hasEffect(snapshot)))return [];
+    return keys.filter(([,snapshot])=>{
+      if(!Array.isArray(snapshot._vfxChannels))return true;
+      return snapshot._vfxChannels.some(group=>group!=='particles:base'||snapshot.config?.particles?.layers?.length);
+    });
+  }
   function removeStudioVfxEffect(effect){
-    if(effect.kind!=='particle'||!effect.id)return;
+    if(!['particle','fire','light'].includes(effect.kind)||!effect.id)return;
     pauseTimeline();const bankId=studioVfxTargetId||'__scene__';
-    vfxState=vfxApi.capture();stripStudioRemovedParticle(vfxState,effect.id);
-    for(const state of sceneVfxTrack.keyframes.values())stripStudioRemovedParticle(state,effect.id);
+    vfxState=studioStateWithoutEffect(vfxApi.capture(),effect);
+    sceneVfxTrack.keyframes=new Map(studioPruneRemovedEffectKeys([...sceneVfxTrack.keyframes].map(([frame,state])=>[frame,studioStateWithoutEffect(state,effect)]),vfxState));
     const bank=studioVfxBanks[bankId];
-    if(bank){stripStudioRemovedParticle(bank.state,effect.id);for(const [,state]of bank.keys||[])stripStudioRemovedParticle(state,effect.id);}
-    delete studioVfxLayerFollows[studioVfxFollowKey(bankId,'particle:'+effect.id)];
-    if(vfxMoveSubject?.key==='particle:'+effect.id)clearVfxPlacement();
+    if(bank){bank.state=studioStateWithoutEffect(bank.state,effect);bank.keys=(bank.keys||[]).map(([frame,state])=>[frame,studioStateWithoutEffect(state,effect)]);}
+    delete studioVfxLayerFollows[studioVfxFollowKey(bankId,effect.kind+':'+effect.id)];
+    if(vfxMoveSubject?.key===effect.kind+':'+effect.id)clearVfxPlacement();
     studioVfxCurveCache=new WeakMap();vfxLastDraw=0;
     vfxApi.setState(vfxState,true);stashStudioVfxBank();renderTimeline();
-    status('Partícula removida do efeito e dos keyframes deste alvo.');
+    selectedTimeFrames.clear();
+    status('Efeito excluído e seus keyframes removidos. Keyframes compartilhados com outros efeitos foram preservados.');
   }
   function mountStudioVfx() {
     vfxApi = window.AlexandreStudioVFX.mount($("studioVfxHost"), { THREE: three_module_exports, removeEffect: removeStudioVfxEffect, placement: studioVfxPlacement, selectPlacement: selectVfxPlacement, followAnchor: studioFollowAnchor, followInfo: studioVfxFollowInfo, followPick: (effect) => {
@@ -53282,9 +53386,11 @@ ${notes}`;
   refreshObjectSelect();
   $("file").onchange = (e) => load(e.target.files[0]);
   vp.ondragover = (e) => e.preventDefault();
-  vp.ondrop = (e) => {
+  vp.ondrop = async e => {
     e.preventDefault();
-    load(e.dataTransfer.files[0]);
+    const files=Array.from(e.dataTransfer.files),images=files.filter(studioIsPlaneImage);
+    if(images.length)await importImagePlanes(images);
+    for(const file of files.filter(file=>!studioIsPlaneImage(file)))await load(file);
   };
   $("play").onclick = () => {
     if (playing) {
@@ -54142,12 +54248,13 @@ ${notes}`;
   };
 
   function syncContextTools(name) {
-    if (!name) name = ["Poses","Shapes","Expressions","Face","Scene","VFX","Sequences","Objects"].find(tab => !$("panel"+tab).hidden) || "Objects";
-    const label = {Sequences:"Sequências",Shapes:"Shape Keys",Objects:"Objetos",Poses:"Poses e ossos",Expressions:"Expressões",Face:"FaceRig",Scene:"Cena",VFX:"VFX"}[name];
+    if (!name) name = ["Poses","Shapes","Expressions","Face","Scene","VFX","Sequences","Images","Objects"].find(tab => !$("panel"+tab).hidden) || "Objects";
+    const label = {Images:"Imagens",Sequences:"Sequências",Shapes:"Shape Keys",Objects:"Objetos",Poses:"Poses e ossos",Expressions:"Expressões",Face:"FaceRig",Scene:"Cena",VFX:"VFX"}[name];
     $("inspectorContext").textContent = label;
     for (const id of ["orbit","frame","objectMove","objectScale","objectRotate","objectVisibility","duplicateSceneObject","deleteSceneObject","toolPose","showBones","followBones","unfollowBones","viewportGridToggle"]) $(id).hidden = false;
   }
   function syncObjectInspector() {
+    if(typeof imageEditHistory!=="undefined")syncImagePanel();
     if(typeof baseGrabHistory!=="undefined")updateBaseGrabButtons();
     syncStudioRenameField();
     syncSequenceUI();
@@ -54498,6 +54605,7 @@ ${notes}`;
     updateFaceGuides();
     if (!timelinePlaying && activeObject?.faceRig) applyFaceRig(activeObject);
     updateViewGizmo();
+    updateImageEditor();
     renderStudioFrame((currentFrame - 1) / 24, false);
   });
 
@@ -54566,6 +54674,271 @@ ${notes}`;
   $('studioObjectNameSave').onclick=saveStudioObjectName;$('studioObjectName').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();saveStudioObjectName()}};
   syncStudioRenameField();
 
+
+  // Image planes retain a quad grid and their original UVs while being folded.
+  function imageGridInfo(mesh){
+    const saved=mesh.geometry.userData.studioImageGrid;
+    if(saved)return saved;
+    const p=mesh.geometry.parameters;
+    if(mesh.geometry.type==='PlaneGeometry'&&p){
+      const grid={x:p.widthSegments||1,y:p.heightSegments||1};
+      mesh.geometry.userData.studioImageGrid=grid;return grid;
+    }
+    return null;
+  }
+  function imageGridGeometry(positions,uvs,x,y){
+    const geometry=new BufferGeometry(),indices=[];
+    for(let row=0;row<y;row++)for(let col=0;col<x;col++){
+      const a=row*(x+1)+col,b=a+x+1,c=b+1,d=a+1;
+      indices.push(a,b,d,b,c,d);
+    }
+    geometry.setAttribute('position',new Float32BufferAttribute(positions,3));
+    geometry.setAttribute('uv',new Float32BufferAttribute(uvs,2));
+    geometry.setIndex(indices);geometry.userData.studioImageGrid={x,y};
+    geometry.computeVertexNormals();geometry.computeBoundingBox();geometry.computeBoundingSphere();
+    return geometry;
+  }
+  function imageSubdivideGeometry(mesh){
+    const old=mesh.geometry,grid=imageGridInfo(mesh);if(!grid)throw new Error('Este plano não tem uma grade editável.');
+    if(grid.x>=128||grid.y>=128)throw new Error('Limite de 128 divisões por lado atingido.');
+    const nx=grid.x*2,ny=grid.y*2,positions=[],uvs=[];
+    const p=old.attributes.position,uv=old.attributes.uv;
+    for(let row=0;row<=ny;row++)for(let col=0;col<=nx;col++){
+      const sx=col/2,sy=row/2,c=Math.min(Math.floor(sx),grid.x-1),r=Math.min(Math.floor(sy),grid.y-1),u=sx-c,v=sy-r;
+      const ids=[r*(grid.x+1)+c,r*(grid.x+1)+c+1,(r+1)*(grid.x+1)+c,(r+1)*(grid.x+1)+c+1];
+      const factors=[(1-u)*(1-v),u*(1-v),(1-u)*v,u*v];
+      for(let k=0;k<3;k++)positions.push(ids.reduce((n,id,i)=>n+p.array[id*3+k]*factors[i],0));
+      for(let k=0;k<2;k++)uvs.push(ids.reduce((n,id,i)=>n+uv.array[id*2+k]*factors[i],0));
+    }
+    return imageGridGeometry(positions,uvs,nx,ny);
+  }
+  function imageUnsubdivideGeometry(mesh){
+    const grid=imageGridInfo(mesh);
+    if(!grid||grid.x<2||grid.y<2||grid.x%2||grid.y%2)throw new Error('Não há subdivisão para desfazer.');
+    const x=grid.x/2,y=grid.y/2,p=mesh.geometry.attributes.position,uv=mesh.geometry.attributes.uv,positions=[],uvs=[];
+    // Subdivision keeps the original vertices at the even rows and columns.
+    for(let row=0;row<=y;row++)for(let col=0;col<=x;col++){
+      const i=row*2*(grid.x+1)+col*2;
+      positions.push(p.getX(i),p.getY(i),p.getZ(i));uvs.push(uv.getX(i),uv.getY(i));
+    }
+    return imageGridGeometry(positions,uvs,x,y);
+  }
+  function imageCreateMirroredRoot(source,axis='X',center=new Vector3()){
+    source.updateWorldMatrix(true,true);
+    const component=axis.toLowerCase(),reflection=new Matrix4().makeScale(axis==='X'?-1:1,axis==='Y'?-1:1,axis==='Z'?-1:1);
+    reflection.setPosition(new Vector3(axis==='X'?2*center.x:0,axis==='Y'?2*center.y:0,axis==='Z'?2*center.z:0));
+    const parentWorld=source.parent?source.parent.matrixWorld.clone():new Matrix4();
+    const copy=source.clone(true);
+    // Mirror the root position, then bake the exact world reflection into its mesh.
+    // This also works for rotated planes inside rotated/scaled folders.
+    const position=source.getWorldPosition(new Vector3()).applyMatrix4(reflection).applyMatrix4(parentWorld.clone().invert());
+    copy.position.copy(position);copy.updateMatrixWorld(true);
+    const originals=[];source.traverse(node=>originals.push(node));let index=0;
+    copy.traverse(node=>{
+      const original=originals[index++];
+      if(node.geometry){
+        const world=parentWorld.clone().multiply(node.matrixWorld);
+        const transform=world.invert().multiply(reflection).multiply(original.matrixWorld);
+        node.geometry=node.geometry.clone();node.geometry.applyMatrix4(transform);
+        const triangles=node.geometry.index;
+        if(triangles){for(let i=0;i<triangles.count;i+=3){const first=triangles.getX(i);triangles.setX(i,triangles.getX(i+1));triangles.setX(i+1,first);}triangles.needsUpdate=true;}
+        node.geometry.computeVertexNormals();node.geometry.computeBoundingBox();node.geometry.computeBoundingSphere();
+      }
+      if(node.material){
+        const cloneMaterial=material=>{const next=material.clone();for(const [key,value]of Object.entries(next))if(value?.isTexture)next[key]=value.clone();return next;};
+        node.material=Array.isArray(node.material)?node.material.map(cloneMaterial):cloneMaterial(node.material);
+      }
+    });
+    copy.userData.studioImageMirror={axis,center:center.toArray(),sourceId:source.uuid};
+    copy.updateMatrixWorld(true);return copy;
+  }
+  function imageGridEdges(grid){
+    const edges=[];
+    for(let row=0;row<=grid.y;row++)for(let col=0;col<grid.x;col++){const a=row*(grid.x+1)+col;edges.push([a,a+1]);}
+    for(let row=0;row<grid.y;row++)for(let col=0;col<=grid.x;col++){const a=row*(grid.x+1)+col;edges.push([a,a+grid.x+1]);}
+    return edges;
+  }
+  function imageGridFace(grid,id){const row=Math.floor(id/grid.x),col=id%grid.x,a=row*(grid.x+1)+col;return [a,a+grid.x+1,a+grid.x+2,a+1];}
+  var imageEditEnabled=false,imageEditMesh=null,imageEditSelection=new Set(),imageEditStroke=null,imageEditHistory=new WeakMap();
+  var imageEditOverlay=new Group();imageEditOverlay.name='ImageEditHelpers';imageEditOverlay.userData.studioImageEditHelper=true;imageEditOverlay.matrixAutoUpdate=false;scene.add(imageEditOverlay);
+  function imagePlaneMesh(object=activeObject){return object?.root.userData.studioImagePlane?object.root.children.find(node=>node.isMesh):null;}
+  function imagePushUndo(mesh){
+    const stack=imageEditHistory.get(mesh)||[];stack.push(mesh.geometry.clone());
+    if(stack.length>20)stack.shift().dispose();imageEditHistory.set(mesh,stack);
+  }
+  function imageReplaceGeometry(mesh,geometry){const old=mesh.geometry;mesh.geometry=geometry;old.dispose();imageRefreshOverlay();syncImagePanel();vfxLastDraw=0;}
+  function imageGeometryChanged(mesh){
+    mesh.geometry.attributes.position.needsUpdate=true;mesh.geometry.computeVertexNormals();mesh.geometry.computeBoundingBox();mesh.geometry.computeBoundingSphere();
+    imageRefreshOverlay();vfxLastDraw=0;
+  }
+  function imageClearOverlay(){
+    for(const node of [...imageEditOverlay.children]){imageEditOverlay.remove(node);node.geometry?.dispose();node.material?.dispose();}
+  }
+  function imageRefreshOverlay(){
+    imageClearOverlay();const mesh=imageEditMesh;
+    if(!imageEditEnabled||!mesh)return;
+    const grid=imageGridInfo(mesh),p=mesh.geometry.attributes.position;if(!grid)return;
+    const lines=[],selectedLines=[],selectedPoints=[];
+    for(const [a,b]of imageGridEdges(grid)){
+      const dest=imageEditSelection.has(a)&&imageEditSelection.has(b)?selectedLines:lines;
+      for(const i of [a,b])dest.push(p.getX(i),p.getY(i),p.getZ(i));
+    }
+    for(const i of imageEditSelection)if(i<p.count)selectedPoints.push(p.getX(i),p.getY(i),p.getZ(i));
+    function line(data,color){const g=new BufferGeometry();g.setAttribute('position',new Float32BufferAttribute(data,3));const node=new LineSegments(g,new LineBasicMaterial({color,depthTest:false,transparent:true,opacity:.8}));node.renderOrder=990;node.frustumCulled=false;imageEditOverlay.add(node);}
+    line(lines,0xa4a9c2);line(selectedLines,0xffbd59);
+    function points(attribute,color,size){const g=new BufferGeometry();g.setAttribute('position',attribute);const node=new Points(g,new PointsMaterial({color,size,sizeAttenuation:false,depthTest:false}));node.renderOrder=991;node.frustumCulled=false;imageEditOverlay.add(node);}
+    points(p.clone(),0xdadfec,5);points(new Float32BufferAttribute(selectedPoints,3),0xffad35,9);
+  }
+  function imageSetEdit(enabled){
+    imageFinishStroke(null,true);
+    imageEditEnabled=!!enabled&&!!imagePlaneMesh();imageEditMesh=imageEditEnabled?imagePlaneMesh():null;imageEditSelection.clear();
+    if(imageEditEnabled){pauseTimeline();setMode('orbit');shapeGrab=false;baseGrabMode=false;faceMarking=false;objectGizmo.detach();}
+    imageRefreshOverlay();syncImagePanel();
+  }
+  function updateImageEditor(){
+    if(!imageEditOverlay)return;
+    const valid=imageEditEnabled&&!$('panelImages').hidden&&imageEditMesh===imagePlaneMesh()&&editing==='orbit'&&!timelinePlaying&&!exportState;
+    imageEditOverlay.visible=!!valid&&studioTreeVisible(imageEditMesh);
+    if(valid){imageEditMesh.updateWorldMatrix(true,false);imageEditOverlay.matrix.copy(imageEditMesh.matrixWorld);imageEditOverlay.matrixWorldNeedsUpdate=true;}
+    else if(imageEditEnabled){imageSetEdit(false);}
+  }
+  function syncImagePanel(){
+    if(!$('imageObjectSelect'))return;
+    const list=objects.filter(object=>object.root.userData.studioImagePlane),select=$('imageObjectSelect');
+    select.replaceChildren(...list.map(object=>new Option(object.name,object.id)));
+    if(!list.length)select.add(new Option('Importe uma imagem',''));
+    select.value=activeObject?.root.userData.studioImagePlane?activeObject.id:'';
+    const mesh=imagePlaneMesh(),grid=mesh?imageGridInfo(mesh):null;
+    const reference=$('imageMirrorReference'),previous=reference.value;
+    const candidates=list.filter(object=>object!==activeObject&&!object.root.userData.studioImageMirror);
+    reference.replaceChildren(new Option('Centro da cena (0, 0, 0)','__scene__'),...candidates.map(object=>new Option(object.name,object.id)));
+    reference.value=Array.from(reference.options).some(option=>option.value===previous)?previous:(candidates[0]?.id||'__scene__');
+    $('imageGridInfo').textContent=grid?grid.x+' × '+grid.y+' divisions · '+mesh.geometry.attributes.position.count+' vértices':'Selecione um plano de imagem.';
+    $('imageSelectionInfo').textContent=imageEditSelection.size+' vertices selecionados';
+    $('imageEditToggle').textContent=imageEditEnabled?'Sair da edição':'Editar malha';$('imageEditToggle').classList.toggle('active',imageEditEnabled);
+    for(const id of ['imageSubdivide','imageEditToggle','imageSelectAll','imageClearSelection','imageMirror'])$(id).disabled=!mesh;
+    $('imageSubdivide').disabled=!grid||grid.x>=128||grid.y>=128;
+    $('imageUndo').disabled=!mesh||!imageEditHistory.get(mesh)?.length;
+    $('imageUnsubdivide').disabled=!grid||grid.x<2||grid.y<2||grid.x%2!==0||grid.y%2!==0;
+  }
+  function imageSelectionCenter(mesh){
+    mesh.updateWorldMatrix(true,false);const center=new Vector3(),p=mesh.geometry.attributes.position;
+    for(const id of imageEditSelection)center.add(new Vector3().fromBufferAttribute(p,id).applyMatrix4(mesh.matrixWorld));
+    return center.divideScalar(Math.max(1,imageEditSelection.size));
+  }
+  function imageTranslateSelection(mesh,initial,worldDelta){
+    mesh.updateWorldMatrix(true,false);const inverse=mesh.matrixWorld.clone().invert();
+    const delta=new Vector3();
+    // Transform a displacement without normalizing it (nonuniform object scales work).
+    delta.copy(worldDelta).applyMatrix4(inverse).sub(new Vector3().applyMatrix4(inverse));
+    const p=mesh.geometry.attributes.position;
+    for(const id of imageEditSelection)p.setXYZ(id,initial[id*3]+delta.x,initial[id*3+1]+delta.y,initial[id*3+2]+delta.z);
+    imageGeometryChanged(mesh);
+  }
+  function imagePickComponent(event){
+    const mesh=imageEditMesh,p=mesh.geometry.attributes.position,grid=imageGridInfo(mesh),rect=renderer.domElement.getBoundingClientRect();
+    mesh.updateWorldMatrix(true,false);camera.updateMatrixWorld(true);
+    const type=$('imageSelectType').value;
+    if(type==='face'){
+      const r=new Raycaster();r.setFromCamera(new Vector2((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1),camera);
+      const hit=r.intersectObject(mesh,false)[0];return hit?imageGridFace(grid,Math.floor(hit.faceIndex/2)):null;
+    }
+    const projected=[];
+    for(let i=0;i<p.count;i++){
+      const v=new Vector3().fromBufferAttribute(p,i).applyMatrix4(mesh.matrixWorld).project(camera);
+      projected.push({x:(v.x+1)*rect.width/2+rect.left,y:(1-v.y)*rect.height/2+rect.top,visible:v.z>=-1&&v.z<=1});
+    }
+    let best=type==='vertex'?12:10,chosen=null;
+    if(type==='vertex')for(let i=0;i<projected.length;i++){
+      const v=projected[i],d=Math.hypot(v.x-event.clientX,v.y-event.clientY);if(v.visible&&d<best){best=d;chosen=[i];}
+    }
+    else for(const [a,b]of imageGridEdges(grid)){
+      const u=projected[a],v=projected[b];if(!u.visible||!v.visible)continue;
+      const dx=v.x-u.x,dy=v.y-u.y,t=MathUtils.clamp(((event.clientX-u.x)*dx+(event.clientY-u.y)*dy)/Math.max(dx*dx+dy*dy,1e-9),0,1);
+      const d=Math.hypot(event.clientX-u.x-t*dx,event.clientY-u.y-t*dy);if(d<best){best=d;chosen=[a,b];}
+    }
+    return chosen;
+  }
+  function imageEditPointerDown(event){
+    if(!imageEditEnabled||$('panelImages').hidden||event.button!==0||event.altKey||exportState||studioSaving)return;
+    const hit=imagePickComponent(event);if(!hit)return;
+    event.preventDefault();event.stopImmediatePropagation();down=null;
+    if(event.shiftKey){const remove=hit.every(id=>imageEditSelection.has(id));for(const id of hit)if(remove)imageEditSelection.delete(id);else imageEditSelection.add(id);}
+    else if(!hit.every(id=>imageEditSelection.has(id))){imageEditSelection=new Set(hit);}
+    imageRefreshOverlay();syncImagePanel();if(!imageEditSelection.size)return;
+    pauseTimeline();const center=imageSelectionCenter(imageEditMesh),plane=new Plane().setFromNormalAndCoplanarPoint(camera.getWorldDirection(new Vector3()),center),raycast=new Raycaster(),rect=renderer.domElement.getBoundingClientRect();
+    raycast.setFromCamera(new Vector2((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1),camera);
+    const start=raycast.ray.intersectPlane(plane,new Vector3());if(!start)return;
+    imageEditStroke={id:event.pointerId,x:event.clientX,y:event.clientY,mesh:imageEditMesh,initial:imageEditMesh.geometry.attributes.position.array.slice(),plane,start,center,axis:$('imageDragAxis').value,moved:false};
+    controls.enabled=false;renderer.domElement.setPointerCapture(event.pointerId);
+  }
+  function imageEditPointerMove(event){
+    const stroke=imageEditStroke;if(!stroke||event.pointerId!==stroke.id)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    if(!stroke.moved&&Math.hypot(event.clientX-stroke.x,event.clientY-stroke.y)<3)return;
+    if(!stroke.moved){imagePushUndo(stroke.mesh);stroke.moved=true;}
+    const rect=renderer.domElement.getBoundingClientRect(),raycast=new Raycaster(),delta=new Vector3();
+    if(stroke.axis==='free'){
+      raycast.setFromCamera(new Vector2((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1),camera);
+      const hit=raycast.ray.intersectPlane(stroke.plane,new Vector3());if(!hit)return;delta.copy(hit).sub(stroke.start);
+    }else{
+      const axis=new Vector3(stroke.axis==='X'?1:0,stroke.axis==='Y'?1:0,stroke.axis==='Z'?1:0);
+      const origin=stroke.center.clone().project(camera),end=stroke.center.clone().add(axis).project(camera);
+      const dx=(end.x-origin.x)*rect.width/2,dy=-(end.y-origin.y)*rect.height/2,len=dx*dx+dy*dy;
+      const amount=len>16?((event.clientX-stroke.x)*dx+(event.clientY-stroke.y)*dy)/len:-(event.clientY-stroke.y)*2*camera.position.distanceTo(stroke.center)*Math.tan(camera.fov*Math.PI/360)/(rect.height*camera.zoom);
+      delta.copy(axis).multiplyScalar(amount);
+    }
+    imageTranslateSelection(stroke.mesh,stroke.initial,delta);
+  }
+  function imageFinishStroke(event,cancel=false){
+    const stroke=imageEditStroke;if(!stroke||event&&event.pointerId!==stroke.id)return;
+    imageEditStroke=null;if(event){event.preventDefault();event.stopImmediatePropagation();}
+    if(cancel&&stroke.moved){stroke.mesh.geometry.attributes.position.array.set(stroke.initial);imageGeometryChanged(stroke.mesh);imageEditHistory.get(stroke.mesh)?.pop()?.dispose();}
+    if(renderer.domElement.hasPointerCapture(stroke.id))renderer.domElement.releasePointerCapture(stroke.id);
+    controls.enabled=true;down=null;syncImagePanel();
+  }
+  // A window capture listener owns component editing before the viewport tools.
+  window.addEventListener('pointerdown',event=>{if(event.target===renderer.domElement)imageEditPointerDown(event);},true);
+  window.addEventListener('pointermove',imageEditPointerMove,true);
+  window.addEventListener('pointerup',event=>imageFinishStroke(event),true);
+  window.addEventListener('pointercancel',event=>imageFinishStroke(event,true),true);
+  window.addEventListener('blur',()=>imageFinishStroke(null,true));
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&imageEditStroke){event.preventDefault();event.stopImmediatePropagation();imageFinishStroke(null,true);}},true);
+  $('imageMirror').onclick=()=>{
+    const source=activeObject;if(!imagePlaneMesh(source)||exportState||studioSaving)return;
+    imageSetEdit(false);pauseTimeline();commitCameraEdit();finishDrag(false);stop();saveActiveObject();
+    const axis=$('imageMirrorAxis').value,reference=objects.find(object=>object.id===$('imageMirrorReference').value),center=new Vector3();
+    if(reference){reference.root.updateWorldMatrix(true,false);center.copy(studioObjectPivot(reference.root)).applyMatrix4(reference.root.matrixWorld);}
+    const root=imageCreateMirroredRoot(source.root,axis,center);
+    let name=source.name+' · espelhada',number=2;while(objects.some(object=>object.name===name))name=source.name+' · espelhada '+number++;
+    root.name=name;
+    const object={id:root.uuid,name,root,bones:[],rest:new Map(),clips:[],mixer:new AnimationMixer(root),bound:false,selected:null,customRig:null,poseLibrary:[],basePoseId:null,keyframes:new Map()};
+    object.keyframes.set(1,{pose:capturePose(object)});
+    (source.root.parent||scene).add(root);objects.push(object);
+    refreshObjectSelect();selectObject(object.id,true);setMode('moveObject');syncObjectInspector();syncImagePanel();vfxLastDraw=0;
+    status('Cópia espelhada no eixo '+axis+' da cena, usando '+(reference?reference.name:'o centro da cena')+' como centro.');
+  };
+
+  $('imageObjectSelect').onchange=event=>{imageSetEdit(false);selectObject(event.target.value,true);syncImagePanel();};
+  $('imageEditToggle').onclick=()=>imageSetEdit(!imageEditEnabled);
+  $('imageSelectType').onchange=()=>{imageEditSelection.clear();imageRefreshOverlay();syncImagePanel();};
+  $('imageSelectAll').onclick=()=>{if(!imageEditEnabled)imageSetEdit(true);const p=imageEditMesh?.geometry.attributes.position;if(p)imageEditSelection=new Set(Array.from({length:p.count},(_,i)=>i));imageRefreshOverlay();syncImagePanel();};
+  $('imageClearSelection').onclick=()=>{imageEditSelection.clear();imageRefreshOverlay();syncImagePanel();};
+  $('imageSubdivide').onclick=()=>{
+    const mesh=imagePlaneMesh();if(!mesh||exportState||studioSaving)return;
+    imageFinishStroke(null);pauseTimeline();
+    try{const geometry=imageSubdivideGeometry(mesh);imagePushUndo(mesh);imageEditSelection.clear();imageReplaceGeometry(mesh,geometry);if(!imageEditEnabled)imageSetEdit(true);status('Grade subdividida em dobro. A textura e as dobras foram preservadas.');}catch(error){status(error.message);}
+  };
+  $('imageUnsubdivide').onclick=()=>{
+    const mesh=imagePlaneMesh();if(!mesh||exportState||studioSaving)return;
+    imageFinishStroke(null,true);pauseTimeline();
+    try{const geometry=imageUnsubdivideGeometry(mesh);imagePushUndo(mesh);imageEditSelection.clear();imageReplaceGeometry(mesh,geometry);status('Subdivisão desfeita: grade reduzida pela metade.');}catch(error){status(error.message);}
+  };
+  $('imageUndo').onclick=()=>{
+    const mesh=imagePlaneMesh();if(!mesh||exportState||studioSaving)return;imageFinishStroke(null,true);
+    const geometry=imageEditHistory.get(mesh)?.pop();if(geometry){imageEditSelection.clear();imageReplaceGeometry(mesh,geometry);}
+  };
+  syncImagePanel();
 
   syncSliders();
   updateEditingButtons();
