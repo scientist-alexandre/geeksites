@@ -5506,13 +5506,45 @@ hit.buckets=buckets;hit.selected=selected;return hit;}
 function grabEnsureRest(hit){if(hit.imported)return;for(const a of hit.adapters)if(a.items.length&&!a.g.grabRest){a.g.grabRest=new Float32Array(a.count*3);for(let i=0;i<a.count;i++){const p=a.g.data;a.g.grabRest[i*3]=p[i*5];a.g.grabRest[i*3+1]=p[i*5+1];a.g.grabRest[i*3+2]=p[i*5+2];}}}
 function grabNormals(hit){for(const sum of hit.buckets.values())sum.fill(0);for(const a of hit.adapters)for(const tri of a.faces){const p=tri.map(i=>a.read(i)),u=p[1].map((x,i)=>x-p[0][i]),v=p[2].map((x,i)=>x-p[0][i]),n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];for(const i of tri){const item=a.selected.get(i);if(item){const sum=hit.buckets.get(item.key);for(let k=0;k<3;k++)sum[k]+=n[k];}}}for(const a of hit.adapters)for(const item of a.items){const n=hit.buckets.get(item.key),length=Math.hypot(...n);a.writeNormal(item.i,length>1e-12?n.map(x=>x/length):item.n);}}
 function grabRedraw(hit){for(const a of hit.adapters)if(a.items.length)a.upload(a.ranges);if(hit.imported)Cs=true;else{meshVersion++;lastFrame='';}}
+// Compensated fairing: every accepted pair preserves triangle orientation and local scale.
+function safeSurfaceFair(nodes,faces,cycles=6){
+ const original=nodes.map(n=>n.p.slice()),sub=(a,b)=>a.map((v,k)=>v-b[k]);
+ const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+ const faceNormal=(f,points)=>cross(sub(points[f[1]],points[f[0]]),sub(points[f[2]],points[f[0]]));
+ const limits=nodes.map((n,i)=>{let shortest=Infinity;for(const j of n.neighbors){const d=Math.hypot(...sub(original[i],original[j]));if(d>0)shortest=Math.min(shortest,d);}return Number.isFinite(shortest)?shortest*.35:0;});
+ const reference=faces.map(f=>faceNormal(f,original));
+ for(let pass=0;pass<cycles;pass++){
+  const before=nodes.map(n=>n.p.slice());
+  // A negative second step compensates the contraction of the first step.
+  for(const factor of [.33,-.331]){
+   const next=nodes.map((n,i)=>{
+    if(n.boundary||n.neighbors.size<3)return n.p.slice();
+    const weight=n.weight===undefined?1:n.weight;if(!weight)return n.p.slice();
+    const mean=[0,0,0];for(const j of n.neighbors)for(let k=0;k<3;k++)mean[k]+=nodes[j].p[k]/n.neighbors.size;
+    return n.p.map((v,k)=>v+factor*weight*(mean[k]-v));
+   });nodes.forEach((n,i)=>n.p=next[i]);
+  }
+  const proposed=nodes.map((n,i)=>{const d=sub(n.p,original[i]),length=Math.hypot(...d),scale=length>limits[i]?limits[i]/length:1;return original[i].map((v,k)=>v+d[k]*scale);});
+  let accepted=false;
+  for(let alpha=1;alpha>=1/128;alpha*=.5){
+   const trial=before.map((p,i)=>p.map((v,k)=>v+alpha*(proposed[i][k]-v)));
+   const valid=faces.every((f,i)=>{const r=reference[i],n=faceNormal(f,trial),r2=r.reduce((a,v)=>a+v*v,0);if(r2<1e-30)return true;const n2=n.reduce((a,v)=>a+v*v,0),dot=n.reduce((a,v,k)=>a+v*r[k],0);return Number.isFinite(n2)&&n2>=r2*.16&&dot>Math.sqrt(n2*r2)*.15;});
+   if(valid){nodes.forEach((n,i)=>n.p=trial[i]);accepted=true;break;}
+  }
+  if(!accepted){nodes.forEach((n,i)=>n.p=before[i]);break;}
+ }
+}
 function smoothSelected(s){
- const nodes=new Map(),key=p=>p.map(x=>Math.fround(x)).join(',');
- function node(p){const k=key(p);let value=nodes.get(k);if(!value){value={p:p.slice(),initial:p.slice(),neighbors:new Set(),items:[],weight:0};nodes.set(k,value);}return value;}
- for(const a of s.adapters){for(const item of a.items){const v=node(item.p);v.items.push({a,item});v.weight=Math.max(v.weight,item.weight,item.mirrorWeight||0);}for(const triangle of a.faces){const v=triangle.map(i=>node(a.read(i)));for(let k=0;k<3;k++)for(let j=0;j<3;j++)if(j!==k&&v[k]!==v[j])v[k].neighbors.add(v[j]);}}
- // A Taubin pair suppresses local bumps with much less shrinkage than Laplacian smoothing.
- for(const factor of [.45,.35,.25]){const next=new Map();for(const v of nodes.values()){if(!v.items.length||v.neighbors.size<2||!v.weight)continue;const mean=[0,0,0];for(const other of v.neighbors)for(let k=0;k<3;k++)mean[k]+=other.p[k]/v.neighbors.size;let p=v.p.map((x,k)=>x+factor*v.weight*(mean[k]-x));if(!s.imported&&s.symmetry&&Math.abs(v.initial[0])<s.radius*1e-6)p[0]=0;next.set(v,p);}for(const [v,p]of next)v.p=p;}
- let changed=false;for(const v of nodes.values())if(v.items.length){const delta=v.p.map((x,k)=>x-v.initial[k]),length=Math.hypot(...delta),limit=s.radius*.12;if(length>limit)v.p=v.initial.map((x,k)=>x+delta[k]*limit/length);if(v.p.some((x,k)=>Math.abs(x-v.initial[k])>1e-10))changed=true;for(const {a,item}of v.items)a.write(item.i,v.p);}return changed;
+ const nodes=[],lookup=new Map(),faces=[],edges=new Map();
+ function node(p){const key=p.map(Math.fround).join(',');let id=lookup.get(key);if(id===undefined){id=nodes.length;lookup.set(key,id);nodes.push({p:p.slice(),initial:p.slice(),neighbors:new Set(),items:[],weight:0});}return id;}
+ for(const a of s.adapters){
+  for(const item of a.items){const v=nodes[node(item.p)];v.items.push({a,item});v.weight=Math.max(v.weight,item.weight,item.mirrorWeight||0);}
+  for(const tri of a.faces){const f=tri.map(i=>node(a.read(i)));if(new Set(f).size<3)continue;faces.push(f);for(let k=0;k<3;k++){const x=f[k],y=f[(k+1)%3];nodes[x].neighbors.add(y);nodes[y].neighbors.add(x);const key=Math.min(x,y)+','+Math.max(x,y);edges.set(key,(edges.get(key)||0)+1);}}
+ }
+ // Freeze open and non-manifold edges; duplicated seam vertices move together.
+ for(const [key,count]of edges)if(count!==2)for(const id of key.split(',').map(Number))nodes[id].boundary=true;
+ safeSurfaceFair(nodes,faces,2);
+ let changed=false;for(const v of nodes)for(const {a,item}of v.items){if(v.p.some((x,k)=>Math.abs(x-v.initial[k])>1e-10))changed=true;a.write(item.i,v.p);}return changed;
 }
 function smoothCapture(s){if(!s.smoothUndo)s.smoothUndo=new Map();for(const a of s.adapters){let saved=s.smoothUndo.get(a);if(!saved){saved=new Map();s.smoothUndo.set(a,saved);}for(const item of a.items)if(!saved.has(item.i))saved.set(item.i,{...item,p:item.p.slice(),n:item.n.slice()});}}
 function smoothCollectUndo(s){if(!s.smoothUndo)return;for(const a of s.adapters){const saved=s.smoothUndo.get(a);a.items=saved?Array.from(saved.values()):[];a.selected=new Map(a.items.map(item=>[item.i,item]));a.ranges=grabRanges(a.items);}s.selected=s.adapters.reduce((sum,a)=>sum+a.items.length,0);}
@@ -5615,12 +5647,9 @@ const MathUtils={clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),degToRad:v=>v*Math.PI/
   }
   function cumulativeAutoSmooth(geometry) {
     const passes = Number(geometry.userData.studioAutoSmoothPasses) || 0;
-    if (!passes || !geometry.attributes.normal) autoSmoothGeometry(geometry);
-    const p = geometry.attributes.position, normal = geometry.attributes.normal;
-    const positions = new Float32Array(p.count * 3), normals = new Float32Array(p.count * 3);
-    for(let i=0;i<p.count;i++){positions.set([p.getX(i),p.getY(i),p.getZ(i)],i*3);normals.set([normal.getX(i),normal.getY(i),normal.getZ(i)],i*3);}
-    const smoothed = drawingSmoothNormalArray(positions,normals,geometry.index?.array,32);
-    geometry.setAttribute("normal",new Float32BufferAttribute(smoothed,3));
+    // Rebuild from the current surface after sculpting; never diffuse stale normals.
+    geometry.computeVertexNormals();
+    autoSmoothGeometry(geometry,180);
     geometry.userData.studioAutoSmoothPasses = passes + 1;
     geometry.userData.studioSmoothLighting = 1;
     return geometry;
@@ -5719,35 +5748,10 @@ const MathUtils={clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),degToRad:v=>v*Math.PI/
       const distance=facialBounds.distanceToPoint(new Vector3().fromArray(node.p));
       const t=MathUtils.clamp(distance/faceFade,0,1);return .25 + .75*t*t*(3-2*t);
     });
-    const original=nodes.map(n=>n.p.slice()),limit=extent*.08;
-    // Positive fairing removes high-frequency bumps; restore closed-mesh volume
-    // explicitly instead of cancelling almost the entire smoothing displacement.
-    const volume = () => {
-      let total=0;
-      for(const triangle of triangles){
-        const a=nodes[vertexNodes[triangle.ids[0]]].p,b=nodes[vertexNodes[triangle.ids[1]]].p,c=nodes[vertexNodes[triangle.ids[2]]].p;
-        total+=a[0]*(b[1]*c[2]-b[2]*c[1])+a[1]*(b[2]*c[0]-b[0]*c[2])+a[2]*(b[0]*c[1]-b[1]*c[0]);
-      }
-      return total/6;
-    };
-    const closed=[...edgeCounts.values()].every(count=>count>=2),originalVolume=closed?volume():0;
-    for(let pass=0;pass<30;pass++){
-      const next=nodes.map((node,id)=>{
-        if(node.boundary||node.neighbors.size<3)return node.p;
-        const mean=[0,0,0];for(const other of node.neighbors)for(let k=0;k<3;k++)mean[k]+=nodes[other].p[k]/node.neighbors.size;
-        const strength=.45*(.6+.4*protection[id]);
-        const result=node.p.map((v,k)=>v+strength*(mean[k]-v)),delta=result.map((v,k)=>v-original[id][k]),length=Math.hypot(...delta);
-        return length>limit?original[id].map((v,k)=>v+delta[k]*limit/length):result;
-      });nodes.forEach((node,id)=>node.p=next[id]);
-    }
-    if(closed&&Math.abs(originalVolume)>extent**3*1e-10){
-      const currentVolume=volume(),ratio=originalVolume/currentVolume;
-      if(Number.isFinite(ratio)&&ratio>0){
-        const center=[0,0,0];for(const node of nodes)for(let k=0;k<3;k++)center[k]+=node.p[k]/nodes.length;
-        const scale=Math.cbrt(ratio);
-        for(const node of nodes)for(let k=0;k<3;k++)node.p[k]=center[k]+(node.p[k]-center[k])*scale;
-      }
-    }
+    // Local constraints protect thin parts and disconnected components independently.
+    for(const [key,count]of edgeCounts)if(count!==2)for(const id of key.split(',').map(Number))nodes[id].boundary=true;
+    nodes.forEach((node,id)=>node.weight=protection[id]);
+    safeSurfaceFair(nodes,triangles.map(t=>t.ids.map(id=>vertexNodes[id])),10);
     for(let i=0;i<vertexNodes.length;i++)for(let k=0;k<3;k++)position[i*3+k]=nodes[vertexNodes[i]].p[k];
     for(const [name,attr]of Object.entries(attributes)){
       const array=name==='skinIndex'?new Uint16Array(attr.values):new Float32Array(attr.values);
@@ -5867,7 +5871,7 @@ async function applyDrawingFinish(mode){
      volumeMesh.drawingFinishData={...result.userData};result.dispose();refreshSourceDrawing();
      grabRemember({kind:'finish',model,restore(){for(const item of saved){const g=item.g;g.data.set(item.data);g.normals.set(item.normals);g.grabRest=item.rest;g.projectionNormals=item.projection;if(g.restBuffer)window.sculptGL.deleteBuffer(g.restBuffer);g.restBuffer=null;}model.drawingFinishData=oldData;refreshSourceDrawing();et('drawingFinishInfo').textContent='Suavização desfeita.';}});
    }
-   et('drawingFinishInfo').textContent=mode==='normals'?'Auto Smooth aplicado. Pode aplicar novamente.':'Malha suavizada. Pode aplicar novamente.';
+   et('drawingFinishInfo').textContent=mode==='normals'?'Auto Smooth aplicado sem alterar a forma.':'Malha suavizada com proteção de espessura e triângulos.';
  }catch(error){for(const entry of prepared)if(entry.mesh.geometry!==entry.after)entry.after.dispose();et('drawingFinishInfo').textContent='Erro: '+error.message;}
  finally{finishBusy=false;for(const id of ['applyDrawingAutoSmooth','applyDrawingSmooth','export3d'])et(id).disabled=false;}
 }
