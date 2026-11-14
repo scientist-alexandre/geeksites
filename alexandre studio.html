@@ -1090,7 +1090,7 @@ header #studioCameraOrbitTarget{flex:1 1 auto;width:95px!important;min-width:35p
 <button id="objectVisibility" title="Mostrar ou ocultar o objeto selecionado">Visível</button>
 <button id="duplicateSceneObject" title="Duplicar objeto selecionado">Duplicar objeto</button>
 <button id="deleteSceneObject" title="Excluir objeto selecionado da cena">Excluir objeto</button>
-</nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="error"></div><div class="hint" id="hint">Arraste para olhar ao redor · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelSequences" role="tabpanel" aria-labelledby="tabSequences" hidden><div class="sequencePanel"><h3 id="sequenceHeading">Sequências</h3><button id="sequenceImport" class="primary">＋ Importar pasta de imagens</button><input id="sequenceFiles" type="file" accept="image/*" webkitdirectory directory multiple hidden><label>Sequência na cena<select id="sequenceSelect" aria-label="Sequência na cena"></select></label><div id="sequenceControls" hidden><div class="sequenceButtons"><button id="sequencePlay">▶ Play</button><button id="sequencePause">Ⅱ Pausar</button><button id="sequenceRestart">↺ Início</button></div><label><input id="sequenceLoop" type="checkbox"> Loop</label><label><input id="sequenceVisible" type="checkbox"> Visível na cena</label><div class="sequenceButtons"><button id="sequenceKeyPlay">◆ Play no frame</button><button id="sequenceKeyPause">◆ Pause no frame</button></div><button id="sequenceOpenTrack">Abrir timeline do objeto</button><label id="sequenceFpsLabel">Velocidade (FPS)<input id="sequenceFps" type="number" min="1" max="120" step="1" value="24" aria-label="Velocidade da sequência em FPS"></label><label>Posição / início <output id="sequenceTime">0.00 s</output><input id="sequenceSeek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Posição do vídeo"></label><div class="sequenceButtons"><button id="sequenceMove">Mover</button><button id="sequenceRotate">Girar</button><button id="sequenceScale">Escalar</button></div><div id="studioMorphPanel" class="studioMorphPanel"><h3>Cinema Morph</h3><label>Objeto de origem (sequência ou GLB)<select id="studioMorphSource" aria-label="Objeto de origem da metamorfose"></select></label><label>Destino da transformação (GLB ou sequência de imagens)<select id="studioMorphTarget"><option value="">Desativado</option></select></label><div class="studioMorphPair"><label>Frame inicial<input id="studioMorphStart" type="number" min="1" max="100000" step="1" value="24"></label><label>Frame final<input id="studioMorphEnd" type="number" min="2" max="100000" step="1" value="72"></label></div><label>Transição orgânica <output id="studioMorphSoftOut">35%</output><input id="studioMorphSoft" type="range" min="1" max="100" value="35"></label><label>Distorção da transformação <output id="studioMorphWarpOut">30%</output><input id="studioMorphWarp" type="range" min="0" max="100" value="30"></label><label>Brilho da transformação <output id="studioMorphGlowOut">35%</output><input id="studioMorphGlow" type="range" min="0" max="100" value="35"></label><div class="cinemaMorphExtra"><div class="cinemaMorphEyebrow">CINEMA MORPH</div><label>Tipo de transição<select id="studioMorphType" aria-label="Tipo de transição"><option value="organic">Orgânica · dissolução fluida</option><option value="symbiote">Simbionte · raízes vivas</option><option value="plasma">Plasma · energia elétrica</option><option value="crystal">Cristalização · fragmentos</option><option value="digital">Digital · blocos de dados</option><option value="smoke">Fumaça · névoa turbulenta</option></select></label><label>Cor da metamorfose<input id="studioMorphColor" type="color" value="#14eda8"></label><label>Direção da metamorfose <output id="studioMorphDirectionOut">Cima → baixo</output><input id="studioMorphDirection" type="range" min="0" max="7" step="1" value="0"></label><label>Detalhamento fractal <output id="studioMorphDetailOut">65%</output><input id="studioMorphDetail" type="range" min="0" max="100" value="65"></label><label>Energia da borda <output id="studioMorphEnergyOut">100%</output><input id="studioMorphEnergy" type="range" min="10" max="200" value="100"></label><label>Deformação 3D <output id="studioMorphDisplaceOut">55%</output><input id="studioMorphDisplace" type="range" min="0" max="100" value="55"></label><div class="cinemaMorphHint">Escolha o tipo de transição, a cor da energia e a direção. Em Simbionte, ramificações procedurais avançam sobre a imagem e a superfície do GLB; outros estilos usam diferentes máscaras e bordas. Funciona ao navegar pela timeline e ao renderizar os frames.</div></div><p class="muted">Importe a sequência original e escolha como destino um GLB ou outra sequência de imagens. As duas sequências podem ser animadas e são reveladas pelo mesmo efeito procedural na timeline. Para melhor alinhamento, coloque os planos no mesmo lugar na cena.</p></div><button id="sequenceDelete">Excluir sequência</button><p class="muted" id="sequenceInfo"></p></div><p class="muted">A pasta vira um plano animado em 3D. As imagens são ordenadas pelo nome: 1, 2, 3… 10. PNG/WebP mantêm a transparência. Play e Pausar controlam a prévia. Use ◆ Play / Pause no frame para programar a reprodução na timeline geral do objeto e na exportação. Cada imagem é um quadro. Ajuste o FPS para definir a velocidade.</p></div></section><section id="panelMorph" role="tabpanel" aria-labelledby="tabMorph" hidden><div class="sequencePanel" id="studioMorphMount"></div></section><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="objectJoin" title="Unir os objetos marcados em um objeto, fixando a pose atual">Unir objetos</button><button id="objectJoinUndo" title="Recuperar os objetos originais da união nesta sessão">Desfazer união</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><input id="shapeName" maxlength="100" placeholder="Nome da Shape Key"><button id="shapeNew" class="primary">＋ Criar Shape Key</button><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p><div id="shapeList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option><option value="handL" hidden>Mão esquerda</option><option value="handR" hidden>Mão direita</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="0.1" max="200" step="0.1" value="8"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="0.1" max="200" step="0.1" value="5"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><label class="faceRange">Abertura da boca<select id="faceMouthMode"><option value="0">Interior preto</option><option value="1">Somente malha / textura original</option></select></label><p class="muted">Marque cada região em pose neutra. E / D são os lados do personagem. Malhas com mais vértices produzem movimentos mais suaves.</p><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey" title="Gravar FaceRig e ossos juntos no keyframe do personagem">◆ Gravar pose + rosto</button></div></div></div></section><section id="panelHand" role="tabpanel" aria-labelledby="tabHand" hidden><div class="facePanel"><div class="poseHeading"><span>Mão · controles 3D</span></div><p class="muted">Ajuste cada dedo de modo independente, dobre o punho ou feche a mão inteira. Os valores são animáveis na timeline.</p><div class="faceSection"><label class="faceRange">Mão selecionada<select id="handRegionSelect"><option value="handL">Mão esquerda</option><option value="handR">Mão direita</option></select></label><div class="faceButtons"><button id="handMarkLeft">Marcar mão E</button><button id="handMarkRight">Marcar mão D</button></div><div id="handRegionStatus" class="muted">Região não marcada</div>
+</nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="error"></div><div class="hint" id="hint">Arraste para olhar ao redor · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelSequences" role="tabpanel" aria-labelledby="tabSequences" hidden><div class="sequencePanel"><h3 id="sequenceHeading">Sequências</h3><button id="sequenceImport" class="primary">＋ Importar pasta de imagens</button><input id="sequenceFiles" type="file" accept="image/*" webkitdirectory directory multiple hidden><label>Sequência na cena<select id="sequenceSelect" aria-label="Sequência na cena"></select></label><div id="sequenceControls" hidden><div class="sequenceButtons"><button id="sequencePlay">▶ Play</button><button id="sequencePause">Ⅱ Pausar</button><button id="sequenceRestart">↺ Início</button></div><label><input id="sequenceLoop" type="checkbox"> Loop</label><label><input id="sequenceVisible" type="checkbox"> Visível na cena</label><div class="sequenceButtons"><button id="sequenceKeyPlay">◆ Play no frame</button><button id="sequenceKeyPause">◆ Pause no frame</button></div><button id="sequenceOpenTrack">Abrir timeline do objeto</button><label id="sequenceFpsLabel">Velocidade (FPS)<input id="sequenceFps" type="number" min="1" max="120" step="1" value="24" aria-label="Velocidade da sequência em FPS"></label><label>Posição / início <output id="sequenceTime">0.00 s</output><input id="sequenceSeek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Posição do vídeo"></label><div class="sequenceButtons"><button id="sequenceMove">Mover</button><button id="sequenceRotate">Girar</button><button id="sequenceScale">Escalar</button></div><div id="studioMorphPanel" class="studioMorphPanel"><h3>Cinema Morph</h3><label>Objeto de origem (sequência ou GLB)<select id="studioMorphSource" aria-label="Objeto de origem da metamorfose"></select></label><label>Destino da transformação (GLB ou sequência de imagens)<select id="studioMorphTarget"><option value="">Desativado</option></select></label><div class="studioMorphPair"><label>Frame inicial<input id="studioMorphStart" type="number" min="1" max="100000" step="1" value="24"></label><label>Frame final<input id="studioMorphEnd" type="number" min="2" max="100000" step="1" value="72"></label></div><label>Transição orgânica <output id="studioMorphSoftOut">35%</output><input id="studioMorphSoft" type="range" min="1" max="100" value="35"></label><label>Distorção da transformação <output id="studioMorphWarpOut">30%</output><input id="studioMorphWarp" type="range" min="0" max="100" value="30"></label><label>Brilho da transformação <output id="studioMorphGlowOut">35%</output><input id="studioMorphGlow" type="range" min="0" max="100" value="35"></label><div class="cinemaMorphExtra"><div class="cinemaMorphEyebrow">CINEMA MORPH</div><label>Preset de transformação<select id="studioMorphLook" aria-label="Preset de transformação"><option value="custom">Personalizado · ajustes manuais</option><option value="creature">Criatura · expansão muscular</option><option value="symbiote">Simbionte · cobertura viscosa</option><option value="skin">Metamorfo · mudança de pele</option><option value="liquid">Metal líquido</option><option value="organic">Orgânica · tecido vivo</option><option value="plasma">Plasma · energia</option><option value="crystal">Cristal · crescimento</option><option value="digital">Digital · reconstrução</option><option value="smoke">Fumaça · dissolução</option><option value="ash">Cinzas · desintegração</option><option value="ribbon">Membranas · faixas</option></select></label><button id="studioMorphApplyLook" style="width:100%">Aplicar preset</button><label>Tipo de transição<select id="studioMorphType" aria-label="Tipo de transição"><option value="organic">Orgânica · dissolução fluida</option><option value="symbiote">Simbionte · raízes vivas</option><option value="plasma">Plasma · energia elétrica</option><option value="crystal">Cristalização · fragmentos</option><option value="digital">Digital · blocos de dados</option><option value="smoke">Fumaça · névoa turbulenta</option><option value="creature">Criatura · expansão muscular</option><option value="skin">Metamorfo · troca de pele</option><option value="liquid">Metal líquido · superfície fluida</option><option value="ash">Cinzas · desintegração</option><option value="ribbon">Membranas · faixas orgânicas</option></select></label><label>Cor da metamorfose<input id="studioMorphColor" type="color" value="#14eda8"></label><label>Direção da metamorfose<output id="studioMorphDirectionOut" hidden>Cima → baixo</output><select id="studioMorphDirection" aria-label="Direção da metamorfose"><option value="1">De baixo para cima</option><option value="0" selected>De cima para baixo</option></select></label><label>Detalhamento fractal <output id="studioMorphDetailOut">65%</output><input id="studioMorphDetail" type="range" min="0" max="100" value="65"></label><label>Energia da borda <output id="studioMorphEnergyOut">100%</output><input id="studioMorphEnergy" type="range" min="10" max="200" value="100"></label><label>Deformação 3D <output id="studioMorphDisplaceOut">55%</output><input id="studioMorphDisplace" type="range" min="0" max="100" value="55"></label><label>Curva de transformação<select id="studioMorphEase"><option value="linear">Linear · constante</option><option value="smooth">Suave · entrada e saída</option><option value="cinematic">Cinemática · aceleração progressiva</option><option value="accelerate">Acelerar</option><option value="decelerate">Desacelerar</option></select></label><label>Pausa dramática <output id="studioMorphHoldOut">0%</output><input id="studioMorphHold" type="range" min="0" max="40" value="0"></label><label>Acabamento molhado / metálico <output id="studioMorphCoatOut">0%</output><input id="studioMorphCoat" type="range" min="0" max="100" value="0"></label><label style="display:flex;align-items:center;gap:8px"><input id="studioMorphAccents" type="checkbox" checked style="width:auto">Elementos 3D adicionais</label><div class="faceButtons"><button id="studioMorphPreviewStart">Início</button><button id="studioMorphPreviewMiddle">Meio</button><button id="studioMorphPreviewEnd">Fim</button></div><div class="cinemaMorphHint">Aplique um preset e ajuste os controles. Os efeitos mantêm origem e destino intactos; início e fim ficam limpos. Use modelos alinhados e com proporções próximas para uma metamorfose convincente. A timeline e a exportação usam o mesmo efeito.</div></div><p class="muted">Importe a sequência original e escolha como destino um GLB ou outra sequência de imagens. As duas sequências podem ser animadas e são reveladas pelo mesmo efeito procedural na timeline. Para melhor alinhamento, coloque os planos no mesmo lugar na cena.</p></div><button id="sequenceDelete">Excluir sequência</button><p class="muted" id="sequenceInfo"></p></div><p class="muted">A pasta vira um plano animado em 3D. As imagens são ordenadas pelo nome: 1, 2, 3… 10. PNG/WebP mantêm a transparência. Play e Pausar controlam a prévia. Use ◆ Play / Pause no frame para programar a reprodução na timeline geral do objeto e na exportação. Cada imagem é um quadro. Ajuste o FPS para definir a velocidade.</p></div></section><section id="panelMorph" role="tabpanel" aria-labelledby="tabMorph" hidden><div class="sequencePanel" id="studioMorphMount"></div></section><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="objectJoin" title="Unir os objetos marcados em um objeto, fixando a pose atual">Unir objetos</button><button id="objectJoinUndo" title="Recuperar os objetos originais da união nesta sessão">Desfazer união</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><input id="shapeName" maxlength="100" placeholder="Nome da Shape Key"><button id="shapeNew" class="primary">＋ Criar Shape Key</button><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p><div id="shapeList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option><option value="handL" hidden>Mão esquerda</option><option value="handR" hidden>Mão direita</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="0.1" max="200" step="0.1" value="8"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="0.1" max="200" step="0.1" value="5"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><label class="faceRange">Abertura da boca<select id="faceMouthMode"><option value="0">Interior preto</option><option value="1">Somente malha / textura original</option></select></label><p class="muted">Marque cada região em pose neutra. E / D são os lados do personagem. Malhas com mais vértices produzem movimentos mais suaves.</p><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey" title="Gravar FaceRig e ossos juntos no keyframe do personagem">◆ Gravar pose + rosto</button></div></div></div></section><section id="panelHand" role="tabpanel" aria-labelledby="tabHand" hidden><div class="facePanel"><div class="poseHeading"><span>Mão · controles 3D</span></div><p class="muted">Ajuste cada dedo de modo independente, dobre o punho ou feche a mão inteira. Os valores são animáveis na timeline.</p><div class="faceSection"><label class="faceRange">Mão selecionada<select id="handRegionSelect"><option value="handL">Mão esquerda</option><option value="handR">Mão direita</option></select></label><div class="faceButtons"><button id="handMarkLeft">Marcar mão E</button><button id="handMarkRight">Marcar mão D</button></div><div id="handRegionStatus" class="muted">Região não marcada</div>
 <div class="faceButtons"><button id="handToggleMarkers" type="button" aria-pressed="false">Esconder marcadores</button></div>
 <label class="faceRange">Largura da região<input id="handRegionWidth" type="range" min="0.1" max="200" step="0.1" value="20"></label>
 <label class="faceRange">Altura da região<input id="handRegionHeight" type="range" min="0.1" max="200" step="0.1" value="14"></label>
@@ -51738,164 +51738,249 @@ void main() {
   }
   // CINEMA MORPH VFX 3D — objects are preview-only and never become scene objects
   // in a saved project. Each effect shares the same animated progress and color.
-  const cinemaVolumeOverlays=new Map();
-  function cinemaVolumeRandom(seed){
-    let n=seed>>>0;
-    return ()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296};
-  }
+  // ===== INÍCIO CINEMA MORPH — EFEITOS SOBRE A SUPERFÍCIE E O ALPHA =====
+  // Runtime-only geometry; never included in saved objects or their materials.
+  const cinemaVolumeOverlays=new Map(),cinemaSurfaceGraphs=new WeakMap(),cinemaSurfaceAlphaCanvases=new WeakMap();
+  function cinemaVolumeRandom(seed){let n=seed>>>0;return ()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296};}
   function cinemaVolumeDispose(root){
-    const record=cinemaVolumeOverlays.get(root);
-    if(!record)return;
-    if(record.group.parent)record.group.parent.remove(record.group);
-    for(const item of record.items){item.object.geometry?.dispose();item.object.material?.dispose()}
-    cinemaVolumeOverlays.delete(root);
+    const rec=cinemaVolumeOverlays.get(root);if(!rec)return;
+    rec.group.removeFromParent();
+    const geometries=new Set(),materials=new Set();
+    rec.group.traverse(node=>{if(node.geometry)geometries.add(node.geometry);if(node.material)materials.add(node.material);});
+    for(const g of geometries)g.dispose();for(const m of materials)m.dispose();cinemaVolumeOverlays.delete(root);
   }
-  function cinemaVolumeCreate(root,sourceMesh,type){
-    const random=cinemaVolumeRandom(192341+studioMorphTypeIndex(type)*12017);
-    const group=new Group();group.name='Cinema Morph · VFX temporário';
-    group.userData.studioCinemaTemporary=true;
-    // Parent under the scene, not under the project object, to avoid serialization
-    // or the object's selection/move/scale utilities grabbing procedural pieces.
-    scene.add(group);
-    const geometry=sourceMesh.geometry;
-    if(!geometry.boundingBox)geometry.computeBoundingBox();
-    const bounds=geometry.boundingBox;
-    const width=Math.max(.1,bounds.max.x-bounds.min.x);
-    const height=Math.max(.1,bounds.max.y-bounds.min.y);
-    const centerX=(bounds.min.x+bounds.max.x)*.5;
-    const centerY=(bounds.min.y+bounds.max.y)*.5;
-    const items=[];
-    const count=type==='symbiote'?48:type==='plasma'?34:type==='organic'?42:type==='smoke'?44:type==='crystal'?54:72;
-    const tubeType=type==='symbiote'||type==='plasma';
-    for(let i=0;i<count;i++){
-      const u=random(),v=random(),r=random();
-      const x=centerX+(u-.5)*width*.94;
-      const y=centerY+(v-.5)*height*.94;
-      let piece,kind='solid';
-      if(tubeType){
-        const branch=type==='symbiote'&&i%3===0;
-        const n=branch?9:19;
-        const length=height*(type==='symbiote'?(branch?.22:.50):.27)*(0.55+random());
-        const points=[];
-        const side=(random()-.5)*.5*width;
-        for(let j=0;j<=n;j++){
-          const z=j/n;
-          const yMove=(z-.5)*length;
-          const xx=x+side*z+Math.sin(z*11+i*1.61)*width*(type==='plasma'?.018:.028)*(0.4+z);
-          const yy=y+yMove;
-          const zz=.025+width*(.014+.05*Math.sin(z*Math.PI))+Math.sin(z*9+i)*width*.008;
-          points.push(new Vector3(xx,yy,zz));
+  function cinemaSurfaceMeshes(root,sourceMesh){
+    if(sourceMesh)return [sourceMesh];
+    const meshes=[];root.traverseVisible(node=>{if(node.isMesh&&node.geometry?.attributes.position&&!node.userData.studioCinemaTemporary)meshes.push(node);});
+    return meshes;
+  }
+  function cinemaSurfaceGraph(mesh){
+    const geometry=mesh.geometry,p=geometry.attributes.position,index=geometry.index;
+    let graph=cinemaSurfaceGraphs.get(geometry);if(graph)return graph;
+    geometry.computeBoundingBox();const tolerance=Math.max(geometry.boundingBox.getSize(new Vector3()).length()*1e-6,1e-8);
+    const vertices=[],lookup=new Map(),ids=new Int32Array(p.count);
+    for(let i=0;i<p.count;i++){
+      const key=[p.getX(i),p.getY(i),p.getZ(i)].map(v=>Math.round(v/tolerance)).join(',');let id=lookup.get(key);
+      if(id===undefined){id=vertices.length;lookup.set(key,id);vertices.push({id:i,neighbours:new Set(),triangle:null});}ids[i]=id;
+    }
+    const triangles=[];
+    for(let i=0;i+2<(index?index.count:p.count);i+=3){
+      const tri=[0,1,2].map(k=>index?index.getX(i+k):i+k);triangles.push(tri);
+      const group=tri.map(id=>ids[id]);
+      for(let a=0;a<3;a++){vertices[group[a]].triangle??=tri;for(let b=0;b<3;b++)if(group[a]!==group[b])vertices[group[a]].neighbours.add(group[b]);}
+    }
+    graph={vertices,triangles};cinemaSurfaceGraphs.set(geometry,graph);return graph;
+  }
+  function cinemaSurfaceAlphaReader(mesh){
+    const material=Array.isArray(mesh.material)?mesh.material[0]:mesh.material,map=material?.map,image=map?.image;
+    if(!image)return ()=>1;
+    try{
+      let rec=cinemaSurfaceAlphaCanvases.get(mesh);
+      if(!rec){const canvas=document.createElement('canvas');canvas.width=canvas.height=96;rec={canvas,ctx:canvas.getContext('2d',{willReadFrequently:true})};cinemaSurfaceAlphaCanvases.set(mesh,rec);}
+      const {ctx}=rec;ctx.clearRect(0,0,96,96);ctx.drawImage(image,0,0,96,96);
+      const data=ctx.getImageData(0,0,96,96).data;map.updateMatrix();
+      return uv=>{if(!uv)return 1;const point=uv.clone();map.transformUv(point);const x=Math.max(0,Math.min(95,Math.floor(point.x*96))),y=Math.max(0,Math.min(95,Math.floor(point.y*96)));return data[(y*96+x)*4+3]/255;};
+    }catch{return ()=>0;}
+  }
+  function cinemaSurfaceFrame(mesh){
+    mesh.updateWorldMatrix(true,false);if(mesh.isSkinnedMesh)mesh.skeleton.update();
+    const positions=new Map(),normalMatrix=new Matrix3().getNormalMatrix(mesh.matrixWorld),uv=mesh.geometry.attributes.uv;
+    return {mesh,alpha:cinemaSurfaceAlphaReader(mesh),vertex(id){
+      if(!positions.has(id))positions.set(id,mesh.getVertexPosition(id,new Vector3()).applyMatrix4(mesh.matrixWorld));return positions.get(id);
+    },sample(triangle,weights){
+      const points=triangle.map(id=>this.vertex(id)),point=new Vector3(),tex=uv?new Vector2():null;
+      for(let i=0;i<3;i++){point.addScaledVector(points[i],weights[i]);if(tex)tex.addScaledVector(new Vector2(uv.getX(triangle[i]),uv.getY(triangle[i])),weights[i]);}
+      const normal=new Vector3().subVectors(points[1],points[0]).cross(new Vector3().subVectors(points[2],points[0])).normalize();
+      return {point,normal,uv:tex,alpha:this.alpha(tex)};
+    },normal(id,triangle){
+      if(triangle){const a=this.vertex(triangle[0]),b=this.vertex(triangle[1]),c=this.vertex(triangle[2]);return new Vector3().subVectors(b,a).cross(new Vector3().subVectors(c,a)).normalize();}
+      const n=mesh.geometry.attributes.normal;return n?new Vector3().fromBufferAttribute(n,id).applyMatrix3(normalMatrix).normalize():new Vector3(0,0,1);
+    }};
+  }
+  function cinemaSurfacePath(mesh,frame,seed,up,random){
+    const graph=cinemaSurfaceGraph(mesh),vertices=graph.vertices;
+    const sorted=frame.orderedSurfaceVertices??=(vertices.map((v,i)=>({i,y:frame.vertex(v.id).y})).sort((a,b)=>up?a.y-b.y:b.y-a.y));
+    if(!sorted.length)return null;
+    // Half the paths begin near the feet; the rest branch at different heights.
+    const fraction=seed%3===0?random()*.55:random()*.13;
+    let current=sorted[Math.min(sorted.length-1,Math.floor(fraction*sorted.length))].i;
+    const visited=new Set(),path=[];
+    for(let step=0;step<512;step++){
+      if(visited.has(current))break;visited.add(current);path.push(vertices[current]);
+      const origin=frame.vertex(vertices[current].id),candidates=[];
+      for(const next of vertices[current].neighbours){
+        if(visited.has(next))continue;const target=frame.vertex(vertices[next].id),length=origin.distanceTo(target);
+        if(length<1e-8)continue;
+        const advance=(up?1:-1)*(target.y-origin.y)/length;
+        if(advance<-.12)continue;
+        candidates.push({next,score:advance*.8+random()*.55});
+      }
+      candidates.sort((a,b)=>b.score-a.score);if(!candidates.length)break;current=candidates[0].next;
+    }
+    return path.length>=2?{mesh,path}:null;
+  }
+  function cinemaTubeGeometry(points=64,sides=5){
+    const geometry=new BufferGeometry(),positions=new Float32Array((points+1)*(sides+1)*3),normals=positions.slice(),alpha=new Float32Array((points+1)*(sides+1)),growth=alpha.slice(),indices=[];
+    for(let row=0;row<points;row++)for(let side=0;side<sides;side++){
+      const a=row*(sides+1)+side,b=a+sides+1;indices.push(a,b,a+1,b,b+1,a+1);
+    }
+    geometry.setAttribute('position',new BufferAttribute(positions,3));geometry.setAttribute('normal',new BufferAttribute(normals,3));
+    geometry.setAttribute('cinemaUV',new BufferAttribute(new Float32Array(alpha.length*2),2));geometry.setAttribute('cinemaAlpha',new BufferAttribute(alpha,1));geometry.setAttribute('cinemaHeight',new BufferAttribute(growth,1));geometry.setIndex(indices);
+    return geometry;
+  }
+  function cinemaTubeMaterial(electric){
+    const material=electric?new MeshBasicMaterial({color:0xaacfff,transparent:true,opacity:.9,blending:AdditiveBlending,depthWrite:false}):new MeshPhysicalMaterial({color:0x10151e,roughness:.19,metalness:.12,clearcoat:1,clearcoatRoughness:.12,transparent:true,depthWrite:true});
+    material.onBeforeCompile=shader=>{
+      shader.uniforms.cinemaGrowth={value:material.userData.growthValue??0};shader.uniforms.cinemaUp={value:material.userData.upValue??1};material.userData.growth=shader.uniforms.cinemaGrowth;material.userData.up=shader.uniforms.cinemaUp;shader.uniforms.cinemaSurfaceMap={value:material.userData.surfaceMap||null};shader.uniforms.cinemaHasMap={value:!!material.userData.surfaceMap};
+      shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute float cinemaAlpha;attribute float cinemaHeight;attribute vec2 cinemaUV;varying vec2 vCinemaUV;varying float vCinemaAlpha;varying float vCinemaHeight;');
+      shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvCinemaUV=cinemaUV;vCinemaAlpha=cinemaAlpha;vCinemaHeight=cinemaHeight;');
+      shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform float cinemaGrowth,cinemaUp;uniform sampler2D cinemaSurfaceMap;uniform bool cinemaHasMap;varying vec2 vCinemaUV;varying float vCinemaAlpha;varying float vCinemaHeight;');
+      shader.fragmentShader=shader.fragmentShader.replace('#include <alphatest_fragment>',`#include <alphatest_fragment>
+        float pathHeight=mix(1.-vCinemaHeight,vCinemaHeight,cinemaUp);
+        float growth=1.-smoothstep(cinemaGrowth-.018,cinemaGrowth+.018,pathHeight);
+        float sourceAlpha=cinemaHasMap?texture2D(cinemaSurfaceMap,vCinemaUV).a:vCinemaAlpha;
+        if(sourceAlpha<.10||growth<.02)discard;
+        diffuseColor.a*=growth*sourceAlpha;`);
+    };
+    material.customProgramCacheKey=()=>electric?'cinema-surface-bolt-v1':'cinema-surface-tendril-v1';return material;
+  }
+  const cinemaSmokeGLSL=`
+    float smokeHash(vec3 p){p=fract(p*.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
+    float smokeNoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+      return mix(mix(mix(smokeHash(i),smokeHash(i+vec3(1,0,0)),f.x),mix(smokeHash(i+vec3(0,1,0)),smokeHash(i+vec3(1,1,0)),f.x),f.y),mix(mix(smokeHash(i+vec3(0,0,1)),smokeHash(i+vec3(1,0,1)),f.x),mix(smokeHash(i+vec3(0,1,1)),smokeHash(i+vec3(1,1,1)),f.x),f.y),f.z);}
+    float smokeFBM(vec3 p){return .57*smokeNoise(p)+.28*smokeNoise(p*2.07+9.1)+.15*smokeNoise(p*4.13-4.7);}
+    float smokeDensity(vec3 p,vec3 drift){float radius=dot(p,p);float envelope=pow(max(0.,1.-radius),1.6);return smoothstep(.34,.74,smokeFBM(p*2.6+drift))*envelope;}
+  `;
+  function cinemaSmokeMaterial(){
+    return new ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,side:DoubleSide,uniforms:{clock:{value:0},smokeColor:{value:new Color(0x9aa3b0)},opacity:{value:.5}},
+      vertexShader:`attribute float cinemaSeed;attribute float cinemaOpacity;varying vec2 vUv;varying float vSeed;varying float vOpacity;void main(){vUv=uv;vSeed=cinemaSeed;vOpacity=cinemaOpacity;gl_Position=projectionMatrix*modelViewMatrix*instanceMatrix*vec4(position,1.);}`,
+      fragmentShader:`precision highp float;varying vec2 vUv;varying float vSeed;varying float vOpacity;uniform float clock,opacity;uniform vec3 smokeColor;${cinemaSmokeGLSL}
+        void main(){vec2 xy=(vUv-.5)*2.;float rr=dot(xy,xy);if(rr>=1.||vOpacity<.001)discard;
+          float extent=sqrt(1.-rr),stepLength=extent*2./12.;vec3 drift=vec3(vSeed*37.+clock*.14,-clock*.28,vSeed*21.);vec4 sum=vec4(0.);
+          float jitter=smokeHash(vec3(floor(gl_FragCoord.xy),vSeed))*.7;
+          for(int i=0;i<12;i++){
+            vec3 p=vec3(xy,extent-(float(i)+jitter)*stepLength);float density=smokeDensity(p,drift);
+            float shadow=smokeDensity(p+vec3(.16,.22,.25),drift);float lighting=clamp(.85+(density-shadow)*2.6+p.y*.12,.22,1.2);
+            float a=1.-exp(-density*stepLength*3.4);sum.rgb+=(1.-sum.a)*a*smokeColor*lighting;sum.a+=(1.-sum.a)*a;if(sum.a>.94)break;
+          }
+          float alpha=sum.a*opacity*vOpacity;if(alpha<.002)discard;gl_FragColor=vec4(sum.rgb/max(sum.a,.0001),alpha);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
+        }`});
+  }
+  function cinemaVolumeCreate(root,sourceMesh,type,c={}){
+    const meshes=cinemaSurfaceMeshes(root,sourceMesh),random=cinemaVolumeRandom(192341+studioMorphTypeIndex(type)*12017),group=new Group();
+    group.name='Cinema Morph · superfície';group.userData.studioCinemaTemporary=true;scene.add(group);
+    const frames=new Map(meshes.map(mesh=>[mesh,cinemaSurfaceFrame(mesh)]));
+    const tube=['symbiote','liquid','ribbon','plasma'].includes(type),items=[];
+    if(tube){
+      for(let i=0;i<(type==='plasma'?30:38);i++){
+        const mesh=meshes[i%meshes.length];if(!mesh)break;
+        const path=cinemaSurfacePath(mesh,frames.get(mesh),i,studioMorphDirectionInfo(c.direction??1).index===1,random);if(!path)continue;
+        const object=new Mesh(cinemaTubeGeometry(),cinemaTubeMaterial(type==='plasma'));
+        const sourceMaterial=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;object.material.userData.surfaceMap=sourceMaterial?.map||null;
+        object.frustumCulled=false;group.add(object);
+        items.push({...path,object,seed:random(),radius:.6+random()*.9});
+      }
+    }else if(meshes.length){
+      const count=72,geometry=new PlaneGeometry(2,2),seeds=new Float32Array(count),opacities=new Float32Array(count);
+      geometry.setAttribute('cinemaSeed',new InstancedBufferAttribute(seeds,1));geometry.setAttribute('cinemaOpacity',new InstancedBufferAttribute(opacities,1));
+      const object=new InstancedMesh(geometry,cinemaSmokeMaterial(),count);object.instanceMatrix.setUsage(DynamicDrawUsage);object.frustumCulled=false;group.add(object);
+      for(let i=0;i<count;i++){
+        const mesh=meshes[i%meshes.length],triangles=cinemaSurfaceGraph(mesh).triangles;let sample;
+        for(let attempt=0;attempt<12;attempt++){
+          const triangle=triangles[Math.floor(random()*triangles.length)];if(!triangle)break;
+          const u=Math.sqrt(random()),v=random(),weights=[1-u,u*(1-v),u*v],hit=frames.get(mesh).sample(triangle,weights);
+          sample={mesh,triangle,weights};if(hit.alpha>.15)break;
         }
-        const curve=new CatmullRomCurve3(points);
-        const radius=width*(type==='plasma'?.0025:(branch?.004:.008))*(.65+random()*.8);
-        const tube=new TubeGeometry(curve,36,radius,type==='symbiote'?5:4,false);
-        const mat=new MeshBasicMaterial({color:0x24f6c8,transparent:true,opacity:.9,depthWrite:false,side:DoubleSide,blending:type==='plasma'?AdditiveBlending:NormalBlending,toneMapped:false});
-        piece=new Mesh(tube,mat);
-        kind='tube';
-      }else if(type==='crystal'){
-        const g=new ConeGeometry(width*(.012+random()*.023),height*(.045+random()*.095),4,1);
-        const m=new MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.76,depthWrite:false,side:DoubleSide,toneMapped:false});
-        piece=new Mesh(g,m);piece.position.set(x,y,.04+random()*width*.11);
-        piece.rotation.set(random()*2,random()*2,random()*6.28);
-      }else if(type==='digital'){
-        const size=width*(.012+random()*.028);
-        const g=new BoxGeometry(size,size*(.6+random()),size*.55);
-        const m=new MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.85,depthWrite:false,toneMapped:false});
-        piece=new Mesh(g,m);piece.position.set(x,y,.035+random()*width*.10);
-      }else{
-        const size=width*(type==='smoke'?.05:.019)*(0.65+random());
-        const g=new IcosahedronGeometry(size,type==='smoke'?1:1);
-        const m=new MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.28,depthWrite:false,side:DoubleSide,blending:type==='organic'?AdditiveBlending:NormalBlending,toneMapped:false});
-        piece=new Mesh(g,m);piece.position.set(x,y,.04+random()*width*.10);
+        seeds[i]=random();items.push({...sample,index:i,seed:seeds[i],size:.6+random()*.8});
       }
-      piece.frustumCulled=false;
-      piece.castShadow=false;
-      piece.receiveShadow=false;
-      piece.userData.studioCinemaTemporary=true;
-      piece.renderOrder=60+(i%6);
-      group.add(piece);
-      items.push({object:piece,kind,index:i,u,v,r,base:piece.position.clone(),phase:random()*Math.PI*2});
     }
-    const record={group,items,sourceMesh,type,width,height};
-    cinemaVolumeOverlays.set(root,record);
-    return record;
+    const record={root,sourceMesh,type,direction:studioMorphDirectionInfo(c.direction??1).index,group,items,meshes,tube};cinemaVolumeOverlays.set(root,record);return record;
   }
-  function cinemaVolumeUpdate(root,sourceMesh,c,t,colorHex,frame){
-    const type=studioMorphTypes.includes(c.type)?c.type:'organic';
-    let record=cinemaVolumeOverlays.get(root);
-    if(record&&(record.sourceMesh!==sourceMesh||record.type!==type)){
-      cinemaVolumeDispose(root);record=null;
-    }
-    if(t<=0||t>=1){if(record)record.group.visible=false;return}
-    if(!record)record=cinemaVolumeCreate(root,sourceMesh,type);
-    record.group.visible=true;
-    sourceMesh.updateMatrixWorld(true);
-    sourceMesh.matrixWorld.decompose(record.group.position,record.group.quaternion,record.group.scale);
-    const forward=studioMorphDirectionInfo(c.direction??0).vec;
-    const magnitude=Math.hypot(forward[0],forward[1])||1;
-    const dx=forward[0]/magnitude,dy=forward[1]/magnitude;
-    const energy=Math.min(2,Math.max(.1,Number(c.energy??100)/100));
-    const time=frame/24;
-    const rgb=studioMorphNormalizeColor(colorHex);
-    const bright=Number.parseInt(rgb.slice(1),16);
-    const warp=Math.max(0,Number(c.warp??30)/100);
-    for(const item of record.items){
-      // Threshold is identical in temporal phase to the two image shaders.
-      const front=.5+((item.u-.5)*dx+(item.v-.5)*dy)*.65;
-      const growing=studioMorphClamp((t-front+.19)/.33);
-      const decaying=studioMorphClamp((1-t)/.21);
-      const active=growing*decaying;
-      const m=item.object;
-      m.visible=active>.01;
-      if(!m.visible)continue;
-      const material=m.material;
-      if(type==='symbiote'){
-        material.color.setHex(bright).multiplyScalar(item.index%3===0?.85:.28);
-        material.opacity=Math.min(1,active*(item.index%3===0?.78:.97)*energy);
-      }else if(type==='plasma'){
-        material.color.setHex(bright);
-        material.opacity=Math.min(1,active*energy*(.65+.35*Math.sin(time*26+item.phase)));
-      }else if(type==='crystal'){
-        material.color.setHex(bright);
-        material.opacity=active*.72;
-      }else if(type==='digital'){
-        material.color.setHex(bright);
-        material.opacity=active*.74;
-      }else if(type==='smoke'){
-        material.color.setHex(bright).multiplyScalar(.28);
-        material.opacity=active*.20;
-      }else{
-        material.color.setHex(bright);
-        material.opacity=active*.33*energy;
+  function cinemaVolumeUpdate(root,sourceMesh,c,t,colorHex,frame,weight=1){
+    const type=studioMorphTypes.includes(c.type)?c.type:'organic';let rec=cinemaVolumeOverlays.get(root);
+    // The approved muscular style is intentionally unchanged.
+    if(type==='creature'||c.accents===false||t<=0||t>=1||!studioTreeVisible(root)){if(rec)rec.group.visible=false;return;}
+    const direction=studioMorphDirectionInfo(c.direction??1).index;
+    if(rec&&(rec.type!==type||rec.sourceMesh!==sourceMesh||rec.direction!==direction)){cinemaVolumeDispose(root);rec=null;}
+    if(!rec)rec=cinemaVolumeCreate(root,sourceMesh,type,c);if(!rec.items.length)return;
+    rec.group.visible=true;root.updateWorldMatrix(true,true);
+    const frames=new Map(rec.meshes.map(mesh=>[mesh,cinemaSurfaceFrame(mesh)])),box=new Box3().setFromObject(root),size=box.getSize(new Vector3()),span=Math.max(size.x,size.y,size.z,.01);
+    const up=direction===1,clock=frame/24,fade=Math.min(1,(1-t)/.12)*MathUtils.clamp(weight,0,1),color=new Color(colorHex),matrix=new Matrix4(),billboard=camera.getWorldQuaternion(new Quaternion());
+    const height=p=>MathUtils.clamp((p.y-box.min.y)/Math.max(size.y,.0001),0,1);
+    if(rec.tube){
+      for(const item of rec.items){
+        const surface=frames.get(item.mesh),points=item.path.map(vertex=>({point:surface.vertex(vertex.id),normal:surface.normal(vertex.id,vertex.triangle),alpha:(()=>{const uv=item.mesh.geometry.attributes.uv;return surface.alpha(uv?new Vector2(uv.getX(vertex.id),uv.getY(vertex.id)):null);})()}));
+        const geometry=item.object.geometry,p=geometry.attributes.position,n=geometry.attributes.normal,a=geometry.attributes.cinemaAlpha,h=geometry.attributes.cinemaHeight,tex=geometry.attributes.cinemaUV,steps=64,sides=5;
+        for(let step=0;step<=steps;step++){
+          const along=step/steps*(points.length-1),index=Math.min(points.length-2,Math.floor(along)),weight=along-index,start=points[index],end=points[index+1];
+          const normal=start.normal.clone().lerp(end.normal,weight).normalize(),position=start.point.clone().lerp(end.point,weight).addScaledVector(normal,span*.0035);
+          const tangent=end.point.clone().sub(start.point).normalize(),side=new Vector3().crossVectors(tangent,normal);if(side.lengthSq()<1e-6)side.crossVectors(tangent,new Vector3(0,0,1));if(side.lengthSq()<1e-6)side.set(1,0,0);side.normalize();const vertical=new Vector3().crossVectors(tangent,side).normalize();
+          const uv=item.mesh.geometry.attributes.uv,sourceMap=item.object.material.userData.surfaceMap;
+          const surfaceUv=uv?new Vector2(uv.getX(item.path[index].id),uv.getY(item.path[index].id)).lerp(new Vector2(uv.getX(item.path[index+1].id),uv.getY(item.path[index+1].id)),weight):new Vector2();if(sourceMap)sourceMap.transformUv(surfaceUv);
+          const pulse=rec.type==='plasma'?1+.15*Math.sin(clock*17+step*.7+item.seed*20):1+.07*Math.sin(clock*2+step*.16+item.seed*20);
+          const radius=span*(rec.type==='plasma'?.0015:rec.type==='ribbon'?.005:.0035)*item.radius*pulse*(.2+.8*Math.sin(Math.PI*(.05+step/steps*.9)));
+          for(let ring=0;ring<=sides;ring++){
+            const angle=ring/sides*Math.PI*2,offset=side.clone().multiplyScalar(Math.cos(angle)).addScaledVector(vertical,Math.sin(angle)),id=step*(sides+1)+ring;
+            const pos=position.clone().addScaledVector(offset,radius);p.setXYZ(id,pos.x,pos.y,pos.z);n.setXYZ(id,offset.x,offset.y,offset.z);a.setX(id,start.alpha*(1-weight)+end.alpha*weight);h.setX(id,height(position));tex.setXY(id,surfaceUv.x,surfaceUv.y);
+          }
+        }
+        for(const attribute of [p,n,a,h,tex])attribute.needsUpdate=true;
+        const mat=item.object.material;mat.opacity=fade*(rec.type==='plasma'?.8:.97);
+        mat.color.copy(color);if(rec.type!=='plasma')mat.color.multiplyScalar(rec.type==='liquid'?.9:.58);
+        mat.userData.growthValue=t*1.055;mat.userData.upValue=up?1:0;
+        mat.userData.growth&&(mat.userData.growth.value=mat.userData.growthValue);mat.userData.up&&(mat.userData.up.value=mat.userData.upValue);
       }
-      if(item.kind==='tube'){
-        const indices=m.geometry.index?.count||0;
-        const segments=Math.max(0,Math.floor(growing*indices/6));
-        m.geometry.setDrawRange(0,Math.min(indices,segments*6));
-        m.scale.setScalar(1+Math.sin(time*3+item.phase)*warp*.025);
-      }else{
-        const pulse=.7+.3*Math.sin(time*(type==='plasma'?12:4)+item.phase);
-        m.scale.setScalar(Math.max(.003,active*pulse));
-        m.position.copy(item.base);
-        m.position.z+=Math.sin(time*2+item.phase)*record.width*.019*warp;
-        if(type==='digital')m.position.x+=Math.sin(time*16+item.phase)*record.width*.018*warp;
-        if(type==='smoke')m.position.y+=(time%2)*record.height*.024;
+    }else{
+      const object=rec.group.children[0],opacity=object.geometry.attributes.cinemaOpacity;
+      object.material.uniforms.clock.value=clock;object.material.uniforms.smokeColor.value.copy(color).lerp(new Color(0x8d96a3),type==='ash'?.15:.68);object.material.uniforms.opacity.value=fade*.78;
+      for(const item of rec.items){
+        if(!item.mesh||!item.triangle)continue;const hit=frames.get(item.mesh).sample(item.triangle,item.weights),level=up?height(hit.point):1-height(hit.point),distance=Math.abs(level-t),active=1-MathUtils.smoothstep(distance,.06,.28);
+        const age=(((clock*.18+item.seed*2)%1)+1)%1,drift=(up?1:-1)*span*age*.12;
+        const point=hit.point.clone().addScaledVector(hit.normal,span*(.018+age*.075));point.y+=drift;point.x+=Math.sin(clock*.6+item.seed*21)*span*.025*age;
+        const radius=span*(type==='smoke'?.105:.075)*item.size*(.7+age*.6);
+        matrix.compose(point,billboard,new Vector3(radius,radius,radius));object.setMatrixAt(item.index,matrix);opacity.setX(item.index,active*hit.alpha*Math.sin(Math.PI*age));
       }
+      object.instanceMatrix.needsUpdate=true;opacity.needsUpdate=true;
     }
   }
+  // ===== FIM CINEMA MORPH — EFEITOS SOBRE A SUPERFÍCIE E O ALPHA =====
+
   // CINEMA MORPH — GPU transitions shared by the source sequence and target GLB.
   // GPU procedural noise, animated energy veins, chromatic glow, organic sweep and vertex deformation.
-  const studioMorphTypes=['organic','symbiote','plasma','crystal','digital','smoke'];
+  const studioMorphTypes=['organic','symbiote','plasma','crystal','digital','smoke','creature','skin','liquid','ash','ribbon'];
+
+  // ===== INÍCIO CINEMA MORPH — PRESETS E DIREÇÃO TEMPORAL =====
+  const studioCinemaLooks={
+    creature:{label:'Criatura · expansão muscular',type:'creature',soft:70,warp:42,glow:4,detail:55,energy:55,displace:76,coat:12,ease:'cinematic',hold:12,color:'#9d7162',accents:false},
+    symbiote:{label:'Simbionte · cobertura viscosa',type:'symbiote',soft:48,warp:64,glow:5,detail:82,energy:55,displace:48,coat:92,ease:'cinematic',hold:6,color:'#18202c',accents:true},
+    skin:{label:'Metamorfo · mudança sutil de pele',type:'skin',soft:90,warp:18,glow:0,detail:45,energy:35,displace:24,coat:8,ease:'cinematic',hold:0,color:'#bd967e',accents:false},
+    liquid:{label:'Metal líquido · reflexos frios',type:'liquid',soft:70,warp:46,glow:12,detail:62,energy:65,displace:38,coat:95,ease:'smooth',hold:3,color:'#a6becd',accents:false},
+    organic:{label:'Orgânica · tecido vivo',type:'organic',soft:68,warp:42,glow:15,detail:65,energy:70,displace:42,coat:28,ease:'cinematic',hold:0,color:'#59796b',accents:false},
+    plasma:{label:'Plasma · arco de energia',type:'plasma',soft:44,warp:48,glow:68,detail:75,energy:125,displace:30,coat:10,ease:'accelerate',hold:0,color:'#71bfff',accents:true},
+    crystal:{label:'Cristal · crescimento facetado',type:'crystal',soft:28,warp:44,glow:38,detail:78,energy:90,displace:45,coat:60,ease:'smooth',hold:5,color:'#b3d9ed',accents:true},
+    digital:{label:'Digital · reconstrução em dados',type:'digital',soft:22,warp:40,glow:44,detail:82,energy:100,displace:20,coat:0,ease:'linear',hold:0,color:'#63d9e8',accents:true},
+    smoke:{label:'Fumaça · dissolução atmosférica',type:'smoke',soft:88,warp:52,glow:6,detail:48,energy:55,displace:20,coat:0,ease:'smooth',hold:0,color:'#a1a9b4',accents:true},
+    ash:{label:'Cinzas · desintegração quente',type:'ash',soft:55,warp:58,glow:48,detail:85,energy:100,displace:28,coat:0,ease:'accelerate',hold:0,color:'#df783c',accents:true},
+    ribbon:{label:'Membranas · transformação em faixas',type:'ribbon',soft:55,warp:48,glow:12,detail:70,energy:60,displace:52,coat:65,ease:'cinematic',hold:7,color:'#797080',accents:true}
+  };
+  function studioMorphProgress(c,frame){
+    const start=Math.max(1,Number(c.start)||1),end=Math.max(start+1,Number(c.end)||start+1);
+    let t=studioMorphClamp((frame-start)/(end-start));
+    const hold=Math.min(.4,Math.max(0,Number(c.hold)||0)/100),left=.5-hold/2,right=.5+hold/2;
+    if(hold>0)t=t<left?.5*t/left:t>right?.5+.5*(t-right)/(1-right):.5;
+    if(c.ease==='cinematic')t=t*t*t*(t*(t*6-15)+10);
+    else if(c.ease==='smooth')t=t*t*(3-2*t);
+    else if(c.ease==='accelerate')t=t*t;
+    else if(c.ease==='decelerate')t=1-(1-t)*(1-t);
+    return studioMorphClamp(t);
+  }
+  // ===== FIM CINEMA MORPH — PRESETS E DIREÇÃO TEMPORAL =====
   function studioMorphTypeIndex(type){return Math.max(0,studioMorphTypes.indexOf(type||'organic'))}
   const studioMorphDirectionPresets=[
     {label:'Cima → baixo',vec:[0,-1]},
-    {label:'Baixo → cima',vec:[0,1]},
-    {label:'Esquerda → direita',vec:[1,0]},
-    {label:'Direita → esquerda',vec:[-1,0]},
-    {label:'Superior esquerda → inferior direita',vec:[1,-1]},
-    {label:'Superior direita → inferior esquerda',vec:[-1,-1]},
-    {label:'Inferior esquerda → superior direita',vec:[1,1]},
-    {label:'Inferior direita → superior esquerda',vec:[-1,1]}
+    {label:'Baixo → cima',vec:[0,1]}
   ];
   const studioCinemaPalettes={alien:'#14eda8',inferno:'#ff4a0b',spectral:'#547bff',arcane:'#c149ff'};
   function studioMorphColorToVector(color,fallback='#14eda8'){
@@ -51960,7 +52045,7 @@ void main() {
         threshold-=roots*(.17+.22*warp);
         threshold+=(1.-roots)*.045;
       }else if(mode>1.5&&mode<2.5){
-        float arcing=sin(st.x*32.+sin(st.y*19.+seconds*2.4)*2.8+seconds*8.);
+        float arcing=sin(st.x*32.+sin(st.y*19.+seconds*1.1)*2.8+seconds*3.5);
         threshold+=(arcing*.11+(fine-.5)*.22)*(.55+warp);
       }else if(mode>2.5&&mode<3.5){
         vec2 grid=floor(q.xy*(10.+detail*18.));
@@ -51970,8 +52055,22 @@ void main() {
         vec2 grid=floor(q.xy*(18.+detail*30.));
         float bits=cinemaHash(vec3(grid,3.9));
         threshold=sweep+(bits-.5)*(.22+.24*warp);
-      }else if(mode>4.5){
+        threshold=floor(threshold*(18.+detail*24.))/(18.+detail*24.);
+      }else if(mode>4.5&&mode<5.5){
         threshold+=(cinemaFBM(q*6.+drift*2.5)-.5)*(.3+.45*warp);
+      }
+      if(mode>5.5&&mode<6.5){
+        float muscle=sin(q.y*18.+sin(q.x*12.)*2.);
+        threshold=sweep+(coarse-.5)*warp*.34+muscle*warp*.035;
+      }else if(mode>6.5&&mode<7.5){
+        threshold=sweep+(coarse-.5)*warp*.18+(fine-.5)*warp*.055;
+      }else if(mode>7.5&&mode<8.5){
+        threshold=sweep+sin(st.x*13.+coarse*5.+seconds*.6)*warp*.13+(fine-.5)*warp*.13;
+      }else if(mode>8.5&&mode<9.5){
+        threshold=sweep+(cinemaNoise(floor(q*(32.+detail*38.)))-.5)*warp*.58;
+      }else if(mode>9.5){
+        float bands=sin(st.x*(18.+detail*16.)+coarse*4.+seconds*.6);
+        threshold=sweep+bands*warp*.16+(fine-.5)*warp*.12;
       }
       return clamp(threshold,0.,1.);
     }
@@ -51990,7 +52089,7 @@ void main() {
       if(prev)prev.call(material,shader,renderer);
       studioCinemaUniforms(shader,uniforms);
       const header=`
-        uniform float cinema2dProgress,cinema2dSoft,cinema2dWarp,cinema2dGlow,cinema2dTime,cinema2dDetail,cinema2dEnergy;
+        uniform float cinema2dProgress,cinema2dSoft,cinema2dWarp,cinema2dGlow,cinema2dTime,cinema2dDetail,cinema2dEnergy,cinema2dCoat;
         uniform vec3 cinema2dColor;
         uniform vec2 cinema2dDirection;
         uniform float cinema2dType,cinema2dInvert;
@@ -52007,6 +52106,9 @@ void main() {
           vec2 offset=vec2(cinemaNoise(vec3(cuv*23.,cinema2dTime*1.8))-.5,cinemaNoise(vec3(cuv*17.+9.,cinema2dTime*1.4))-.5);
           // Cinematic per-style flow, but always the same field on source and destination.
           float mode=cinema2dType;
+          if(mode>5.5&&mode<6.5)offset+=normalize(cuv-vec2(.5)+vec2(.0001))*nearFront*.34;
+          if(mode>6.5&&mode<7.5)offset*=.28;
+          if(mode>7.5&&mode<8.5)offset+=vec2(sin(cuv.y*15.+cinema2dTime),cos(cuv.x*13.))*nearFront*.16;
           if(mode>.5&&mode<1.5){
             float tendril=cinemaTendril(vec3(cuv,.5),cinema2dTime,cinema2dDetail,cinema2dDirection);
             offset+=cinema2dDirection*nearFront*tendril*.018;
@@ -52016,7 +52118,7 @@ void main() {
             offset+=vec2(cuv.x-.5,cuv.y-.5)*nearFront*.24;
           }else if(mode>3.5&&mode<4.5){
             offset+=vec2(floor(cuv.x*55.)/55.-cuv.x,floor(cuv.y*55.)/55.-cuv.y)*nearFront*1.5;
-          }else if(mode>4.5){
+          }else if(mode>4.5&&mode<5.5){
             offset+=vec2(sin(cuv.y*18.+cinema2dTime*2.),cos(cuv.x*22.-cinema2dTime*3.))*nearFront*.11;
           }else{
             offset+=vec2(sin(cuv.y*17.+cinema2dTime*3.),cos(cuv.x*15.-cinema2dTime*2.))*nearFront*.08;
@@ -52036,20 +52138,25 @@ void main() {
           float front2=cinemaBoundary(vec3(morphUV,.5),cinema2dTime,cinema2dWarp,cinema2dDetail,cinema2dDirection,cinema2dType);
           float width=.009+cinema2dSoft*.065;
           float reveal=cinema2dProgress<=.000001?0.:(cinema2dProgress>=.999999?1.:smoothstep(front2-width,front2+width,cinema2dProgress));
-          float rim=cinemaRim(front2-cinema2dProgress,width*2.)*cinema2dGlow;
-          float sparks=step(.958,cinemaNoise(vec3(morphUV*140.,floor(cinema2dTime*18.))))*rim;
+          float cleanPhase=sin(3.14159265*clamp(cinema2dProgress,0.,1.));
+          float rim=cinemaRim(front2-cinema2dProgress,width*2.)*cinema2dGlow*cleanPhase;
+          float sparkStyle=(cinema2dType>1.5&&cinema2dType<4.5||cinema2dType>8.5&&cinema2dType<9.5)?1.:.12;
+          float sparks=step(.978,cinemaNoise(vec3(morphUV*140.,floor(cinema2dTime*12.))))*rim*sparkStyle;
           float rootGlow=0.;
           if(cinema2dType>.5&&cinema2dType<1.5){
             float roots=cinemaTendril(vec3(morphUV,.5),cinema2dTime,cinema2dDetail,cinema2dDirection);
             rootGlow=roots*reveal*(1.-smoothstep(.04,.34,cinema2dProgress-front2));
           }
-          float flicker=.75+.25*sin(cinema2dTime*23.+morphUV.x*24.);
-          diffuseColor.rgb+=cinema2dColor*(rim*1.5+sparks*2.5+rootGlow*1.45)*flicker*cinema2dEnergy;
+          float flicker=.94+.06*sin(cinema2dTime*5.+morphUV.x*24.);
+          diffuseColor.rgb+=cinema2dColor*(rim*1.5+sparks*2.5+rootGlow*1.45*cleanPhase)*flicker*cinema2dEnergy;
+          float coat=cinema2dCoat*cinemaRim(front2-cinema2dProgress,.32)*cleanPhase;
+          float streak=pow(max(0.,sin(morphUV.x*8.+morphUV.y*4.+cinema2dTime*.4)),22.);
+          diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*.42+cinema2dColor*.18+vec3(streak*.7),coat);
           diffuseColor.a*=mix(1.-reveal,reveal,cinema2dInvert);
         }
       `);
     };
-    material.customProgramCacheKey=()=> 'studio-cinema-source-styles-v4';
+    material.customProgramCacheKey=()=> 'studio-cinema-source-styles-v5';
     material.transparent=true;
     material.depthWrite=false;
     material.needsUpdate=true;
@@ -52073,20 +52180,27 @@ void main() {
         vec3 q=clamp((worldPre-cinema3dMin)/max(cinema3dSize,vec3(.00001)),0.,1.);
         float boundary=cinemaBoundary(q,cinema3dTime,cinema3dWarp,.6,cinema3dDirection,cinema3dType);
         float envelope=cinemaRim(boundary-cinema3dProgress,.20)*sin(3.14159265*cinema3dProgress);
-        float ripple=cinemaFBM(q*19.+vec3(cinema3dTime*.7));
+        float ripple=cinemaFBM(q*19.+vec3(cinema3dTime*.3));
+        if(cinema3dType>2.5&&cinema3dType<3.5)ripple=cinemaHash(floor(q*24.));
         float styleAmplitude=1.;
         if(cinema3dType>.5&&cinema3dType<1.5)styleAmplitude=1.8+cinemaTendril(q,cinema3dTime,.7,cinema3dDirection)*1.5;
         else if(cinema3dType>1.5&&cinema3dType<2.5)styleAmplitude=1.5+.7*sin(cinema3dTime*14.+q.y*32.);
         else if(cinema3dType>2.5&&cinema3dType<3.5)styleAmplitude=1.3;
         else if(cinema3dType>3.5&&cinema3dType<4.5)styleAmplitude=.6;
-        else if(cinema3dType>4.5)styleAmplitude=1.4;
-        transformed+=normal*cinema3dDisplace*envelope*(ripple-.35)*.085*length(cinema3dSize)*styleAmplitude;
+        else if(cinema3dType>4.5&&cinema3dType<5.5)styleAmplitude=1.4;
+        else if(cinema3dType>5.5&&cinema3dType<6.5)styleAmplitude=2.0+sin(q.y*20.)*.35;
+        else if(cinema3dType>6.5&&cinema3dType<7.5)styleAmplitude=.22;
+        else if(cinema3dType>7.5&&cinema3dType<8.5)styleAmplitude=.9;
+        else if(cinema3dType>8.5&&cinema3dType<9.5)styleAmplitude=.7;
+        else if(cinema3dType>9.5)styleAmplitude=1.7;
+        float tissue=cinema3dType>5.5&&cinema3dType<6.5?.45+.35*ripple:ripple-.35;
+        transformed+=normal*cinema3dDisplace*envelope*tissue*.085*length(cinema3dSize)*styleAmplitude;
         cinema3dWorld=(modelMatrix*vec4(transformed,1.)).xyz;
         #include <project_vertex>
       `);
       shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
         varying vec3 cinema3dWorld;
-        uniform float cinema3dProgress,cinema3dSoft,cinema3dWarp,cinema3dGlow,cinema3dTime,cinema3dDetail,cinema3dEnergy;
+        uniform float cinema3dProgress,cinema3dSoft,cinema3dWarp,cinema3dGlow,cinema3dTime,cinema3dDetail,cinema3dEnergy,cinema3dCoat;
         uniform vec3 cinema3dMin,cinema3dSize,cinema3dColor;
         uniform vec2 cinema3dDirection;
         uniform float cinema3dType,cinema3dInvert;
@@ -52096,21 +52210,23 @@ void main() {
         vec3 q=clamp((cinema3dWorld-cinema3dMin)/max(cinema3dSize,vec3(.00001)),0.,1.);
         float front=cinemaBoundary(q,cinema3dTime,cinema3dWarp,cinema3dDetail,cinema3dDirection,cinema3dType);
         float width=.009+cinema3dSoft*.065;
-        float reveal=smoothstep(front-width,front+width,cinema3dProgress);
+        float reveal=cinema3dProgress<=.000001?0.:(cinema3dProgress>=.999999?1.:smoothstep(front-width,front+width,cinema3dProgress));
         if(cinema3dInvert>.5){
-          if(cinema3dProgress<.00001||reveal<.48)discard;
+          if(cinema3dProgress<.00001||reveal<cinemaHash(vec3(floor(gl_FragCoord.xy),0.)))discard;
         }else{
-          if(cinema3dProgress>=.99999||reveal>=.48)discard;
+          if(cinema3dProgress>=.99999||reveal>=cinemaHash(vec3(floor(gl_FragCoord.xy),0.)))discard;
         }
-        float rim=cinemaRim(front-cinema3dProgress,width*2.);
+        float cleanPhase=sin(3.14159265*clamp(cinema3dProgress,0.,1.));
+        float rim=cinemaRim(front-cinema3dProgress,width*2.)*cleanPhase;
         float veins=pow(cinemaFBM(q*32.+vec3(cinema3dTime*.9)),5.);
-        float sparks=step(.94,cinemaNoise(q*195.+vec3(floor(cinema3dTime*16.))))*rim;
+        float sparkStyle=(cinema3dType>1.5&&cinema3dType<4.5||cinema3dType>8.5&&cinema3dType<9.5)?1.:.12;
+        float sparks=step(.978,cinemaNoise(q*195.+vec3(floor(cinema3dTime*12.))))*rim*sparkStyle;
         float rootGlow=0.;
         if(cinema3dType>.5&&cinema3dType<1.5){
           float roots=cinemaTendril(q,cinema3dTime,cinema3dDetail,cinema3dDirection);
           rootGlow=roots*reveal*(1.-smoothstep(.04,.36,cinema3dProgress-front));
         }
-        float pulse=.76+.24*sin(cinema3dTime*19.+q.y*24.);
+        float pulse=.94+.06*sin(cinema3dTime*5.+q.y*24.);
         if(cinema3dType>1.5&&cinema3dType<2.5){
           float bolts=pow(abs(sin(q.y*75.+sin(q.x*50.+cinema3dTime*7.)*5.)),24.);
           rootGlow+=bolts*rim*1.8;
@@ -52118,20 +52234,23 @@ void main() {
           rootGlow+=pow(cinemaNoise(floor(q*45.)+vec3(cinema3dTime*.1)),8.)*rim*1.7;
         }else if(cinema3dType>3.5&&cinema3dType<4.5){
           rootGlow+=step(.87,cinemaNoise(floor(q*65.)+vec3(floor(cinema3dTime*7.))))*rim;
-        }else if(cinema3dType>4.5){
+        }else if(cinema3dType>4.5&&cinema3dType<5.5){
           rootGlow+=cinemaFBM(q*8.+vec3(cinema3dTime*.2))*rim*.35;
         }
-        gl_FragColor.rgb+=cinema3dColor*(rim*cinema3dGlow*1.9+veins*rim*.55+sparks*2.5+rootGlow*1.7)*cinema3dEnergy*pulse;
+        float coat=cinema3dCoat*cinemaRim(front-cinema3dProgress,.32)*cleanPhase;
+        float streak=pow(max(0.,sin(q.x*9.+q.y*5.+q.z*4.+cinema3dTime*.4)),24.);
+        gl_FragColor.rgb=mix(gl_FragColor.rgb,gl_FragColor.rgb*.42+cinema3dColor*.18+vec3(streak*.7),coat);
+        gl_FragColor.rgb+=cinema3dColor*(rim*cinema3dGlow*1.9+veins*rim*.55+sparks*2.5+rootGlow*1.7*cleanPhase)*cinema3dEnergy*pulse;
       `);
     };
     const key=material.customProgramCacheKey?.bind(material);
-    material.customProgramCacheKey=()=> (key?key():'')+'-studio-cinema-creature-styles-v4';
+    material.customProgramCacheKey=()=> (key?key():'')+'-studio-cinema-creature-styles-v5';
     material.needsUpdate=true;
   }
   function studioMorphPrepareGLB(root){
     let rec=studioMorphGLBMaterials.get(root);if(rec)return rec;
     const base=studioMorphBase(root);
-    rec={parts:[],nodes:[],rootVisible:base.rootVisible,uniforms:{progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},invert:{value:1},min:{value:new Vector3()},size:{value:new Vector3(1,1,1)}}};
+    rec={parts:[],nodes:[],rootVisible:base.rootVisible,uniforms:{progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},coat:{value:0},invert:{value:1},min:{value:new Vector3()},size:{value:new Vector3(1,1,1)}}};
     // Guardar a visibilidade de todos os nós: malhas, grupos e ossos.
     // Um GLB importado pode ter sido ocultado antes da transição.
     root.traverse(node=>{if(node!==root)rec.nodes.push({node,visible:base.nodes.has(node)?base.nodes.get(node):node.visible})});
@@ -52159,6 +52278,7 @@ void main() {
   }
   function studioMorphSetGLBState(rec,c,t,frame,invert){
     rec.uniforms.progress.value=t;
+    rec.uniforms.coat.value=studioMorphClamp(Number(c.coat??0)/100);
     rec.uniforms.soft.value=studioMorphClamp(Number(c.soft??35)/100);
     rec.uniforms.warp.value=studioMorphClamp(Number(c.warp??30)/100);
     rec.uniforms.glow.value=studioMorphClamp(Number(c.glow??35)/100);
@@ -52321,14 +52441,15 @@ void main() {
       if(!data||data.mesh!==mesh){
         studioMorphRestore(root);
         const original=mesh.material,material=original.clone();
-        const uniforms={progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},invert:{value:0}};
+        const uniforms={progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},coat:{value:0},invert:{value:0}};
         studioMorphShader(material,uniforms);mesh.material=material;
         // A visibilidade do plano/objeto é sempre controlada manualmente.
         data={mesh,original,material,uniforms,originalVisible:mesh.visible,originalRenderOrder:mesh.renderOrder};studioMorphMaterials.set(root,data);
       }
       const start=Math.max(1,Number(c.start)||1),end=Math.max(start+1,Number(c.end)||start+1);
-      const t=studioMorphClamp((frame-start)/(end-start));
+      const t=studioMorphProgress(c,frame);
       data.uniforms.progress.value=t;
+      data.uniforms.coat.value=studioMorphClamp(Number(c.coat??0)/100);
       data.uniforms.soft.value=studioMorphClamp(Number(c.soft??35)/100);
       data.uniforms.warp.value=studioMorphClamp(Number(c.warp??30)/100);
       data.uniforms.glow.value=studioMorphClamp(Number(c.glow??35)/100);
@@ -52343,7 +52464,7 @@ void main() {
       data.uniforms.direction.value.set(direction.vec[0],direction.vec[1]);
       data.uniforms.type.value=studioMorphTypeIndex(c.type);
       // Optional 3D accents must never interrupt core image rendering.
-      try{cinemaVolumeUpdate(root,mesh,c,t,colorHex,frame)}catch(error){
+      try{cinemaVolumeUpdate(root,mesh,c,t,colorHex,frame,1-t)}catch(error){
         console.warn('Cinema Morph 3D: acessório desativado para proteger imagens',error);
         try{cinemaVolumeDispose(root)}catch(_){}
       }
@@ -52359,15 +52480,16 @@ void main() {
         if(!dest||dest.mesh!==targetMesh){
           studioMorphRestore(targetRoot);
           const original=targetMesh.material,material=original.clone();
-          const uniforms={progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},invert:{value:1}};
+          const uniforms={progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},coat:{value:0},invert:{value:1}};
           studioMorphShader(material,uniforms);targetMesh.material=material;
           dest={mesh:targetMesh,original,material,uniforms,originalVisible:targetMesh.visible,originalRenderOrder:targetMesh.renderOrder};
           studioMorphMaterials.set(targetRoot,dest);
         }
-        for(const key of ['progress','soft','warp','glow','time','detail','energy','displace','type'])dest.uniforms[key].value=data.uniforms[key].value;
+        for(const key of ['progress','soft','warp','glow','time','detail','energy','displace','type','coat'])dest.uniforms[key].value=data.uniforms[key].value;
         dest.uniforms.color.value.copy(data.uniforms.color.value);
         dest.uniforms.direction.value.copy(data.uniforms.direction.value);
         dest.uniforms.invert.value=1;
+        cinemaVolumeUpdate(targetRoot,targetMesh,c,t,colorHex,frame,t);
         // Cada sequência mantém posição, rotação e escala próprias.
         // Somente os parâmetros temporais/visuais do shader são compartilhados.
         // Assim é possível redimensionar manualmente o destino sem a prévia sobrescrever o ajuste.
@@ -52379,7 +52501,9 @@ void main() {
         continue;
       }
       const creature=studioMorphPrepareGLB(targetObject.root);
+      cinemaVolumeUpdate(targetObject.root,null,c,t,studioMorphNormalizeColor(c.color),frame,t);
       creature.uniforms.progress.value=t;
+      creature.uniforms.coat.value=data.uniforms.coat.value;
       creature.uniforms.soft.value=data.uniforms.soft.value;
       creature.uniforms.glow.value=data.uniforms.glow.value;
       creature.uniforms.warp.value=data.uniforms.warp.value;
@@ -52415,11 +52539,12 @@ void main() {
     }
     for(const {root,c,destination} of glbPairs){
       const start=Math.max(1,Number(c.start)||1),end=Math.max(start+1,Number(c.end)||start+1);
-      const t=studioMorphClamp((frame-start)/(end-start));
+      const t=studioMorphProgress(c,frame);
       const sourceRec=studioMorphPrepareGLB(root);
       studioMorphSetGLBState(sourceRec,c,t,frame,false);
       studioMorphSetGLBBounds(sourceRec,root);
       studioMorphGLBVisibility(sourceRec,root,t<1);
+      cinemaVolumeUpdate(root,null,c,t,studioMorphNormalizeColor(c.color),frame,1-t);
       if(destination.userData.studioSequence?.kind==='images'){
         // GLB -> sequência: the same 2D mask already used for imagem -> imagem
         // progressively reveals the destination without moving or scaling it.
@@ -52431,23 +52556,25 @@ void main() {
         if(!record||record.mesh!==targetMesh){
           studioMorphRestore(destination);
           const original=targetMesh.material,material=original.clone();
-          const uniforms={progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},invert:{value:1}};
+          const uniforms={progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},coat:{value:0},invert:{value:1}};
           studioMorphShader(material,uniforms);
           targetMesh.material=material;
           record={mesh:targetMesh,original,material,uniforms,originalVisible:true,originalRenderOrder:targetMesh.renderOrder};
           studioMorphMaterials.set(destination,record);
         }
         const u=record.uniforms,g=sourceRec.uniforms;
-        for(const name of ['progress','soft','warp','glow','time','detail','energy','displace','type'])u[name].value=g[name].value;
+        for(const name of ['progress','soft','warp','glow','time','detail','energy','displace','type','coat'])u[name].value=g[name].value;
         u.color.value.copy(g.color.value);
         u.direction.value.copy(g.direction.value);
         u.invert.value=1;
+        cinemaVolumeUpdate(destination,targetMesh,c,t,studioMorphNormalizeColor(c.color),frame,t);
         // Não forçar visibilidade do destino GLB → sequência.
       }else{
         const targetRec=studioMorphPrepareGLB(destination);
         studioMorphSetGLBState(targetRec,c,t,frame,true);
         studioMorphSetGLBBounds(targetRec,destination);
         studioMorphGLBVisibility(targetRec,destination,t>0);
+        cinemaVolumeUpdate(destination,null,c,t,studioMorphNormalizeColor(c.color),frame,t);
       }
       targets.add(root);targets.add(destination);
       vfxLastDraw=0;
@@ -52456,7 +52583,7 @@ void main() {
     for(const root of [...studioMorphSequenceTargets.keys()])if(!targets.has(root))studioMorphRestoreSequenceTarget(root);
     for(const root of [...cinemaVolumeOverlays.keys()]){
       const cfg=studioMorphConfig(root);
-      if(!cfg?.targetId||!objects.some(o=>o.root===root))cinemaVolumeDispose(root);
+      if(!participating.has(root)||!objects.some(o=>o.root===root))cinemaVolumeDispose(root);
     }
     // Objetos que saíram do Morph deixam de ter estado temporário guardado;
     // assim alterações manuais posteriores de visibilidade são respeitadas.
@@ -52483,7 +52610,7 @@ void main() {
   // Trocar origem/destino não deve sobrescrever o texto e os sliders.
   let studioMorphFieldsInitialized=false;
   function studioMorphCopyPanelParameters(c){
-    for(const name of ['Start','End','Soft','Warp','Glow','Detail','Energy','Displace']){
+    for(const name of ['Start','End','Soft','Warp','Glow','Detail','Energy','Displace','Coat','Hold']){
       const n=Number($('studioMorph'+name).value);
       if(Number.isFinite(n))c[name.toLowerCase()]=n;
     }
@@ -52492,6 +52619,7 @@ void main() {
     c.type=studioMorphTypes.includes($('studioMorphType').value)?$('studioMorphType').value:'organic';
     c.color=studioMorphNormalizeColor($('studioMorphColor').value,c.preset||'alien');
     c.direction=studioMorphDirectionInfo($('studioMorphDirection').value).index;
+    c.ease=$('studioMorphEase').value;c.accents=$('studioMorphAccents').checked;
     delete c.preset;
   }
   function syncStudioMorphUI(){
@@ -52514,14 +52642,15 @@ void main() {
     // Inicializa uma única vez (inclusive a partir de um projeto existente).
     // Nas próximas seleções os valores permanecem exatamente como o usuário deixou.
     if(!studioMorphFieldsInitialized){
-      for(const [field,val]of [['Start',c.start??24],['End',c.end??72],['Soft',c.soft??35],['Warp',c.warp??30],['Glow',c.glow??35],['Detail',c.detail??65],['Energy',c.energy??100],['Displace',c.displace??55],['Direction',c.direction??0]]){
-        $('studioMorph'+field).value=val;
+      for(const [field,val]of [['Start',c.start??24],['End',c.end??72],['Soft',c.soft??35],['Warp',c.warp??30],['Glow',c.glow??35],['Detail',c.detail??65],['Energy',c.energy??100],['Displace',c.displace??55],['Direction',c.direction??0],['Coat',c.coat??0],['Hold',c.hold??0]]){
+        $('studioMorph'+field).value=field==='Direction'?studioMorphDirectionInfo(val).index:val;
       }
       $('studioMorphType').value=studioMorphTypes.includes(c.type)?c.type:'organic';
       $('studioMorphColor').value=studioMorphNormalizeColor(c.color,c.preset||'alien');
+      $('studioMorphEase').value=c.ease||'linear';$('studioMorphAccents').checked=c.accents!==false;
       studioMorphFieldsInitialized=true;
     }
-    for(const name of ['Soft','Warp','Glow','Detail','Energy','Displace'])$('studioMorph'+name+'Out').textContent=$('studioMorph'+name).value+'%';
+    for(const name of ['Soft','Warp','Glow','Detail','Energy','Displace','Coat','Hold'])$('studioMorph'+name+'Out').textContent=$('studioMorph'+name).value+'%';
     $('studioMorphDirectionOut').textContent=studioMorphDirectionInfo($('studioMorphDirection').value).label;
   }
   $('studioMorphSource').addEventListener('change',()=>{
@@ -52537,7 +52666,7 @@ void main() {
     }
     syncStudioMorphUI();
   });
-  for(const [field,eventName] of [['Target','change'],['Start','change'],['End','change'],['Soft','input'],['Warp','input'],['Glow','input'],['Color','input'],['Type','change'],['Direction','input'],['Detail','input'],['Energy','input'],['Displace','input']]){
+  for(const [field,eventName] of [['Target','change'],['Start','change'],['End','change'],['Soft','input'],['Warp','input'],['Glow','input'],['Color','input'],['Type','change'],['Direction','input'],['Detail','input'],['Energy','input'],['Displace','input'],['Coat','input'],['Hold','input'],['Ease','change'],['Accents','change']]){
     const input=$('studioMorph'+field);
     input.addEventListener(eventName,()=>{
       const o=studioMorphEditorObject();if(!o||exportState||studioSaving)return;
@@ -52595,6 +52724,23 @@ void main() {
     });
   }
 
+
+  // ===== INÍCIO CINEMA MORPH — APLICAR PRESETS E PRÉVIA =====
+  $('studioMorphApplyLook').onclick=()=>{
+    const look=studioCinemaLooks[$('studioMorphLook').value];if(!look||exportState||studioSaving)return;
+    for(const name of ['Soft','Warp','Glow','Detail','Energy','Displace','Coat','Hold'])$('studioMorph'+name).value=look[name.toLowerCase()];
+    $('studioMorphType').value=look.type;$('studioMorphColor').value=look.color;
+    if(look.type!=='creature')$('studioMorphDirection').value=1;
+    $('studioMorphEase').value=look.ease;$('studioMorphAccents').checked=look.accents;
+    $('studioMorphType').dispatchEvent(new Event('change',{bubbles:true}));
+    status('Cinema Morph: '+look.label+'. Ajuste o início e o fim na timeline.');
+  };
+  for(const [id,fraction]of [['Start',0],['Middle',.5],['End',1]])$('studioMorphPreview'+id).onclick=()=>{
+    if(exportState||studioSaving)return;
+    const start=Math.max(1,Number($('studioMorphStart').value)||1),end=Math.max(start+1,Number($('studioMorphEnd').value)||start+1);
+    pauseTimeline();setTimelineFrame(Math.round(start+(end-start)*fraction),true);
+  };
+  // ===== FIM CINEMA MORPH — APLICAR PRESETS E PRÉVIA =====
   function syncSequenceUI(){
     const select=$('sequenceSelect');if(!select)return;
     const list=objects.filter(o=>o.root.userData.studioSequence),object=sequenceObject();
