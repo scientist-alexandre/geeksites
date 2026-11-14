@@ -169,6 +169,37 @@ main>nav button{display:block!important;flex-shrink:0;width:100%;height:auto;min
 main>nav button::before,main>nav button::after{display:none!important;content:none!important}
 @media(max-width:900px){main>nav{padding:8px 6px}main>nav button{font-size:11.5px!important;padding:8px 5px!important}}
 
+
+/* Menu principal em uma linha; opções auxiliares em sua própria barra. */
+header{height:48px;min-height:48px;flex-wrap:nowrap;gap:6px;padding:0 10px;overflow:visible;align-items:stretch}
+header>details{display:flex;align-items:center;font-size:13px}
+header>details>summary{display:flex;align-items:center;height:100%;padding:0 9px;white-space:nowrap}
+header .dropdown{top:100%;left:0}
+header .workspace-tabs{display:flex;align-items:stretch;flex:1 1 auto;height:100%;min-width:0;gap:0;overflow:visible}
+header .workspace-tab{flex:1 1 auto;min-width:0;height:100%;padding:0 8px;font-size:13px}
+#studioOptionsBar{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;flex-wrap:wrap;gap:4px 12px;padding:5px 10px;background:#20232b;border-bottom:1px solid #343845}
+#studioOptionsBar #boneDisplayTools{position:static;display:flex;align-items:center;flex-wrap:wrap;max-width:none;gap:8px;padding:0;margin:0;background:none;border:0;border-radius:0;z-index:auto}
+#studioOptionsBar #boneDisplayTools input{width:90px}
+#studioOptionsBar #studioCameraOrbitPanel{border-left:0!important;padding:0!important}
+@media(max-width:900px){header{gap:2px;padding:0 4px}header>details{font-size:12px}header>details>summary{padding:0 5px}header .workspace-tab{padding:0 4px;font-size:12px}}
+@media(max-width:620px){header{height:44px;min-height:44px;gap:0;padding:0 2px}header>details{font-size:10px}header>details>summary{padding:0 3px}header .workspace-tab{padding:0 2px;font-size:clamp(7px,1.65vw,10px)}}
+
+/* Cabeçalho compacto: menus, abas, ossos e câmera em uma única linha. */
+header{height:40px;min-height:40px;display:flex;flex-wrap:nowrap;align-items:stretch;gap:2px;padding:0 5px;overflow:visible}
+header>details{flex:0 0 auto;font-size:11px}
+header>details>summary{padding:0 5px}
+header .workspace-tabs{flex:1 1 auto;min-width:0;height:100%;gap:0;overflow:visible}
+header .workspace-tab{flex:1 1 auto;min-width:0;padding:0 4px;height:100%;font-size:10px;letter-spacing:-.15px}
+header #boneDisplayTools{position:static;flex:0 1 auto;display:flex;align-items:center;flex-wrap:nowrap;gap:4px;max-width:none;margin:0;padding:0 5px;background:none;border:0;border-left:1px solid #444b5c;border-radius:0;white-space:nowrap;font-size:10px;z-index:auto}
+header #boneDisplayTools label{gap:3px;white-space:nowrap}
+header #boneDisplayTools input{width:48px;min-width:20px}
+header #boneDisplayTools output{min-width:24px;font-size:9px}
+header #boneDisplayTools button{padding:4px;font-size:9px;white-space:nowrap}
+header #studioCameraOrbitPanel{flex:0 1 170px!important;min-width:95px;padding:0 5px!important;font-size:10px!important}
+header #studioCameraOrbitPanel label{display:flex;align-items:center;gap:4px;min-width:0;white-space:nowrap}
+header #studioCameraOrbitTarget{flex:1 1 auto;width:95px!important;min-width:35px;max-width:125px!important;padding:4px 2px!important;font-size:10px!important}
+@media(max-width:1100px){header{height:38px;min-height:38px;gap:0;padding:0 3px}header .workspace-tab{font-size:9px;padding:0 3px}header #boneDisplayTools{gap:3px;padding:0 3px}header #boneDisplayTools input{width:32px}header #boneDisplayTools button{font-size:8px;padding:3px}header #studioCameraOrbitPanel{flex-basis:145px!important;font-size:9px!important}header #studioCameraOrbitTarget{width:70px!important;font-size:9px!important}}
+@media(max-width:900px){header>details{font-size:9px}header>details>summary{padding:0 3px}header .workspace-tab{font-size:8px;padding:0 2px;letter-spacing:-.3px}header #boneDisplayTools{font-size:8px;gap:2px}header #boneDisplayTools input{width:24px}header #boneDisplayTools button{font-size:7px;padding:3px 2px}header #boneDisplayTools output{font-size:7px;min-width:19px}header #studioCameraOrbitPanel{flex-basis:120px!important;min-width:75px;font-size:8px!important;padding:0 2px!important}header #studioCameraOrbitTarget{width:50px!important;font-size:8px!important}}
 </style>
 <script>(() => {
   var __create = Object.create;
@@ -1014,16 +1045,16 @@ main>nav button::before,main>nav button::after{display:none!important;content:no
   window.__offlineGifenc = gifenc;
 })();
 </script><style>.timeKey.selected{background:#ffcc66!important;box-shadow:0 0 0 3px #ffcc6680!important;z-index:4}</style><style>.sceneObjectRow{grid-template-columns:16px minmax(0,1fr) 22px 22px 22px!important}</style><style>.studioMorphPanel{margin:15px 0;padding:12px;border:1px solid #685689;border-radius:8px;background:#2a2739}.studioMorphPanel h3{margin:1px 0 12px;color:#e3d2ff}.studioMorphPanel>label{display:block;margin:10px 0;font-size:11px;color:#cdc4e5}.studioMorphPanel input[type=range]{width:100%;accent-color:#ac92f0}.studioMorphPanel input[type=number]{width:100%;padding:6px;background:#161923;border:1px solid #494557;color:#eee;border-radius:4px}.studioMorphPanel output{float:right;color:#d0b4ff}.studioMorphPair{display:grid;grid-template-columns:1fr 1fr;gap:9px}.studioMorphPair label{min-width:0;font-size:11px}.studioMorphPanel .muted{font-size:11px}</style></head>
-<body><header><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar projeto compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button id="tabShapes" class="workspace-tab" role="tab" aria-selected="false" aria-controls="panelShapes">Shape Keys</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabHand" role="tab" aria-selected="false" aria-controls="panelHand">Mão</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button><button class="workspace-tab" id="tabSequences" role="tab" aria-selected="false" aria-controls="panelSequences">Sequências</button><button class="workspace-tab" id="tabObjects" role="tab" aria-selected="false" aria-controls="panelObjects">Objetos</button><button class="workspace-tab" id="tabMorph" role="tab" aria-selected="false" aria-controls="panelMorph">Morph</button></div><div id="boneDisplayTools"><label>Tamanho dos ossos <input id="boneDisplaySize" type="range" min="2" max="20" step="0.5" value="6" aria-label="Raio visual das juntas em pixels"><output id="boneDisplayValue">6 px</output></label><button id="boneReweight" title="Recalcular pesos do rig manual usando segmentos locais em 3D">Recalcular influência</button><button id="boneReweightUndo" disabled>Desfazer influência</button></div></header>
+<body><header><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar projeto compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button id="tabShapes" class="workspace-tab" role="tab" aria-selected="false" aria-controls="panelShapes">Shape Keys</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabHand" role="tab" aria-selected="false" aria-controls="panelHand">Mão</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button><button class="workspace-tab" id="tabSequences" role="tab" aria-selected="false" aria-controls="panelSequences">Sequências</button><button class="workspace-tab" id="tabObjects" role="tab" aria-selected="false" aria-controls="panelObjects">Objetos</button><button class="workspace-tab" id="tabMorph" role="tab" aria-selected="false" aria-controls="panelMorph">Morph</button></div><div id="boneDisplayTools"><label>Tamanho dos ossos <input id="boneDisplaySize" type="range" min="2" max="20" step="0.5" value="6" aria-label="Raio visual das juntas em pixels"><output id="boneDisplayValue">6 px</output></label></div></header>
 <main><nav aria-label="Ferramentas da cena">
 <button id="orbit" title="Navegar pela cena">Navegar</button>
-<button id="toolPose" title="Modo pose">Modo pose</button>
+<button id="toolPose" title="Modo pose" aria-keyshortcuts="Space">Modo pose</button>
 <button id="frame" title="Enquadrar personagem (F)">Enquadrar</button>
 <button id="baseGrab" title="Grab · corrigir malha">Grab</button>
 <button id="baseGrabUndo" title="Desfazer Grab">Desfazer Grab</button>
-<button id="objectMove" title="Mover objeto no cenário" aria-label="Mover objeto">Mover</button>
-<button id="objectScale" title="Escalar osso selecionado ou personagem inteiro uniformemente" aria-label="Escalar objeto">Escalar</button>
-<button id="objectRotate" title="Girar osso selecionado ou personagem inteiro" aria-label="Girar objeto">Girar</button>
+<button id="objectMove" title="Mover objeto no cenário" aria-label="Mover objeto" aria-keyshortcuts="W">Mover</button>
+<button id="objectScale" title="Escalar osso selecionado ou personagem inteiro uniformemente" aria-label="Escalar objeto" aria-keyshortcuts="E">Escalar</button>
+<button id="objectRotate" title="Girar osso selecionado ou personagem inteiro" aria-label="Girar objeto" aria-keyshortcuts="R">Girar</button>
 <button id="showBones" class="active" title="Mostrar ou ocultar ossos">Mostrar ossos</button>
 <button id="viewportGridToggle" title="Mostrar ou esconder grade do viewport 3D" aria-label="Mostrar piso do viewport 3D" aria-pressed="false">Piso 3D</button>
 <button id="followBones" title="Seguir ossos">Seguir ossos</button>
@@ -1031,13 +1062,13 @@ main>nav button::before,main>nav button::after{display:none!important;content:no
 <button id="objectVisibility" title="Mostrar ou ocultar o objeto selecionado">Visível</button>
 <button id="duplicateSceneObject" title="Duplicar objeto selecionado">Duplicar objeto</button>
 <button id="deleteSceneObject" title="Excluir objeto selecionado da cena">Excluir objeto</button>
-</nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="rotationAxes" hidden><button data-axis="all" class="active" title="Mostrar os três anéis">XYZ</button><button data-axis="X" title="Girar no eixo X">X</button><button data-axis="Y" title="Girar no eixo Y">Y</button><button data-axis="Z" title="Girar no eixo Z">Z</button><button data-axis="XYZE" title="Giro livre nos três eixos">Livre</button></div><div id="error"></div><div class="hint" id="hint">Arraste para olhar ao redor · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelSequences" role="tabpanel" aria-labelledby="tabSequences" hidden><div class="sequencePanel"><h3 id="sequenceHeading">Sequências</h3><button id="sequenceImport" class="primary">＋ Importar pasta de imagens</button><input id="sequenceFiles" type="file" accept="image/*" webkitdirectory directory multiple hidden><label>Sequência na cena<select id="sequenceSelect" aria-label="Sequência na cena"></select></label><div id="sequenceControls" hidden><div class="sequenceButtons"><button id="sequencePlay">▶ Play</button><button id="sequencePause">Ⅱ Pausar</button><button id="sequenceRestart">↺ Início</button></div><label><input id="sequenceLoop" type="checkbox"> Loop</label><label><input id="sequenceVisible" type="checkbox"> Visível na cena</label><div class="sequenceButtons"><button id="sequenceKeyPlay">◆ Play no frame</button><button id="sequenceKeyPause">◆ Pause no frame</button></div><button id="sequenceOpenTrack">Abrir timeline do objeto</button><label id="sequenceFpsLabel">Velocidade (FPS)<input id="sequenceFps" type="number" min="1" max="120" step="1" value="24" aria-label="Velocidade da sequência em FPS"></label><label>Posição / início <output id="sequenceTime">0.00 s</output><input id="sequenceSeek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Posição do vídeo"></label><div class="sequenceButtons"><button id="sequenceMove">Mover</button><button id="sequenceRotate">Girar</button><button id="sequenceScale">Escalar</button></div><div id="studioMorphPanel" class="studioMorphPanel"><h3>Cinema Morph</h3><label>Objeto de origem (sequência ou GLB)<select id="studioMorphSource" aria-label="Objeto de origem da metamorfose"></select></label><label>Destino da transformação (GLB ou sequência de imagens)<select id="studioMorphTarget"><option value="">Desativado</option></select></label><div class="studioMorphPair"><label>Frame inicial<input id="studioMorphStart" type="number" min="1" max="100000" step="1" value="24"></label><label>Frame final<input id="studioMorphEnd" type="number" min="2" max="100000" step="1" value="72"></label></div><label>Transição orgânica <output id="studioMorphSoftOut">35%</output><input id="studioMorphSoft" type="range" min="1" max="100" value="35"></label><label>Distorção da transformação <output id="studioMorphWarpOut">30%</output><input id="studioMorphWarp" type="range" min="0" max="100" value="30"></label><label>Brilho da transformação <output id="studioMorphGlowOut">35%</output><input id="studioMorphGlow" type="range" min="0" max="100" value="35"></label><div class="cinemaMorphExtra"><div class="cinemaMorphEyebrow">CINEMA MORPH</div><label>Tipo de transição<select id="studioMorphType" aria-label="Tipo de transição"><option value="organic">Orgânica · dissolução fluida</option><option value="symbiote">Simbionte · raízes vivas</option><option value="plasma">Plasma · energia elétrica</option><option value="crystal">Cristalização · fragmentos</option><option value="digital">Digital · blocos de dados</option><option value="smoke">Fumaça · névoa turbulenta</option></select></label><label>Cor da metamorfose<input id="studioMorphColor" type="color" value="#14eda8"></label><label>Direção da metamorfose <output id="studioMorphDirectionOut">Cima → baixo</output><input id="studioMorphDirection" type="range" min="0" max="7" step="1" value="0"></label><label>Detalhamento fractal <output id="studioMorphDetailOut">65%</output><input id="studioMorphDetail" type="range" min="0" max="100" value="65"></label><label>Energia da borda <output id="studioMorphEnergyOut">100%</output><input id="studioMorphEnergy" type="range" min="10" max="200" value="100"></label><label>Deformação 3D <output id="studioMorphDisplaceOut">55%</output><input id="studioMorphDisplace" type="range" min="0" max="100" value="55"></label><div class="cinemaMorphHint">Escolha o tipo de transição, a cor da energia e a direção. Em Simbionte, ramificações procedurais avançam sobre a imagem e a superfície do GLB; outros estilos usam diferentes máscaras e bordas. Funciona ao navegar pela timeline e ao renderizar os frames.</div></div><p class="muted">Importe a sequência original e escolha como destino um GLB ou outra sequência de imagens. As duas sequências podem ser animadas e são reveladas pelo mesmo efeito procedural na timeline. Para melhor alinhamento, coloque os planos no mesmo lugar na cena.</p></div><button id="sequenceDelete">Excluir sequência</button><p class="muted" id="sequenceInfo"></p></div><p class="muted">A pasta vira um plano animado em 3D. As imagens são ordenadas pelo nome: 1, 2, 3… 10. PNG/WebP mantêm a transparência. Play e Pausar controlam a prévia. Use ◆ Play / Pause no frame para programar a reprodução na timeline geral do objeto e na exportação. Cada imagem é um quadro. Ajuste o FPS para definir a velocidade.</p></div></section><section id="panelMorph" role="tabpanel" aria-labelledby="tabMorph" hidden><div class="sequencePanel" id="studioMorphMount"></div></section><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="objectJoin" title="Unir os objetos marcados em um objeto, fixando a pose atual">Unir objetos</button><button id="objectJoinUndo" title="Recuperar os objetos originais da união nesta sessão">Desfazer união</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><input id="shapeName" maxlength="100" placeholder="Nome da Shape Key"><button id="shapeNew" class="primary">＋ Criar Shape Key</button><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p><div id="shapeList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option><option value="handL" hidden>Mão esquerda</option><option value="handR" hidden>Mão direita</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="0.1" max="200" step="0.1" value="8"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="0.1" max="200" step="0.1" value="5"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><label class="faceRange">Abertura da boca<select id="faceMouthMode"><option value="0">Interior preto</option><option value="1">Somente malha / textura original</option></select></label><p class="muted">Marque cada região em pose neutra. E / D são os lados do personagem. Malhas com mais vértices produzem movimentos mais suaves.</p><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey" title="Gravar FaceRig e ossos juntos no keyframe do personagem">◆ Gravar pose + rosto</button></div></div></div></section><section id="panelHand" role="tabpanel" aria-labelledby="tabHand" hidden><div class="facePanel"><div class="poseHeading"><span>Mão · controles 3D</span></div><p class="muted">Ajuste cada dedo de modo independente, dobre o punho ou feche a mão inteira. Os valores são animáveis na timeline.</p><div class="faceSection"><label class="faceRange">Mão selecionada<select id="handRegionSelect"><option value="handL">Mão esquerda</option><option value="handR">Mão direita</option></select></label><div class="faceButtons"><button id="handMarkLeft">Marcar mão E</button><button id="handMarkRight">Marcar mão D</button></div><div id="handRegionStatus" class="muted">Região não marcada</div>
+</nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="error"></div><div class="hint" id="hint">Arraste para olhar ao redor · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelSequences" role="tabpanel" aria-labelledby="tabSequences" hidden><div class="sequencePanel"><h3 id="sequenceHeading">Sequências</h3><button id="sequenceImport" class="primary">＋ Importar pasta de imagens</button><input id="sequenceFiles" type="file" accept="image/*" webkitdirectory directory multiple hidden><label>Sequência na cena<select id="sequenceSelect" aria-label="Sequência na cena"></select></label><div id="sequenceControls" hidden><div class="sequenceButtons"><button id="sequencePlay">▶ Play</button><button id="sequencePause">Ⅱ Pausar</button><button id="sequenceRestart">↺ Início</button></div><label><input id="sequenceLoop" type="checkbox"> Loop</label><label><input id="sequenceVisible" type="checkbox"> Visível na cena</label><div class="sequenceButtons"><button id="sequenceKeyPlay">◆ Play no frame</button><button id="sequenceKeyPause">◆ Pause no frame</button></div><button id="sequenceOpenTrack">Abrir timeline do objeto</button><label id="sequenceFpsLabel">Velocidade (FPS)<input id="sequenceFps" type="number" min="1" max="120" step="1" value="24" aria-label="Velocidade da sequência em FPS"></label><label>Posição / início <output id="sequenceTime">0.00 s</output><input id="sequenceSeek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Posição do vídeo"></label><div class="sequenceButtons"><button id="sequenceMove">Mover</button><button id="sequenceRotate">Girar</button><button id="sequenceScale">Escalar</button></div><div id="studioMorphPanel" class="studioMorphPanel"><h3>Cinema Morph</h3><label>Objeto de origem (sequência ou GLB)<select id="studioMorphSource" aria-label="Objeto de origem da metamorfose"></select></label><label>Destino da transformação (GLB ou sequência de imagens)<select id="studioMorphTarget"><option value="">Desativado</option></select></label><div class="studioMorphPair"><label>Frame inicial<input id="studioMorphStart" type="number" min="1" max="100000" step="1" value="24"></label><label>Frame final<input id="studioMorphEnd" type="number" min="2" max="100000" step="1" value="72"></label></div><label>Transição orgânica <output id="studioMorphSoftOut">35%</output><input id="studioMorphSoft" type="range" min="1" max="100" value="35"></label><label>Distorção da transformação <output id="studioMorphWarpOut">30%</output><input id="studioMorphWarp" type="range" min="0" max="100" value="30"></label><label>Brilho da transformação <output id="studioMorphGlowOut">35%</output><input id="studioMorphGlow" type="range" min="0" max="100" value="35"></label><div class="cinemaMorphExtra"><div class="cinemaMorphEyebrow">CINEMA MORPH</div><label>Tipo de transição<select id="studioMorphType" aria-label="Tipo de transição"><option value="organic">Orgânica · dissolução fluida</option><option value="symbiote">Simbionte · raízes vivas</option><option value="plasma">Plasma · energia elétrica</option><option value="crystal">Cristalização · fragmentos</option><option value="digital">Digital · blocos de dados</option><option value="smoke">Fumaça · névoa turbulenta</option></select></label><label>Cor da metamorfose<input id="studioMorphColor" type="color" value="#14eda8"></label><label>Direção da metamorfose <output id="studioMorphDirectionOut">Cima → baixo</output><input id="studioMorphDirection" type="range" min="0" max="7" step="1" value="0"></label><label>Detalhamento fractal <output id="studioMorphDetailOut">65%</output><input id="studioMorphDetail" type="range" min="0" max="100" value="65"></label><label>Energia da borda <output id="studioMorphEnergyOut">100%</output><input id="studioMorphEnergy" type="range" min="10" max="200" value="100"></label><label>Deformação 3D <output id="studioMorphDisplaceOut">55%</output><input id="studioMorphDisplace" type="range" min="0" max="100" value="55"></label><div class="cinemaMorphHint">Escolha o tipo de transição, a cor da energia e a direção. Em Simbionte, ramificações procedurais avançam sobre a imagem e a superfície do GLB; outros estilos usam diferentes máscaras e bordas. Funciona ao navegar pela timeline e ao renderizar os frames.</div></div><p class="muted">Importe a sequência original e escolha como destino um GLB ou outra sequência de imagens. As duas sequências podem ser animadas e são reveladas pelo mesmo efeito procedural na timeline. Para melhor alinhamento, coloque os planos no mesmo lugar na cena.</p></div><button id="sequenceDelete">Excluir sequência</button><p class="muted" id="sequenceInfo"></p></div><p class="muted">A pasta vira um plano animado em 3D. As imagens são ordenadas pelo nome: 1, 2, 3… 10. PNG/WebP mantêm a transparência. Play e Pausar controlam a prévia. Use ◆ Play / Pause no frame para programar a reprodução na timeline geral do objeto e na exportação. Cada imagem é um quadro. Ajuste o FPS para definir a velocidade.</p></div></section><section id="panelMorph" role="tabpanel" aria-labelledby="tabMorph" hidden><div class="sequencePanel" id="studioMorphMount"></div></section><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="objectJoin" title="Unir os objetos marcados em um objeto, fixando a pose atual">Unir objetos</button><button id="objectJoinUndo" title="Recuperar os objetos originais da união nesta sessão">Desfazer união</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><input id="poseName" type="text" maxlength="100" placeholder="Nome da pose" aria-label="Nome da nova pose"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><input id="shapeName" maxlength="100" placeholder="Nome da Shape Key"><button id="shapeNew" class="primary">＋ Criar Shape Key</button><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p><div id="shapeList"></div></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option><option value="handL" hidden>Mão esquerda</option><option value="handR" hidden>Mão direita</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="0.1" max="200" step="0.1" value="8"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="0.1" max="200" step="0.1" value="5"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="false">Esconder FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><label class="faceRange">Abertura da boca<select id="faceMouthMode"><option value="0">Interior preto</option><option value="1">Somente malha / textura original</option></select></label><p class="muted">Marque cada região em pose neutra. E / D são os lados do personagem. Malhas com mais vértices produzem movimentos mais suaves.</p><div id="faceSliders"></div><div class="faceButtons"><button id="faceNeutral">Zerar expressão</button><button id="faceKey" title="Gravar FaceRig e ossos juntos no keyframe do personagem">◆ Gravar pose + rosto</button></div></div></div></section><section id="panelHand" role="tabpanel" aria-labelledby="tabHand" hidden><div class="facePanel"><div class="poseHeading"><span>Mão · controles 3D</span></div><p class="muted">Ajuste cada dedo de modo independente, dobre o punho ou feche a mão inteira. Os valores são animáveis na timeline.</p><div class="faceSection"><label class="faceRange">Mão selecionada<select id="handRegionSelect"><option value="handL">Mão esquerda</option><option value="handR">Mão direita</option></select></label><div class="faceButtons"><button id="handMarkLeft">Marcar mão E</button><button id="handMarkRight">Marcar mão D</button></div><div id="handRegionStatus" class="muted">Região não marcada</div>
 <div class="faceButtons"><button id="handToggleMarkers" type="button" aria-pressed="false">Esconder marcadores</button></div>
 <label class="faceRange">Largura da região<input id="handRegionWidth" type="range" min="0.1" max="200" step="0.1" value="20"></label>
 <label class="faceRange">Altura da região<input id="handRegionHeight" type="range" min="0.1" max="200" step="0.1" value="14"></label>
 <label class="faceRange">Posição horizontal<input id="handRegionX" type="range" min="-100" max="100" step="0.1" value="0"></label>
 <label class="faceRange">Posição vertical<input id="handRegionY" type="range" min="-100" max="100" step="0.1" value="0"></label>
-<label class="faceRange">Suavidade da região<input id="handRegionSoftness" type="range" min="5" max="90" step="1" value="30"></label><p class="muted">Selecione a mão, clique em marcar e escolha o ponto na personagem. Todos os ajustes ficam nesta aba.</p><label class="faceRange"><input id="handGeometryMode" type="checkbox" checked> Mãos 3D com cinco dedos</label><div class="faceButtons"><button id="rebuildHandGeometry">Atualizar mãos 3D</button></div><label class="faceRange">Largura das mãos<input id="studioHandWidth" type="range" min="65" max="145" step="1" value="100"><output id="studioHandWidthOut">100%</output></label><p class="muted">Ajusta a largura sem mudar a extensão dos dedos. Use Atualizar mãos 3D após marcar as regiões.</p></div><div id="handSliders" class="handGroups"><div class="handGroup" id="handGroupL"><span class="handGroupTitle">Mão esquerda</span><div class="handGroupBody" id="handGroupLBody"></div></div><div class="handGroup" id="handGroupR"><span class="handGroupTitle">Mão direita</span><div class="handGroupBody" id="handGroupRBody"></div></div></div><div class="faceButtons"><button id="handReset">Zerar controles das mãos</button><button id="handKey">◆ Gravar mãos</button></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.1"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar todos os canais do keyframe selecionado (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar os canais copiados no frame atual (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="cameraAuto360" title="Criar um giro automático de câmera em torno do objeto, somente entre os frames escolhidos">＋ Câmera 360°</button><label>Início<input id="cameraAuto360Start" aria-label="Keyframe inicial do giro de câmera" type="number" min="1" max="100000" step="1" value="1"></label><label>Fim<input id="cameraAuto360End" aria-label="Keyframe final do giro de câmera" type="number" min="2" max="100000" step="1" value="250"></label><label>Direção<select id="cameraAuto360Direction" aria-label="Direção do giro automático de câmera"><option value="right">Direita</option><option value="left">Esquerda</option><option value="up">Cima</option><option value="down">Baixo</option></select></label><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioCut" title="Cortar áudio: ative e clique no ponto do clipe (S divide no cursor)" aria-label="Cortar áudio" aria-pressed="false">✂</button><button id="studioAudioDelete" title="Excluir trecho de áudio selecionado (Delete)" aria-label="Excluir trecho de áudio selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · ✂ para dividir · selecione e Delete para apagar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><div id="studioTurnControls" hidden style="display:none!important"><input id="studioTurnX" value="0"><input id="studioTurnY" value="0"><input id="studioTurnZ" value="0"><button id="studioTurnSave"></button></div><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
+<label class="faceRange">Suavidade da região<input id="handRegionSoftness" type="range" min="5" max="90" step="1" value="30"></label><p class="muted">Selecione a mão, clique em marcar e escolha o ponto na personagem. Todos os ajustes ficam nesta aba.</p><label class="faceRange"><input id="handGeometryMode" type="checkbox" checked> Mãos 3D com cinco dedos</label><div class="faceButtons"><button id="rebuildHandGeometry">Atualizar mãos 3D</button></div><label class="faceRange">Largura das mãos<input id="studioHandWidth" type="range" min="65" max="145" step="1" value="100"><output id="studioHandWidthOut">100%</output></label><p class="muted">Ajusta a largura sem mudar a extensão dos dedos. Use Atualizar mãos 3D após marcar as regiões.</p></div><div id="handSliders" class="handGroups"><div class="handGroup" id="handGroupL"><span class="handGroupTitle">Mão esquerda</span><div class="handGroupBody" id="handGroupLBody"></div></div><div class="handGroup" id="handGroupR"><span class="handGroupTitle">Mão direita</span><div class="handGroupBody" id="handGroupRBody"></div></div></div><div class="faceButtons"><button id="handReset">Zerar controles das mãos</button><button id="handKey">◆ Gravar mãos</button></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" title="Altura relativa à base do chão (Y = -1)" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.01"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section></aside></main><section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timePlus24" title="Avançar exatamente 24 quadros">+24</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar todos os canais do keyframe selecionado (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar os canais copiados no frame atual (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim <input id="timeEnd" type="number" min="2" max="100000" value="250"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth">Suave</option><option value="constant">Constante</option></select><button id="cameraAuto360" title="Criar um giro automático de câmera em torno do objeto, somente entre os frames escolhidos">＋ Câmera 360°</button><label>Início<input id="cameraAuto360Start" aria-label="Keyframe inicial do giro de câmera" type="number" min="1" max="100000" step="1" value="1"></label><label>Fim<input id="cameraAuto360End" aria-label="Keyframe final do giro de câmera" type="number" min="2" max="100000" step="1" value="250"></label><label>Direção<select id="cameraAuto360Direction" aria-label="Direção do giro automático de câmera"><option value="right">Direita</option><option value="left">Esquerda</option><option value="up">Cima</option><option value="down">Baixo</option></select></label><button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioCut" title="Cortar áudio: ative e clique no ponto do clipe (S divide no cursor)" aria-label="Cortar áudio" aria-pressed="false">✂</button><button id="studioAudioDelete" title="Excluir trecho de áudio selecionado (Delete)" aria-label="Excluir trecho de áudio selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · ✂ para dividir · selecione e Delete para apagar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><div id="studioTurnControls" hidden style="display:none!important"><input id="studioTurnX" value="0"><input id="studioTurnY" value="0"><input id="studioTurnZ" value="0"><button id="studioTurnSave"></button></div><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project"><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+' · Verifique sua conexão com a internet.'});</script>
 <!-- alexandre-vfx:start -->
 <script id="studio-vfx-pixi">
 var qd=Object.defineProperty,Kd=Object.defineProperties;var Zd=Object.getOwnPropertyDescriptors;var ir=Object.getOwnPropertySymbols;var $h=Object.prototype.hasOwnProperty,jh=Object.prototype.propertyIsEnumerable;var Wh=(m,et,pt)=>et in m?qd(m,et,{enumerable:!0,configurable:!0,writable:!0,value:pt}):m[et]=pt,bt=(m,et)=>{for(var pt in et||(et={}))$h.call(et,pt)&&Wh(m,pt,et[pt]);if(ir)for(var pt of ir(et))jh.call(et,pt)&&Wh(m,pt,et[pt]);return m},Qi=(m,et)=>Kd(m,Zd(et));var zn=(m,et)=>{var pt={};for(var Rt in m)$h.call(m,Rt)&&et.indexOf(Rt)<0&&(pt[Rt]=m[Rt]);if(m!=null&&ir)for(var Rt of ir(m))et.indexOf(Rt)<0&&jh.call(m,Rt)&&(pt[Rt]=m[Rt]);return pt};/*!
@@ -43674,8 +43705,8 @@ void main() {
   var camera = new PerspectiveCamera(42, 1, 0.01, 2e3);
   camera.position.set(5, 3.3, 7);
   var controls = new OrbitControls(camera, renderer.domElement);
-  controls.rotateInPlace = true;
-  controls.target.set(0, 1.5, 0);
+  controls.rotateInPlace = false;
+  controls.target.set(0, 0, 0);
   controls.enableDamping = true;
   var studioAmbientLight = new HemisphereLight(13229311, 4670038, 2.5);
   scene.add(studioAmbientLight);
@@ -43705,7 +43736,7 @@ void main() {
   var objectGizmoHelper = objectGizmo.getHelper();
   scene.add(objectGizmoHelper);
   var gizmoGesture = null;
-  var rotationAxisChoice = "all";
+
   var autoKeyEnabled = true;
   var exportState = null;
   var animationInterpolation = "linear";
@@ -44094,6 +44125,7 @@ void main() {
   function updateCustomRig(rig = customRig, root = model) {
     if (!rig) return;
     root.updateMatrixWorld(true);
+    studioLocalizeRig(rig,root);
     const inverse = rig.group.matrixWorld.clone().invert(), bindRoot = rig.restRootMatrix || root.matrixWorld, objectDelta = root.matrixWorld.clone().multiply(bindRoot.clone().invert()), undoObject = objectDelta.clone().invert(), owner = objects.find((o) => o.root === root), restMap = owner?.rest || (root === model ? rest : null), neutralMatrices = /* @__PURE__ */ new Map();
     function neutralWorld(node) {
       if (neutralMatrices.has(node)) return neutralMatrices.get(node);
@@ -44112,7 +44144,8 @@ void main() {
     }
     for (const control of rig.controls) {
       let transform;
-      if (rotatedBranch(control.end)) {
+      if(control.neutral){transform=new Matrix4();}
+      else if (rotatedBranch(control.end)) {
         const neutralA = new Vector3().setFromMatrixPosition(neutralWorld(control.start)), neutralB = new Vector3().setFromMatrixPosition(neutralWorld(control.end));
         const positional = control.point ? new Matrix4().makeTranslation(neutralB.x - control.rest.x, neutralB.y - control.rest.y, neutralB.z - control.rest.z) : segmentDeformationMatrix(control.a, control.rest, neutralA, neutralB);
         const boneRotation = undoObject.clone().multiply(control.end.matrixWorld).multiply(neutralWorld(control.end).clone().invert());
@@ -44133,23 +44166,13 @@ void main() {
   objectGizmo.pointerHover = function(pointer2) {
     originalGizmoHover(pointer2);
     if (editing === "scaleObject" && this.axis !== null && !this.dragging) this.axis = "XYZ";
-    if (editing === "rotateObject" && rotationAxisChoice !== "all" && this.axis !== null && !this.dragging) this.axis = rotationAxisChoice;
   };
   function configureRotationAxes() {
-    $("rotationAxes").hidden = editing !== "rotateObject";
-    const locked = editing === "rotateObject" && ["X", "Y", "Z"].includes(rotationAxisChoice);
-    objectGizmo.showX = !locked || rotationAxisChoice === "X";
-    objectGizmo.showY = !locked || rotationAxisChoice === "Y";
-    objectGizmo.showZ = !locked || rotationAxisChoice === "Z";
-    objectGizmo.axis = null;
-    for (const button of $("rotationAxes").querySelectorAll("button")) button.classList.toggle("active", button.dataset.axis === rotationAxisChoice);
+    objectGizmo.showX=true;
+    objectGizmo.showY=true;
+    objectGizmo.showZ=true;
+    objectGizmo.axis=null;
   }
-  for (const button of $("rotationAxes").querySelectorAll("button")) button.onclick = () => {
-    finishDrag(false);
-    rotationAxisChoice = button.dataset.axis;
-    configureRotationAxes();
-    status(rotationAxisChoice === "all" ? "Escolha um anel X, Y ou Z." : rotationAxisChoice === "XYZE" ? "Giro livre: arraste na cena em qualquer dire\xE7\xE3o." : "Eixo " + rotationAxisChoice + ": arraste na cena para girar.");
-  };
   function freezeCameraForTransform() {
     const position = camera.position.clone(), target = controls.target.clone(), quaternion = camera.quaternion.clone(), damping = controls.enableDamping;
     controls.enableDamping = false;
@@ -44573,29 +44596,83 @@ void main() {
     }
   }, true);
   // Local segment weights: finite longitudinal support and branch-aware blending.
-  function studioSegmentWeights(v, controls) {
-    const candidates = controls.map((c, j) => {
-      const dx=c.rest.x-c.a.x, dy=c.rest.y-c.a.y, dz=c.rest.z-c.a.z;
-      const l2=dx*dx+dy*dy+dz*dz;
-      const t=l2>1e-16?((v.x-c.a.x)*dx+(v.y-c.a.y)*dy+(v.z-c.a.z)*dz)/l2:0;
-      const q=Math.max(0,Math.min(1,t));
-      const d2=(v.x-c.a.x-q*dx)**2+(v.y-c.a.y-q*dy)**2+(v.z-c.a.z-q*dz)**2;
-      const radius=Math.sqrt(l2)*0.6;
-      const inside=!c.point&&t>=0&&t<=1&&d2<radius*radius;
-      return {j,d2,inside};
-    }).sort((a,b)=>a.d2-b.d2);
-    const winner=candidates[0];
-    if(!winner)return [];
-    const primary=controls[winner.j];
-    const adjacent=c=>{
-      const other=controls[c.j];
-      return other.end===primary.start||other.start===primary.end;
-    };
-    // Outside all envelopes, use one nearest segment; distant branches never blend.
-    const chosen=candidates.filter(c=>c.j===winner.j||(adjacent(c)&&c.d2<=winner.d2*9+1e-12)).slice(0,4);
-    let total=0;
-    for(const c of chosen){c.w=1/Math.max(c.d2,1e-12)**2;total+=c.w;}
-    return chosen.map(c=>({j:c.j,w:c.w/total}));
+  function studioBoneDistances(v,controls){
+    const distances=[];
+    controls.forEach((c,j)=>{
+      if(c.neutral||c.point)return;
+      const dx=c.rest.x-c.a.x,dy=c.rest.y-c.a.y,dz=c.rest.z-c.a.z,l2=dx*dx+dy*dy+dz*dz;
+      if(l2<1e-16)return;
+      const t=Math.max(0,Math.min(1,((v.x-c.a.x)*dx+(v.y-c.a.y)*dy+(v.z-c.a.z)*dz)/l2));
+      const d=Math.hypot(v.x-c.a.x-t*dx,v.y-c.a.y-t*dy,v.z-c.a.z-t*dz);
+      distances.push({j,d});
+    });
+    if(!distances.length)controls.forEach((c,j)=>{if(!c.neutral)distances.push({j,d:Math.hypot(v.x-c.rest.x,v.y-c.rest.y,v.z-c.rest.z)});});
+    return distances.sort((a,b)=>a.d-b.d);
+  }
+  function studioSegmentWeights(v,controls){
+    const nearest=studioBoneDistances(v,controls)[0];return nearest?[{j:nearest.j,w:1}]:[];
+  }
+  // Screened diffusion on triangle connectivity. No finite envelope cutoff.
+  // This is a browser implementation inspired by bone-heat weighting, not Blender's solver.
+  function studioAutoSkinWeights(geometry,controls,toRest,indices,weights){
+    const p=geometry.attributes.position,n=p.count;if(!n)return;
+    geometry.computeBoundingBox();
+    const tolerance=Math.max(geometry.boundingBox.getSize(new Vector3()).length()*1e-7,1e-10);
+    const lookup=new Map(),groups=[],vertexGroup=new Int32Array(n),v=new Vector3();
+    for(let i=0;i<n;i++){
+      const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+      const key=[x,y,z].map(x=>Math.round(x/tolerance)).join(',');let id=lookup.get(key);
+      if(id===undefined){
+        id=groups.length;lookup.set(key,id);v.set(x,y,z).applyMatrix4(toRest);
+        const distances=studioBoneDistances(v,controls),first=distances[0];
+        if(!first)throw new Error('Crie ao menos um osso para vincular a malha.');
+        const second=distances[1],confidence=second?Math.max(0,Math.min(1,(second.d-first.d)/Math.max(second.d,1e-12))):1;
+        groups.push({position:new Vector3(x,y,z),owner:first.j,anchor:.02+20*Math.pow(confidence,4),neighbours:new Map()});
+      }
+      vertexGroup[i]=id;
+    }
+    const index=geometry.index,count=index?index.count:n;
+    function connect(a,b){if(a===b)return;const ga=groups[a],gb=groups[b];const w=1/Math.max(ga.position.distanceTo(gb.position),tolerance);ga.neighbours.set(b,w);gb.neighbours.set(a,w);}
+    for(let i=0;i+2<count;i+=3){const a=vertexGroup[index?index.getX(i):i],b=vertexGroup[index?index.getX(i+1):i+1],c=vertexGroup[index?index.getX(i+2):i+2];connect(a,b);connect(b,c);connect(c,a);}
+    let field=groups.map(g=>[[g.owner,1]]);
+    for(let pass=0;pass<48;pass++){
+      let change=0;
+      const next=groups.map((g,i)=>{
+        if(!g.neighbours.size)return field[i];
+        const map=new Map([[g.owner,g.anchor]]);let totalEdge=0;
+        for(const w of g.neighbours.values())totalEdge+=w;
+        for(const [j,edge]of g.neighbours)for(const [bone,w]of field[j])map.set(bone,(map.get(bone)||0)+w*edge/totalEdge);
+        const entries=[...map].sort((a,b)=>b[1]-a[1]).slice(0,4),total=entries.reduce((n,e)=>n+e[1],0);
+        const result=entries.map(([j,w])=>[j,w/total]);const previous=new Map(field[i]);
+        for(const [j,w]of result){change=Math.max(change,Math.abs(w-(previous.get(j)||0)));previous.delete(j);}for(const w of previous.values())change=Math.max(change,w);
+        return result;
+      });field=next;if(change<1e-5)break;
+    }
+    indices.fill(0);weights.fill(0);
+    for(let i=0;i<n;i++)field[vertexGroup[i]].forEach(([j,w],k)=>{indices[i*4+k]=j;weights[i*4+k]=w;});
+  }
+  function studioAddFixedControl(rig,root){
+    if(rig.controls.some(c=>c.neutral))return;
+    const deform=new Bone();deform.name='RegiaoFixa';deform.matrixAutoUpdate=false;rig.group.add(deform);
+    rig.controls.push({start:root,end:root,a:new Vector3(),rest:new Vector3(),point:true,neutral:true,inverseRest:null,deform});
+    for(const skeleton of rig.skeletons){
+      skeleton.bones.push(deform);skeleton.boneInverses.push(new Matrix4());
+      if(skeleton.boneTexture){skeleton.boneTexture.dispose();skeleton.boneTexture=null;}
+      skeleton.init();
+    }
+  }
+  function studioLocalizeRig(rig,root){
+    if(rig.weightVersion===3||!rig.skeletons.length)return;
+    studioAddFixedControl(rig,root);
+    root.traverse(mesh=>{
+      if(!mesh.isSkinnedMesh||!rig.skeletons.includes(mesh.skeleton))return;
+      const geometry=mesh.geometry.clone(),p=geometry.attributes.position;
+      const indices=new Uint16Array(p.count*4),weights=new Float32Array(p.count*4),v=new Vector3();
+      studioAutoSkinWeights(geometry,rig.controls,mesh.bindMatrix,indices,weights);
+      geometry.setAttribute('skinIndex',new Uint16BufferAttribute(indices,4));
+      geometry.setAttribute('skinWeight',new Float32BufferAttribute(weights,4));mesh.geometry=geometry;
+    });
+    rig.localEnvelopes=false;rig.weightVersion=3;
   }
   // Smooth on surface connectivity, including duplicate vertices at UV seams.
   // Spatially close but disconnected surfaces are never made neighbours.
@@ -44640,34 +44717,6 @@ void main() {
   };
   try{const saved=Number(localStorage.getItem('studioBonePixels'));if(saved>=2&&saved<=20)$('boneDisplaySize').value=saved}catch{}
   $('boneDisplaySize').oninput();
-  $('boneReweight').onclick=()=>{
-    const obj=activeObject,rig=obj?.customRig;
-    if(!rig)return status('Esta correção atende aos ossos criados neste editor. Selecione um personagem com rig manual vinculado.');
-    if(exportState||studioSaving)return;
-    finishDrag(false);pauseTimeline();stop();
-    const changes=[];
-    obj.root.traverse(mesh=>{
-      if(!mesh.isSkinnedMesh||!rig.skeletons.includes(mesh.skeleton))return;
-      const geometry=mesh.geometry,position=geometry.attributes.position;
-      const indices=new Uint16Array(position.count*4),weights=new Float32Array(position.count*4),v=new Vector3();
-      for(let i=0;i<position.count;i++){
-        v.fromBufferAttribute(position,i).applyMatrix4(mesh.bindMatrix);
-        for(const [k,c] of studioSegmentWeights(v,rig.controls).entries()){indices[i*4+k]=c.j;weights[i*4+k]=c.w;}
-      }
-      studioSmoothSkinWeights(geometry,indices,weights);
-      changes.push({mesh,indices:geometry.attributes.skinIndex.clone(),weights:geometry.attributes.skinWeight.clone(),nextIndices:new Uint16BufferAttribute(indices,4),nextWeights:new Float32BufferAttribute(weights,4)});
-    });
-    if(!changes.length)return status('Nenhuma malha do rig manual encontrada.');
-    studioWeightUndo.set(obj,changes);
-    for(const c of changes){c.mesh.geometry.setAttribute('skinIndex',c.nextIndices);c.mesh.geometry.setAttribute('skinWeight',c.nextWeights);}
-    $('boneReweightUndo').disabled=false;updateCustomRig(rig,obj.root);
-    status('Influência recalculada e suavizada pela superfície. Teste a pose; Desfazer influência restaura os pesos anteriores.');
-  };
-  $('boneReweightUndo').onclick=()=>{
-    const changes=studioWeightUndo.get(activeObject);if(!changes)return status('Não há correção de influência para desfazer neste personagem.');
-    for(const c of changes){c.mesh.geometry.setAttribute('skinIndex',c.indices);c.mesh.geometry.setAttribute('skinWeight',c.weights);}
-    studioWeightUndo.delete(activeObject);$('boneReweightUndo').disabled=true;updateCustomRig();status('Pesos anteriores restaurados.');
-  };
   function studioBoneWorldRadius(point){
     const height=Math.max(1,renderer.domElement.getBoundingClientRect().height);
     const depth=Math.max(camera.near, -point.clone().applyMatrix4(camera.matrixWorldInverse).z);
@@ -44692,18 +44741,13 @@ void main() {
       group.add(deform);
       return { start, end: b, a, rest: end, point, inverseRest: point ? null : segmentMatrix(a, end).invert(), deform };
     });
+    const fixedRig={group,controls:controls2,skeletons:[]};
+    studioAddFixedControl(fixedRig,model);
     const prepared = [];
     try {
       for (const old of targets) {
         const geometry = old.geometry.clone(), p = geometry.attributes.position, indices = new Uint16Array(p.count * 4), weights = new Float32Array(p.count * 4), v = new Vector3(), nearest = new Vector3();
-        for (let i = 0; i < p.count; i++) {
-          v.fromBufferAttribute(p, i).applyMatrix4(old.matrixWorld);
-          for (const [k, c] of studioSegmentWeights(v, controls2).entries()) {
-            indices[i * 4 + k] = c.j;
-            weights[i * 4 + k] = c.w;
-          }
-        }
-        studioSmoothSkinWeights(geometry,indices,weights);
+        studioAutoSkinWeights(geometry,controls2,old.matrixWorld,indices,weights);
         geometry.setAttribute("skinIndex", new Uint16BufferAttribute(indices, 4));
         geometry.setAttribute("skinWeight", new Float32BufferAttribute(weights, 4));
         const skin = new SkinnedMesh(geometry, old.material);
@@ -44717,7 +44761,7 @@ void main() {
         skin.frustumCulled = false;
         prepared.push({ old, skin });
       }
-      customRig = { group, controls: controls2, skeletons: [], restRootMatrix: model.matrixWorld.clone() };
+      customRig = { group, controls: controls2, skeletons: [], weightVersion:3, localEnvelopes:false, restRootMatrix: model.matrixWorld.clone() };
       updateCustomRig();
       for (const { old, skin } of prepared) {
         old.parent.add(skin);
@@ -44785,20 +44829,25 @@ void main() {
     fn();
   };
   function view(x, y, z) {
-    commitCameraEdit();
-    stop();
-    finishDrag(true);
-    const d = Math.max(camera.position.distanceTo(controls.target), 0.01);
-    const direction = new Vector3(x, y, z);
-    if (Math.abs(y) === 1) direction.z = 1e-5;
-    direction.normalize();
-    controls.enableDamping = false;
-    controls.update();
-    camera.position.copy(controls.target).addScaledVector(direction, d);
-    camera.lookAt(controls.target);
-    controls.update();
-    controls.enableDamping = true;
-    recordCameraKeyframe();
+    commitCameraEdit();stop();finishDrag(true);
+    const damping=controls.enableDamping,height=camera.position.y;
+    controls.enableDamping=false;
+    controls._sphericalDelta.set(0,0,0);controls._panOffset.set(0,0,0);controls._scale=1;
+    const object=objects.find(o=>o.id===studioCameraOrbitId),ground=sceneGroundObject();
+    const root=object?.root||ground?.root;
+    const pivot=new Vector3();
+    if(root){root.updateWorldMatrix(true,false);if(object)pivot.copy(studioObjectPivot(root));pivot.applyMatrix4(root.matrixWorld);}
+    const d=Math.max(camera.position.distanceTo(controls.target),.01);
+    controls.target.copy(pivot);studioCameraOrbitOffset.set(0,0,0);
+    // Side views remain level at the current camera altitude.
+    if(y===0){controls.target.y=height;studioCameraOrbitOffset.y=height-pivot.y;}
+    const direction=new Vector3(x,y,z);
+    if(Math.abs(y)===1)direction.z=1e-5;
+    direction.normalize();camera.up.set(0,1,0);
+    controls._quat.setFromUnitVectors(camera.up,new Vector3(0,1,0));controls._quatInverse.copy(controls._quat).invert();
+    camera.position.copy(controls.target).addScaledVector(direction,d);
+    camera.lookAt(controls.target);controls.update();camera.updateMatrixWorld(true);
+    controls.enableDamping=damping;recordCameraKeyframe();
   }
 
   var studioSequenceRuntimes=new Map();
@@ -48317,10 +48366,11 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     } else timeScroll.scrollLeft += e.deltaX || e.deltaY;
   }, { passive: false });
   document.addEventListener("keydown", (e) => {
-    if (["INPUT", "SELECT", "TEXTAREA"].includes(e.target.tagName) || e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.code === "Space") {
+    if (e.composedPath().some(node=>node?.isContentEditable||["INPUT","SELECT","TEXTAREA"].includes(node?.tagName)) || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tool=e.code==="Space"?"toolPose":({w:"objectMove",e:"objectScale",r:"objectRotate"})[e.key.toLowerCase()];
+    if(tool){
       e.preventDefault();
-      $("timePlay").click();
+      if(!e.repeat&&!exportState&&!studioSaving)$(tool).click();
     } else if (e.key.toLowerCase() === "i") {
       e.preventDefault();
       $("timeInsert").click();
@@ -48377,12 +48427,12 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     }
   }
   function packStudioObject(o, rootData = serializeRoot(o.root)) {
-    return { id: o.id, name: o.name, followBone: o.followBone || null, root: rootData, meshProcessing: packStudioMeshProcessing(o.root), boneIds: o.bones.map((b) => b.uuid), bound: o.bound, basePoseId: o.basePoseId || null, poseLibrary: (o.poseLibrary || []).map((p) => ({ id: p.id, name: p.name, pose: packPose(p.pose) })), rest: [...o.rest].map(([b, v]) => [b.uuid, { p: v.p.toArray(), q: v.q.toArray() }]), clips: o.clips.map((c) => AnimationClip.toJSON(c)), faceRig: packFaceRig(o), keyframes: [...o.keyframes].map(([f, k]) => [f, { pose: packPose(k.pose), face: k.face }]), customRig: o.customRig ? { restRootMatrix: (o.customRig.restRootMatrix || o.root.matrixWorld).toArray(), group: o.customRig.group.uuid, controls: o.customRig.controls.map((c) => ({ start: c.start.uuid, end: c.end.uuid, deform: c.deform.uuid, point: c.point, a: c.a.toArray(), rest: c.rest.toArray(), inverseRest: c.inverseRest?.toArray() })) } : null };
+    return { id: o.id, name: o.name, followBone: o.followBone || null, root: rootData, meshProcessing: packStudioMeshProcessing(o.root), boneIds: o.bones.map((b) => b.uuid), bound: o.bound, basePoseId: o.basePoseId || null, poseLibrary: (o.poseLibrary || []).map((p) => ({ id: p.id, name: p.name, pose: packPose(p.pose) })), rest: [...o.rest].map(([b, v]) => [b.uuid, { p: v.p.toArray(), q: v.q.toArray() }]), clips: o.clips.map((c) => AnimationClip.toJSON(c)), faceRig: packFaceRig(o), keyframes: [...o.keyframes].map(([f, k]) => [f, { pose: packPose(k.pose), face: k.face }]), customRig: o.customRig ? { weightVersion:o.customRig.weightVersion, localEnvelopes:o.customRig.localEnvelopes, restRootMatrix: (o.customRig.restRootMatrix || o.root.matrixWorld).toArray(), group: o.customRig.group.uuid, controls: o.customRig.controls.map((c) => ({ start: c.start.uuid, end: c.end.uuid, deform: c.deform.uuid, neutral:!!c.neutral, point: c.point, a: c.a.toArray(), rest: c.rest.toArray(), inverseRest: c.inverseRest?.toArray() })) } : null };
   }
   function buildProject(includeObjects = true) {
     saveActiveObject();
     stashStudioVfxBank();
-    return { format: "MiniStudio3D", version: 1, fps: 24, cameraOrbitTargetId: studioCameraOrbitId, audio: serializeStudioAudio(), sky: { state: { ...skyState }, keys: [...skyTrack.keyframes], panorama: skyPanorama, effects: serializePanoramaFx() }, timelineSky, timelineSequenceId, vfx: { banks: studioVfxBanks, state: vfxState, keys: [...sceneVfxTrack.keyframes], targetId: studioVfxTargetId, follow: studioVfxFollow, layerFollows: studioVfxLayerFollows }, timelineVFX, interpolation: animationInterpolation, endFrame, currentFrame: Math.round(currentFrame), pixelsPerFrame, autoKeyEnabled, activeId: activeObject?.id, timelineCamera, camera: serializeCamera(captureCamera()), cameraKeys: [...cameraTrack.keyframes].map(([f, k]) => [f, { camera: serializeCamera(k.camera) }]), objects: includeObjects ? objects.map((o) => packStudioObject(o)) : [] };
+    return { format: "MiniStudio3D", version: 1, fps: 24, cameraOrbitTargetId: studioCameraOrbitId, cameraOrbitOffset:studioCameraOrbitOffset.toArray(), audio: serializeStudioAudio(), sky: { state: { ...skyState }, keys: [...skyTrack.keyframes], panorama: skyPanorama, effects: serializePanoramaFx() }, timelineSky, timelineSequenceId, vfx: { banks: studioVfxBanks, state: vfxState, keys: [...sceneVfxTrack.keyframes], targetId: studioVfxTargetId, follow: studioVfxFollow, layerFollows: studioVfxLayerFollows }, timelineVFX, interpolation: animationInterpolation, endFrame, currentFrame: Math.round(currentFrame), pixelsPerFrame, autoKeyEnabled, activeId: activeObject?.id, timelineCamera, camera: serializeCamera(captureCamera()), cameraKeys: [...cameraTrack.keyframes].map(([f, k]) => [f, { camera: serializeCamera(k.camera) }]), objects: includeObjects ? objects.map((o) => packStudioObject(o)) : [] };
   }
   function studioEncodeArray(array) {
     const bytes = new Uint8Array(array.buffer, array.byteOffset, array.byteLength);
@@ -48510,7 +48560,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     smoothStudioDrawing(root);
     root.updateMatrixWorld(true);
     root.traverse((n) => lookup.set(n.uuid, n));
-    const rig = entry.customRig ? { restRootMatrix: entry.customRig.restRootMatrix ? new Matrix4().fromArray(entry.customRig.restRootMatrix) : root.matrixWorld.clone(), group: lookup.get(entry.customRig.group), controls: entry.customRig.controls.map((c) => ({ ...c, start: lookup.get(c.start), end: lookup.get(c.end), deform: lookup.get(c.deform), a: new Vector3().fromArray(c.a), rest: new Vector3().fromArray(c.rest), inverseRest: c.inverseRest ? new Matrix4().fromArray(c.inverseRest) : null })), skeletons: [] } : null;
+    const rig = entry.customRig ? { weightVersion:entry.customRig.weightVersion||0, localEnvelopes:!!entry.customRig.localEnvelopes, restRootMatrix: entry.customRig.restRootMatrix ? new Matrix4().fromArray(entry.customRig.restRootMatrix) : root.matrixWorld.clone(), group: lookup.get(entry.customRig.group), controls: entry.customRig.controls.map((c) => ({ ...c, start: lookup.get(c.start), end: lookup.get(c.end), deform: lookup.get(c.deform), a: new Vector3().fromArray(c.a), rest: new Vector3().fromArray(c.rest), inverseRest: c.inverseRest ? new Matrix4().fromArray(c.inverseRest) : null })), skeletons: [] } : null;
     if (rig) {
       if (!rig.group || rig.controls.some((c) => !c.start || !c.end || !c.deform)) throw new Error("Rig incompleto.");
       root.traverse((n) => {
@@ -48662,7 +48712,8 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       camera.up.copy(restoredCamera.up);
       controls.target.copy(restoredCamera.target);
       studioCameraOrbitId=objects.some(o=>o.id===data.cameraOrbitTargetId)?data.cameraOrbitTargetId:'';
-      controls.rotateInPlace=!studioCameraOrbitId;
+      studioCameraOrbitOffset.fromArray(Array.isArray(data.cameraOrbitOffset)&&data.cameraOrbitOffset.length===3&&data.cameraOrbitOffset.every(Number.isFinite)?data.cameraOrbitOffset:[0,0,0]);
+      controls.rotateInPlace=false;
       fillCameraOrbitTargets();
       for (const k of ["fov", "zoom", "near", "far"]) camera[k] = restoredCamera[k];
       controls.update();
@@ -51127,6 +51178,7 @@ ${notes}`;
     });
   }
   syncSkyUI();
+  var STUDIO_GROUND_BASE_Y = -1;
   var groundDefaults = { wireframe: false, waves: false, amplitude: 0.6, length: 5, angle: 0, color: "#65734e", roughness: 0.95, repeatX: 4, repeatZ: 4 };
   var groundRuntime = /* @__PURE__ */ new WeakMap();
   function sceneGroundObject() {
@@ -51194,7 +51246,7 @@ ${notes}`;
       const input = $("ground_" + id);
       input.disabled = !object;
       if (!object) continue;
-      const value = id === "visible" ? object.root.visible : id === "width" ? Math.abs(object.root.scale.x) : id === "depth" ? Math.abs(object.root.scale.z) : id === "height" ? object.root.position.y : config[id] ?? groundDefaults[id];
+      const value = id === "visible" ? object.root.visible : id === "width" ? Math.abs(object.root.scale.x) : id === "depth" ? Math.abs(object.root.scale.z) : id === "height" ? Number((object.root.position.y - STUDIO_GROUND_BASE_Y).toFixed(2)) : config[id] ?? groundDefaults[id];
       if (input.type === "checkbox") input.checked = !!value;
       else input.value = value;
       const output = $("groundValue_" + id);
@@ -51218,7 +51270,7 @@ ${notes}`;
     mesh.receiveShadow = true;
     root.add(mesh);
     root.scale.set(20, 1, 20);
-    root.position.set(controls.target.x, 0, controls.target.z);
+    root.position.set(controls.target.x, STUDIO_GROUND_BASE_Y, controls.target.z);
     let count = 1, name = "Ch\xE3o";
     while (objects.some((o) => o.name === name)) name = "Ch\xE3o " + ++count;
     root.name = name;
@@ -51247,7 +51299,7 @@ ${notes}`;
     }
     if (id === "width") object.root.scale.x = Math.max(0.1, value);
     else if (id === "depth") object.root.scale.z = Math.max(0.1, value);
-    else if (id === "height") object.root.position.y = value;
+    else if (id === "height") { if(!Number.isFinite(value))return; const height=Number(value.toFixed(2)); object.root.position.y = height + STUDIO_GROUND_BASE_Y; input.value = height; }
     else object.root.userData.studioGround[id] = value;
     object.root.updateMatrixWorld(true);
     syncSceneGrounds((currentFrame - 1) / 24);
@@ -52793,6 +52845,7 @@ ${notes}`;
   mountStudioVfx();
   // Select an explicit orbit pivot without changing the VFX application target.
   var studioCameraOrbitId='';
+  var studioCameraOrbitOffset=new Vector3();
   const cameraOrbitPanel=document.createElement('div');
   cameraOrbitPanel.id='studioCameraOrbitPanel';
   cameraOrbitPanel.style.cssText='position:static;flex:0 0 auto;display:flex;align-items:center;padding:4px 7px;border-left:1px solid #444b5c;font-size:11px;white-space:nowrap';
@@ -52803,40 +52856,52 @@ ${notes}`;
   cameraOrbitLabel.append(cameraOrbitSelect);cameraOrbitPanel.append(cameraOrbitLabel);document.querySelector('header').append(cameraOrbitPanel);
   function fillCameraOrbitTargets(){
     if(studioCameraOrbitId&&!objects.some(o=>o.id===studioCameraOrbitId)){
-      studioCameraOrbitId='';controls.rotateInPlace=true;
+      studioCameraOrbitId='';controls.rotateInPlace=false;
     }
     const orbitObjects=objects.filter(o=>!o.root.userData.studioFolder);
     const orbitSignature=JSON.stringify(orbitObjects.map(o=>[o.id,o.name]));
-    if(cameraOrbitSelect.dataset.objects!==orbitSignature){cameraOrbitSelect.replaceChildren(new Option('Nenhum · câmera livre',''),...orbitObjects.map(o=>new Option(o.name,o.id)));cameraOrbitSelect.dataset.objects=orbitSignature;}
+    if(cameraOrbitSelect.dataset.objects!==orbitSignature){cameraOrbitSelect.replaceChildren(new Option('Nenhum · centro do chão',''),...orbitObjects.map(o=>new Option(o.name,o.id)));cameraOrbitSelect.dataset.objects=orbitSignature;}
     cameraOrbitSelect.value=studioCameraOrbitId;
   }
   function centerCameraOrbit(){
-    const object=objects.find(o=>o.id===studioCameraOrbitId);if(!object)return;
-    const local=studioObjectPivot(object.root);object.root.updateWorldMatrix(true,false);
-    const center=local.applyMatrix4(object.root.matrixWorld);
+    const object=objects.find(o=>o.id===studioCameraOrbitId);
+    const ground=object?null:sceneGroundObject();
+    const root=object?.root||ground?.root;
+    const center=new Vector3();
+    if(root){
+      root.updateWorldMatrix(true,false);
+      if(object)center.copy(studioObjectPivot(root));
+      center.applyMatrix4(root.matrixWorld);
+    }
+    center.add(studioCameraOrbitOffset);
     if(!Number.isFinite(center.x+center.y+center.z)||camera.position.distanceToSquared(center)<1e-8)return;
     const damping=controls.enableDamping,applying=cameraApplying;
     cameraApplying=true;
     try{
-      controls.enableDamping=false;controls.update();controls.rotateInPlace=false;
+      controls.enableDamping=false;controls.rotateInPlace=false;
+      controls._sphericalDelta.set(0,0,0);controls._panOffset.set(0,0,0);controls._scale=1;
       controls.target.copy(center);camera.lookAt(center);controls.update();camera.updateMatrixWorld(true);
     }finally{controls.enableDamping=damping;cameraApplying=applying;}
   }
   cameraOrbitSelect.onfocus=fillCameraOrbitTargets;
   cameraOrbitSelect.onchange=()=>{
     if(exportState)return;
-    pauseTimeline();commitCameraEdit();studioCameraOrbitId=cameraOrbitSelect.value;studioOrbitLastAngle=null;studioOrbitAngleTarget='';
-    controls.rotateInPlace=!studioCameraOrbitId;
-    if(studioCameraOrbitId){setMode('orbit');centerCameraOrbit();status('Arraste para orbitar ao redor do objeto escolhido.');}
-    else status('Câmera livre: arraste para olhar ao redor.');
+    pauseTimeline();commitCameraEdit();studioCameraOrbitId=cameraOrbitSelect.value;studioCameraOrbitOffset.set(0,0,0);studioOrbitLastAngle=null;studioOrbitAngleTarget='';
+    controls.rotateInPlace=false;
+    setMode('orbit');centerCameraOrbit();
+    status(studioCameraOrbitId?'Arraste para orbitar ao redor do objeto escolhido.':'Arraste para orbitar ao redor do centro do chão 3D.');
     vfxLastDraw=0;
   };
-  // Capture runs before OrbitControls handles the gesture or creates camera keys.
-  renderer.domElement.addEventListener('pointerdown',()=>{
-    if(exportState||!controls.enabled||!studioCameraOrbitId)return;
-    if(!objects.some(o=>o.id===studioCameraOrbitId)){fillCameraOrbitTargets();return;}
-    centerCameraOrbit();
-  },true);
+  // Panning moves both the camera and its orbit target. Keep that target when
+  // starting the next rotation; recenter only on an explicit target selection.
+  function rememberCameraOrbitOffset(){
+    if(cameraApplying)return;
+    const object=objects.find(o=>o.id===studioCameraOrbitId),ground=object?null:sceneGroundObject();
+    const root=object?.root||ground?.root,pivot=new Vector3();
+    if(root){root.updateWorldMatrix(true,false);if(object)pivot.copy(studioObjectPivot(root));pivot.applyMatrix4(root.matrixWorld);}
+    studioCameraOrbitOffset.copy(controls.target).sub(pivot);
+  }
+  controls.addEventListener('change',rememberCameraOrbitOffset);
   fillCameraOrbitTargets();
   var surfaceSelect = document.createElement("select");
   surfaceSelect.title = "Aplicar VFX em";
