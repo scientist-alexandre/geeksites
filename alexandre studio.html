@@ -14225,6 +14225,28 @@ let maskVersion=0,encodedMaskVersion=-1,encodedMask=null;function capturedMask()
 let pendingMask=null,loadedMask=null;
 let loadedVfxState=null;
 function setState(state,updateUI=true){if(!updateUI&&state&&state===loadedVfxState)return;loadedVfxState=state;syncing=true;try{master=state?.enabled!==false;Object.assign(settings,clone(defaults),clone(state?.config||{}));settings.rippleSpeed=Math.max(.1,Math.min(.5,Number(settings.rippleSpeed)||.3));ensureEffectFollowIds();settings.keyframes=[];for(const [id,extension]of extensionRegistry)settings.extensions[id]??={enabled:false,...clone(extension.defaults||{})};const bank=ensureEffectBank('scene');bank.config=captureEffectConfig();bank.initial=clone(bank.config);if(state?.mask!==pendingMask){pendingMask=state?.mask||null;loadedMask=null;encodedMask=null;encodedMaskVersion=-1;if(!pendingMask&&ready){app.renderer.render(new PIXI.Container(),{renderTexture:maskTexture,clear:true});windMaskPainted=false}}if(updateUI){currentTime=bridge.time();seek(currentTime,true);syncRipple3DUI();syncActionUI();syncMirrorUI();syncParticleUI();syncImageEffectUI('smoke');syncImageEffectUI('glass');updateFireSelector();updateLightSelector();for(const[prop,id]of Object.entries(extraEffectControls))document.getElementById(id).checked=settings[prop]!==false;for(const input of root.querySelectorAll('input[data-extension]')){const value=settings.extensions[input.dataset.extension]?.[input.dataset.control];if(input.type==='checkbox')input.checked=!!value;else if(value!==undefined)input.value=value}syncEffectFollowUI()}}finally{syncing=false}}
+function duplicateSelectedVfx(kind){
+ ensureEffectFollowIds();let source,newId=kind+'-'+Date.now()+'-'+(++followIdentitySerial);
+ if(kind==='particle'){
+  source=getSelectedParticleLayer();const copy=clone(source);delete copy.layers;copy.id=newId;
+  if(!settings.particles.layers?.length){const original=clone(source);delete original.layers;settings.particles.layers=[original];}
+  settings.particles.layers.push(copy);selectedParticleLayerIndex=settings.particles.layers.length-1;followEffectKind='particles';resetParticlePool();syncParticleUI();
+ }else{
+  const field=kind==='fire'?'fires':'lights',index=kind==='fire'?'selectedFireIndex':'selectedLightIndex';
+  source=settings[field][settings[index]];if(!source)return;
+  settings[field].push({...clone(source),id:newId});settings[index]=settings[field].length-1;followEffectKind=field;
+  filterStackSignature='';if(kind==='fire')updateFireSelector();else updateLightSelector();
+ }
+ loadedVfxState=null;
+ const state=renderState();
+ if(bridge.duplicateEffect)bridge.duplicateEffect({kind,sourceId:source.id,id:newId,state});else changed();
+ syncEffectFollowUI();
+}
+for(const [kind,id,anchor]of [['particle','btn-duplicate-particle','particle-layers-group'],['fire','btn-duplicate-fire','btn-add-fire'],['light','btn-duplicate-light','btn-add-light']]){
+ const button=realDocument.createElement('button');button.id=id;button.type='button';button.className='btn-primary';button.textContent='Duplicar';button.title='Criar uma cópia igual, com os mesmos ajustes e posição 3D';button.style.cssText='padding:0 8px;height:30px;min-height:30px;font-size:10px;white-space:nowrap';
+ button.onclick=event=>{event.preventDefault();event.stopPropagation();duplicateSelectedVfx(kind);};
+ const target=document.getElementById(anchor);if(kind==='particle')target.before(button);else target.after(button);
+}
 function changed(force=false){if(syncing||rendering)return;loadedVfxState=null;currentTime=bridge.time();const bank=ensureEffectBank('scene');bank.config=clone(captureEffectConfig());bridge.change(renderState(),force)}
 heading.querySelector('#as-vfx-reset').onclick=()=>{setState({enabled:true,config:defaults});changed()};heading.querySelector('#as-vfx-key').onclick=()=>changed(true);
 // The 3D timeline owns keyframes. UI changes never re-record bones or object transforms.
@@ -55293,6 +55315,23 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
   }
   function isObjectTimeline(object){const track=timelineTrack();return !!object&&(track===object||track?.object===object)}
   var studioVfxTimelineTracks;
+  function studioMergeVfxKeyframes(previous,incoming){
+    if(!previous)return structuredClone(incoming);
+    const saved=vfxApi.timelineChannels(previous),added=vfxApi.timelineChannels(incoming),channels={...saved};
+    const authored=incoming._vfxChannels||vfxApi.timelineRecordedGroups(incoming);
+    const groups=new Set(authored);
+    // Instance IDs are independent channels. A different particle/fire/light is
+    // added to this frame, while a key for the SAME ID updates that instance.
+    for(const [group,value]of Object.entries(added))if(/^(particle:|fire:|light:)/.test(group)&&!vfxApi.neutralTimelineGroup(group,value))groups.add(group);
+    for(const group of groups)channels[group]=Object.hasOwn(added,group)?added[group]:null;
+    // An empty particle container from another key must not turn off emitters
+    // already authored at the destination frame.
+    const particleGroups=Object.entries(channels).filter(([group,value])=>group.startsWith('particle:')&&value);
+    if(particleGroups.some(([,value])=>value.active!==false))channels['particles:base']={...(channels['particles:base']||{}),active:true};
+    const result=vfxApi.stateFromTimelineChannels(incoming,channels);
+    result._vfxChannels=[...new Set([...(previous._vfxChannels||vfxApi.timelineRecordedGroups(previous)),...groups])];
+    return result;
+  }
   function objectStudioVfxTimeline(){
     studioVfxTimelineTracks ||= new Map();
     const id=studioVfxTargetId||'__scene__';
@@ -55308,7 +55347,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     }
     class ObjectVfxKeys extends Map{
       keys(){return read().keys();}get size(){return read().size;}has(frame){return read().has(+frame);}get(frame){return read().get(+frame);}
-      set(frame,value){const keys=new Map(read());const state=value?._studioVfxBanks?.[id]||value;keys.set(+frame,structuredClone(state));write(keys);return this;}
+      set(frame,value){const keys=new Map(read());const state=value?._studioVfxBanks?.[id]||value;keys.set(+frame,studioMergeVfxKeyframes(keys.get(+frame),state));write(keys);return this;}
       delete(frame){const keys=new Map(read());const changed=keys.delete(+frame);if(changed)write(keys);return changed;}
       clear(){write(new Map());}entries(){return read().entries();}values(){return read().values();}[Symbol.iterator](){return this.entries();}
       forEach(callback,thisArg){for(const [f,key]of this)callback.call(thisArg,key,f,this);}
@@ -60802,12 +60841,42 @@ ${notes}`;
     selectedTimeFrames.clear();
     status('Efeito excluído e seus keyframes removidos. Keyframes compartilhados com outros efeitos foram preservados.');
   }
+  function duplicateStudioVfxEffect(effect){
+    if(exportState||studioSaving||!['particle','fire','light'].includes(effect.kind))return;
+    pauseTimeline();clearVfxPlacement();
+    const bankId=studioVfxTargetId||'__scene__',sourceKey=effect.kind+':'+effect.sourceId,newKey=effect.kind+':'+effect.id;
+    const duplicateSnapshot=state=>{
+      const next=JSON.parse(JSON.stringify(state)),config=next.config||{};
+      let list;
+      if(effect.kind==='particle'){
+        if(!config.particles)return next;
+        const base=config.particles;
+        if(base.layers?.length)list=base.layers;
+        else if(base.id===effect.sourceId){const original={...base};delete original.layers;list=base.layers=[original];}
+        else return next;
+      }else list=config[effect.kind==='fire'?'fires':'lights'];
+      const source=list?.find(item=>item.id===effect.sourceId);
+      if(source&&!list.some(item=>item.id===effect.id))list.push({...JSON.parse(JSON.stringify(source)),id:effect.id});
+      if(source&&Array.isArray(next._vfxChannels)&&next._vfxChannels.includes(sourceKey)&&!next._vfxChannels.includes(newKey))next._vfxChannels.push(newKey);
+      return next;
+    };
+    const current=JSON.parse(JSON.stringify(effect.state));
+    // Materialize default spatial bindings before copying: even a newly added
+    // emitter keeps precisely the same world pose and pixel/world scale.
+    splitStudioSpatialEffects(current,bankId);
+    const original=studioVfxBinding(sourceKey,bankId);
+    if(original){const binding=JSON.parse(JSON.stringify(original));binding.bankId=bankId;binding.effectKey=newKey;studioVfxLayerFollows[studioVfxFollowKey(bankId,newKey)]=binding;}
+    sceneVfxTrack.keyframes=new Map([...sceneVfxTrack.keyframes].map(([at,state])=>[at,duplicateSnapshot(state)]));
+    vfxState=current;vfxApi.setState(vfxState,true);stashStudioVfxBank();studioVfxCurveCache=new WeakMap();
+    studioInvalidatePreview();vfxLastDraw=0;renderTimeline();
+    status('Efeito duplicado com os mesmos ajustes, posição 3D e animação. A cópia pode ser editada separadamente.');
+  }
   function mountStudioVfx() {
     if(!window.AlexandreStudioVFX.extensions.some(effect=>effect.id==='sceneGlass'))window.AlexandreStudioVFX.registerExtension({
       id:'sceneGlass',title:'Vidro / Transparência',defaults:{transparency:70,reflection:35},
       controls:[{id:'transparency',label:'Transparência (%)',min:0,max:100,step:1},{id:'reflection',label:'Reflexo nas bordas (%)',min:0,max:100,step:1}]
     });
-    vfxApi = window.AlexandreStudioVFX.mount($("studioVfxHost"), { THREE: three_module_exports, removeEffect: removeStudioVfxEffect, placement: studioVfxPlacement, selectPlacement: selectVfxPlacement, followAnchor: studioFollowAnchor, followInfo: studioVfxFollowInfo, followPick: (effect) => {
+    vfxApi = window.AlexandreStudioVFX.mount($("studioVfxHost"), { THREE: three_module_exports, removeEffect: removeStudioVfxEffect, duplicateEffect:duplicateStudioVfxEffect, placement: studioVfxPlacement, selectPlacement: selectVfxPlacement, followAnchor: studioFollowAnchor, followInfo: studioVfxFollowInfo, followPick: (effect) => {
       vfxState = vfxApi.capture();
       stashStudioVfxBank();
       beginFollowPin({ type: "vfx", ...effect, bankId: studioVfxTargetId });
