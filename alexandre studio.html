@@ -51179,6 +51179,36 @@ void main() {
 
   // Bone placement owns its pointer gesture before camera and transform controls.
   var bonePlacementPointer = null;
+  function studioBoneMeshCenter(pointerRay,root){
+    const surfaces=[],sides=new Map();
+    root.traverseVisible(mesh=>{
+      if(!mesh.isMesh||!mesh.geometry?.attributes.position||mesh.userData.environmentRuntime||mesh.userData.studioVfxVolume)return;
+      surfaces.push(mesh);
+      if(mesh.isSkinnedMesh)mesh.skeleton?.update();
+      for(const material of Array.isArray(mesh.material)?mesh.material:[mesh.material])if(material&&!sides.has(material)){sides.set(material,material.side);material.side=DoubleSide;}
+    });
+    if(!surfaces.length)return null;
+    const firstHitOnly=pointerRay.firstHitOnly;pointerRay.firstHitOnly=false;
+    let hits;
+    try{hits=pointerRay.intersectObjects(surfaces,false);}finally{
+      for(const [material,side]of sides)material.side=side;
+      if(firstHitOnly===undefined)delete pointerRay.firstHitOnly;else pointerRay.firstHitOnly=firstHitOnly;
+    }
+    if(!hits.length)return null;
+    const first=hits[0],normal=new Vector3(),normalMatrix=new Matrix3();
+    const bounds=new Box3().setFromObject(first.object),epsilon=Math.max(1e-7,bounds.getSize(new Vector3()).length()*1e-6);
+    const facing=hit=>hit.face?normal.copy(hit.face.normal).applyMatrix3(normalMatrix.getNormalMatrix(hit.object.matrixWorld)).normalize().dot(pointerRay.ray.direction):0;
+    if(facing(first)>=-1e-7)return first.point.clone();
+    // Pair the entrance with the first exit of the same surface. Do not average
+    // unrelated front/back pieces across an empty gap in the character.
+    let exit=hits.find(hit=>hit.object===first.object&&hit.distance>first.distance+epsilon&&facing(hit)>1e-7);
+    if(!exit){
+      // GLB primitives can split a closed shell into separate material meshes.
+      const next=hits.find(hit=>hit.distance>first.distance+epsilon);
+      if(next&&next.object.parent===first.object.parent&&facing(first)<-1e-7&&facing(next)>1e-7)exit=next;
+    }
+    return exit?first.point.clone().add(exit.point).multiplyScalar(.5):first.point.clone();
+  }
   function placeStudioBone(event) {
     if (!model || !activeObject || bound || editing !== "add") return;
     model.updateWorldMatrix(true, true);
@@ -51188,8 +51218,8 @@ void main() {
     const center = selected ? selected.getWorldPosition(new Vector3()) : bounds.isEmpty() ? model.getWorldPosition(new Vector3()) : bounds.getCenter(new Vector3());
     const plane = new Plane().setFromNormalAndCoplanarPoint(camera.getWorldDirection(new Vector3()), center);
     setPointerRay(event);
-    const point = new Vector3();
-    if (!ray.ray.intersectPlane(plane, point)) return status("Não foi possível posicionar o osso nesta vista. Gire a câmera e tente novamente.");
+    const point = studioBoneMeshCenter(ray,model)||ray.ray.intersectPlane(plane,new Vector3());
+    if (!point) return status("Não foi possível posicionar o osso nesta vista. Gire a câmera e tente novamente.");
     const bone = new Bone();
     let number = bones.length + 1;
     do { bone.name = "Osso_" + String(number++).padStart(2, "0"); } while (bones.some(existing => existing.name === bone.name));
@@ -59558,6 +59588,7 @@ ${notes}`;
     let binding=studioVfxBinding(subject.key,bank);
     const freeScene=bank==='__free__';
     if(edit&&(owner||freeScene)){
+      studioInvalidatePreview();
       const world=binding?studioVfxWorld(binding):owner?owner.root.getWorldPosition(new Vector3()):new Vector3((subject.x??.5)*2-1,1-(subject.y??.5)*2,controls.target.clone().project(camera).z).unproject(camera);
       const ownerId=freeScene?'':edit.ownerId??binding?.ownerId??owner.id,boneId=freeScene?'':edit.boneId??binding?.boneId??'';
       const old=binding;
@@ -59674,6 +59705,7 @@ ${notes}`;
   });
   function applyVfxMoveHandle(){
     if(!vfxMoveSubject)return;
+    studioInvalidatePreview();
     const binding=studioVfxBinding(vfxMoveSubject.key,vfxMoveSubject.bankId);if(!binding)return;
     const point=vfxMoveHandle.position.clone(),node=studioVfxNode(binding);
     if(node){node.updateWorldMatrix(true,false);node.worldToLocal(point)}
@@ -60359,6 +60391,7 @@ ${notes}`;
       if(alpha<.003)discard;
       gl_FragColor=vec4(vColor,alpha);
       #include <colorspace_fragment>
+      #include <premultiplied_alpha_fragment>
     }
   `;
   function studioVfxVolumeNumber(value,fallback){return Number.isFinite(Number(value))?Number(value):fallback;}
@@ -60414,7 +60447,7 @@ ${notes}`;
     for(const key of ['Time','Life','Cycle','Burst','Window','Delay','Angle','Spread','Speed','SpeedVar','Drag','Radial','Orbit','Turbulence','Frequency','SizeStart','SizeEnd','SizeVar','Stretch','Rotation','Spin','FadeIn','FadeOut','Pulse','Opacity','Soft','Shell'])uniforms['u'+key]={value:0};
     for(const key of ['Domain','Gravity','Offset'])uniforms['u'+key]={value:new Vector3()};
     for(const key of ['ColorStart','ColorEnd'])uniforms['u'+key]={value:new Color()};
-    const material=new ShaderMaterial({uniforms,vertexShader:studioVfxVolumeVertex,fragmentShader:studioVfxVolumeFragment,transparent:true,depthTest:true,depthWrite:false,side:DoubleSide,toneMapped:false});
+    const material=new ShaderMaterial({uniforms,vertexShader:studioVfxVolumeVertex,fragmentShader:studioVfxVolumeFragment,transparent:true,premultipliedAlpha:true,depthTest:true,depthWrite:false,side:DoubleSide,toneMapped:false});
     const mesh=new Mesh(geometry,material);mesh.frustumCulled=false;mesh.userData.volumeParticleCount=count;mesh.userData.volumeShape=emitter;
     return mesh;
   }
@@ -60591,6 +60624,51 @@ ${notes}`;
     }
   }
 
+
+  // Composite spatial emitters against the original scene depth AFTER processed
+  // character images. Otherwise a character's aura/filter covers particles in front.
+  function compositeStudioSpatialVfx(context,width,height){
+    const volumes=studioVfxVolumes;
+    if(!volumes.children.some(group=>group.visible))return;
+    const materials=[],hidden=[],particles=[];
+    const clear=renderer.getClearColor(new Color()),alpha=renderer.getClearAlpha(),background=scene.background,autoClear=renderer.autoClear,shadowAuto=renderer.shadowMap.autoUpdate,visible=volumes.visible;
+    scene.traverse(node=>{
+      if(studioInside(node,volumes))return;
+      if(node.userData.isStudioSky||node.type==='GridHelper'||node.type==='AxesHelper'){
+        hidden.push([node,node.visible]);node.visible=false;return;
+      }
+      if(!node.material||!node.visible)return;
+      const original=node.material;
+      const depth=source=>{
+        let material=studioDepthMaterials.get(source);if(!material){material=source.clone();studioDepthMaterials.set(source,material);}
+        material.copy(source);material.onBeforeCompile=source.onBeforeCompile;material.customProgramCacheKey=source.customProgramCacheKey.bind(source);
+        material.colorWrite=false;material.depthTest=true;material.depthWrite=source.depthWrite!==false&&(source.opacity??1)>=.999;
+        return material;
+      };
+      node.material=Array.isArray(original)?original.map(depth):depth(original);materials.push([node,original]);
+    });
+    volumes.traverse(node=>{if(node.isMesh)particles.push([node,node.visible]);});
+    try{
+      scene.background=null;renderer.setClearColor(0,0);renderer.shadowMap.autoUpdate=false;
+      volumes.visible=false;renderer.autoClear=true;renderer.render(scene,camera);
+      renderer.autoClear=false;volumes.visible=true;
+      // Normal alpha and additive light need different 2D blend operations.
+      // Both reuse the SAME scene depth, so the character occludes only emitters behind it.
+      for(const additive of [false,true]){
+        let count=0;
+        for(const [mesh,wasVisible]of particles){mesh.visible=wasVisible&&((mesh.material.blending===AdditiveBlending)===additive);if(mesh.visible)count++;}
+        if(!count)continue;
+        renderer.clear(true,false,false);renderer.render(volumes,camera);
+        context.save();try{context.globalAlpha=1;context.globalCompositeOperation=additive?'lighter':'source-over';context.drawImage(renderer.domElement,0,0,width,height);}finally{context.restore();}
+      }
+    }finally{
+      for(const [node,material]of materials)node.material=material;
+      for(const [node,wasVisible]of hidden)node.visible=wasVisible;
+      for(const [node,wasVisible]of particles)node.visible=wasVisible;
+      volumes.visible=visible;scene.background=background;renderer.autoClear=autoClear;renderer.setClearColor(clear,alpha);renderer.shadowMap.autoUpdate=shadowAuto;
+    }
+  }
+
   function renderStudioFrame(time,exporting=false) {
     if(exporting)renderer.shadowMap.autoUpdate=true;
     restoreStudioGlassMaterials();
@@ -60619,6 +60697,9 @@ ${notes}`;
     const width=renderer.domElement.width,height=renderer.domElement.height;
     if(vfxComposite.width!==width||vfxComposite.height!==height){vfxComposite.width=width;vfxComposite.height=height;}
     const ctx=vfxCompositeContext,shadowAuto=renderer.shadowMap.autoUpdate;
+    const separateSpatial=passes.some(pass=>pass.target&&pass.baseActive)&&passes.some(pass=>pass.layers.some(layer=>layer.native));
+    const spatialVisible=studioVfxVolumes.visible;
+    if(separateSpatial)studioVfxVolumes.visible=false;
     for(const [node]of helpers)node.visible=false;
     try{
       // A separate shadow pass is necessary only when source objects are hidden.
@@ -60639,6 +60720,7 @@ ${notes}`;
       for(const layer of layers)layer.frameTransform=studioLayerTransform(layer,width,height);
       layers.sort((a,b)=>b.frameTransform.depth-a.frameTransform.depth);
       for(const layer of layers)drawStudioVfxLayer(layer,clockTime,exporting);
+      if(separateSpatial)compositeStudioSpatialVfx(ctx,width,height);
       // Camera finishing sees the complete sum, including all object and camera emitters.
       for(const pass of passes.filter(p=>!p.target&&p.baseActive)){
         studioVfxRenderTarget=pass.id;vfxApi.setState(pass.state,false);
@@ -60648,7 +60730,7 @@ ${notes}`;
       }
     }catch(error){vfxComposite.hidden=true;status('Falha no VFX: '+error.message);renderer.render(scene,camera);return renderer.domElement;}
     finally{
-      studioVfxLayerRendering=false;studioVfxRenderTarget=null;renderer.shadowMap.autoUpdate=shadowAuto;
+      studioVfxLayerRendering=false;studioVfxRenderTarget=null;renderer.shadowMap.autoUpdate=shadowAuto;studioVfxVolumes.visible=spatialVisible;
       vfxApi.setState(vfxState,false);for(const [node,value]of helpers)node.visible=value;
       ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
     }
@@ -62538,7 +62620,7 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
   var studioPreviewNavigation=false,studioPreviewNavigationUntil=0,studioPreviewCameraEndAt=0,studioPreviewQualityAt=0,studioPreviewRenderedAt=0;
   function studioInvalidatePreview(shadows=true){studioPreviewDirty=true;if(shadows)studioPreviewShadowDirty=true;}
   function studioContinuousPreview(){
-    if(timelinePlaying||playing||gizmoGesture||drag||objectDrag||baseGrabStroke||shapeStroke)return true;
+    if(timelinePlaying||playing||gizmoGesture||drag||objectDrag||baseGrabStroke||shapeStroke||vfxMoveGizmo?.dragging||vfxWindStroke)return true;
     for(const runtime of studioSequenceRuntimes?.values()||[])if(!runtime.video.paused||runtime.playPending||runtime.video.seeking)return true;
     for(const object of objects)if(studioTreeVisible(object.root)&&object.root.userData.environmentParticles)return true;
     if(skyTexture&&panoramaFxState.regions.some(region=>region.enabled))return true;
