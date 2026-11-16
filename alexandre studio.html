@@ -7265,10 +7265,16 @@ window.DrawingAssemblyEditor={
  active:()=&gt;!!assemblyEditorSnapshot,
  root:()=&gt;assemblyEditorRoot,
  finish(){if(grabStroke)grabEnd(null);Wm();},
+ textureChanged(root){
+  // Uma imagem nova inicia outra pintura; preserva o histórico de modelagem.
+  if(root===assemblyEditorRoot){Rs=[];Ei=null;ri=null;Xo=null;dl=false;assemblyEditorHistories.set(root,{paints:[],painted:false});}
+  else assemblyEditorHistories.delete(root);
+  for(let i=grabHistory.length-1;i&gt;=0;i--)if(grabHistory[i].kind==='paint'&amp;&amp;grabHistory[i].model===root)grabHistory.splice(i,1);
+ },
  prepare:root=&gt;{root.traverse(mesh=&gt;{if(mesh.isMesh&amp;&amp;mesh.geometry?.attributes.position){mesh.geometry=mesh.geometry.clone();const multiple=Array.isArray(mesh.material),materials=multiple?mesh.material:[mesh.material],copies=materials.map(material=&gt;material.clone());mesh.material=multiple?copies:copies[0];if(!mesh.isSkinnedMesh&amp;&amp;!Object.values(mesh.geometry.morphAttributes).some(list=&gt;list.length))mesh.geometry.computeBoundsTree?.({indirect:true});}});return root;}
 };
 
-window.AssemblyEngine={Scene:Bi,Camera:At,Renderer:Oc,Orbit:Hc,Binding:Je,Mesh:gt,Geometry:zt,Attribute:Ve,Material:vn,Vector:I,Vector2:ge,Raycaster:lr,Box:Ze,Hemisphere:go,Light:ps,Loader:zc,Exporter:Ts};
+window.AssemblyEngine={Scene:Bi,Camera:At,Renderer:Oc,Orbit:Hc,Binding:Je,Mesh:gt,Geometry:zt,Attribute:Ve,Material:vn,Vector:I,Vector2:ge,Raycaster:lr,Box:Ze,Hemisphere:go,Light:ps,Loader:zc,Exporter:Ts,Texture:co};
 window.syncDrawingClay=()=&gt;{if(Is)Is.overrideMaterial=et('clayPreview').checked?clayMaterial:null;};
 et('clayPreview').onchange=()=&gt;{lastFrame='';Cs=true;window.syncDrawingClay();};
 et('applyDrawingAutoSmooth').onclick=()=&gt;applyDrawingFinish('normals');
@@ -7926,7 +7932,92 @@ function fit(){const box=new E.Box().setFromObject(content);if(box.isEmpty()){or
 function list(){open.textContent='Montagem · '+parts.length;const host=byId('assemblyParts');host.replaceChildren();for(const part of parts){const row=document.createElement('div');row.className='assembly-row'+(part===selected?' selected':'');const check=document.createElement('input');check.type='checkbox';check.checked=joinSelection.has(part);check.setAttribute('aria-label','Selecionar peça '+part.name+' para unir');check.style.cssText='width:15px;height:15px;flex:none;accent-color:#8bb8f8;cursor:pointer';check.onchange=()=&gt;{if(check.checked)joinSelection.add(part);else joinSelection.delete(part);updateJoinButton()};const select=document.createElement('button');select.className='part-select';select.textContent=part.name;select.onclick=()=&gt;choose(part);const remove=document.createElement('button');remove.textContent='×';remove.title='Retirar peça da montagem';remove.onclick=()=&gt;{content.remove(part.object);parts.splice(parts.indexOf(part),1);joinSelection.delete(part);if(selected===part)choose(parts[0]||null);list()};row.append(check,select,remove);host.append(row)}updateJoinButton()}
 function choose(part){assemblyEditor.finish();selected=part;byId('assemblyProperties').hidden=!part;list();if(ready)rebuildHandles();properties();syncAssemblyEditor()}
 function nextPartName(){let name;do{name=String(++counter)}while(parts.some(part=&gt;part.name===name));return name}
-function properties(){if(selected)byId('assemblyName').value=selected.name}
+function properties(){syncAssemblyTextureUI();if(selected)byId('assemblyName').value=selected.name}
+// Textura local da peça selecionada, compartilhada entre suas malhas.
+const assemblyTextureTools=document.createElement('div');
+assemblyTextureTools.style.cssText='margin-top:12px;display:grid;gap:6px';
+assemblyTextureTools.innerHTML='&lt;button id="assemblyTextureLoad" type="button"&gt;Carregar textura&lt;/button&gt;&lt;button id="assemblyTextureRemove" type="button"&gt;Remover textura&lt;/button&gt;&lt;input id="assemblyTextureFile" type="file" accept="image/*" hidden&gt;&lt;small id="assemblyTextureName" style="font:11px system-ui;color:#aaa;overflow-wrap:anywhere" role="status"&gt;&lt;/small&gt;';
+byId('assemblyProperties').append(assemblyTextureTools);
+function assemblyTextureMeshes(part){
+ const meshes=[];part?.object.traverse(mesh=&gt;{if(mesh.isMesh&amp;&amp;mesh.geometry?.attributes.position&amp;&amp;(Array.isArray(mesh.material)?mesh.material:[mesh.material]).some(material=&gt;material&amp;&amp;'map' in material))meshes.push(mesh);});return meshes;
+}
+function syncAssemblyTextureUI(){
+ const load=byId('assemblyTextureLoad');if(!load)return;
+ load.disabled=!selected||busy||!!window.drawingFinishBusy;
+ byId('assemblyTextureRemove').disabled=load.disabled||!selected?.object.userData.assemblyTextureName;
+ byId('assemblyTextureName').textContent=selected?.object.userData.assemblyTextureName||'Textura opcional da peça selecionada.';
+}
+function assemblyTextureUV(mesh){
+ if(mesh.geometry.attributes.uv)return;
+ const geometry=mesh.geometry.clone(),position=geometry.attributes.position;geometry.computeBoundingBox();
+ const box=geometry.boundingBox,axes=['x','y','z'].sort((a,b)=&gt;(box.max[b]-box.min[b])-(box.max[a]-box.min[a])),a=axes[0],b=axes[1],get={x:'getX',y:'getY',z:'getZ'},uv=new Float32Array(position.count*2);
+ for(let i=0;i&lt;position.count;i++){uv[i*2]=(position[get[a]](i)-box.min[a])/(box.max[a]-box.min[a]||1);uv[i*2+1]=(position[get[b]](i)-box.min[b])/(box.max[b]-box.min[b]||1);}
+ geometry.setAttribute('uv',new E.Attribute(uv,2));mesh.geometry=geometry;
+}
+function releaseAssemblyMaterials(candidates){
+ for(const part of parts)part.object.traverse(node=&gt;{if(node.isMesh)for(const material of Array.isArray(node.material)?node.material:[node.material])candidates.delete(material);});
+ for(const material of candidates)material.dispose();
+}
+function releaseAssemblyTextures(candidates){
+ for(const part of parts)part.object.traverse(node=&gt;{if(node.isMesh)for(const material of Array.isArray(node.material)?node.material:[node.material])if(material?.map)candidates.delete(material.map);});
+ for(const texture of candidates)texture.dispose();
+}
+byId('assemblyTextureLoad').onclick=()=&gt;{if(!busy&amp;&amp;!window.drawingFinishBusy&amp;&amp;selected)byId('assemblyTextureFile').click();};
+byId('assemblyTextureFile').onchange=async event=&gt;{
+ const input=event.target,file=input.files?.[0],part=selected;input.value='';
+ if(!file||!part||busy||window.drawingFinishBusy)return;
+ await guard(async()=&gt;{
+  const meshes=assemblyTextureMeshes(part);if(!meshes.length)throw Error('Esta peça não possui malha que aceite textura.');
+  let bitmap;const created=new Set();
+  try{
+   status('Carregando textura…');bitmap=await createImageBitmap(file);
+   const limit=Math.min(2048,renderer.capabilities.maxTextureSize),scale=Math.min(1,limit/bitmap.width,limit/bitmap.height),canvas=document.createElement('canvas');
+   canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
+   bitmap.close();bitmap=null;if(!parts.includes(part))return;
+   assemblyEditor.finish();
+   const textures=new Map(),materials=new Map(),oldTextures=new Set();
+   for(const mesh of meshes){
+    assemblyTextureUV(mesh);
+    const updated=(Array.isArray(mesh.material)?mesh.material:[mesh.material]).map(original=&gt;{
+     if(!original||!('map' in original))return original;
+     if(materials.has(original))return materials.get(original);
+     const material=original.clone(),flipY=original.map?.flipY??true;
+     if(!textures.has(flipY)){
+      const texture=new E.Texture(canvas);texture.colorSpace='srgb';texture.flipY=flipY;texture.name=file.name;texture.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());texture.userData.assemblyUploadedTexture=true;
+      textures.set(flipY,texture);created.add(texture);
+     }
+     if(original.map?.userData.assemblyUploadedTexture)oldTextures.add(original.map);
+     if(material.userData.assemblyTextureBaseColor===undefined&amp;&amp;material.color)material.userData.assemblyTextureBaseColor=material.color.getHex();
+     if(material.userData.assemblyTextureVertexColors===undefined)material.userData.assemblyTextureVertexColors=!!material.vertexColors;
+     material.color?.set(0xffffff);material.vertexColors=false;material.map=textures.get(flipY);material.needsUpdate=true;
+     materials.set(original,material);return material;
+    });
+    mesh.material=Array.isArray(mesh.material)?updated:updated[0];
+   }
+   part.object.userData.assemblyTextureName=file.name;
+   assemblyEditor.textureChanged(part.object);releaseAssemblyMaterials(new Set(materials.keys()));releaseAssemblyTextures(oldTextures);created.clear();
+   status('Textura aplicada à peça '+part.name+'. Ela será incluída no GLB.');
+  }finally{bitmap?.close();releaseAssemblyTextures(created);syncAssemblyTextureUI();}
+ }).catch(()=&gt;{});
+};
+byId('assemblyTextureRemove').onclick=()=&gt;{
+ const part=selected;if(!part||busy||window.drawingFinishBusy)return;
+ assemblyEditor.finish();const materials=new Map(),oldTextures=new Set();
+ for(const mesh of assemblyTextureMeshes(part)){
+  const updated=(Array.isArray(mesh.material)?mesh.material:[mesh.material]).map(original=&gt;{
+   if(!original?.map?.userData.assemblyUploadedTexture&amp;&amp;original?.userData.assemblyTextureBaseColor===undefined)return original;
+   if(materials.has(original))return materials.get(original);
+   const material=original.clone();if(original.map?.userData.assemblyUploadedTexture)oldTextures.add(original.map);
+   material.map=null;if(material.color&amp;&amp;material.userData.assemblyTextureBaseColor!==undefined)material.color.setHex(material.userData.assemblyTextureBaseColor);
+   material.vertexColors=!!material.userData.assemblyTextureVertexColors;delete material.userData.assemblyTextureBaseColor;delete material.userData.assemblyTextureVertexColors;
+   material.needsUpdate=true;materials.set(original,material);return material;
+  });
+  mesh.material=Array.isArray(mesh.material)?updated:updated[0];
+ }
+ delete part.object.userData.assemblyTextureName;assemblyEditor.textureChanged(part.object);releaseAssemblyMaterials(new Set(materials.keys()));releaseAssemblyTextures(oldTextures);syncAssemblyTextureUI();status('Textura removida da peça '+part.name+'.');
+};
+syncAssemblyTextureUI();
+
 byId('assemblyName').oninput=e=&gt;{if(selected){selected.name=e.target.value||'Peça';selected.object.name=selected.name;list()}};
 function pointerRay(e){const r=view.getBoundingClientRect();camera.updateMatrixWorld(true);ray.setFromCamera(new E.Vector2((e.clientX-r.left)/r.width*2-1,1-(e.clientY-r.top)/r.height*2),camera)}
 function planeHit(origin,normal){const denominator=ray.ray.direction.dot(normal);if(Math.abs(denominator)&lt;1e-6)return null;const t=origin.clone().sub(ray.ray.origin).dot(normal)/denominator;return t&gt;=0?ray.ray.direction.clone().multiplyScalar(t).add(ray.ray.origin):null}
@@ -7965,7 +8056,7 @@ dialog.querySelectorAll('[data-mode]').forEach(button=&gt;button.onclick=()=&gt;
 byId('assemblyReset').onclick=()=&gt;{if(!selected)return;selected.object.position.set(0,0,0);selected.object.rotation.set(0,0,0);selected.object.scale.set(1,1,1);properties()};
 byId('assemblyDuplicate').onclick=()=&gt;{if(!selected)return;const object=assemblyEditor.prepare(selected.object.clone(true)),name=nextPartName();object.name=name;object.position.x+=.1;const part={object,name};parts.push(part);content.add(object);choose(part)};
 byId('assemblyFit').onclick=fit;
-async function guard(fn){if(busy)return;busy=true;for(const id of ['assemblyAdd','assemblyExport'])byId(id).disabled=true;try{await fn()}catch(e){status('Erro: '+e.message);byId('progress').textContent='Erro ao guardar peça: '+e.message;throw e}finally{busy=false;for(const id of ['assemblyAdd','assemblyExport'])byId(id).disabled=false;updateJoinButton()}}
+async function guard(fn){if(busy)return;busy=true;for(const id of ['assemblyAdd','assemblyExport','assemblyTextureLoad','assemblyTextureRemove'])byId(id).disabled=true;try{await fn()}catch(e){status('Erro: '+e.message);byId('progress').textContent='Erro ao guardar peça: '+e.message;throw e}finally{busy=false;for(const id of ['assemblyAdd','assemblyExport'])byId(id).disabled=false;updateJoinButton();syncAssemblyTextureUI()}}
 async function savePart(){return guard(async()=&gt;{init();status('Guardando a peça, com malha e texturas…');byId('progress').textContent='Guardando peça na montagem…';assemblyEditor.leave();let bytes;try{bytes=window.importedGLBActive?await window.exportFinishedImported():await exportGLB(true);}finally{if(active)syncAssemblyEditor();}if(!bytes)throw Error(byId('exportMessage').textContent||'Gere um modelo antes de guardar.');const gltf=await new E.Loader().setMeshoptDecoder(window.MeshoptDecoder).parseAsync(bytes instanceof ArrayBuffer?bytes:bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength),'');const object=gltf.scene,name=nextPartName();object.name=name;const part={name,object,animations:gltf.animations};parts.push(part);content.add(object);choose(part);status(name+' guardada. Arraste os eixos para posicionar; arraste o fundo para girar a câmera.');byId('progress').textContent=name+' guardada em Montagem · '+parts.length+' peça(s).';return part})}
 window.saveGeneratedPart=savePart;
 byId('assemblyAdd').onclick=()=&gt;savePart().catch(()=&gt;{});
