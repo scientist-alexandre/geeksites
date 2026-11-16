@@ -51033,6 +51033,7 @@ void main() {
     pauseTimeline();
     if (mixer) mixer.stopAllAction();
     playing = false;
+    syncStudioPlaybackTools();
     $("play").textContent = "\u25B6 Reproduzir";
   }
   function meshes() {
@@ -51469,7 +51470,7 @@ void main() {
     if (!timelinePlaying && !gizmoGesture && !drag && !objectDrag) controls.update();
   }
   function transformTarget() {
-    return selected && bones.includes(selected) ? selected : studioFolderFor(activeObject)?.root || model;
+    return selected && bones.includes(selected) ? selected : model;
   }
   // The proxy uses the visible geometry center, while bones retain their joint origin.
   var objectHandlePivotTarget = null;
@@ -53769,7 +53770,7 @@ void main() {
     group.append(title, circle, text);
     axisLines.append(line);
     axisEnds.append(group);
-    group.addEventListener("pointerdown", (e) => {
+    group.addEventListener("click", (e) => {
       if (e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
@@ -53783,6 +53784,78 @@ void main() {
     };
     return { direction: new Vector3(x, y, z), line, group };
   });
+  // Navegação pelo gizmo existente, inclusive quando a câmera está muito perto.
+  axisSvg.style.touchAction='none';
+  axisSvg.style.cursor='grab';
+  axisSvg.setAttribute('aria-label','Câmera: segure e arraste como um joystick; solte para parar');
+  const cameraGizmoTitle=svgNode('title',{});
+  cameraGizmoTitle.textContent='Segure e arraste para girar como um joystick · Solte para parar · Botão direito ou Shift para deslocar';
+  axisSvg.prepend(cameraGizmoTitle);
+  var studioCameraGizmoDrag=null,studioCameraGizmoIgnoreClick=false,studioCameraGizmoAnimation=0;
+  function studioCameraGizmoDistance(){
+    const offset=camera.position.clone().sub(controls.target);
+    if(offset.lengthSq()<1e-12)offset.set(0,0,1).applyQuaternion(camera.quaternion).multiplyScalar(Math.max(camera.near*10,.01));
+    return offset;
+  }
+  function studioCameraGizmoUpdate(){
+    const damping=controls.enableDamping;
+    controls.enableDamping=false;
+    controls._sphericalDelta.set(0,0,0);controls._panOffset.set(0,0,0);controls._scale=1;
+    camera.lookAt(controls.target);controls.update();camera.updateMatrixWorld(true);
+    controls.enableDamping=damping;
+    rememberCameraOrbitOffset();updateViewGizmo();studioInvalidatePreview();
+  }
+  function studioCameraJoystickTick(now){
+    studioCameraGizmoAnimation=0;
+    const drag=studioCameraGizmoDrag;if(!drag || !drag.moved)return;
+    const dt=Math.min(.05,Math.max(0,(now-drag.time)/1000));drag.time=now;
+    const offset=studioCameraGizmoDistance(),x=drag.vx,y=drag.vy;
+    if(Math.abs(x)+Math.abs(y)>.001){
+      if(drag.pan){
+        const scale=offset.length()*dt;
+        const delta=new Vector3(-x*scale,y*scale,0).applyQuaternion(camera.quaternion);
+        camera.position.add(delta);controls.target.add(delta);
+      }else{
+        const spherical=new Spherical().setFromVector3(offset);
+        spherical.theta-=x*dt*1.8;spherical.phi-=y*dt*1.8;spherical.makeSafe();
+        camera.position.copy(controls.target).add(new Vector3().setFromSpherical(spherical));
+      }
+      studioCameraGizmoUpdate();
+    }
+    studioCameraGizmoAnimation=requestAnimationFrame(studioCameraJoystickTick);
+  }
+  axisSvg.addEventListener('pointerdown',event=>{
+    if(exportState || (event.button!==0 && event.button!==2))return;
+    event.preventDefault();
+    pauseTimeline();stop();finishDrag(false);commitCameraEdit();
+    studioCameraGizmoIgnoreClick=false;
+    studioCameraGizmoDrag={id:event.pointerId,x:event.clientX,y:event.clientY,startX:event.clientX,startY:event.clientY,pan:event.button===2||event.shiftKey,enabled:controls.enabled,moved:false,vx:0,vy:0,time:performance.now()};
+    controls.enabled=false;axisSvg.style.cursor='grabbing';
+  });
+  axisSvg.addEventListener('pointermove',event=>{
+    const drag=studioCameraGizmoDrag;if(!drag || drag.id!==event.pointerId)return;
+    if(!drag.moved && Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)<4)return;
+    event.preventDefault();if(!drag.moved)axisSvg.setPointerCapture(event.pointerId);drag.moved=true;
+    const size=Math.max(1,axisSvg.getBoundingClientRect().width),dx=(event.clientX-drag.startX)/(size*.3),dy=(event.clientY-drag.startY)/(size*.3),length=Math.max(1,Math.hypot(dx,dy));
+    drag.vx=dx/length;drag.vy=dy/length;
+    if(!studioCameraGizmoAnimation){drag.time=performance.now();studioCameraGizmoAnimation=requestAnimationFrame(studioCameraJoystickTick);}
+  });
+  function studioFinishCameraGizmo(event){
+    const drag=studioCameraGizmoDrag;if(!drag || drag.id!==event.pointerId)return;
+    studioCameraGizmoDrag=null;studioCameraGizmoIgnoreClick=drag.moved;
+    cancelAnimationFrame(studioCameraGizmoAnimation);studioCameraGizmoAnimation=0;
+    controls.enabled=drag.enabled;axisSvg.style.cursor='grab';
+    if(axisSvg.hasPointerCapture(event.pointerId))axisSvg.releasePointerCapture(event.pointerId);
+    if(drag.moved)commitCameraEdit();
+  }
+  for(const type of ['pointerup','pointercancel'])window.addEventListener(type,studioFinishCameraGizmo);
+  axisSvg.addEventListener('lostpointercapture',studioFinishCameraGizmo);
+  axisSvg.addEventListener('click',event=>{
+    if(studioCameraGizmoIgnoreClick){event.preventDefault();event.stopImmediatePropagation();studioCameraGizmoIgnoreClick=false;}
+  },true);
+  axisSvg.addEventListener('contextmenu',event=>event.preventDefault());
+  window.addEventListener('blur',()=>{if(studioCameraGizmoDrag)studioFinishCameraGizmo({pointerId:studioCameraGizmoDrag.id});});
+
   var studioViewGizmoQuaternion=null;
   function updateViewGizmo() {
     if(studioViewGizmoQuaternion?.equals(camera.quaternion))return;
@@ -55772,6 +55845,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       updateTimelineHead();
     }
     timelinePlaying = false;
+    syncStudioPlaybackTools();
     paintTimelineSelection();
     updateEditingButtons();
     const button = $("timePlay");
@@ -55963,6 +56037,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     saveActiveObject();syncAutomaticTimelineEnd();
     timelineFraction = currentFrame >= endFrame ? 1 : currentFrame;
     timelinePlaying = true;
+    syncStudioPlaybackTools();
     $("timePlay").textContent = "\u2161";
   };
   document.addEventListener('click',()=>queueMicrotask(studioSyncTurnUI));
@@ -60708,6 +60783,24 @@ ${notes}`;
     }
   }
 
+  // Guarda a configuração de edição; durante o Play, só a cena fica visível.
+  var studioPlaybackToolsState;
+  function syncStudioPlaybackTools() {
+    const running=timelinePlaying || playing;
+    const helpers=[rigView,objectGizmoHelper,faceGuides,vfxMoveHelper,followPinView,imageEditOverlay].filter(Boolean);
+    const gizmos=[objectGizmo,vfxMoveGizmo].filter(Boolean);
+    if(running){
+      if(!studioPlaybackToolsState)studioPlaybackToolsState={helpers:helpers.map(node=>[node,node.visible]),gizmos:gizmos.map(gizmo=>[gizmo,gizmo.enabled])};
+      for(const node of helpers)node.visible=false;
+      for(const gizmo of gizmos)gizmo.enabled=false;
+    }else if(studioPlaybackToolsState){
+      for(const [node,value]of studioPlaybackToolsState.helpers)node.visible=value;
+      for(const [gizmo,value]of studioPlaybackToolsState.gizmos)gizmo.enabled=value;
+      studioPlaybackToolsState=null;
+    }
+    const view=$('viewGizmo');if(view)view.hidden=!!running;
+  }
+
   function renderStudioFrame(time,exporting=false) {
     if(exporting)renderer.shadowMap.autoUpdate=true;
     restoreStudioGlassMaterials();
@@ -60730,6 +60823,7 @@ ${notes}`;
     syncStudioDirectionalRipple(clockTime);
     syncStudioGlass();
     syncStudioVfxVolumes(passes,clockTime);
+    syncStudioPlaybackTools();
     // Native volumes are drawn once with scene depth; no texture/composite pass needed.
     if(!passes.some(pass=>pass.baseActive||pass.layers.some(layer=>!layer.native))){vfxComposite.hidden=true;renderer.render(scene,camera);return renderer.domElement;}
     const helpers=[rigView,faceGuides,objectGizmoHelper,vfxMoveHelper,followPinView].map(node=>[node,node.visible]);
@@ -61359,6 +61453,7 @@ ${notes}`;
     action = mixer.clipAction(clips[+$("clips").value]);
     action.reset().play();
     playing = true;
+    syncStudioPlaybackTools();
     $("play").textContent = "\u25A0 Parar";
     status("Reproduzindo anima\xE7\xE3o do arquivo.");
   };
@@ -62211,6 +62306,7 @@ ${notes}`;
     for (const id of ["orbit","frame","objectMove","objectScale","objectRotate","objectVisibility","duplicateSceneObject","deleteSceneObject","toolPose","showBones","followBones","unfollowBones","viewportGridToggle"]) $(id).hidden = false;
   }
   function syncObjectInspector() {
+    syncStudioObjectTexture();
     if(typeof imageEditHistory!=="undefined")syncImagePanel();
     if(typeof baseGrabHistory!=="undefined")updateBaseGrabButtons();
     syncStudioRenameField();
@@ -62843,6 +62939,148 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
   function saveStudioObjectName(){if(!activeObject||exportState||studioSaving)return;const name=$('studioObjectName').value.trim();if(!name){syncStudioRenameField();return}studioRenameObject(activeObject,name);syncStudioRenameField();status('Objeto renomeado: '+name)}
   $('studioObjectNameSave').onclick=saveStudioObjectName;$('studioObjectName').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();saveStudioObjectName()}};
   syncStudioRenameField();
+
+  // Textura opcional do objeto: carregamento sob demanda, sem bibliotecas extras.
+  function studioTextureMeshes(object) {
+    const meshes=[];
+    if(!object || object.root.userData.studioFolder)return meshes;
+    object.root.traverse(mesh=>{
+      if(mesh.isMesh && mesh.geometry?.attributes.position && (Array.isArray(mesh.material)?mesh.material:[mesh.material]).some(m=>m && 'map' in m))meshes.push(mesh);
+    });
+    return meshes;
+  }
+  function syncStudioObjectTexture() {
+    const button=$('studioObjectTextureLoad');
+    if(!button)return;
+    button.disabled=!!exportState || !!studioSaving || !activeObject || !!activeObject.root.userData.studioFolder;
+    $('studioObjectTextureRemove').disabled=button.disabled || !activeObject?.root.userData.studioObjectTextureName;
+    $('studioObjectTextureName').textContent=activeObject?.root.userData.studioObjectTextureName || 'Textura opcional para o objeto selecionado.';
+  }
+  function studioTextureUV(mesh) {
+    if(mesh.geometry.attributes.uv)return;
+    const geometry=mesh.geometry.clone(),position=geometry.attributes.position;
+    geometry.computeBoundingBox();
+    const box=geometry.boundingBox,axes=['x','y','z'].sort((a,b)=>(box.max[b]-box.min[b])-(box.max[a]-box.min[a]));
+    const a=axes[0],b=axes[1],read={x:'getX',y:'getY',z:'getZ'},uv=new Float32Array(position.count*2);
+    for(let i=0;i<position.count;i++){
+      uv[i*2]=(position[read[a]](i)-box.min[a])/(box.max[a]-box.min[a] || 1);
+      uv[i*2+1]=(position[read[b]](i)-box.min[b])/(box.max[b]-box.min[b] || 1);
+    }
+    geometry.setAttribute('uv',new BufferAttribute(uv,2));
+    mesh.geometry=geometry;
+  }
+  const textureRow=document.createElement('div');
+  textureRow.className='section';
+  textureRow.innerHTML='<button id="studioObjectTextureLoad" type="button" style="width:100%">Carregar textura</button><button id="studioObjectTextureRemove" type="button" style="width:100%;margin-top:6px">Remover textura</button><input id="studioObjectTextureFile" type="file" accept="image/*"><p id="studioObjectTextureName" class="muted" style="overflow-wrap:anywhere" role="status"></p>';
+  $('sceneObjectPanel').after(textureRow);
+  $('studioObjectTextureLoad').onclick=()=>{
+    if(!activeObject || exportState || studioSaving)return;
+    $('studioObjectTextureFile').click();
+  };
+  $('studioObjectTextureRemove').onclick=()=>{
+    const object=activeObject;
+    if(!object || exportState || studioSaving)return;
+    const oldTextures=new Set(),shared=new Set(),copies=new Map();
+    for(const other of objects)if(other!==object)other.root.traverse(node=>{
+      if(node.isMesh)for(const material of Array.isArray(node.material)?node.material:[node.material])if(material)shared.add(material);
+    });
+    pauseTimeline();
+    for(const mesh of studioTextureMeshes(object)){
+      const materials=(Array.isArray(mesh.material)?mesh.material:[mesh.material]).map(original=>{
+        if(!original?.map?.userData.studioObjectTexture)return original;
+        let material=original;
+        if(shared.has(original)){
+          if(!copies.has(original)){
+            const copy=original.clone();copy.onBeforeCompile=original.onBeforeCompile;copy.customProgramCacheKey=original.customProgramCacheKey;copies.set(original,copy);
+          }
+          material=copies.get(original);
+        }
+        oldTextures.add(material.map);material.map=null;
+        if(material.color && material.userData.studioTextureBaseColor!==undefined)material.color.setHex(material.userData.studioTextureBaseColor);
+        delete material.userData.studioTextureBaseColor;
+        material.needsUpdate=true;
+        return material;
+      });
+      mesh.material=Array.isArray(mesh.material)?materials:materials[0];
+    }
+    delete object.root.userData.studioObjectTextureName;
+    for(const other of objects)other.root.traverse(node=>{
+      if(node.isMesh)for(const material of Array.isArray(node.material)?node.material:[node.material])if(material?.map)oldTextures.delete(material.map);
+    });
+    for(const texture of oldTextures)texture.dispose();
+    syncStudioObjectTexture();vfxLastDraw=0;status('Textura removida de '+object.name+'.');
+  };
+  $('studioObjectTextureFile').onchange=async event=>{
+    const input=event.target,file=input.files[0],object=activeObject;
+    input.value='';
+    if(!file || !object || exportState || studioSaving)return;
+    const meshes=studioTextureMeshes(object);
+    if(!meshes.length)return status('Este objeto não possui uma malha que aceite textura.');
+    let bitmap,texture;
+    try{
+      status('Carregando textura…');
+      bitmap=await createImageBitmap(file);
+      const max=Math.min(2048,renderer.capabilities.maxTextureSize),scale=Math.min(1,max/bitmap.width,max/bitmap.height),canvas=document.createElement('canvas');
+      canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+      canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+      canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
+      bitmap.close();bitmap=null;
+      if(!objects.includes(object) || exportState || studioSaving)return;
+      texture=new CanvasTexture(canvas);
+      texture.name=file.name;
+      texture.colorSpace=SRGBColorSpace;
+      texture.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+      texture.userData.studioObjectTexture=true;
+      const shared=new Set(),oldTextures=new Set(),copies=new Map(),textureOrientations=new Map([[true,texture]]);
+      for(const other of objects)if(other!==object)other.root.traverse(node=>{
+        if(node.isMesh)for(const material of Array.isArray(node.material)?node.material:[node.material])if(material)shared.add(material);
+      });
+      pauseTimeline();
+      for(const mesh of meshes){
+        studioTextureUV(mesh);
+        const materials=(Array.isArray(mesh.material)?mesh.material:[mesh.material]).map(original=>{
+          if(!original || !('map' in original))return original;
+          let material=original;
+          if(shared.has(original)){
+            if(!copies.has(original)){
+              const copy=original.clone();
+              copy.onBeforeCompile=original.onBeforeCompile;
+              copy.customProgramCacheKey=original.customProgramCacheKey;
+              copies.set(original,copy);
+            }
+            material=copies.get(original);
+          }
+          if(material.map?.userData.studioObjectTexture)oldTextures.add(material.map);
+          // GLB usa flipY=false; conserva a orientação UV de cada material.
+          const flipY=original.map?.flipY ?? true;
+          if(!textureOrientations.has(flipY)){
+            const oriented=texture.clone();oriented.flipY=flipY;oriented.needsUpdate=true;
+            textureOrientations.set(flipY,oriented);
+          }
+          material.map=textureOrientations.get(flipY);
+          if(material.color && material.userData.studioTextureBaseColor===undefined)material.userData.studioTextureBaseColor=material.color.getHex();
+          material.color?.set(0xffffff);
+          material.needsUpdate=true;
+          return material;
+        });
+        mesh.material=Array.isArray(mesh.material)?materials:materials[0];
+      }
+      object.root.userData.studioObjectTextureName=file.name;
+      // Só libera texturas criadas aqui e que nenhum objeto continua usando.
+      for(const other of objects)other.root.traverse(node=>{
+        if(node.isMesh)for(const material of Array.isArray(node.material)?node.material:[node.material])if(material?.map)oldTextures.delete(material.map);
+      });
+      for(const old of oldTextures)old.dispose();
+      const usedTextures=new Set();
+      for(const mesh of meshes)for(const material of Array.isArray(mesh.material)?mesh.material:[mesh.material])if(material?.map)usedTextures.add(material.map);
+      for(const candidate of textureOrientations.values())if(!usedTextures.has(candidate))candidate.dispose();
+      texture=null;
+      syncStudioObjectTexture();vfxLastDraw=0;
+      status('Textura aplicada a '+object.name+'.');
+    }catch(error){status('Não foi possível carregar a textura: '+error.message);}
+    finally{bitmap?.close();texture?.dispose();}
+  };
+  syncStudioObjectTexture();
 
 
   // Image planes retain a quad grid and their original UVs while being folded.
