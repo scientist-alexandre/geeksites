@@ -7928,7 +7928,7 @@ function animate(){
  assemblyEditor.tick();if(assemblyEditor.takeDirty())assemblyViewDirty=true;
  const cameraChanged=!assemblyLastCameraPosition?.equals(camera.position)||!assemblyLastCameraRotation?.equals(camera.quaternion);
  if(!assemblyViewDirty&amp;&amp;!cameraChanged)return;
- updateHandles();renderer.render(scene,camera);drawNavigation();assemblyViewDirty=false;assemblyLastCameraPosition=camera.position.clone();assemblyLastCameraRotation=camera.quaternion.clone();
+ updateHandles();const showHandles=handles.visible;handles.visible=false;renderer.render(scene,camera);handles.visible=showHandles;if(showHandles){const autoClear=renderer.autoClear;try{renderer.autoClear=false;renderer.clearDepth();renderer.render(handles,camera);}finally{renderer.autoClear=autoClear;}}drawNavigation();assemblyViewDirty=false;assemblyLastCameraPosition=camera.position.clone();assemblyLastCameraRotation=camera.quaternion.clone();
 }
 for(const eventName of ['pointerdown','pointermove','pointerup','wheel','input','change'])window.addEventListener(eventName,event=&gt;{if(active&amp;&amp;dialog.contains(event.target)&amp;&amp;(eventName!=='pointermove'||event.target===view||event.buttons))assemblyViewDirty=true;},true);
 new MutationObserver(()=&gt;{assemblyViewDirty=true;}).observe(dialog,{subtree:true,childList:true,characterData:true});
@@ -7951,10 +7951,36 @@ function rebuildHandles(){
  updateHandles();
 }
 function arrowHead(axis){const p=[],n=24;const orient=(x,y,z)=&gt;axis===0?[y,x,z]:axis===1?[x,y,z]:[x,z,y];for(let i=0;i&lt;n;i++){const a=i/n*Math.PI*2,b=(i+1)/n*Math.PI*2,u=orient(.065*Math.cos(a),.76,.065*Math.sin(a)),v=orient(.065*Math.cos(b),.76,.065*Math.sin(b)),tip=orient(0,.99,0),center=orient(0,.76,0);p.push(...u,...v,...tip,...v,...u,...center)}return geometry(p)}
-function updateHandles(){handles.visible=!!selected&amp;&amp;!assemblyBrushActive();if(!selected)return;selected.object.updateMatrixWorld(true);handles.position.copy(selected.object.position);if(mode==='move')handles.quaternion.set(0,0,0,1);else handles.quaternion.copy(selected.object.quaternion);const forward=camera.getWorldDirection(new E.Vector()),depth=Math.max(camera.near*2,handles.position.clone().sub(camera.position).dot(forward)),height=Math.max(1,view.clientHeight),pixels=72;handles.scale.setScalar(2*depth*Math.tan(camera.fov*Math.PI/360)/height*pixels)}
+function assemblySelectionCenter(){
+ assemblyTransformObject().updateWorldMatrix(true,true);
+ const bounds=new E.Box().setFromObject(assemblyTransformObject());
+ return bounds.isEmpty()?assemblyTransformObject().getWorldPosition(new E.Vector()):bounds.getCenter(new E.Vector());
+}
+function updateHandles(){
+ handles.visible=!!selected&amp;&amp;!assemblyBrushActive();if(!selected)return;
+ const center=drag?.origin?.clone()||assemblySelectionCenter();
+ handles.position.copy(handles.parent?handles.parent.worldToLocal(center.clone()):center);
+ if(mode==='move')handles.quaternion.set(0,0,0,1);else assemblyTransformObject().getWorldQuaternion(handles.quaternion);
+ const forward=camera.getWorldDirection(new E.Vector()),depth=Math.max(camera.near*2,center.clone().sub(camera.position).dot(forward));
+ const height=Math.max(1,view.clientHeight),pixels=Math.max(16,Math.min(72,Math.min(view.clientWidth,view.clientHeight)*.25));
+ handles.scale.setScalar(2*depth*Math.tan(camera.fov*Math.PI/360)/height*pixels);handles.updateMatrixWorld(true);
+}
+function frameAssemblySelection(){
+ if(!selected)return;assemblyTransformObject().updateWorldMatrix(true,true);
+ const bounds=new E.Box().setFromObject(assemblyTransformObject());if(bounds.isEmpty())return;
+ const center=bounds.getCenter(new E.Vector()),radius=Math.max(.001,bounds.getSize(new E.Vector()).length()/2);
+ const aspect=Math.max(.1,view.clientWidth/Math.max(1,view.clientHeight));
+ const vertical=camera.fov*Math.PI/360,horizontal=Math.atan(Math.tan(vertical)*aspect);
+ const distance=radius/Math.sin(Math.min(vertical,horizontal))*1.8;
+ const direction=camera.position.clone().sub(orbit.target).normalize();if(direction.lengthSq()&lt;.1)direction.set(1,.65,1.5).normalize();
+ orbit.target.copy(center);camera.position.copy(center).addScaledVector(direction,distance);
+ camera.near=Math.max(.0001,radius/10000);camera.far=Math.max(camera.far,distance+radius*100);
+ camera.aspect=aspect;camera.updateProjectionMatrix();orbit.update();camera.updateMatrixWorld(true);assemblyViewDirty=true;updateHandles();
+}
+function assemblySetWorldPosition(object,point){object.position.copy(object.parent?object.parent.worldToLocal(point.clone()):point);object.updateMatrix();}
 function fit(){const box=new E.Box().setFromObject(content);if(box.isEmpty()){orbit.target.set(0,0,0);camera.position.set(5,3.5,7)}else{const center=box.getCenter(new E.Vector()),radius=Math.max(.001,box.getSize(new E.Vector()).length()/2),aspect=Math.max(.1,view.clientWidth/Math.max(1,view.clientHeight)),vertical=camera.fov*Math.PI/360,horizontal=Math.atan(Math.tan(vertical)*aspect),distance=radius/Math.sin(Math.min(vertical,horizontal))*1.65,direction=camera.position.clone().sub(orbit.target).normalize();if(direction.lengthSq()&lt;.1)direction.set(1,.65,1.5).normalize();orbit.target.copy(center);camera.position.copy(center).addScaledVector(direction,distance);camera.near=Math.max(.0001,radius/10000);camera.far=Math.max(100,distance+radius*1000);camera.updateProjectionMatrix();updateGrid(radius)}orbit.update()}
 function list(){open.textContent='Montagem · '+parts.length;const host=byId('assemblyParts');host.replaceChildren();for(const part of parts){const row=document.createElement('div');row.className='assembly-row'+(part===selected?' selected':'');const check=document.createElement('input');check.type='checkbox';check.checked=joinSelection.has(part);check.setAttribute('aria-label','Selecionar peça '+part.name+' para unir');check.style.cssText='width:15px;height:15px;flex:none;accent-color:#8bb8f8;cursor:pointer';check.onchange=()=&gt;{if(check.checked)joinSelection.add(part);else joinSelection.delete(part);updateJoinButton()};const select=document.createElement('button');select.className='part-select';select.textContent=part.name;select.onclick=()=&gt;choose(part);const remove=document.createElement('button');remove.textContent='×';remove.title='Retirar peça da montagem';remove.onclick=()=&gt;{content.remove(part.object);parts.splice(parts.indexOf(part),1);joinSelection.delete(part);if(selected===part)choose(parts[0]||null);list()};row.append(check,select,remove);host.append(row)}updateJoinButton()}
-function choose(part){assemblyViewDirty=true;assemblyEditor.finish();selected=part;byId('assemblyProperties').hidden=!part;list();if(ready)rebuildHandles();properties();syncAssemblyEditor();window.AssemblyModeling?.changed()}
+function choose(part){if(assemblyExtrusion)finishAssemblyExtrusion();assemblyViewDirty=true;assemblyEditor.finish();selected=part;byId('assemblyProperties').hidden=!part;list();if(ready)rebuildHandles();properties();syncAssemblyEditor();window.AssemblyModeling?.changed()}
 function nextPartName(){let name;do{name=String(++counter)}while(parts.some(part=&gt;part.name===name));return name}
 function properties(){syncAssemblyTextureUI();if(selected)byId('assemblyName').value=selected.name}
 // Textura local da peça selecionada, compartilhada entre suas malhas.
@@ -8052,13 +8078,13 @@ function bindPointer(){
   const hit=ray.intersectObjects(handles.children,false)[0];
   if(hit&amp;&amp;selected){
    const axis=hit.object.userData.axis,free=axis==='free',dir=new E.Vector(...[0,1,2].map(i=&gt;i===axis?1:0));
-   if(mode!=='move'&amp;&amp;!free)dir.applyQuaternion(selected.object.quaternion);
-   const origin=selected.object.position.clone(),eye=camera.position.clone().sub(origin).normalize();
+   if(mode!=='move'&amp;&amp;!free)dir.applyQuaternion(handles.quaternion);
+   const origin=handles.getWorldPosition(new E.Vector()),eye=camera.position.clone().sub(origin).normalize();
    let normal=mode==='rotate'?dir.clone():free?eye:dir.clone().cross(eye).cross(dir).normalize();
    if(normal.lengthSq()&lt;.001)return;
    const start=planeHit(origin,normal);if(!start)return;
    e.stopImmediatePropagation();e.preventDefault();orbit.enabled=false;view.setPointerCapture(e.pointerId);
-   drag={pointer:e.pointerId,axis,free,dir,origin,normal,start,scale:selected.object.scale.clone(),quaternion:selected.object.quaternion.clone(),x:e.clientX,y:e.clientY,radius:handles.scale.x,rotationStart:start.clone().sub(origin).normalize()};highlight(axis);return;
+   drag={pointer:e.pointerId,axis,free,dir,origin,worldOrigin:assemblyTransformObject().getWorldPosition(new E.Vector()),normal,start,scale:assemblyTransformObject().scale.clone(),quaternion:assemblyTransformObject().quaternion.clone(),x:e.clientX,y:e.clientY,radius:handles.scale.x,rotationStart:start.clone().sub(origin).normalize()};highlight(axis);return;
   }
   const hits=ray.intersectObjects(parts.map(p=&gt;p.object),true);if(hits.length){let object=hits[0].object;while(object&amp;&amp;object.parent!==content)object=object.parent;const part=parts.find(p=&gt;p.object===object);if(part)choose(part)}
  },true);
@@ -8068,10 +8094,10 @@ function bindPointer(){
   if(e.pointerId!==drag.pointer)return;e.stopImmediatePropagation();e.preventDefault();
   const hit=planeHit(drag.origin,drag.normal);if(!hit)return;
   const delta=hit.clone().sub(drag.start);
-  if(mode==='move'){selected.object.position.copy(drag.origin);if(drag.free)selected.object.position.add(delta);else{let amount=delta.dot(drag.dir);if(e.shiftKey)amount=Math.round(amount/.1)*.1;selected.object.position.addScaledVector(drag.dir,amount)}}
-  else if(mode==='scale'){selected.object.scale.copy(drag.scale);let factor=drag.free?Math.exp(((e.clientX-drag.x)-(e.clientY-drag.y))*.008):1+delta.dot(drag.dir)/Math.max(.001,drag.radius*.85);factor=Math.max(.01,factor);if(e.shiftKey)factor=Math.max(.1,Math.round(factor*10)/10);if(drag.free)selected.object.scale.multiplyScalar(factor);else{const key=['x','y','z'][drag.axis];selected.object.scale[key]=(Math.sign(drag.scale[key])||1)*Math.max(.001,Math.abs(drag.scale[key])*factor)}}
-  else{const now=hit.clone().sub(drag.origin).normalize(),cross=drag.rotationStart.clone().cross(now);let angle=Math.atan2(drag.dir.dot(cross),drag.rotationStart.dot(now));if(e.shiftKey)angle=Math.round(angle/(Math.PI/12))*(Math.PI/12);selected.object.quaternion.copy(drag.quaternion);selected.object.rotateOnAxis(new E.Vector(...[0,1,2].map(i=&gt;i===drag.axis?1:0)),angle)}
-  properties();view.style.cursor='grabbing';
+  if(mode==='move'){const position=drag.worldOrigin.clone();if(drag.free)position.add(delta);else{let amount=delta.dot(drag.dir);if(e.shiftKey)amount=Math.round(amount/.1)*.1;position.addScaledVector(drag.dir,amount)}assemblySetWorldPosition(assemblyTransformObject(),position);}
+  else if(mode==='scale'){assemblyTransformObject().scale.copy(drag.scale);let factor=drag.free?Math.exp(((e.clientX-drag.x)-(e.clientY-drag.y))*.008):1+delta.dot(drag.dir)/Math.max(.001,drag.radius*.85);factor=Math.max(.01,factor);if(e.shiftKey)factor=Math.max(.1,Math.round(factor*10)/10);if(drag.free)assemblyTransformObject().scale.multiplyScalar(factor);else{const key=['x','y','z'][drag.axis];assemblyTransformObject().scale[key]=(Math.sign(drag.scale[key])||1)*Math.max(.001,Math.abs(drag.scale[key])*factor)}const offset=drag.worldOrigin.clone().sub(drag.origin);if(drag.free)offset.multiplyScalar(factor);else offset.addScaledVector(drag.dir,offset.dot(drag.dir)*(factor-1));assemblySetWorldPosition(assemblyTransformObject(),offset.add(drag.origin));}
+  else{const now=hit.clone().sub(drag.origin).normalize(),cross=drag.rotationStart.clone().cross(now);let angle=Math.atan2(drag.dir.dot(cross),drag.rotationStart.dot(now));if(e.shiftKey)angle=Math.round(angle/(Math.PI/12))*(Math.PI/12);assemblyTransformObject().quaternion.copy(drag.quaternion);assemblyTransformObject().rotateOnAxis(new E.Vector(...[0,1,2].map(i=&gt;i===drag.axis?1:0)),angle);const deltaRotation=drag.quaternion.clone().identity().setFromAxisAngle(drag.dir,angle);assemblySetWorldPosition(assemblyTransformObject(),drag.worldOrigin.clone().sub(drag.origin).applyQuaternion(deltaRotation).add(drag.origin));}
+  if(assemblyExtrusion)updateAssemblyExtrusion();properties();view.style.cursor='grabbing';
  },true);
  function end(){drag=null;orbit.enabled=!assemblyBrushActive();highlight(null);view.style.cursor='default'}
  view.addEventListener('pointerup',end);view.addEventListener('pointercancel',end);view.addEventListener('lostpointercapture',end);
@@ -8927,23 +8953,31 @@ dialog.addEventListener('pointermove',event=&gt;{
  if(assemblyModelStroke){event.preventDefault();event.stopImmediatePropagation();assemblyModelPending=modelPointer(event);if(!assemblyModelRAF)assemblyModelRAF=requestAnimationFrame(modelTick);}
  if(modelTools.includes(byId('paintTool').value)&amp;&amp;event.target===view){const cursor=byId('brushCursor');cursor.hidden=false;cursor.style.width=cursor.style.height=byId('paintSize').value+'px';cursor.style.left=event.clientX+'px';cursor.style.top=event.clientY+'px';}
 },true);
-dialog.addEventListener('pointerup',event=&gt;{if(assemblyRegion?.drawing){event.preventDefault();event.stopImmediatePropagation();endRegion(event);return;}if(assemblyModelStroke){event.preventDefault();event.stopImmediatePropagation();finishModelStroke();}},true);
+dialog.addEventListener('pointerup',event=&gt;{if(assemblyRegion?.drawing&amp;&amp;assemblyRegion.mode==='polygon')return;if(assemblyRegion?.drawing){event.preventDefault();event.stopImmediatePropagation();endRegion(event);return;}if(assemblyModelStroke){event.preventDefault();event.stopImmediatePropagation();finishModelStroke();}},true);
 dialog.addEventListener('pointercancel',()=&gt;{finishModelStroke(true);clearRegion();},true);
 dialog.addEventListener('lostpointercapture',()=&gt;{if(assemblyModelStroke)finishModelStroke(true);},true);
 dialog.addEventListener('click',event=&gt;{if(event.target.closest('#undoPaint'))finishModelStroke();},true);
 document.addEventListener('keydown',event=&gt;{if(!active)return;if(event.key==='Escape'&amp;&amp;(assemblyModelStroke||assemblyRegion)){event.preventDefault();event.stopImmediatePropagation();finishModelStroke(true);clearRegion();}},true);
 window.addEventListener('blur',()=&gt;finishModelStroke());
-window.AssemblyModeling={finish:()=&gt;finishModelStroke(),changed:()=&gt;{finishModelStroke();if(assemblyRegion?.root!==selected?.object)clearRegion();syncModelUI();}};
+window.AssemblyModeling={finish:()=&gt;{finishModelStroke();finishAssemblyExtrusion();},changed:()=&gt;{finishModelStroke();if(assemblyRegion?.root!==selected?.object)clearRegion();syncModelUI();}};
 
 const regionCanvas=document.createElement('canvas');regionCanvas.id='assemblyRegionPreview';regionCanvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5';dialog.querySelector('.assembly-stage').append(regionCanvas);
 function regionPoint(event){const rect=view.getBoundingClientRect();return [(event.clientX-rect.left)/rect.width,(event.clientY-rect.top)/rect.height];}
 function clearRegion(){if(assemblyRegion?.drawing&amp;&amp;view?.hasPointerCapture(assemblyRegion.pointer))view.releasePointerCapture(assemblyRegion.pointer);assemblyRegion=null;regionCanvas.getContext('2d').clearRect(0,0,regionCanvas.width,regionCanvas.height);syncModelUI();}
 function startRegion(event){
- clearRegion();const p=regionPoint(event);assemblyRegion={root:selected.object,mode:byId('assemblyRegionShape').value,points:[p],pointer:event.pointerId,drawing:true};orbit.enabled=false;view.setPointerCapture(event.pointerId);paintRegion();
+ const shape=byId('assemblyRegionShape').value;
+ if(shape==='polygon'&amp;&amp;assemblyRegion?.drawing&amp;&amp;assemblyRegion.mode==='polygon'&amp;&amp;assemblyRegion.root===selected.object){
+  const point=regionPoint(event),r=assemblyRegion,first=r.points[0],last=r.points[r.points.length-1];
+  const distance=p=&gt;Math.hypot((p[0]-point[0])*view.clientWidth,(p[1]-point[1])*view.clientHeight);
+  if(r.points.length&gt;=3&amp;&amp;distance(first)&lt;=10){finishPolygonRegion();return;}
+  if(distance(last)&gt;3){if(r.points.length&gt;=128){status('Feche o laço clicando no ponto inicial.');return;}r.points.push(point);}
+  r.cursor=point;paintRegion();return;
+ }
+ clearRegion();const p=regionPoint(event);assemblyRegion={root:selected.object,mode:byId('assemblyRegionShape').value,points:[p],pointer:event.pointerId,drawing:true};orbit.enabled=false;if(shape!=='polygon')view.setPointerCapture(event.pointerId);paintRegion();
 }
-function moveRegion(event){const p=regionPoint(event),r=assemblyRegion;if(!r)return;if(r.mode==='rectangle'||r.mode==='line')r.points[1]=p;else{const old=r.points[r.points.length-1];if(Math.hypot((old[0]-p[0])*view.clientWidth,(old[1]-p[1])*view.clientHeight)&gt;3)r.points.push(p);}paintRegion();}
+function moveRegion(event){const p=regionPoint(event),r=assemblyRegion;if(!r)return;if(r.mode==='polygon'){r.cursor=p;paintRegion();return;}if(r.mode==='rectangle'||r.mode==='line')r.points[1]=p;else{const old=r.points[r.points.length-1];if(Math.hypot((old[0]-p[0])*view.clientWidth,(old[1]-p[1])*view.clientHeight)&gt;3)r.points.push(p);}paintRegion();}
 function regionPolygon(region){
- const points=region.points;if(region.mode==='rectangle'){if(points.length&lt;2)return [];const [a,b]=points;return [[a[0],a[1]],[b[0],a[1]],[b[0],b[1]],[a[0],b[1]]];}
+ const points=region.points;if(region.mode==='polygon')return points.map(p=&gt;p.slice());if(region.mode==='rectangle'){if(points.length&lt;2)return [];const [a,b]=points;return [[a[0],a[1]],[b[0],a[1]],[b[0],b[1]],[a[0],b[1]]];}
  if(region.mode==='line'){
   if(points.length&lt;2)return [];const [a,b]=points,dx=b[0]-a[0],dy=b[1]-a[1],corners=[[-2,-2],[3,-2],[3,3],[-2,3]],poly=[];
   for(let i=0;i&lt;4;i++){const p=corners[i],q=corners[(i+1)%4],da=dx*(p[1]-a[1])-dy*(p[0]-a[0]),db=dx*(q[1]-a[1])-dy*(q[0]-a[0]);if(da&gt;=0)poly.push(p);if(da*db&lt;0){const t=da/(da-db);poly.push([p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]);}}return poly;
@@ -8955,11 +8989,23 @@ function regionPolygon(region){
 }
 function paintRegion(){
  regionCanvas.width=Math.max(1,view.clientWidth);regionCanvas.height=Math.max(1,view.clientHeight);const c=regionCanvas.getContext('2d'),r=assemblyRegion;if(!r)return;
+ if(r.mode==='polygon'&amp;&amp;r.drawing){
+  c.strokeStyle='#ffbe7b';c.lineWidth=2;c.fillStyle='#ffbe7b';c.setLineDash([]);c.beginPath();
+  r.points.forEach((p,i)=&gt;i?c.lineTo(p[0]*regionCanvas.width,p[1]*regionCanvas.height):c.moveTo(p[0]*regionCanvas.width,p[1]*regionCanvas.height));c.stroke();
+  if(r.cursor){const last=r.points[r.points.length-1];c.setLineDash([5,4]);c.beginPath();c.moveTo(last[0]*regionCanvas.width,last[1]*regionCanvas.height);c.lineTo(r.cursor[0]*regionCanvas.width,r.cursor[1]*regionCanvas.height);c.stroke();}
+  c.setLineDash([]);r.points.forEach((p,i)=&gt;{c.beginPath();c.arc(p[0]*regionCanvas.width,p[1]*regionCanvas.height,i===0?6:3,0,Math.PI*2);c.fill();});return;
+ }
  const polygon=regionPolygon(r);c.strokeStyle='#ffbe7b';c.lineWidth=2;c.setLineDash([6,4]);c.fillStyle='#f28c542b';
  if(polygon.length&gt;=3){c.beginPath();polygon.forEach((p,i)=&gt;i?c.lineTo(p[0]*regionCanvas.width,p[1]*regionCanvas.height):c.moveTo(p[0]*regionCanvas.width,p[1]*regionCanvas.height));c.closePath();c.fill();if(r.mode!=='line')c.stroke();}
  if(r.mode==='line'&amp;&amp;r.points.length&gt;1){c.beginPath();c.moveTo(r.points[0][0]*regionCanvas.width,r.points[0][1]*regionCanvas.height);c.lineTo(r.points[1][0]*regionCanvas.width,r.points[1][1]*regionCanvas.height);c.stroke();}
 }
-function endRegion(event){moveRegion(event);const r=assemblyRegion;r.drawing=false;if(view.hasPointerCapture(event.pointerId))view.releasePointerCapture(event.pointerId);r.polygon=regionPolygon(r);if(r.polygon.length&lt;3){clearRegion();status('Desenhe uma área maior sobre a peça.');return;}syncModelUI();status('Área marcada. Separe como nova peça ou exclua a região selecionada.');}
+function finishPolygonRegion(){
+ const r=assemblyRegion;if(!r||r.mode!=='polygon'||r.points.length&lt;3)return;
+ const polygon=regionPolygon(r),area=polygon.reduce((sum,p,i)=&gt;{const q=polygon[(i+1)%polygon.length];return sum+p[0]*q[1]-q[0]*p[1];},0);
+ if(Math.abs(area)&lt;1e-6){status('Marque uma área maior antes de fechar o laço.');return;}
+ r.drawing=false;r.polygon=polygon;r.cursor=null;paintRegion();syncModelUI();status('Laço fechado. Separe em outra peça ou exclua a região.');
+}
+function endRegion(event){if(assemblyRegion?.mode==='polygon')return;moveRegion(event);const r=assemblyRegion;r.drawing=false;if(view.hasPointerCapture(event.pointerId))view.releasePointerCapture(event.pointerId);r.polygon=regionPolygon(r);if(r.polygon.length&lt;3){clearRegion();status('Desenhe uma área maior sobre a peça.');return;}syncModelUI();status('Área marcada. Separe como nova peça ou exclua a região selecionada.');}
 function cutPayload(polygon){
  const area=polygon.reduce((sum,p,i)=&gt;{const q=polygon[(i+1)%polygon.length];return sum+p[0]*q[1]-q[0]*p[1];},0);if(Math.abs(area)&lt;1e-6)throw Error('A seleção precisa ter uma área fechada.');if(area&lt;0)polygon=polygon.slice().reverse();
  const orientation=(a,b,c)=&gt;(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
@@ -8996,6 +9042,181 @@ function modelUnpackMesh(data,original){
 
  geometry.computeBoundingBox();geometry.computeBoundingSphere();return geometry;
 }
+// ===== MONTAGEM — EXTRUSÃO DE REGIÕES DO PLANO =====
+var assemblyExtrusion=null;
+function assemblyTransformObject(){return assemblyExtrusion?.part===selected?assemblyExtrusion.top:selected?.object;}
+function assemblyExtrudeBoundary(geometry){
+ const p=geometry.attributes.position,index=geometry.index;
+ if(!geometry.boundingBox)geometry.computeBoundingBox();
+ const epsilon=Math.max(geometry.boundingBox.getSize(new E.Vector()).length()*1e-7,1e-8),edges=new Map();
+ const key=i=&gt;[p.getX(i),p.getY(i),p.getZ(i)].map(value=&gt;Math.round(value/epsilon)).join(',');
+ const count=index?index.count:p.count;
+ for(let t=0;t&lt;count;t+=3){
+  const ids=[0,1,2].map(j=&gt;index?index.getX(t+j):t+j);
+  for(let j=0;j&lt;3;j++){
+   const a=ids[j],b=ids[(j+1)%3],ka=key(a),kb=key(b);if(ka===kb)continue;
+   const id=ka&lt;kb?ka+'|'+kb:kb+'|'+ka,old=edges.get(id);
+   if(old)old.count++;else edges.set(id,{a,b,count:1});
+  }
+ }
+ return [...edges.values()].filter(edge=&gt;edge.count===1);
+}
+function assemblyExtrudeNormal(meshes){
+ const normal=new E.Vector(),a=new E.Vector(),b=new E.Vector(),c=new E.Vector();
+ for(const mesh of meshes){
+  mesh.updateWorldMatrix(true,false);const p=mesh.geometry.attributes.position,index=mesh.geometry.index,count=index?index.count:p.count;
+  for(let t=0;t&lt;count;t+=3){
+   a.fromBufferAttribute(p,index?index.getX(t):t).applyMatrix4(mesh.matrixWorld);
+   b.fromBufferAttribute(p,index?index.getX(t+1):t+1).applyMatrix4(mesh.matrixWorld);
+   c.fromBufferAttribute(p,index?index.getX(t+2):t+2).applyMatrix4(mesh.matrixWorld);
+   normal.add(b.sub(a).cross(c.sub(a)));
+  }
+ }
+ if(normal.lengthSq()&lt;1e-16)normal.copy(camera.getWorldDirection(new E.Vector())).negate();
+ return normal.normalize();
+}
+function updateAssemblyExtrusion(){
+ const state=assemblyExtrusion;if(!state)return;
+ state.part.object.updateWorldMatrix(true,true);
+ const inverse=state.part.object.matrixWorld.clone().invert();
+ for(const entry of state.entries){
+  const positions=entry.wall.geometry.attributes.position,top=entry.mesh.geometry.attributes.position;
+  let offset=0;
+  for(const edge of entry.edges){
+   const a=edge.baseA,b=edge.baseB;
+   const ta=new E.Vector().fromBufferAttribute(top,edge.a).applyMatrix4(entry.mesh.matrixWorld).applyMatrix4(inverse);
+   const tb=new E.Vector().fromBufferAttribute(top,edge.b).applyMatrix4(entry.mesh.matrixWorld).applyMatrix4(inverse);
+   for(const point of [a,b,tb,a,tb,ta]){positions.setXYZ(offset++,point.x,point.y,point.z);}
+  }
+  positions.needsUpdate=true;entry.wall.geometry.computeVertexNormals();entry.wall.geometry.computeBoundingBox();entry.wall.geometry.computeBoundingSphere();
+ }
+ assemblyViewDirty=true;syncAssemblyExtrudeUI();
+}
+function createAssemblyExtrusionStage(part,meshes,session){
+ const root=part.object;root.updateWorldMatrix(true,true);
+ const top=new E.Scene();top.name='Extrusão · região';top.userData.assemblyExtrusionTop=true;root.add(top);top.updateWorldMatrix(true,true);
+ const inverse=root.matrixWorld.clone().invert(),entries=[];
+ for(const source of meshes){
+  source.updateWorldMatrix(true,false);
+  const boundary=assemblyExtrudeBoundary(source.geometry);if(!boundary.length)continue;
+  const mesh=source.clone(false);mesh.geometry=source.geometry;
+  const relative=inverse.clone().multiply(source.matrixWorld);relative.decompose(mesh.position,mesh.quaternion,mesh.scale);mesh.matrixAutoUpdate=true;mesh.updateMatrix();top.add(mesh);
+  const p=source.geometry.attributes.position;
+  const edges=boundary.map(edge=&gt;({...edge,baseA:new E.Vector().fromBufferAttribute(p,edge.a).applyMatrix4(source.matrixWorld).applyMatrix4(inverse),baseB:new E.Vector().fromBufferAttribute(p,edge.b).applyMatrix4(source.matrixWorld).applyMatrix4(inverse)}));
+  const wallGeometry=new E.Geometry();wallGeometry.setAttribute('position',new E.Attribute(new Float32Array(edges.length*18),3));
+  // Along the extrusion, repeat the UV/color from the selected surface's edge.
+  // This extends skin, eyelid and other image textures instead of rendering white walls.
+  const uv=source.geometry.attributes.uv;
+  if(uv){
+   const uvs=new Float32Array(edges.length*12);let at=0;
+   for(const edge of edges)for(const i of [edge.a,edge.b,edge.b,edge.a,edge.b,edge.a]){
+    uvs[at++]=uv.getX(i);uvs[at++]=uv.getY(i);
+   }
+   wallGeometry.setAttribute('uv',new E.Attribute(uvs,2));
+  }
+  const color=source.geometry.attributes.color;
+  if(color){const colors=new Float32Array(edges.length*18);let at=0;for(const edge of edges)for(const i of [edge.a,edge.b,edge.b,edge.a,edge.b,edge.a]){colors[at++]=color.getX(i);colors[at++]=color.getY(i);colors[at++]=color.getZ(i);}wallGeometry.setAttribute('color',new E.Attribute(colors,3));}
+  const base=Array.isArray(source.material)?source.material[0]:source.material;
+  // Clone the original material to retain its texture maps, tint, opacity and finish.
+  // Newly created geometry owns its material clone; the original is never modified.
+  const material=base?.clone?base.clone():new E.StandardMaterial({color:base?.color?.clone()||0xaaaaaa,roughness:base?.roughness??.8});
+  material.side=2;
+  material.vertexColors=!!color;
+  material.needsUpdate=true;
+  const wall=new E.Mesh(wallGeometry,material);wall.name='Extrusão · laterais';root.add(wall);
+  entries.push({mesh,edges,wall});session.objects.push(wall);session.geometries.add(wallGeometry);session.materials.add(material);
+ }
+ if(!entries.length){top.removeFromParent();throw Error('Extrudar requer uma superfície aberta, como um plano.');}
+ session.objects.push(top);centerAssemblyPartPivot(top);root.updateWorldMatrix(true,true);
+ const bounds=new E.Box().setFromObject(top),normal=assemblyExtrudeNormal(entries.map(entry=&gt;entry.mesh));
+ return {part,top,entries,session,normal,baseWorld:top.getWorldPosition(new E.Vector()),unit:Math.max(.001,bounds.getSize(new E.Vector()).length())};
+}
+function finishAssemblyExtrusion(){
+ if(!assemblyExtrusion)return;updateAssemblyExtrusion();assemblyExtrusion=null;assemblyViewDirty=true;syncAssemblyExtrudeUI();if(ready)rebuildHandles();
+}
+function setAssemblyExtrusionDepth(value){
+ const state=assemblyExtrusion;if(!state)return;
+ const current=state.top.getWorldPosition(new E.Vector()),oldDepth=current.clone().sub(state.baseWorld).dot(state.normal);assemblySetWorldPosition(state.top,current.addScaledVector(state.normal,Number(value)/100*state.unit-oldDepth));updateAssemblyExtrusion();updateHandles();
+}
+async function applyAssemblyExtrude(){
+ if(!selected||!assemblyRegion?.polygon||busy)return;
+ await guard(async()=&gt;{
+  assemblyEditor.finish();const part=selected,root=part.object;root.updateWorldMatrix(true,true);camera.updateMatrixWorld(true);
+  const meshes=modelStaticMeshes(root),payload=cutPayload(assemblyRegion.polygon),packed=meshes.map(modelPackMesh);
+  status('Preparando a extrusão da região…');const result=await runSolid('cut',{...payload,meshes:packed});
+  const session={objects:[],geometries:new Set(),materials:new Set()},saved=[],caps=[];
+  let state=null;
+  const rollback=()=&gt;{
+   if(assemblyExtrusion?.session===session)assemblyExtrusion=null;
+   for(const object of session.objects)object.removeFromParent();
+   for(const entry of saved){entry.mesh.geometry=entry.geometry;entry.mesh.material=entry.material;if(entry.mesh.parent!==entry.parent)entry.parent.add(entry.mesh);}
+   for(const geometry of session.geometries)geometry.dispose();for(const material of session.materials)material.dispose();
+  };
+  try{
+   for(let i=0;i&lt;meshes.length;i++){
+    if(!result[i].inside?.index.length)continue;
+    const mesh=meshes[i],inside=modelUnpackMesh(result[i].inside,mesh);
+    if(!assemblyExtrudeBoundary(inside).length){inside.dispose();throw Error('Selecione uma região de um plano ou de uma superfície aberta para extrudar.');}
+    const outside=result[i].outside?.index.length?modelUnpackMesh(result[i].outside,mesh):null;
+    saved.push({mesh,geometry:mesh.geometry,material:mesh.material,parent:mesh.parent});
+    session.geometries.add(inside);if(outside)session.geometries.add(outside);
+    const cap=mesh.clone(false);cap.geometry=inside;caps.push(cap);
+    // Keep each cap's original world transform while the source becomes the surrounding surface.
+    cap.matrixWorld.copy(mesh.matrixWorld);cap.matrixAutoUpdate=false;cap.matrix.copy(mesh.matrixWorld);
+    if(outside)mesh.geometry=outside;else mesh.removeFromParent();
+   }
+   if(!caps.length)throw Error('A seleção não atravessa a peça.');
+   // Temporary parents preserve the world transforms used by the stage builder.
+   const temporary=new E.Scene();for(const cap of caps)temporary.add(cap);temporary.updateWorldMatrix(true,true);
+   state=createAssemblyExtrusionStage(part,caps,session);for(const entry of state.entries){entry.mesh.matrixAutoUpdate=true;entry.mesh.updateMatrix();}
+   assemblyExtrusion=state;clearRegion();setModelTool('orbit');mode='move';setAssemblyExtrusionDepth(5);
+   let undone=false;const restore=()=&gt;{if(undone)return;undone=true;assemblyEditor.forgetChange(restore);rollback();choose(part);};
+   assemblyEditor.rememberChange(root,restore,saved.reduce((sum,entry)=&gt;sum+entry.geometry.attributes.position.array.byteLength,0));
+   frameAssemblySelection();rebuildHandles();syncAssemblyExtrudeUI();status('Extrusão criada. Use Mover, Girar ou Escalar. Extrudar novamente continua a forma. Ctrl+Z desfaz.');
+  }catch(error){rollback();throw error;}
+ }).catch(()=&gt;{});syncModelUI();
+}
+function continueAssemblyExtrusion(){
+ const previous=assemblyExtrusion;if(!previous||busy)return;
+ previous.part.object.updateWorldMatrix(true,true);updateAssemblyExtrusion();
+ const next=createAssemblyExtrusionStage(previous.part,previous.entries.map(entry=&gt;entry.mesh),previous.session);
+ previous.top.removeFromParent();assemblyExtrusion=next;updateAssemblyExtrusion();
+ let undone=false;const restore=()=&gt;{
+  if(undone)return;undone=true;assemblyEditor.forgetChange(restore);
+  next.top.removeFromParent();for(const entry of next.entries)entry.wall.removeFromParent();
+  previous.part.object.add(previous.top);assemblyExtrusion=previous;updateAssemblyExtrusion();frameAssemblySelection();rebuildHandles();syncAssemblyExtrudeUI();
+ };
+ assemblyEditor.rememberChange(previous.part.object,restore,0);
+ mode='move';frameAssemblySelection();rebuildHandles();syncAssemblyExtrudeUI();status('Nova etapa: mova para frente, para trás ou para os lados; gire ou redimensione.');
+}
+function syncAssemblyExtrudeUI(){
+ const panel=byId('assemblyExtrudeControls');if(!panel)return;panel.hidden=!assemblyExtrusion;
+ byId('assemblyToolExtrude')?.classList.toggle('active',!!assemblyExtrusion);
+ for(const id of ['assemblyExtrudeDepth','assemblyExtrudeContinue','assemblyExtrudeFinish'])byId(id).disabled=busy;
+ if(!assemblyExtrusion)return;
+ const state=assemblyExtrusion,depth=state.top.getWorldPosition(new E.Vector()).sub(state.baseWorld).dot(state.normal);
+ const slider=byId('assemblyExtrudeDepth');if(document.activeElement!==slider)slider.value=Math.max(-200,Math.min(200,depth/state.unit*100));
+ byId('assemblyExtrudeDepthValue').textContent=depth.toLocaleString('pt-BR',{maximumFractionDigits:3});
+ dialog.querySelectorAll('[data-mode]').forEach(button=&gt;button.classList.toggle('active',button.dataset.mode===mode));
+}
+// ===== FIM MONTAGEM — EXTRUSÃO DE REGIÕES DO PLANO =====
+
+// ===== MONTAGEM — GIZMO DA PEÇA SEPARADA =====
+function centerAssemblyPartPivot(object){
+ object.updateWorldMatrix(true,true);
+ const bounds=new E.Box().setFromObject(object);if(bounds.isEmpty())return;
+ const center=bounds.getCenter(new E.Vector()),local=object.worldToLocal(center.clone());
+ for(const child of object.children){child.position.sub(local);child.updateMatrix();}
+ const parentCenter=object.parent?object.parent.worldToLocal(center.clone()):center;
+ object.position.copy(parentCenter);object.updateMatrix();object.updateWorldMatrix(true,true);
+}
+function activateAssemblyMoveMode(){
+ // The split runs while guard() is busy: call the tool directly, not a disabled button.
+ setModelTool('orbit');mode='move';frameAssemblySelection();
+ dialog.querySelectorAll('[data-mode]').forEach(button=&gt;button.classList.toggle('active',button.dataset.mode===mode));
+ assemblyViewDirty=true;rebuildHandles();
+}
+// ===== FIM MONTAGEM — GIZMO DA PEÇA SEPARADA =====
 async function applyModelRegion(operation){
  if(!assemblyRegion||!selected||busy)return;
  await guard(async()=&gt;{
@@ -9013,10 +9234,10 @@ async function applyModelRegion(operation){
     if(outside){created.push(outside);mesh.geometry=outside;mesh.material=materials;}else mesh.removeFromParent();
     if(inside){created.push(inside);const copy=mesh.clone(false);copy.geometry=inside;copy.material=materials;const relative=extracted.object.matrixWorld.clone().invert().multiply(mesh.matrixWorld);relative.decompose(copy.position,copy.quaternion,copy.scale);extracted.object.add(copy);}
    }
-   if(extracted){parts.push(extracted);}
+   if(extracted){centerAssemblyPartPivot(extracted.object);parts.push(extracted);}
    let undone=false;const restore=()=&gt;{if(undone)return;undone=true;assemblyEditor.forgetChange(restore);if(extracted){content.remove(extracted.object);const at=parts.indexOf(extracted);if(at&gt;=0)parts.splice(at,1);}for(const entry of saved){entry.mesh.geometry=entry.geometry;entry.mesh.material=entry.material;if(entry.mesh.parent!==entry.parent){entry.parent.add(entry.mesh);entry.parent.children.splice(entry.parent.children.indexOf(entry.mesh),1);entry.parent.children.splice(entry.index,0,entry.mesh);}}for(const geometry of created)geometry.dispose();for(const material of capMaterials)material.dispose();choose(part);};
    const bytes=saved.reduce((n,e)=&gt;n+e.geometry.attributes.position.array.byteLength,0);assemblyEditor.rememberChange(root,restore,bytes);if(extracted)assemblyEditor.rememberChange(extracted.object,restore,bytes);
-   clearRegion();choose(extracted||part);rebuildHandles();status((operation==='split'?'Região separada como outra peça.':'Região excluída.')+(result.some(r=&gt;r.open)?' Superfície aberta: bordas do recorte permanecem abertas.':' Superfícies do corte fechadas.')+' Ctrl+Z desfaz.');
+   clearRegion();choose(extracted||part);if(extracted)activateAssemblyMoveMode();else rebuildHandles();status((operation==='split'?'Região separada como outra peça.':'Região excluída.')+(result.some(r=&gt;r.open)?' Superfície aberta: bordas do recorte permanecem abertas.':' Superfícies do corte fechadas.')+' Ctrl+Z desfaz.');
   }catch(error){for(const e of saved){e.mesh.geometry=e.geometry;e.mesh.material=e.material;if(e.parent&amp;&amp;e.mesh.parent!==e.parent)e.parent.add(e.mesh);}if(extracted)content.remove(extracted.object);for(const geometry of created)geometry.dispose();for(const material of capMaterials)material.dispose();throw error;}
  }).catch(()=&gt;{});syncModelUI();
 }
@@ -9066,13 +9287,25 @@ dialog.querySelector('.assembly-toolbar').append(byId('undoPaint'));byId('undoPa
 for(const [tool,label,icon]of [['draw','Draw','✎'],['inflate','Inflate','◉'],['crease','Vincar','⋎'],['planar','Planar','▱'],['cut','Recortar','✂']]){
  byId('paintTool').add(new Option(label,tool));const button=document.createElement('button');button.id='assemblyTool'+tool;button.type='button';button.className='tool';button.dataset.sculptTool=tool;button.title=label;button.innerHTML='&lt;span&gt;'+icon+'&lt;/span&gt;&lt;small&gt;'+label+'&lt;/small&gt;';byId('paintBar').insertBefore(button,byId('toolPick'));button.onclick=()=&gt;setModelTool(tool);
 }
+// ===== MONTAGEM — FERRAMENTA LAÇO POLIGONAL =====
+const polygonLassoTool=document.createElement('button');polygonLassoTool.id='assemblyToolPolygon';polygonLassoTool.type='button';polygonLassoTool.className='tool';polygonLassoTool.dataset.sculptTool='polygon';polygonLassoTool.title='Laço poligonal · clique no ponto inicial para fechar';polygonLassoTool.innerHTML='&lt;span&gt;⬠&lt;/span&gt;&lt;small&gt;Polígono&lt;/small&gt;';
+byId('paintBar').insertBefore(polygonLassoTool,byId('toolPick'));
+polygonLassoTool.onclick=()=&gt;{clearRegion();setModelTool('cut');byId('assemblyRegionShape').value='polygon';syncModelUI();};
+// ===== FIM MONTAGEM — FERRAMENTA LAÇO POLIGONAL =====
+// ===== MONTAGEM — FERRAMENTA EXTRUDAR E CONTINUAÇÃO =====
+const extrudeTool=document.createElement('button');extrudeTool.id='assemblyToolExtrude';extrudeTool.type='button';extrudeTool.className='tool';extrudeTool.dataset.sculptTool='extrude';extrudeTool.title='Extrudar uma região do plano';extrudeTool.innerHTML='&lt;span&gt;⇧&lt;/span&gt;&lt;small&gt;Extrudar&lt;/small&gt;';byId('paintBar').insertBefore(extrudeTool,byId('toolPick'));
+extrudeTool.onclick=()=&gt;{if(assemblyExtrusion){continueAssemblyExtrusion();return;}if(assemblyRegion?.polygon){applyAssemblyExtrude();return;}setModelTool('cut');status('Marque a região com o recorte e clique em Extrudar região.');};
+const extrudeControls=document.createElement('div');extrudeControls.id='assemblyExtrudeControls';extrudeControls.hidden=true;extrudeControls.innerHTML='&lt;b&gt;Extrusão da região&lt;/b&gt;&lt;label class="assembly-slider-label"&gt;Profundidade &lt;output id="assemblyExtrudeDepthValue"&gt;0&lt;/output&gt;&lt;input id="assemblyExtrudeDepth" type="range" min="-200" max="200" step="0.1" value="5"&gt;&lt;/label&gt;&lt;div class="assembly-region-actions"&gt;&lt;button id="assemblyExtrudeContinue"&gt;Extrudar novamente&lt;/button&gt;&lt;button id="assemblyExtrudeFinish"&gt;Concluir extrusão&lt;/button&gt;&lt;/div&gt;&lt;small class="assembly-model-note"&gt;Use os gizmos para mover, girar ou redimensionar a ponta. Extrudar novamente continua a forma para outra direção. Ctrl+Z desfaz a etapa.&lt;/small&gt;';
+byId('assemblyEditTools').prepend(extrudeControls);
+byId('assemblyExtrudeDepth').oninput=event=&gt;setAssemblyExtrusionDepth(event.target.value);byId('assemblyExtrudeContinue').onclick=continueAssemblyExtrusion;byId('assemblyExtrudeFinish').onclick=()=&gt;{finishAssemblyExtrusion();status('Extrusão concluída. A forma continua na mesma peça.');};
+// ===== FIM MONTAGEM — FERRAMENTA EXTRUDAR E CONTINUAÇÃO =====
 const oldToolChange=byId('paintTool').onchange;byId('paintTool').onchange=()=&gt;{finishModelStroke();oldToolChange();syncModelUI();};
-function setModelTool(tool){finishModelStroke();byId('paintTool').value=tool;byId('paintTool').onchange();for(const button of byId('paintBar').querySelectorAll('button.tool'))button.classList.remove('active');byId(({orbit:'toolOrbit',brush:'toolBrush',grab:'toolGrab',smooth:'toolSmooth',pick:'toolPick'})[tool]||'assemblyTool'+tool)?.classList.add('active');if(ready){orbit.enabled=tool==='orbit';rebuildHandles();}if(tool!=='cut')clearRegion();status(modelNames[tool]||'Navegação');}
+function setModelTool(tool){if(tool!=='orbit'&amp;&amp;assemblyExtrusion)finishAssemblyExtrusion();finishModelStroke();byId('paintTool').value=tool;byId('paintTool').onchange();for(const button of byId('paintBar').querySelectorAll('button.tool'))button.classList.remove('active');byId(({orbit:'toolOrbit',brush:'toolBrush',grab:'toolGrab',smooth:'toolSmooth',pick:'toolPick'})[tool]||'assemblyTool'+tool)?.classList.add('active');if(ready){orbit.enabled=tool==='orbit';rebuildHandles();}if(tool!=='cut')clearRegion();status(modelNames[tool]||'Navegação');}
 for(const id of ['toolOrbit','toolBrush','toolGrab','toolSmooth','toolPick'])byId(id).addEventListener('click',()=&gt;{finishModelStroke();for(const button of byId('paintBar').querySelectorAll('[data-sculpt-tool]'))button.classList.remove('active');syncModelUI();if(byId('paintTool').value!=='cut')clearRegion();});
 const brushControls=document.createElement('div');brushControls.id='assemblySculptSettings';brushControls.innerHTML='&lt;label class="assembly-slider-label"&gt;Intensidade &lt;output id="assemblyStrengthOut"&gt;55%&lt;/output&gt;&lt;input id="assemblyStrength" type="range" min="1" max="100" value="55"&gt;&lt;/label&gt;&lt;label class="assembly-check"&gt;&lt;input id="assemblySubtract" type="checkbox"&gt;Subtrair / inverter (Ctrl)&lt;/label&gt;&lt;label class="assembly-check"&gt;&lt;input id="assemblyFrontOnly" type="checkbox" checked&gt;Somente a superfície da frente&lt;/label&gt;&lt;small class="assembly-model-note"&gt;Shift: Smooth temporário · Ctrl+Z: desfazer&lt;/small&gt;';
 byId('assemblyBrushSize').append(brushControls);byId('assemblyStrength').oninput=()=&gt;byId('assemblyStrengthOut').textContent=byId('assemblyStrength').value+'%';
-const regionControls=document.createElement('div');regionControls.id='assemblyRegionControls';regionControls.hidden=true;regionControls.innerHTML='&lt;label&gt;Seleção&lt;select id="assemblyRegionShape"&gt;&lt;option value="lasso"&gt;Laço livre&lt;/option&gt;&lt;option value="rectangle"&gt;Retângulo&lt;/option&gt;&lt;option value="line"&gt;Linha / metade&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;div class="assembly-region-actions"&gt;&lt;button id="assemblySplitRegion"&gt;Separar em outra peça&lt;/button&gt;&lt;button id="assemblyDeleteRegion"&gt;Excluir região&lt;/button&gt;&lt;button id="assemblyClearRegion"&gt;Limpar seleção&lt;/button&gt;&lt;/div&gt;&lt;small class="assembly-model-note"&gt;Desenhe sobre a peça. A seleção atravessa sua profundidade. Escape cancela.&lt;/small&gt;';
-byId('assemblyBrushSize').after(regionControls);byId('assemblyRegionShape').onchange=clearRegion;byId('assemblySplitRegion').onclick=()=&gt;applyModelRegion('split');byId('assemblyDeleteRegion').onclick=()=&gt;applyModelRegion('delete');byId('assemblyClearRegion').onclick=clearRegion;
+const regionControls=document.createElement('div');regionControls.id='assemblyRegionControls';regionControls.hidden=true;regionControls.innerHTML='&lt;label&gt;Seleção&lt;select id="assemblyRegionShape"&gt;&lt;option value="lasso"&gt;Laço livre&lt;/option&gt;&lt;option value="polygon"&gt;Laço poligonal&lt;/option&gt;&lt;option value="rectangle"&gt;Retângulo&lt;/option&gt;&lt;option value="line"&gt;Linha / metade&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;div class="assembly-region-actions"&gt;&lt;button id="assemblyExtrudeRegion"&gt;Extrudar região&lt;/button&gt;&lt;button id="assemblySplitRegion"&gt;Separar em outra peça&lt;/button&gt;&lt;button id="assemblyDeleteRegion"&gt;Excluir região&lt;/button&gt;&lt;button id="assemblyClearRegion"&gt;Limpar seleção&lt;/button&gt;&lt;/div&gt;&lt;small class="assembly-model-note"&gt;Desenhe sobre a peça. A seleção atravessa sua profundidade. Escape cancela.&lt;/small&gt;';
+byId('assemblyBrushSize').after(regionControls);byId('assemblyRegionShape').onchange=()=&gt;{clearRegion();syncModelUI();};byId('assemblyExtrudeRegion').onclick=applyAssemblyExtrude;byId('assemblySplitRegion').onclick=()=&gt;applyModelRegion('split');byId('assemblyDeleteRegion').onclick=()=&gt;applyModelRegion('delete');byId('assemblyClearRegion').onclick=clearRegion;
 const addShape=document.createElement('details');addShape.id='assemblyAddShape';addShape.innerHTML='&lt;summary&gt;＋ Forma básica&lt;/summary&gt;&lt;div class="assembly-shape-menu"&gt;&lt;label&gt;Detalhe da malha&lt;select id="assemblyPrimitiveDensity"&gt;&lt;option value="low"&gt;Leve&lt;/option&gt;&lt;option value="medium" selected&gt;Equilibrado&lt;/option&gt;&lt;option value="high"&gt;Detalhado&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;div&gt;&lt;button data-shape="sphere"&gt;◯ Esfera&lt;/button&gt;&lt;button data-shape="cube"&gt;□ Cubo&lt;/button&gt;&lt;button data-shape="cylinder"&gt;▤ Cilindro&lt;/button&gt;&lt;button data-shape="cone"&gt;△ Cone&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;';
 dialog.querySelector('.assembly-top').insertBefore(addShape,byId('assemblyExport'));for(const button of addShape.querySelectorAll('button'))button.onclick=()=&gt;addModelPrimitive(button.dataset.shape);
 dialog.querySelector('.assembly-top strong').textContent='Montagem · Modelagem';
@@ -9091,9 +9324,12 @@ function syncModelUI(){
  for(const id of ['assemblyStrength','assemblySubtract','assemblyFrontOnly'])byId(id).disabled=locked;
  for(const button of byId('paintBar').querySelectorAll('button.tool'))button.disabled=button.id==='toolOrbit'?busy:locked;
  for(const button of addShape.querySelectorAll('button'))button.disabled=busy;
- byId('assemblySplitRegion').disabled=locked||!assemblyRegion?.polygon;byId('assemblyDeleteRegion').disabled=locked||!assemblyRegion?.polygon;byId('assemblyClearRegion').disabled=!assemblyRegion;
+ byId('assemblyExtrudeRegion').disabled=locked||!assemblyRegion?.polygon;byId('assemblySplitRegion').disabled=locked||!assemblyRegion?.polygon;byId('assemblyDeleteRegion').disabled=locked||!assemblyRegion?.polygon;byId('assemblyClearRegion').disabled=!assemblyRegion;
  if(sculpt)byId('paintHint').textContent=modelNames[tool]+': modele arrastando sobre a peça. Shift suaviza, Ctrl inverte. Esc cancela o traço.';
- if(isCut)byId('paintHint').textContent='Trace a forma desejada. Depois escolha Separar ou Excluir. A área sombreada é a seleção.';
+ if(isCut)byId('paintHint').textContent=byId('assemblyRegionShape').value==='polygon'?'Clique para marcar os vértices. Clique no ponto inicial para fechar. Esc cancela.':'Trace a forma desejada. Depois escolha Separar ou Excluir. A área sombreada é a seleção.';
+ syncAssemblyExtrudeUI();
+ const polygonTool=isCut&amp;&amp;byId('assemblyRegionShape').value==='polygon';
+ polygonLassoTool.classList.toggle('active',polygonTool);if(isCut)byId('assemblyToolcut').classList.toggle('active',!polygonTool);extrudeTool.classList.toggle('active',!!assemblyExtrusion);
 }
 const modelingStyle=document.createElement('style');modelingStyle.textContent=`
 #assemblyDialog{background:#202329}#assemblyView:focus{outline:none}#assemblyDialog .assembly-shell{grid-template-columns:minmax(0,1fr) 236px;grid-template-rows:40px minmax(0,1fr)}
