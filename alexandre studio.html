@@ -63337,8 +63337,86 @@ ${notes}`;
     const ratio=Math.max(0,studioVfxVolumeNumber(p.count,total))/total;
     return p.components.map(item=>({...p,...item,components:undefined,layers:undefined,count:Math.round(Math.max(0,studioVfxVolumeNumber(item.count,0))*ratio),presetKey:p.presetKey}));
   }
+  // ===== UNIVERSAL PARTICLES: TRUE SPATIAL ELECTRICAL DISCHARGES =====
+  // The 2D source uses animated, jagged bolts and secondary branches. Rebuild
+  // those as *tubes in XYZ*, never as camera-facing quads or octahedron dust.
+  const studioVfxElectricalPresets=new Set(['lightning','electric','electricShock','avada']);
+  function studioVfxElectricalRandom(seed){
+    let state=(seed>>>0)||1;
+    return ()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+  }
+  function studioVfxElectricalClear(group){
+    group.traverse(obj=>{if(obj.isMesh){obj.geometry?.dispose();if(Array.isArray(obj.material))obj.material.forEach(m=>m.dispose());else obj.material?.dispose();}});
+    group.clear();
+  }
+  function studioVfxElectricalTube(group,points,radius,color,opacity){
+    if(points.length<2)return;
+    const curve=new CatmullRomCurve3(points,false,'centripetal',.45);
+    const geo=new TubeGeometry(curve,Math.max(8,(points.length-1)*3),Math.max(.18,radius),6,false);
+    const mat=new MeshBasicMaterial({color,transparent:true,opacity,blending:AdditiveBlending,depthTest:true,depthWrite:false,side:DoubleSide,toneMapped:false});
+    const mesh=new Mesh(geo,mat);mesh.frustumCulled=false;group.add(mesh);
+  }
+  function studioVfxElectricalStroke(group,points,radius,color,alpha){
+    studioVfxElectricalTube(group,points,radius*5.2,color,alpha*.075);
+    studioVfxElectricalTube(group,points,radius*2.5,color,alpha*.22);
+    studioVfxElectricalTube(group,points,radius,new Color('#d8f3ff').lerp(new Color(color),.22),alpha*.93);
+    studioVfxElectricalTube(group,points,radius*.36,'#ffffff',Math.min(1,alpha));
+  }
+  function studioVfxElectricalBuild(runtime,p,binding,seconds){
+    const key=p.presetKey,storm=key==='lightning';
+    const hz=storm?11:20,frame=Math.floor(Math.max(0,seconds)*hz);
+    const config=JSON.stringify([frame,key,p.seed,p.count,p.angle,p.spread,p.width,p.height,p.alpha,p.effectScale,binding.volumeDepth,p.colorStart,p.colorEnd]);
+    if(runtime.electricalFrame===config)return;
+    runtime.electricalFrame=config;
+    const group=runtime.group;
+    studioVfxElectricalClear(group);
+    const rand=studioVfxElectricalRandom((Math.round(studioVfxVolumeNumber(p.seed,1))*131071+frame*1664525)>>>0);
+    const strength=Math.max(.1,studioVfxVolumeNumber(p.effectScale,1));
+    const depth=Math.max(.05,studioVfxVolumeNumber(binding.volumeDepth,.3))*1080;
+    const flash=rand();
+    if(flash<=.18)return;
+    const bolts=storm?Math.max(1,Math.min(5,Math.round(studioVfxVolumeNumber(p.count,9)/3))):Math.max(2,Math.min(8,Math.round(studioVfxVolumeNumber(p.count,12)/2)));
+    const color=key==='avada'?'#42ff68':(p.colorEnd||'#65aaff');
+    for(let b=0;b<bolts;b++){
+      const start=new Vector3((rand()-.5)*studioVfxVolumeNumber(p.width,.1)*1920,(rand()-.5)*studioVfxVolumeNumber(p.height,.1)*1080,(rand()-.5)*depth);
+      const angle=(studioVfxVolumeNumber(p.angle,storm?90:0)+(rand()-.5)*studioVfxVolumeNumber(p.spread,35))*Math.PI/180;
+      const length=(storm?594:307)*(0.68+rand()*.55)*strength;
+      // Extend into Z: the bolt has meaningful depth and is visible from side views.
+      const dz=(rand()-.5)*Math.min(depth*1.6,length*.85);
+      const end=start.clone().add(new Vector3(Math.cos(angle)*length,-Math.sin(angle)*length,dz));
+      const tangent=end.clone().sub(start),side=new Vector3().crossVectors(tangent,new Vector3(0,0,1)).normalize();
+      if(side.lengthSq()<.001)side.set(1,0,0);
+      const normal=new Vector3().crossVectors(tangent,side).normalize();
+      const segments=Math.max(11,Math.round(18*strength));
+      const points=[start];
+      for(let j=1;j<segments;j++){
+        const t=j/segments,envelope=Math.sin(Math.PI*t);
+        const jitter=(Math.sin(t*14+b+frame)*.45+Math.sin(t*37+frame*.31)*.2+(rand()-.5)*.55)*length*.105*envelope;
+        points.push(start.clone().lerp(end,t).addScaledVector(side,jitter).addScaledVector(normal,(rand()-.5)*length*.11*envelope));
+      }
+      points.push(end);
+      const radius=(storm?1.35:1.1)*Math.max(.5,Math.min(2,strength));
+      studioVfxElectricalStroke(group,points,radius,color,Math.max(.05,studioVfxVolumeNumber(p.alpha,1))*.9);
+      if(storm||key==='electric'||key==='electricShock'||key==='avada'){
+        for(const fraction of [.28,.47,.66]){
+          if(rand()<.32)continue;
+          const index=Math.floor(fraction*segments),base=points[index],direction=points[Math.min(segments,index+1)].clone().sub(points[Math.max(0,index-1)]).normalize();
+          const sideways=side.clone().multiplyScalar((rand()>.5?1:-1)*(.45+rand()*.55));
+          const out=normal.clone().multiplyScalar((rand()-.5)*1.3);
+          direction.add(sideways).add(out).normalize();
+          const branchLength=length*(.13+rand()*.16);
+          const branch=[base.clone()];
+          for(let j=1;j<=6;j++){
+            const t=j/6;
+            branch.push(base.clone().addScaledVector(direction,branchLength*t).addScaledVector(side,(rand()-.5)*branchLength*.11*Math.sin(Math.PI*t)).addScaledVector(normal,(rand()-.5)*branchLength*.1*Math.sin(Math.PI*t)));
+          }
+          studioVfxElectricalStroke(group,branch,radius*.48,color,Math.max(.06,studioVfxVolumeNumber(p.alpha,1))*.72);
+        }
+      }
+    }
+  }
   function studioVfxVolumeDispose(runtime){
-    for(const mesh of runtime.group.children){mesh.geometry.dispose();mesh.material.dispose();}
+    studioVfxElectricalClear(runtime.group);
     runtime.group.removeFromParent();
   }
   function studioVfxVolumeMesh(component,shape){
@@ -63391,12 +63469,13 @@ ${notes}`;
       const binding=layer.binding;if(!binding?.position3D)continue;
       const key=studioVfxFollowKey(pass.id,layer.key),components=studioVfxVolumeComponents(layer),shape=binding.volumeShape||'auto';
       active.add(key);
-      const signature=JSON.stringify([shape,components.map(p=>[Math.round(studioVfxVolumeNumber(p.count,200)),p.shape,p.emitter,p.seed,p.presetKey==='bubbles'])]);
+      const electrical=layer.kind==='particle'&&studioVfxElectricalPresets.has(layer.state.config.particles?.presetKey);
+      const signature=JSON.stringify([electrical?'electrical':shape,electrical?layer.state.config.particles?.presetKey:components.map(p=>[Math.round(studioVfxVolumeNumber(p.count,200)),p.shape,p.emitter,p.seed,p.presetKey==='bubbles'])]);
       let runtime=studioVfxVolumeCache.get(key);
       if(!runtime||runtime.signature!==signature){
         if(runtime)studioVfxVolumeDispose(runtime);
         const group=new Group();group.name='VFX 3D · '+layer.key;
-        for(const p of components)group.add(studioVfxVolumeMesh(p,shape));
+        if(!electrical)for(const p of components)group.add(studioVfxVolumeMesh(p,shape));
         studioVfxVolumes.add(group);runtime={group,signature};studioVfxVolumeCache.set(key,runtime);
       }
       const group=runtime.group,node=studioVfxNode(binding),ownerScale=node?node.getWorldScale(new Vector3()):new Vector3(1,1,1),scale=binding.scale3D||[1,1,1];
@@ -63427,7 +63506,9 @@ ${notes}`;
         }
       }
       group.visible=(!binding.ownerId||!!node)&&(!node||studioTreeVisible(node))&&time>=start&&time<end;
-      for(let i=0;i<components.length;i++)studioVfxVolumeUpdateMesh(group.children[i],components[i],binding,time-start);
+      if(electrical){
+        if(group.visible)studioVfxElectricalBuild(runtime,layer.state.config.particles,binding,time-start);
+      }else for(let i=0;i<components.length;i++)studioVfxVolumeUpdateMesh(group.children[i],components[i],binding,time-start);
     }
     for(const [key,runtime]of studioVfxVolumeCache)if(!active.has(key)){studioVfxVolumeDispose(runtime);studioVfxVolumeCache.delete(key);}
   }
