@@ -29678,10 +29678,10 @@ const api={root,particleAtlas:getParticleAtlas,particleTextureNames,resolveParti
   var shadowmap_pars_vertex = "#if NUM_SPOT_LIGHT_COORDS > 0\n	uniform mat4 spotLightMatrix[ NUM_SPOT_LIGHT_COORDS ];\n	varying vec4 vSpotLightCoord[ NUM_SPOT_LIGHT_COORDS ];\n#endif\n#ifdef USE_SHADOWMAP\n	#if NUM_DIR_LIGHT_SHADOWS > 0\n		uniform mat4 directionalShadowMatrix[ NUM_DIR_LIGHT_SHADOWS ];\n		varying vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHT_SHADOWS ];\n		struct DirectionalLightShadow {\n			float shadowIntensity;\n			float shadowBias;\n			float shadowNormalBias;\n			float shadowRadius;\n			vec2 shadowMapSize;\n		};\n		uniform DirectionalLightShadow directionalLightShadows[ NUM_DIR_LIGHT_SHADOWS ];\n	#endif\n	#if NUM_SPOT_LIGHT_SHADOWS > 0\n		struct SpotLightShadow {\n			float shadowIntensity;\n			float shadowBias;\n			float shadowNormalBias;\n			float shadowRadius;\n			vec2 shadowMapSize;\n		};\n		uniform SpotLightShadow spotLightShadows[ NUM_SPOT_LIGHT_SHADOWS ];\n	#endif\n	#if NUM_POINT_LIGHT_SHADOWS > 0\n		uniform mat4 pointShadowMatrix[ NUM_POINT_LIGHT_SHADOWS ];\n		varying vec4 vPointShadowCoord[ NUM_POINT_LIGHT_SHADOWS ];\n		struct PointLightShadow {\n			float shadowIntensity;\n			float shadowBias;\n			float shadowNormalBias;\n			float shadowRadius;\n			vec2 shadowMapSize;\n			float shadowCameraNear;\n			float shadowCameraFar;\n		};\n		uniform PointLightShadow pointLightShadows[ NUM_POINT_LIGHT_SHADOWS ];\n	#endif\n#endif";
   var shadowmap_vertex = "#if ( defined( USE_SHADOWMAP ) && ( NUM_DIR_LIGHT_SHADOWS > 0 || NUM_POINT_LIGHT_SHADOWS > 0 ) ) || ( NUM_SPOT_LIGHT_COORDS > 0 )\n	vec3 shadowWorldNormal = inverseTransformDirection( transformedNormal, viewMatrix );\n	vec4 shadowWorldPosition;\n#endif\n#if defined( USE_SHADOWMAP )\n	#if NUM_DIR_LIGHT_SHADOWS > 0\n		#pragma unroll_loop_start\n		for ( int i = 0; i < NUM_DIR_LIGHT_SHADOWS; i ++ ) {\n			shadowWorldPosition = worldPosition + vec4( shadowWorldNormal * directionalLightShadows[ i ].shadowNormalBias, 0 );\n			vDirectionalShadowCoord[ i ] = directionalShadowMatrix[ i ] * shadowWorldPosition;\n		}\n		#pragma unroll_loop_end\n	#endif\n	#if NUM_POINT_LIGHT_SHADOWS > 0\n		#pragma unroll_loop_start\n		for ( int i = 0; i < NUM_POINT_LIGHT_SHADOWS; i ++ ) {\n			shadowWorldPosition = worldPosition + vec4( shadowWorldNormal * pointLightShadows[ i ].shadowNormalBias, 0 );\n			vPointShadowCoord[ i ] = pointShadowMatrix[ i ] * shadowWorldPosition;\n		}\n		#pragma unroll_loop_end\n	#endif\n#endif\n#if NUM_SPOT_LIGHT_COORDS > 0\n	#pragma unroll_loop_start\n	for ( int i = 0; i < NUM_SPOT_LIGHT_COORDS; i ++ ) {\n		shadowWorldPosition = worldPosition;\n		#if ( defined( USE_SHADOWMAP ) && UNROLLED_LOOP_INDEX < NUM_SPOT_LIGHT_SHADOWS )\n			shadowWorldPosition.xyz += shadowWorldNormal * spotLightShadows[ i ].shadowNormalBias;\n		#endif\n		vSpotLightCoord[ i ] = spotLightMatrix[ i ] * shadowWorldPosition;\n	}\n	#pragma unroll_loop_end\n#endif";
   var shadowmask_pars_fragment = "float getShadowMask() {\n	float shadow = 1.0;\n	#ifdef USE_SHADOWMAP\n	#if NUM_DIR_LIGHT_SHADOWS > 0\n	DirectionalLightShadow directionalLight;\n	#pragma unroll_loop_start\n	for ( int i = 0; i < NUM_DIR_LIGHT_SHADOWS; i ++ ) {\n		directionalLight = directionalLightShadows[ i ];\n		shadow *= receiveShadow ? getShadow( directionalShadowMap[ i ], directionalLight.shadowMapSize, directionalLight.shadowIntensity, directionalLight.shadowBias, directionalLight.shadowRadius, vDirectionalShadowCoord[ i ] ) : 1.0;\n	}\n	#pragma unroll_loop_end\n	#endif\n	#if NUM_SPOT_LIGHT_SHADOWS > 0\n	SpotLightShadow spotLight;\n	#pragma unroll_loop_start\n	for ( int i = 0; i < NUM_SPOT_LIGHT_SHADOWS; i ++ ) {\n		spotLight = spotLightShadows[ i ];\n		shadow *= receiveShadow ? getShadow( spotShadowMap[ i ], spotLight.shadowMapSize, spotLight.shadowIntensity, spotLight.shadowBias, spotLight.shadowRadius, vSpotLightCoord[ i ] ) : 1.0;\n	}\n	#pragma unroll_loop_end\n	#endif\n	#if NUM_POINT_LIGHT_SHADOWS > 0\n	PointLightShadow pointLight;\n	#pragma unroll_loop_start\n	for ( int i = 0; i < NUM_POINT_LIGHT_SHADOWS; i ++ ) {\n		pointLight = pointLightShadows[ i ];\n		shadow *= receiveShadow ? getPointShadow( pointShadowMap[ i ], pointLight.shadowMapSize, pointLight.shadowIntensity, pointLight.shadowBias, pointLight.shadowRadius, vPointShadowCoord[ i ], pointLight.shadowCameraNear, pointLight.shadowCameraFar ) : 1.0;\n	}\n	#pragma unroll_loop_end\n	#endif\n	#endif\n	return shadow;\n}";
-  var skinbase_vertex = "#ifdef USE_SKINNING\n	mat4 boneMatX = getBoneMatrix( skinIndex.x );\n	mat4 boneMatY = getBoneMatrix( skinIndex.y );\n	mat4 boneMatZ = getBoneMatrix( skinIndex.z );\n	mat4 boneMatW = getBoneMatrix( skinIndex.w );\n#endif";
-  var skinning_pars_vertex = "#ifdef USE_SKINNING\n	uniform mat4 bindMatrix;\n	uniform mat4 bindMatrixInverse;\n	uniform highp sampler2D boneTexture;\n	mat4 getBoneMatrix( const in float i ) {\n		int size = textureSize( boneTexture, 0 ).x;\n		int j = int( i ) * 4;\n		int x = j % size;\n		int y = j / size;\n		vec4 v1 = texelFetch( boneTexture, ivec2( x, y ), 0 );\n		vec4 v2 = texelFetch( boneTexture, ivec2( x + 1, y ), 0 );\n		vec4 v3 = texelFetch( boneTexture, ivec2( x + 2, y ), 0 );\n		vec4 v4 = texelFetch( boneTexture, ivec2( x + 3, y ), 0 );\n		return mat4( v1, v2, v3, v4 );\n	}\n#endif";
-  var skinning_vertex = "#ifdef USE_SKINNING\n	vec4 skinVertex = bindMatrix * vec4( transformed, 1.0 );\n	vec4 skinned = vec4( 0.0 );\n	skinned += boneMatX * skinVertex * skinWeight.x;\n	skinned += boneMatY * skinVertex * skinWeight.y;\n	skinned += boneMatZ * skinVertex * skinWeight.z;\n	skinned += boneMatW * skinVertex * skinWeight.w;\n	transformed = ( bindMatrixInverse * skinned ).xyz;\n#endif";
-  var skinnormal_vertex = "#ifdef USE_SKINNING\n	mat4 skinMatrix = mat4( 0.0 );\n	skinMatrix += skinWeight.x * boneMatX;\n	skinMatrix += skinWeight.y * boneMatY;\n	skinMatrix += skinWeight.z * boneMatZ;\n	skinMatrix += skinWeight.w * boneMatW;\n	skinMatrix = bindMatrixInverse * skinMatrix * bindMatrix;\n	objectNormal = vec4( skinMatrix * vec4( objectNormal, 0.0 ) ).xyz;\n	#ifdef USE_TANGENT\n		objectTangent = vec4( skinMatrix * vec4( objectTangent, 0.0 ) ).xyz;\n	#endif\n#endif";
+  var skinbase_vertex = "#ifdef USE_SKINNING\n  mat4 studioSkinMatrix;\n  if (studioSkinJoints > 0) {\n    studioSkinMatrix = bindMatrixInverse * studioSkinRoot * studioDualMatrix() * studioSkinInverseBindRoot * bindMatrix;\n  } else {\n    mat4 skinTransform = skinWeight.x * getBoneMatrix(skinIndex.x)\n      + skinWeight.y * getBoneMatrix(skinIndex.y)\n      + skinWeight.z * getBoneMatrix(skinIndex.z)\n      + skinWeight.w * getBoneMatrix(skinIndex.w);\n    studioSkinMatrix = bindMatrixInverse * skinTransform * bindMatrix;\n  }\n#endif";
+  var skinning_pars_vertex = "#ifdef USE_SKINNING\n\tuniform mat4 bindMatrix;\n\tuniform mat4 bindMatrixInverse;\n\tuniform highp sampler2D boneTexture;\n\tmat4 getBoneMatrix( const in float i ) {\n\t\tint size = textureSize( boneTexture, 0 ).x;\n\t\tint j = int( i ) * 4;\n\t\tint x = j % size;\n\t\tint y = j / size;\n\t\tvec4 v1 = texelFetch( boneTexture, ivec2( x, y ), 0 );\n\t\tvec4 v2 = texelFetch( boneTexture, ivec2( x + 1, y ), 0 );\n\t\tvec4 v3 = texelFetch( boneTexture, ivec2( x + 2, y ), 0 );\n\t\tvec4 v4 = texelFetch( boneTexture, ivec2( x + 3, y ), 0 );\n\t\treturn mat4( v1, v2, v3, v4 );\n\t}\n\nuniform highp int studioSkinJoints;\nuniform mat4 studioSkinRoot;\nuniform mat4 studioSkinInverseBindRoot;\n\nvec4 studioSkinTexel(int index) {\n  int size = textureSize(boneTexture, 0).x;\n  return texelFetch(boneTexture, ivec2(index % size, index / size), 0);\n}\n\nvec3 studioRotate(vec4 q, vec3 v) {\n  return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);\n}\n\nmat4 studioDualMatrix() {\n  int strongest = 0;\n  for (int i = 1; i < 4; i++) {\n    if (skinWeight[i] > skinWeight[strongest]) strongest = i;\n  }\n  int first = studioSkinJoints * 4;\n  vec4 reference = studioSkinTexel(first + 4 * int(skinIndex[strongest]));\n  vec4 rotation = vec4(0.0), dual = vec4(0.0);\n  for (int i = 0; i < 4; i++) {\n    if (skinWeight[i] == 0.0) continue;\n    int offset = first + 4 * int(skinIndex[i]);\n    vec4 realPart = studioSkinTexel(offset);\n    float weight = dot(realPart, reference) < 0.0 ? -skinWeight[i] : skinWeight[i];\n    rotation += realPart * weight;\n    dual += studioSkinTexel(offset + 1) * weight;\n  }\n  float inverseLength = inversesqrt(max(dot(rotation, rotation), 1e-12));\n  rotation *= inverseLength;\n  dual *= inverseLength;\n  vec3 translation = 2.0 * (rotation.w * dual.xyz - dual.w * rotation.xyz + cross(rotation.xyz, dual.xyz));\n  mat4 result = mat4(\n    vec4(studioRotate(rotation, vec3(1.0, 0.0, 0.0)), 0.0),\n    vec4(studioRotate(rotation, vec3(0.0, 1.0, 0.0)), 0.0),\n    vec4(studioRotate(rotation, vec3(0.0, 0.0, 1.0)), 0.0),\n    vec4(translation, 1.0)\n  );\n  for (int i = 0; i < 4; i++) {\n    if (skinWeight[i] == 0.0) continue;\n    int offset = first + 4 * int(skinIndex[i]);\n    vec3 stretch = studioSkinTexel(offset + 3).xyz;\n    if (dot(stretch, stretch) == 0.0) continue;\n    vec4 realPart = studioSkinTexel(offset);\n    float weight = dot(realPart, reference) < 0.0 ? -skinWeight[i] : skinWeight[i];\n    vec4 relative = vec4(\n      rotation.w * realPart.xyz - realPart.w * rotation.xyz + cross(rotation.xyz, realPart.xyz),\n      dot(realPart, rotation)\n    );\n    vec3 direction = (relative.w * stretch + cross(stretch, relative.xyz)) * weight * inverseLength;\n    vec4 axis = studioSkinTexel(offset + 2);\n    for (int column = 0; column < 4; column++) result[column].xyz += direction * axis[column];\n  }\n  return result;\n}\n#endif";
+  var skinning_vertex = "#ifdef USE_SKINNING\n  transformed = (studioSkinMatrix * vec4(transformed, 1.0)).xyz;\n#endif";
+  var skinnormal_vertex = "#ifdef USE_SKINNING\n  mat3 skinLinear = mat3(studioSkinMatrix);\n  objectNormal = studioSkinJoints > 0 && abs(determinant(skinLinear)) > 1e-6 ? transpose(inverse(skinLinear)) * objectNormal : skinLinear * objectNormal;\n  #ifdef USE_TANGENT\n    objectTangent = skinLinear * objectTangent;\n  #endif\n#endif";
   var specularmap_fragment = "float specularStrength;\n#ifdef USE_SPECULARMAP\n	vec4 texelSpecular = texture2D( specularMap, vSpecularMapUv );\n	specularStrength = texelSpecular.r;\n#else\n	specularStrength = 1.0;\n#endif";
   var specularmap_pars_fragment = "#ifdef USE_SPECULARMAP\n	uniform sampler2D specularMap;\n#endif";
   var tonemapping_fragment = "#if defined( TONE_MAPPING )\n	gl_FragColor.rgb = toneMapping( gl_FragColor.rgb );\n#endif";
@@ -39424,6 +39424,12 @@ void main() {
           if (skeleton) {
             if (skeleton.boneTexture === null) skeleton.computeBoneTexture();
             p_uniforms.setValue(_gl, "boneTexture", skeleton.boneTexture, textures);
+            const studioSkin = skeleton.studioSkin;
+            p_uniforms.setValue(_gl, "studioSkinJoints", studioSkin?.enabled ? skeleton.bones.length : 0);
+            if (studioSkin?.enabled) {
+              p_uniforms.setValue(_gl, "studioSkinRoot", studioSkin.rootWorld);
+              p_uniforms.setValue(_gl, "studioSkinInverseBindRoot", studioSkin.inverseBindRoot);
+            }
           }
         }
         if (object.isBatchedMesh) {
@@ -40466,6 +40472,7 @@ void main() {
   var _basePosition = /* @__PURE__ */ new Vector3();
   var _skinIndex = /* @__PURE__ */ new Vector4();
   var _skinWeight = /* @__PURE__ */ new Vector4();
+  var _studioSkinMatrix = new Matrix4();
   var _vector3 = /* @__PURE__ */ new Vector3();
   var _matrix4 = /* @__PURE__ */ new Matrix4();
   var _vertex = /* @__PURE__ */ new Vector3();
@@ -40575,6 +40582,7 @@ void main() {
       }
     }
     applyBoneTransform(index, vector) {
+      if (studioDualSkinMatrix(this, index, _studioSkinMatrix)) return vector.applyMatrix4(_studioSkinMatrix);
       const skeleton = this.skeleton;
       const geometry = this.geometry;
       _skinIndex.fromBufferAttribute(geometry.attributes.skinIndex, index);
@@ -40677,6 +40685,7 @@ void main() {
         _offsetMatrix.toArray(boneMatrices, i * 16);
       }
       if (boneTexture !== null) {
+        if (this.studioSkin) boneMatrices.set(this.studioSkin.dual, bones2.length * 16);
         boneTexture.needsUpdate = true;
       }
     }
@@ -40684,11 +40693,12 @@ void main() {
       return new _Skeleton(this.bones, this.boneInverses);
     }
     computeBoneTexture() {
-      let size = Math.sqrt(this.bones.length * 4);
+      let size = Math.sqrt(this.bones.length * (this.studioSkin ? 8 : 4));
       size = Math.ceil(size / 4) * 4;
       size = Math.max(size, 4);
       const boneMatrices = new Float32Array(size * size * 4);
       boneMatrices.set(this.boneMatrices);
+      if (this.studioSkin) boneMatrices.set(this.studioSkin.dual, this.bones.length * 16);
       const boneTexture = new DataTexture(boneMatrices, size, size, RGBAFormat, FloatType);
       boneTexture.needsUpdate = true;
       this.boneMatrices = boneMatrices;
@@ -57793,63 +57803,188 @@ void main() {
     for (const { child, position } of children) child.position.copy(b.worldToLocal(position.clone()));
     b.updateWorldMatrix(false, true);
   }
-  function segmentMatrix(a, b) {
-    const direction = b.clone().sub(a), length = direction.length();
-    const rotation = length > 1e-8 ? new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), direction.divideScalar(length)) : new Quaternion();
-    return new Matrix4().compose(a, rotation, new Vector3(1, Math.max(length, 1e-8), 1));
-  }
-  function segmentDeformationMatrix(restA, restB, currentA, currentB, reference = new Quaternion()) {
-    const restAxis = restB.clone().sub(restA), restLength = restAxis.length(), currentAxis = currentB.clone().sub(currentA), currentLength = currentAxis.length();
-    if (restLength < 1e-8) {
-      const delta = currentB.clone().sub(restB);
-      return new Matrix4().makeTranslation(delta.x, delta.y, delta.z);
+  // Joint deltas are evaluated in character space from the saved bind pose.
+  function studioRigRestInverses(rig, root, restPose) {
+    const matrices = new Map([[root, new Matrix4()]]);
+    function restMatrix(node) {
+      if (matrices.has(node)) return matrices.get(node);
+      const value = restPose?.get(node);
+      const local = value
+        ? new Matrix4().compose(value.p, value.q, value.s || new Vector3(1, 1, 1))
+        : node.matrix;
+      const result = restMatrix(node.parent).clone().multiply(local);
+      matrices.set(node, result);
+      return result;
     }
-    restAxis.divideScalar(restLength);
-    const direction = currentLength > 1e-8 ? currentAxis.divideScalar(currentLength) : restAxis.clone();
-    const rotation = new Quaternion().setFromUnitVectors(restAxis.clone().applyQuaternion(reference), direction).multiply(reference).normalize(), ratio = Math.max(currentLength / restLength, 0.02), k = ratio - 1, x = restAxis.x, y = restAxis.y, z = restAxis.z;
-    const stretch = new Matrix4().set(1 + k * x * x, k * x * y, k * x * z, 0, k * y * x, 1 + k * y * y, k * y * z, 0, k * z * x, k * z * y, 1 + k * z * z, 0, 0, 0, 0, 1);
-    const matrix = new Matrix4().makeRotationFromQuaternion(rotation).multiply(stretch);
-    const offset = currentA.clone().sub(restA.clone().applyMatrix4(matrix));
-    matrix.setPosition(offset);
-    return matrix;
+    const parents = new Set(rig.controls.filter(c => !c.neutral && c.start !== c.end).map(c => c.start));
+    for (const control of rig.controls) {
+      if (control.neutral) continue;
+      const end = restMatrix(control.end), start = restMatrix(control.start);
+      control.inverseBind = end.clone().invert();
+      control.inverseStart = start.clone().invert();
+      control.bindStart = new Vector3().setFromMatrixPosition(start);
+      control.bindAxis = new Vector3().setFromMatrixPosition(end).sub(control.bindStart);
+      control.bindLength = control.bindAxis.length();
+      control.bindAxis.normalize();
+      control.leaf = !parents.has(control.end);
+    }
   }
+
   function updateCustomRig(rig = customRig, root = model) {
     if (!rig) return;
+    root.updateWorldMatrix(true, false);
     root.updateMatrixWorld(true);
-    studioLocalizeRig(rig,root);
-    const inverse = rig.group.matrixWorld.clone().invert(), bindRoot = rig.restRootMatrix || root.matrixWorld, objectDelta = root.matrixWorld.clone().multiply(bindRoot.clone().invert()), undoObject = objectDelta.clone().invert(), owner = objects.find((o) => o.root === root), restMap = owner?.rest || (root === model ? rest : null), neutralMatrices = /* @__PURE__ */ new Map();
-    function neutralWorld(node) {
-      if (neutralMatrices.has(node)) return neutralMatrices.get(node);
-      let matrix;
-      if (node === root) matrix = bindRoot.clone();
-      else {
-        const rotation = node.isBone ? restMap?.get(node)?.q || (node.userData.explicitRotationBase ? new Quaternion().fromArray(node.userData.explicitRotationBase) : node.quaternion) : node.quaternion;
-        matrix = neutralWorld(node.parent).clone().multiply(new Matrix4().compose(node.position, rotation, node.scale));
-      }
-      neutralMatrices.set(node, matrix);
-      return matrix;
-    }
-    function rotatedBranch(node) {
-      for (let n = node; n && n !== root; n = n.parent) if (n.userData.explicitRotationBase) return true;
-      return false;
-    }
-    for (const control of rig.controls) {
-      let transform;
-      if(control.neutral){transform=new Matrix4();}
-      else if (rotatedBranch(control.end)) {
-        const neutralA = new Vector3().setFromMatrixPosition(neutralWorld(control.start)), neutralB = new Vector3().setFromMatrixPosition(neutralWorld(control.end));
-        const positional = control.point ? new Matrix4().makeTranslation(neutralB.x - control.rest.x, neutralB.y - control.rest.y, neutralB.z - control.rest.z) : segmentDeformationMatrix(control.a, control.rest, neutralA, neutralB);
-        const boneRotation = undoObject.clone().multiply(control.end.matrixWorld).multiply(neutralWorld(control.end).clone().invert());
-        transform = boneRotation.multiply(positional);
+    const restPose = root === model ? rest : objects.find(o => o.root === root)?.rest;
+    if (rig.controls.some(c => !c.neutral && !c.inverseBind)) studioRigRestInverses(rig, root, restPose);
+    if (rig.weightVersion !== 7) studioMigrateSkinWeights(rig, root);
+    const count = rig.controls.length;
+    const pose = rig.skinPose ||= { rootWorld: root.matrixWorld, inverseBindRoot: rig.restRootMatrix.clone().invert(), dual: null };
+    if (pose.dual?.length !== count * 16) pose.dual = new Float32Array(count * 16);
+    const inverseRoot = root.matrixWorld.clone().invert();
+    const rootToDeform = rig.group.matrixWorld.clone().invert().multiply(root.matrixWorld);
+    const delta = new Matrix4(), rigid = new Matrix4(), startMatrix = new Matrix4(), endDelta = new Matrix4();
+    const rotation = new Quaternion(), translation = new Quaternion(), swing = new Quaternion(), twist = new Quaternion();
+    const targetStart = new Vector3(), targetAxis = new Vector3(), predicted = new Vector3(), stretch = new Vector3();
+    let dualEnabled = true, changed = !pose.lastWorld?.equals(root.matrixWorld);
+    for (let i = 0; i < count; i++) {
+      const control = rig.controls[i];
+      const axis = control.bindAxis, anchor = control.bindStart, stride = i * 16;
+      stretch.set(0, 0, 0);
+      if (control.neutral) delta.identity();
+      else if (control.bindLength < 1e-8) {
+        delta.multiplyMatrices(inverseRoot, control.end.matrixWorld).multiply(control.inverseBind);
       } else {
-        const a = control.start.getWorldPosition(new Vector3()).applyMatrix4(undoObject), b = control.end.getWorldPosition(new Vector3()).applyMatrix4(undoObject);
-        transform = control.point ? new Matrix4().makeTranslation(b.x - control.rest.x, b.y - control.rest.y, b.z - control.rest.z) : segmentDeformationMatrix(control.a, control.rest, a, b);
+        // The drawn segment and the skin share both endpoints, even in a pose
+        // where the existing drag tools changed a joint's local translation.
+        startMatrix.multiplyMatrices(inverseRoot, control.start.matrixWorld);
+        targetStart.setFromMatrixPosition(startMatrix);
+        targetAxis.setFromMatrixPosition(control.end.matrixWorld).applyMatrix4(inverseRoot).sub(targetStart);
+        const targetLength = targetAxis.length();
+        delta.multiplyMatrices(startMatrix, control.inverseStart).setPosition(0, 0, 0);
+        predicted.copy(axis).transformDirection(delta);
+        if (targetLength > 1e-8) targetAxis.divideScalar(targetLength);
+        else targetAxis.copy(predicted);
+        swing.setFromUnitVectors(predicted, targetAxis);
+        delta.premultiply(rigid.makeRotationFromQuaternion(swing));
+        if (control.leaf) {
+          endDelta.multiplyMatrices(inverseRoot, control.end.matrixWorld).multiply(control.inverseBind);
+          rotation.setFromRotationMatrix(rigid.extractRotation(delta)).normalize();
+          twist.setFromRotationMatrix(rigid.extractRotation(endDelta)).normalize().multiply(rotation.conjugate());
+          const axial = twist.x * targetAxis.x + twist.y * targetAxis.y + twist.z * targetAxis.z;
+          twist.set(targetAxis.x * axial, targetAxis.y * axial, targetAxis.z * axial, twist.w).normalize();
+          delta.premultiply(rigid.makeRotationFromQuaternion(twist));
+        }
+        predicted.copy(axis).applyMatrix4(delta);
+        stretch.copy(targetAxis).multiplyScalar(Math.max(targetLength, control.bindLength * .001) / control.bindLength).sub(predicted);
+        delta.setPosition(targetStart.sub(predicted.copy(anchor).applyMatrix4(delta)));
       }
-      control.deform.matrix.copy(inverse).multiply(objectDelta).multiply(transform);
-      control.deform.matrixWorldNeedsUpdate = true;
+      // A scale or shear authored on the bones uses the affine skinning path.
+      // Segment length changes alone are handled by the dual-quaternion path.
+      rotation.setFromRotationMatrix(rigid.extractRotation(delta)).normalize();
+      rigid.makeRotationFromQuaternion(rotation);
+      for (const k of [0, 1, 2, 4, 5, 6, 8, 9, 10]) {
+        if (Math.abs(rigid.elements[k] - delta.elements[k]) > 1e-5 || !Number.isFinite(rigid.elements[k])) dualEnabled = false;
+      }
+      const e = delta.elements;
+      translation.set(e[12] * .5, e[13] * .5, e[14] * .5, 0).multiply(rotation);
+      rotation.toArray(pose.dual, stride);
+      translation.toArray(pose.dual, stride + 4);
+      pose.dual.fill(0, stride + 8, stride + 16);
+      if (stretch.lengthSq() > 1e-14) {
+        const offset = -anchor.dot(axis);
+        axis.toArray(pose.dual, stride + 8);
+        pose.dual[stride + 11] = offset;
+        stretch.toArray(pose.dual, stride + 12);
+        for (let column = 0; column < 4; column++) {
+          const factor = pose.dual[stride + 8 + column];
+          e[column * 4] += stretch.x * factor;
+          e[column * 4 + 1] += stretch.y * factor;
+          e[column * 4 + 2] += stretch.z * factor;
+        }
+      }
+      rigid.copy(rootToDeform).multiply(delta).multiply(pose.inverseBindRoot);
+      if (!control.deform.matrix.equals(rigid)) {
+        control.deform.matrix.copy(rigid);
+        control.deform.matrixWorldNeedsUpdate = true;
+        changed = true;
+      }
     }
+    pose.enabled = dualEnabled;
+    (pose.lastWorld ||= new Matrix4()).copy(root.matrixWorld);
     rig.group.updateMatrixWorld(true);
-    for (const skeleton of rig.skeletons) skeleton.update();
+    for (const skeleton of rig.skeletons) {
+      if (skeleton.studioSkin !== pose) {
+        skeleton.dispose();
+        skeleton.studioSkin = pose;
+      }
+      skeleton.update();
+    }
+    if (changed) root.traverse(mesh => {
+      if (mesh.isSkinnedMesh && mesh.skeleton?.studioSkin === pose) mesh.boundingBox = mesh.boundingSphere = null;
+    });
+  }
+
+  const studioSkinReal = new Quaternion(), studioSkinDual = new Quaternion(), studioSkinConjugate = new Quaternion();
+  const studioSkinRotation = new Matrix4(), studioSkinTranslation = new Vector3();
+  const studioStretchRotation = new Quaternion(), studioStretchDirection = new Vector3();
+  const studioStretchCross = new Vector3(), studioStretchVector = new Vector3();
+  function studioDualSkinMatrix(mesh, vertex, result) {
+    const pose = mesh.skeleton?.studioSkin;
+    if (!pose?.enabled) return false;
+    const { skinIndex, skinWeight } = mesh.geometry.attributes, values = pose.dual;
+    let reference = 0, largest = 0;
+    for (let k = 0; k < 4; k++) {
+      const weight = skinWeight.getComponent(vertex, k);
+      if (weight > largest) {
+        largest = weight;
+        reference = skinIndex.getComponent(vertex, k) * 16;
+      }
+    }
+    if (!largest) return false;
+    let x = 0, y = 0, z = 0, w = 0, dx = 0, dy = 0, dz = 0, dw = 0;
+    for (let k = 0; k < 4; k++) {
+      const weight = skinWeight.getComponent(vertex, k);
+      if (!weight) continue;
+      const j = skinIndex.getComponent(vertex, k) * 16;
+      const dot = values[j] * values[reference] + values[j + 1] * values[reference + 1]
+        + values[j + 2] * values[reference + 2] + values[j + 3] * values[reference + 3];
+      const signed = dot < 0 ? -weight : weight;
+      x += signed * values[j]; y += signed * values[j + 1];
+      z += signed * values[j + 2]; w += signed * values[j + 3];
+      dx += signed * values[j + 4]; dy += signed * values[j + 5];
+      dz += signed * values[j + 6]; dw += signed * values[j + 7];
+    }
+    const invLength = 1 / Math.hypot(x, y, z, w);
+    studioSkinReal.set(x * invLength, y * invLength, z * invLength, w * invLength);
+    studioSkinConjugate.copy(studioSkinReal).conjugate();
+    studioSkinDual.set(dx * invLength, dy * invLength, dz * invLength, dw * invLength).multiply(studioSkinConjugate);
+    studioSkinTranslation.set(2 * studioSkinDual.x, 2 * studioSkinDual.y, 2 * studioSkinDual.z);
+    studioSkinRotation.makeRotationFromQuaternion(studioSkinReal).setPosition(studioSkinTranslation);
+    // Each segment contributes an axial displacement in addition to its
+    // rigid motion. Blend it in the same hemisphere as the rigid quaternion.
+    const elements = studioSkinRotation.elements;
+    for (let k = 0; k < 4; k++) {
+      const weight = skinWeight.getComponent(vertex, k);
+      if (!weight) continue;
+      const j = skinIndex.getComponent(vertex, k) * 16;
+      studioStretchDirection.fromArray(values, j + 12);
+      if (!studioStretchDirection.lengthSq()) continue;
+      studioStretchRotation.fromArray(values, j);
+      const sign = studioStretchRotation.dot(studioSkinDual.fromArray(values, reference)) < 0 ? -1 : 1;
+      studioStretchRotation.multiply(studioSkinConjugate);
+      studioStretchVector.set(studioStretchRotation.x, studioStretchRotation.y, studioStretchRotation.z);
+      studioStretchCross.crossVectors(studioStretchDirection, studioStretchVector);
+      studioStretchDirection.multiplyScalar(studioStretchRotation.w).add(studioStretchCross).multiplyScalar(sign * weight * invLength);
+      for (let column = 0; column < 4; column++) {
+        const factor = values[j + 8 + column];
+        elements[column * 4] += studioStretchDirection.x * factor;
+        elements[column * 4 + 1] += studioStretchDirection.y * factor;
+        elements[column * 4 + 2] += studioStretchDirection.z * factor;
+      }
+    }
+    result.multiplyMatrices(mesh.bindMatrixInverse, pose.rootWorld).multiply(studioSkinRotation)
+      .multiply(pose.inverseBindRoot).multiply(mesh.bindMatrix);
+    return true;
   }
   var drag = null;
   var objectDrag = null;
@@ -58103,7 +58238,6 @@ void main() {
       stop();
       const root = transformTarget();
       if (!root) return;
-      if (root.isBone && objectGizmo.mode === "rotate" && !root.userData.explicitRotationBase) root.userData.explicitRotationBase = (rest.get(root)?.q || root.quaternion).toArray();
       const previous = root.userData.rotationPath;
       gizmoGesture = { object: root, owner: objects.find(o=>o.root===root)||activeObject, keysBefore: new Map((objects.find(o=>o.root===root)||activeObject).keyframes), mode: objectGizmo.mode, p: root.position.clone(), q: root.quaternion.clone(), s: root.scale.clone(), handleScale:objectTransformHandle.scale.clone(), followOffset: root === activeObject?.root ? activeObject.followBone?.offset?.slice() : null, oldPath: previous, oldFrame: root.userData.rotationPathFrame, oldFollowPath:root.userData.followRotationPath,oldFollowFrame:root.userData.followRotationPathFrame, path: gestureRotationPath(root),followPath:studioFollowRotationPath(activeObject,root) };
       if (autoKeyEnabled && isObjectTimeline(activeObject) && activeObject.keyframes.size === 0 && currentFrame > 1) activeObject.keyframes.set(1, { pose: capturePose(activeObject), face: activeObject.faceRig ? { ...activeObject.faceRig.values } : void 0 });
@@ -58302,122 +58436,433 @@ void main() {
       finishDrag(true);
     }
   }, true);
-  // Local segment weights: finite longitudinal support and branch-aware blending.
-  function studioBoneDistances(v,controls){
-    const distances=[];
-    controls.forEach((c,j)=>{
-      if(c.neutral||c.point)return;
-      const dx=c.rest.x-c.a.x,dy=c.rest.y-c.a.y,dz=c.rest.z-c.a.z,l2=dx*dx+dy*dy+dz*dz;
-      if(l2<1e-16)return;
-      const t=Math.max(0,Math.min(1,((v.x-c.a.x)*dx+(v.y-c.a.y)*dy+(v.z-c.a.z)*dz)/l2));
-      const d=Math.hypot(v.x-c.a.x-t*dx,v.y-c.a.y-t*dy,v.z-c.a.z-t*dz);
-      distances.push({j,d});
+  // Build one weight field for all the meshes, including duplicate vertices at UV and material seams.
+  function studioAutoSkinWeights(entries, controls) {
+    const bounds = new Box3(), meshBounds = new Box3(), point = new Vector3();
+    for (const { geometry, toRest } of entries) {
+      geometry.computeBoundingBox();
+      bounds.union(meshBounds.copy(geometry.boundingBox).applyMatrix4(toRest));
+    }
+    const extent = Math.max(bounds.getSize(new Vector3()).length(), 1e-8);
+    const tolerance = Math.max(extent * 1e-7, 1e-10);
+    const positionsByJoint = new Map(controls.filter(c => !c.neutral).map(c => [c.end, c.rest]));
+    const parents = new Set(controls.filter(c => !c.neutral && c.start !== c.end).map(c => c.start));
+    const segments = [];
+    controls.forEach((control, index) => {
+      if (control.neutral) return;
+      const end = control.rest, start = positionsByJoint.get(control.start) || end;
+      const axis = end.clone().sub(start), length = axis.length();
+      if (length <= tolerance && parents.has(control.end)) return;
+      segments.push({ index, start, axis, length, lengthSq: length * length, terminal: !parents.has(control.end) });
     });
-    if(!distances.length)controls.forEach((c,j)=>{if(!c.neutral)distances.push({j,d:Math.hypot(v.x-c.rest.x,v.y-c.rest.y,v.z-c.rest.z)});});
-    return distances.sort((a,b)=>a.d-b.d);
-  }
-  function studioSegmentWeights(v,controls){
-    const nearest=studioBoneDistances(v,controls)[0];return nearest?[{j:nearest.j,w:1}]:[];
-  }
-  // Screened diffusion on triangle connectivity. No finite envelope cutoff.
-  // This is a browser implementation inspired by bone-heat weighting, not Blender's solver.
-  function studioAutoSkinWeights(geometry,controls,toRest,indices,weights){
-    const p=geometry.attributes.position,n=p.count;if(!n)return;
-    geometry.computeBoundingBox();
-    const tolerance=Math.max(geometry.boundingBox.getSize(new Vector3()).length()*1e-7,1e-10);
-    const lookup=new Map(),groups=[],vertexGroup=new Int32Array(n),v=new Vector3();
-    for(let i=0;i<n;i++){
-      const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
-      const key=[x,y,z].map(x=>Math.round(x/tolerance)).join(',');let id=lookup.get(key);
-      if(id===undefined){
-        id=groups.length;lookup.set(key,id);v.set(x,y,z).applyMatrix4(toRest);
-        const distances=studioBoneDistances(v,controls),first=distances[0];
-        if(!first)throw new Error('Crie ao menos um osso para vincular a malha.');
-        const second=distances[1],confidence=second?Math.max(0,Math.min(1,(second.d-first.d)/Math.max(second.d,1e-12))):1;
-        groups.push({position:new Vector3(x,y,z),owner:first.j,anchor:.02+20*Math.pow(confidence,4),neighbours:new Map()});
+    if (!segments.length) throw new Error('Crie ao menos um osso para vincular a malha.');
+    function normalize(map) {
+      const top = [...map].sort((a,b) => b[1] - a[1] || a[0] - b[0]).slice(0, 4);
+      const sum = top.reduce((total, [,weight]) => total + weight, 0);
+      return top.map(([bone, weight]) => [bone, weight / sum]);
+    }
+    const distances = new Float64Array(segments.length), offset = new Vector3(), nearestPoint = new Vector3();
+    function weightsAt(vertex) {
+      let minimum = Infinity;
+      for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i];
+        offset.subVectors(vertex, segment.start);
+        const t = segment.length > tolerance ? MathUtils.clamp(offset.dot(segment.axis) / segment.lengthSq, .12, .88) : 0;
+        const distance = nearestPoint.copy(offset).addScaledVector(segment.axis, -t).length();
+        distances[i] = distance;
+        minimum = Math.min(minimum, distance);
       }
-      vertexGroup[i]=id;
+      const map = new Map();
+      for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i], width = Math.max(extent * .012, Math.min(segment.length, extent) * .36);
+        const weight = objectDrawingGrabFalloff(distances[i] - minimum, width);
+        if (weight > 1e-7) map.set(segment.index, weight);
+      }
+      return normalize(map);
     }
-    const index=geometry.index,count=index?index.count:n;
-    function connect(a,b){if(a===b)return;const ga=groups[a],gb=groups[b];const w=1/Math.max(ga.position.distanceTo(gb.position),tolerance);ga.neighbours.set(b,w);gb.neighbours.set(a,w);}
-    for(let i=0;i+2<count;i+=3){const a=vertexGroup[index?index.getX(i):i],b=vertexGroup[index?index.getX(i+1):i+1],c=vertexGroup[index?index.getX(i+2):i+2];connect(a,b);connect(b,c);connect(c,a);}
-    let field=groups.map(g=>[[g.owner,1]]);
-    for(let pass=0;pass<48;pass++){
-      let change=0;
-      const next=groups.map((g,i)=>{
-        if(!g.neighbours.size)return field[i];
-        const map=new Map([[g.owner,g.anchor]]);let totalEdge=0;
-        for(const w of g.neighbours.values())totalEdge+=w;
-        for(const [j,edge]of g.neighbours)for(const [bone,w]of field[j])map.set(bone,(map.get(bone)||0)+w*edge/totalEdge);
-        const entries=[...map].sort((a,b)=>b[1]-a[1]).slice(0,4),total=entries.reduce((n,e)=>n+e[1],0);
-        const result=entries.map(([j,w])=>[j,w/total]);const previous=new Map(field[i]);
-        for(const [j,w]of result){change=Math.max(change,Math.abs(w-(previous.get(j)||0)));previous.delete(j);}for(const w of previous.values())change=Math.max(change,w);
-        return result;
-      });field=next;if(change<1e-5)break;
+    const lookup = new Map(), groups = [], triangles = [];
+    for (const entry of entries) {
+      const { geometry, toRest } = entry, positions = geometry.attributes.position;
+      const mapping = entry.mapping = new Uint32Array(positions.count);
+      for (let i = 0; i < positions.count; i++) {
+        point.fromBufferAttribute(positions, i).applyMatrix4(toRest);
+        const key = [point.x, point.y, point.z].map(x => Math.round(x / tolerance)).join(',');
+        let group = lookup.get(key);
+        if (group === undefined) {
+          group = groups.length;
+          lookup.set(key, group);
+          groups.push({ point: point.clone(), neighbours: new Map(), edgeTotal: 0 });
+        }
+        mapping[i] = group;
+      }
+      const index = geometry.index, count = index?.count ?? positions.count;
+      function connect(a, b) {
+        if (a === b || groups[a].neighbours.has(b)) return;
+        const ga = groups[a], gb = groups[b];
+        const weight = 1 / Math.max(ga.point.distanceTo(gb.point), tolerance);
+        ga.neighbours.set(b, weight);
+        gb.neighbours.set(a, weight);
+        ga.edgeTotal += weight;
+        gb.edgeTotal += weight;
+      }
+      for (let i = 0; i + 2 < count; i += 3) {
+        const a = mapping[index ? index.getX(i) : i];
+        const b = mapping[index ? index.getX(i + 1) : i + 1];
+        const c = mapping[index ? index.getX(i + 2) : i + 2];
+        connect(a, b); connect(b, c); connect(c, a);
+        if (a !== b && b !== c && a !== c) triangles.push(a,b,c);
+      }
     }
-    indices.fill(0);weights.fill(0);
-    for(let i=0;i<n;i++)field[vertexGroup[i]].forEach(([j,w],k)=>{indices[i*4+k]=j;weights[i*4+k]=w;});
-  }
-  function studioAddFixedControl(rig,root){
-    if(rig.controls.some(c=>c.neutral))return;
-    const deform=new Bone();deform.name='RegiaoFixa';deform.matrixAutoUpdate=false;rig.group.add(deform);
-    rig.controls.push({start:root,end:root,a:new Vector3(),rest:new Vector3(),point:true,neutral:true,inverseRest:null,deform});
-    for(const skeleton of rig.skeletons){
-      skeleton.bones.push(deform);skeleton.boneInverses.push(new Matrix4());
-      if(skeleton.boneTexture){skeleton.boneTexture.dispose();skeleton.boneTexture=null;}
-      skeleton.init();
-    }
-  }
-  function studioLocalizeRig(rig,root){
-    if(rig.weightVersion===3||!rig.skeletons.length)return;
-    studioAddFixedControl(rig,root);
-    root.traverse(mesh=>{
-      if(!mesh.isSkinnedMesh||!rig.skeletons.includes(mesh.skeleton))return;
-      const geometry=mesh.geometry.clone(),p=geometry.attributes.position;
-      const indices=new Uint16Array(p.count*4),weights=new Float32Array(p.count*4),v=new Vector3();
-      studioAutoSkinWeights(geometry,rig.controls,mesh.bindMatrix,indices,weights);
-      geometry.setAttribute('skinIndex',new Uint16BufferAttribute(indices,4));
-      geometry.setAttribute('skinWeight',new Float32BufferAttribute(weights,4));mesh.geometry=geometry;
-    });
-    rig.localEnvelopes=false;rig.weightVersion=3;
-  }
-  // Smooth on surface connectivity, including duplicate vertices at UV seams.
-  // Spatially close but disconnected surfaces are never made neighbours.
-  function studioSmoothSkinWeights(geometry, indices, weights) {
-    const p=geometry.attributes.position,n=p.count,groups=[],lookup=new Map(),vertexGroup=new Int32Array(n);
-    geometry.computeBoundingBox();
-    const tolerance=Math.max(geometry.boundingBox.getSize(new Vector3()).length()*1e-7,1e-10);
-    for(let i=0;i<n;i++){
-      const key=[p.getX(i),p.getY(i),p.getZ(i)].map(x=>Math.round(x/tolerance)).join(',');
-      let g=lookup.get(key);if(g===undefined){g=groups.length;lookup.set(key,g);groups.push({vertices:[],neighbours:new Set()});}
-      vertexGroup[i]=g;groups[g].vertices.push(i);
-    }
-    const index=geometry.index,count=index?index.count:n;
-    for(let i=0;i+2<count;i+=3){
-      const ids=[0,1,2].map(k=>vertexGroup[index?index.getX(i+k):i+k]);
-      for(let a=0;a<3;a++)for(let b=a+1;b<3;b++)if(ids[a]!==ids[b]){groups[ids[a]].neighbours.add(ids[b]);groups[ids[b]].neighbours.add(ids[a]);}
-    }
-    const trim=map=>{
-      const entries=[...map].filter(([j,w])=>w>0).sort((a,b)=>b[1]-a[1]).slice(0,4);
-      const sum=entries.reduce((t,e)=>t+e[1],0);return entries.map(([j,w])=>[j,w/sum]);
-    };
-    let field=groups.map(g=>{
-      const map=new Map();for(const i of g.vertices)for(let k=0;k<4;k++){const j=indices[i*4+k],w=weights[i*4+k];if(w)map.set(j,(map.get(j)||0)+w/g.vertices.length);}
-      return trim(map);
-    });
-    for(let pass=0;pass<8;pass++){
-      field=groups.map((g,i)=>{
-        if(!g.neighbours.size)return field[i];
-        const map=new Map();
-        for(const [j,w] of field[i])map.set(j,w*.65);
-        for(const neighbour of g.neighbours)for(const [j,w] of field[neighbour])map.set(j,(map.get(j)||0)+w*.35/g.neighbours.size);
-        return trim(map);
+    if (segments.length > 1) {
+      const anchors = studioSkinSurfaceAnchors(groups, segments, extent, tolerance);
+      const volumetric = studioVolumetricSkinSeeds(groups, triangles, segments, bounds, anchors);
+      let geodesic;
+      groups.forEach((group, i) => {
+        if (volumetric[i]) {
+          group.seed = normalize(volumetric[i]);
+          return;
+        }
+        geodesic ||= studioGeodesicSkinSeeds(groups, anchors);
+        const candidates = geodesic[i];
+        if (!candidates.length) {
+          group.seed = weightsAt(group.point);
+          return;
+        }
+        const map = new Map(), distance = candidates[0].distance;
+        for (const candidate of candidates) {
+          const width = Math.max(extent * .014, candidate.segment.length * .32);
+          const weight = objectDrawingGrabFalloff(candidate.distance - distance, width);
+          if (weight > 1e-7) map.set(candidate.segment.index, weight);
+        }
+        group.seed = normalize(map);
+      });
+    } else for (const group of groups) group.seed = [[segments[0].index, 1]];
+    let field = groups.map(group => group.seed);
+    if (segments.length > 1) for (let pass = 0; pass < 8; pass++) {
+      field = groups.map(group => {
+        if (!group.edgeTotal) return group.seed;
+        const map = new Map(group.seed.map(([bone, weight]) => [bone, weight * .48]));
+        for (const [neighbour, edge] of group.neighbours) {
+          const blend = .52 * edge / group.edgeTotal;
+          for (const [bone, weight] of field[neighbour]) map.set(bone, (map.get(bone) || 0) + weight * blend);
+        }
+        return normalize(map);
       });
     }
-    indices.fill(0);weights.fill(0);
-    for(let i=0;i<n;i++)for(const [k,[j,w]] of field[vertexGroup[i]].entries()){indices[i*4+k]=j;weights[i*4+k]=w;}
+    for (const { geometry, mapping } of entries) {
+      const indices = new Uint16Array(mapping.length * 4), weights = new Float32Array(mapping.length * 4);
+      for (let i = 0; i < mapping.length; i++) {
+        const influences = field[mapping[i]];
+        for (let k = 0; k < influences.length; k++) {
+          indices[i * 4 + k] = influences[k][0];
+          weights[i * 4 + k] = influences[k][1];
+        }
+      }
+      geometry.setAttribute('skinIndex', new Uint16BufferAttribute(indices, 4));
+      geometry.setAttribute('skinWeight', new Float32BufferAttribute(weights, 4));
+    }
   }
-  var studioWeightUndo = new WeakMap();
+  function studioSkinMinHeap() {
+    const heap = [];
+    function push(node) {
+      let i = heap.length;
+      heap.push(node);
+      while (i > 0) {
+        const parent = (i - 1) >> 1;
+        if (heap[parent].distance <= node.distance) break;
+        heap[i] = heap[parent];
+        i = parent;
+      }
+      heap[i] = node;
+    }
+    function pop() {
+      const head = heap[0], last = heap.pop();
+      if (!heap.length) return head;
+      let i = 0;
+      while (i * 2 + 1 < heap.length) {
+        let child = i * 2 + 1;
+        if (child + 1 < heap.length && heap[child + 1].distance < heap[child].distance) child++;
+        if (heap[child].distance >= last.distance) break;
+        heap[i] = heap[child];
+        i = child;
+      }
+      heap[i] = last;
+      return head;
+    }
+    return { push, pop, get size() { return heap.length; } };
+  }
+  // Fill the interior by intersecting the mesh along all three grid axes.
+  // Agreement on two axes tolerates a missing cap and avoids bridging gaps.
+  function studioSkinVolume(groups, triangles, bounds) {
+    const size = bounds.getSize(new Vector3());
+    const step = Math.max(Math.max(size.x, size.y, size.z) / 132, Math.cbrt(size.x * size.y * size.z / 360000));
+    if (!(step > 0)) return null;
+    const origin = bounds.min.clone().addScalar(-step);
+    const dimensions = size.toArray().map(n => Math.ceil(n / step) + 3);
+    const [nx, ny, nz] = dimensions, stride = [1, nx, nx * ny];
+    const votes = new Uint8Array(nx * ny * nz);
+    const samples = new Float32Array(groups.length * 3);
+    groups.forEach((group, i) => group.point.clone().sub(origin).multiplyScalar(1 / step).toArray(samples, i * 3));
+    for (let axis = 0; axis < 3; axis++) {
+      const row = (axis + 1) % 3, column = (axis + 2) % 3, width = dimensions[row];
+      const lines = new Array(width * dimensions[column]);
+      for (let i = 0; i < triangles.length; i += 3) {
+        const a = triangles[i] * 3, b = triangles[i + 1] * 3, c = triangles[i + 2] * 3;
+        const x0 = samples[a + row], y0 = samples[a + column];
+        const ux = samples[b + row] - x0, uy = samples[b + column] - y0;
+        const vx = samples[c + row] - x0, vy = samples[c + column] - y0;
+        const det = ux * vy - uy * vx;
+        if (Math.abs(det) < 1e-9) continue;
+        const firstRow = Math.ceil(x0 + Math.min(0, ux, vx));
+        const lastRow = Math.floor(x0 + Math.max(0, ux, vx));
+        const firstColumn = Math.ceil(y0 + Math.min(0, uy, vy));
+        const lastColumn = Math.floor(y0 + Math.max(0, uy, vy));
+        const along = samples[a + axis], du = samples[b + axis] - along, dv = samples[c + axis] - along;
+        for (let y = firstColumn; y <= lastColumn; y++) for (let x = firstRow; x <= lastRow; x++) {
+          const r = ((x - x0) * vy - (y - y0) * vx) / det;
+          const s = (ux * (y - y0) - uy * (x - x0)) / det;
+          if (r < 0 || s < 0 || r + s > 1) continue;
+          (lines[y * width + x] ||= []).push(along + du * r + dv * s);
+        }
+      }
+      for (let line = 0; line < lines.length; line++) {
+        const hits = lines[line];
+        if (!hits?.length) continue;
+        hits.sort((a,b) => a - b);
+        let count = 1;
+        for (let i = 1; i < hits.length; i++) if (hits[i] - hits[count - 1] > 1e-3) hits[count++] = hits[i];
+        if (count % 2) continue;
+        const offset = line % width * stride[row] + Math.floor(line / width) * stride[column];
+        for (let i = 0; i + 1 < count; i += 2) {
+          for (let cell = Math.ceil(hits[i]); cell <= Math.floor(hits[i + 1]); cell++) votes[offset + cell * stride[axis]]++;
+        }
+      }
+    }
+    return { origin, step, dimensions, stride, votes, samples };
+  }
+
+  function studioVolumetricSkinSeeds(groups, triangles, segments, bounds, anchors) {
+    const volume = studioSkinVolume(groups, triangles, bounds);
+    if (!volume) return [];
+    const {origin, step, dimensions: [nx,ny,nz], stride, votes, samples} = volume;
+    const accepted = new Uint8Array(votes.length), labels = new Int32Array(votes.length * 4);
+    const distances = new Float32Array(votes.length * 4);
+    const heap = studioSkinMinHeap();
+    const point = new Vector3(), start = new Vector3(), axis = new Vector3();
+    const width = segments.map(segment => Math.max(1.15, segment.length * .43 / step));
+    const offsets = [];
+    for (let z = -1; z <= 1; z++) for (let y = -1; y <= 1; y++) for (let x = -1; x <= 1; x++) {
+      const cost = Math.hypot(x, y, z);
+      if (cost > 0 && cost < 1.5) offsets.push({x, y, z, cost, offset: x + y * stride[1] + z * stride[2]});
+    }
+    for (let j = 0; j < segments.length; j++) {
+      const segment = segments[j], steps = Math.max(1, Math.ceil(segment.length / step * 2));
+      start.copy(segment.start).sub(origin).multiplyScalar(1 / step);
+      axis.copy(segment.axis).multiplyScalar(1 / step);
+      const placed = new Map();
+      for (let i = 0; i <= steps; i++) {
+        const margin = segment.terminal ? .04 : .13;
+        point.copy(start).addScaledVector(axis, margin + (1 - 2 * margin) * i / steps);
+        const x0 = Math.round(point.x), y0 = Math.round(point.y), z0 = Math.round(point.z);
+        let nearest = -1, distance = Infinity;
+        const radius = Math.max(2, Math.min(5, Math.ceil(segment.length / step * .22)));
+        for (let z = Math.max(1,z0-radius); z <= Math.min(nz-2,z0+radius); z++) {
+          for (let y = Math.max(1,y0-radius); y <= Math.min(ny-2,y0+radius); y++) {
+            for (let x = Math.max(1,x0-radius); x <= Math.min(nx-2,x0+radius); x++) {
+              const cell = x + y * stride[1] + z * stride[2];
+              if (votes[cell] < 2) continue;
+              const d = (x-point.x)**2 + (y-point.y)**2 + (z-point.z)**2;
+              if (d < distance) { nearest = cell; distance = d; }
+            }
+          }
+        }
+        if (nearest >= 0) {
+          const d = Math.sqrt(distance);
+          if (d < (placed.get(nearest) ?? Infinity)) placed.set(nearest, d);
+        }
+      }
+      for (const [cell,distance] of placed) heap.push({cell,label:j,distance});
+    }
+    // Keep each side of an off-center bone represented when mapping the
+    // interior weights back to the skin. These sources are still propagated
+    // through the same solid cells as the bone-center sources.
+    const segmentLabels = new Map(segments.map((segment,label) => [segment,label]));
+    const boundary = new Map();
+    for (const anchor of anchors) {
+      const vertex = anchor.group * 3, label = segmentLabels.get(anchor.segment);
+      const px = samples[vertex], py = samples[vertex+1], pz = samples[vertex+2];
+      const x = Math.floor(px), y = Math.floor(py), z = Math.floor(pz);
+      for (let dz = 0; dz <= 1; dz++) for (let dy = 0; dy <= 1; dy++) for (let dx = 0; dx <= 1; dx++) {
+        const cell = x+dx + (y+dy) * stride[1] + (z+dz) * stride[2];
+        if (votes[cell] < 2) continue;
+        const distance = Math.hypot(x+dx-px,y+dy-py,z+dz-pz) + .28 + Math.min(anchor.distance / step, .85);
+        const key = cell * segments.length + label;
+        if (distance < (boundary.get(key)?.distance ?? Infinity)) boundary.set(key, {cell,label,distance});
+      }
+    }
+    for (const source of boundary.values()) heap.push(source);
+    function seen(cell, label) {
+      for (let k = 0; k < accepted[cell]; k++) if (labels[cell*4+k] === label) return true;
+      return false;
+    }
+    while (heap.size) {
+      const {cell, label, distance} = heap.pop(), count = accepted[cell], base = cell * 4;
+      if (count === 4 || (count && distance - distances[base] > width[label]) || seen(cell, label)) continue;
+      labels[base + count] = label;
+      distances[base + count] = distance;
+      accepted[cell]++;
+      const x = cell % nx, y = Math.floor(cell / nx) % ny, z = Math.floor(cell / stride[2]);
+      for (const edge of offsets) {
+        const xx = x+edge.x, yy = y+edge.y, zz = z+edge.z;
+        if (xx < 1 || xx >= nx-1 || yy < 1 || yy >= ny-1 || zz < 1 || zz >= nz-1) continue;
+        const next = cell + edge.offset;
+        if (votes[next] < 2 || accepted[next] === 4 || seen(next, label)) continue;
+        // Prevent diagonal motion between solids that touch only at a corner.
+        if (edge.cost > 1 &&
+            !(edge.x && votes[cell + edge.x] >= 2) &&
+            !(edge.y && votes[cell + edge.y * stride[1]] >= 2) &&
+            !(edge.z && votes[cell + edge.z * stride[2]] >= 2)) continue;
+        const d = distance + edge.cost;
+        if (accepted[next] && d - distances[next * 4] > width[label]) continue;
+        heap.push({cell:next, label, distance:d});
+      }
+    }
+    function sampleVertex(x, y, z) {
+      const x0 = Math.floor(x), y0 = Math.floor(y), z0 = Math.floor(z), map = new Map();
+      function addCell(cell, spatialWeight) {
+        if (!accepted[cell] || spatialWeight <= 0) return;
+        const base = cell * 4, best = distances[base], dominant = labels[base];
+        const weights = [];
+        let sum = 0;
+        for (let k = 0; k < accepted[cell]; k++) {
+          const label = labels[base+k];
+          const w = objectDrawingGrabFalloff(distances[base+k] - best, Math.min(width[dominant], width[label]));
+          weights.push(w);
+          sum += w;
+        }
+        for (let k = 0; k < accepted[cell]; k++) {
+          const index = segments[labels[base+k]].index;
+          if (weights[k] > 1e-7) map.set(index, (map.get(index) || 0) + weights[k] * spatialWeight / sum);
+        }
+      }
+      const corners = [], spatialWeights = [];
+      let nearest = -1, bestSpatial = 0;
+      for (let corner = 0; corner < 8; corner++) {
+        const xx = x0 + (corner & 1), yy = y0 + ((corner >> 1) & 1), zz = z0 + (corner >> 2);
+        const cell = xx + yy * stride[1] + zz * stride[2];
+        const spatial = (1-Math.abs(x-xx)) * (1-Math.abs(y-yy)) * (1-Math.abs(z-zz));
+        corners.push(cell);
+        spatialWeights.push(spatial);
+        if (accepted[cell] && spatial > bestSpatial) {
+          nearest = corner;
+          bestSpatial = spatial;
+        }
+      }
+      if (nearest < 0) return null;
+      // Interpolate within the occupied corner cluster nearest the vertex.
+      // Air between two nearby surfaces must not transfer their weights.
+      const pending = [nearest];
+      let visited = 1 << nearest;
+      for (let i = 0; i < pending.length; i++) {
+        const corner = pending[i];
+        addCell(corners[corner], spatialWeights[corner]);
+        for (const direction of [1,2,4]) {
+          const adjacent = corner ^ direction, bit = 1 << adjacent;
+          if ((visited & bit) || !accepted[corners[adjacent]]) continue;
+          visited |= bit;
+          pending.push(adjacent);
+        }
+      }
+      return map;
+    }
+    return groups.map((_,i)=>sampleVertex(samples[i*3],samples[i*3+1],samples[i*3+2]));
+  }
+  // Capture both the near and far sides when a bone is off-center in the mesh.
+  function studioSkinSurfaceAnchors(groups, segments, extent, tolerance) {
+    const slices = 5, sectors = 12, offset = new Vector3(), radialOffset = new Vector3();
+    for (const segment of segments) {
+      const axis = segment.axis.clone().normalize();
+      const reference = Math.abs(axis.y) < .9 ? new Vector3(0, 1, 0) : new Vector3(1, 0, 0);
+      segment.radialX = reference.cross(axis).normalize();
+      segment.radialY = new Vector3().crossVectors(axis, segment.radialX);
+    }
+    const sample = (point, segment) => {
+      offset.subVectors(point, segment.start);
+      const t = segment.length > tolerance ? offset.dot(segment.axis) / segment.lengthSq : .5;
+      const from = segment.terminal ? .065 : .17, to = segment.terminal ? .95 : .83;
+      if (t < from || t > to) return;
+      const slice = Math.min(slices - 1, Math.floor((t - from) * slices / (to - from)));
+      radialOffset.copy(offset).addScaledVector(segment.axis, -t);
+      const angle = Math.atan2(radialOffset.dot(segment.radialY), radialOffset.dot(segment.radialX));
+      const sector = Math.min(sectors - 1, Math.floor((angle + Math.PI) * sectors / (2 * Math.PI)));
+      return {bin: slice * sectors + sector, radial: radialOffset.length()};
+    };
+    for (const segment of segments) {
+      segment.radii = new Float64Array(slices * sectors).fill(Infinity);
+      for (const group of groups) {
+        const probe = sample(group.point, segment);
+        if (probe) segment.radii[probe.bin] = Math.min(segment.radii[probe.bin], probe.radial);
+      }
+      // Empty directions can see distant parts such as the scalp above a
+      // shoulder. Bound the radial reach by the characteristic cross-section.
+      const radii = Array.from(segment.radii).filter(Number.isFinite).sort((a,b) => a - b);
+      const typical = radii[Math.floor(radii.length * .40)] || 0;
+      segment.maxSeedRadius = Math.max(extent * .018, typical * 2.05 + segment.length * .30);
+    }
+    const anchors = [];
+    for (let i = 0; i < groups.length; i++) {
+      const {point} = groups[i];
+      let best;
+      for (const segment of segments) {
+        const probe = sample(point, segment);
+        if (!probe) continue;
+        const baseRadius = segment.radii[probe.bin];
+        const radius = Math.min(segment.maxSeedRadius, baseRadius * 1.45 + Math.max(segment.length * .035, extent * .001));
+        if (probe.radial > radius) continue;
+        const score = probe.radial / Math.sqrt(Math.max(segment.length, extent * .03)) + .06 * probe.radial / radius;
+        if (!best || score < best.score) best = {group: i, segment, score, distance: probe.radial * .10};
+      }
+      if (best) anchors.push(best);
+    }
+    return anchors;
+  }
+
+  // Open shells that have no sampled interior still get a continuous skin.
+  function studioGeodesicSkinSeeds(groups, anchors) {
+    const nearest = groups.map(() => []), heap = studioSkinMinHeap();
+    for (const anchor of anchors) heap.push(anchor);
+    while (heap.size) {
+      const next = heap.pop(), candidates = nearest[next.group];
+      if (candidates.length === 4 || candidates.some(candidate => candidate.segment === next.segment)) continue;
+      candidates.push(next);
+      for (const [id, inverseLength] of groups[next.group].neighbours) {
+        const target = nearest[id];
+        if (target.length === 4 || target.some(candidate => candidate.segment === next.segment)) continue;
+        heap.push({group: id, segment: next.segment, distance: next.distance + 1 / inverseLength});
+      }
+    }
+    return nearest;
+  }
+  function studioRigOwnsSkeleton(rig, skeleton) {
+    return skeleton?.bones.length === rig.controls.length && rig.controls.every((c, i) => c.deform === skeleton.bones[i]);
+  }
+  function studioMigrateSkinWeights(rig, root) {
+    const entries = [];
+    root.traverse(mesh => {
+      if (mesh.isSkinnedMesh && studioRigOwnsSkeleton(rig, mesh.skeleton)) {
+        entries.push({ mesh, geometry: mesh.geometry.clone(), toRest: mesh.bindMatrix });
+      }
+    });
+    if (entries.length && rig.controls.some(control => !control.neutral)) {
+      studioAutoSkinWeights(entries, rig.controls);
+      for (const {mesh, geometry} of entries) {
+        mesh.geometry = geometry;
+        mesh.boundingBox = mesh.boundingSphere = null;
+        mesh.frustumCulled = false;
+      }
+    }
+    rig.weightVersion = 7;
+  }
   $('boneDisplaySize').oninput=()=>{
     $('boneDisplayValue').textContent=$('boneDisplaySize').value+' px';
     try{localStorage.setItem('studioBonePixels',$('boneDisplaySize').value)}catch{}
@@ -58432,7 +58877,7 @@ void main() {
   function bind() {
     if (!model || !bones.length) return status("Crie ossos antes de vincular.");
     if (bound) return status("O personagem j\xE1 est\xE1 vinculado. Use Modo pose.");
-    const targets = meshes();
+    const targets = meshes().filter(mesh => mesh.geometry?.attributes.position?.count && !mesh.isSkinnedMesh);
     if (!targets.length) return status("O arquivo n\xE3o possui malhas.");
     model.updateMatrixWorld(true);
     const group = new Group();
@@ -58441,48 +58886,38 @@ void main() {
     group.updateWorldMatrix(true, false);
     const controls2 = bones.map((b) => {
       const start = b.parent?.isBone ? b.parent : b;
-      const a = start.getWorldPosition(new Vector3()), end = b.getWorldPosition(new Vector3()), point = a.distanceToSquared(end) < 1e-16;
       const deform = new Bone();
       deform.name = "Deform_" + b.name;
       deform.matrixAutoUpdate = false;
       group.add(deform);
-      return { start, end: b, a, rest: end, point, inverseRest: point ? null : segmentMatrix(a, end).invert(), deform };
+      return { start, end: b, rest: b.getWorldPosition(new Vector3()), deform };
     });
-    const fixedRig={group,controls:controls2,skeletons:[]};
-    studioAddFixedControl(fixedRig,model);
     const prepared = [];
     try {
-      for (const old of targets) {
-        const geometry = old.geometry.clone(), p = geometry.attributes.position, indices = new Uint16Array(p.count * 4), weights = new Float32Array(p.count * 4), v = new Vector3(), nearest = new Vector3();
-        studioAutoSkinWeights(geometry,controls2,old.matrixWorld,indices,weights);
-        geometry.setAttribute("skinIndex", new Uint16BufferAttribute(indices, 4));
-        geometry.setAttribute("skinWeight", new Float32BufferAttribute(weights, 4));
+      const entries = targets.map(old => ({old, geometry: old.geometry.clone(), toRest: old.matrixWorld}));
+      studioAutoSkinWeights(entries, controls2);
+      const skeleton = new Skeleton(controls2.map(c => c.deform), controls2.map(() => new Matrix4()));
+      const rig = { group, controls: controls2, skeletons: [skeleton], weightVersion: 7, restRootMatrix: model.matrixWorld.clone() };
+      const restPose = new Map(bones.map(b => [b, {p: b.position.clone(), q: b.quaternion.clone(), s: b.scale.clone()}]));
+      studioRigRestInverses(rig, model, restPose);
+      for (const {old, geometry, toRest} of entries) {
         const skin = new SkinnedMesh(geometry, old.material);
-        skin.name = old.name;
+        Mesh.prototype.copy.call(skin, old, false);
+        skin.geometry = geometry;
         skin.uuid = old.uuid;
-        skin.position.copy(old.position);
-        skin.quaternion.copy(old.quaternion);
-        skin.scale.copy(old.scale);
-        skin.morphTargetInfluences = old.morphTargetInfluences?.slice();
-        skin.morphTargetDictionary = old.morphTargetDictionary;
         skin.frustumCulled = false;
-        prepared.push({ old, skin });
+        skin.bind(skeleton, toRest);
+        prepared.push({old, skin});
       }
-      customRig = { group, controls: controls2, skeletons: [], weightVersion:3, localEnvelopes:false, restRootMatrix: model.matrixWorld.clone() };
-      updateCustomRig();
-      for (const { old, skin } of prepared) {
+      for (const {old, skin} of prepared) {
         old.parent.add(skin);
         for (const child of [...old.children]) skin.add(child);
-        skin.updateWorldMatrix(true, false);
-        const skeleton = new Skeleton(controls2.map((c) => c.deform), controls2.map(() => new Matrix4()));
-        skin.bind(skeleton, skin.matrixWorld);
-        skin.normalizeSkinWeights();
-        customRig.skeletons.push(skeleton);
-        old.parent.remove(old);
+        old.removeFromParent();
       }
+      customRig = rig;
+      rest = restPose;
       updateCustomRig();
       bound = true;
-      rest = new Map(bones.map((b) => [b, { p: b.position.clone(), q: b.quaternion.clone() }]));
       saveActiveObject();
       recordKeyframe();
       if (activeObject?.faceRig) installFaceShaders(activeObject);
@@ -62785,7 +63220,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     }
   }
   function packStudioObject(o, rootData = serializeRoot(o.root)) {
-    return { id: o.id, name: o.name, followBone: o.followBone || null, root: rootData, meshProcessing: packStudioMeshProcessing(o.root), boneIds: o.bones.map((b) => b.uuid), bound: o.bound, basePoseId: o.basePoseId || null, poseLibrary: (o.poseLibrary || []).map((p) => ({ id: p.id, name: p.name, pose: packPose(p.pose) })), rest: [...o.rest].map(([b, v]) => [b.uuid, { p: v.p.toArray(), q: v.q.toArray() }]), clips: o.clips.map((c) => AnimationClip.toJSON(c)), faceRig: packFaceRig(o), keyframes: [...o.keyframes].map(([f, k]) => [f, { pose: packPose(k.pose), face: k.face }]), customRig: o.customRig ? { weightVersion:o.customRig.weightVersion, localEnvelopes:o.customRig.localEnvelopes, restRootMatrix: (o.customRig.restRootMatrix || o.root.matrixWorld).toArray(), group: o.customRig.group.uuid, controls: o.customRig.controls.map((c) => ({ start: c.start.uuid, end: c.end.uuid, deform: c.deform.uuid, neutral:!!c.neutral, point: c.point, a: c.a.toArray(), rest: c.rest.toArray(), inverseRest: c.inverseRest?.toArray() })) } : null };
+    return { id: o.id, name: o.name, followBone: o.followBone || null, root: rootData, meshProcessing: packStudioMeshProcessing(o.root), boneIds: o.bones.map((b) => b.uuid), bound: o.bound, basePoseId: o.basePoseId || null, poseLibrary: (o.poseLibrary || []).map((p) => ({ id: p.id, name: p.name, pose: packPose(p.pose) })), rest: [...o.rest].map(([b, v]) => [b.uuid, { p: v.p.toArray(), q: v.q.toArray(), s: v.s?.toArray() }]), clips: o.clips.map((c) => AnimationClip.toJSON(c)), faceRig: packFaceRig(o), keyframes: [...o.keyframes].map(([f, k]) => [f, { pose: packPose(k.pose), face: k.face }]), customRig: o.customRig ? { weightVersion:o.customRig.weightVersion, restRootMatrix: (o.customRig.restRootMatrix || o.root.matrixWorld).toArray(), group: o.customRig.group.uuid, controls: o.customRig.controls.map((c) => ({ start: c.start.uuid, end: c.end.uuid, deform: c.deform.uuid, neutral:!!c.neutral, rest: c.rest.toArray() })) } : null };
   }
   function buildProject(includeObjects = true) {
     saveActiveObject();
@@ -62970,14 +63405,18 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     smoothStudioDrawing(root);
     root.updateMatrixWorld(true);
     root.traverse((n) => lookup.set(n.uuid, n));
-    const rig = entry.customRig ? { weightVersion:entry.customRig.weightVersion||0, localEnvelopes:!!entry.customRig.localEnvelopes, restRootMatrix: entry.customRig.restRootMatrix ? new Matrix4().fromArray(entry.customRig.restRootMatrix) : root.matrixWorld.clone(), group: lookup.get(entry.customRig.group), controls: entry.customRig.controls.map((c) => ({ ...c, start: lookup.get(c.start), end: lookup.get(c.end), deform: lookup.get(c.deform), a: new Vector3().fromArray(c.a), rest: new Vector3().fromArray(c.rest), inverseRest: c.inverseRest ? new Matrix4().fromArray(c.inverseRest) : null })), skeletons: [] } : null;
+    const rig = entry.customRig ? { weightVersion:entry.customRig.weightVersion||0, restRootMatrix: entry.customRig.restRootMatrix ? new Matrix4().fromArray(entry.customRig.restRootMatrix) : root.matrixWorld.clone(), group: lookup.get(entry.customRig.group), controls: entry.customRig.controls.map((c) => ({ neutral: !!c.neutral, start: lookup.get(c.start), end: lookup.get(c.end), deform: lookup.get(c.deform), rest: new Vector3().fromArray(c.rest) })), skeletons: [] } : null;
     if (rig) {
       if (!rig.group || rig.controls.some((c) => !c.start || !c.end || !c.deform)) throw new Error("Rig incompleto.");
       root.traverse((n) => {
-        if (n.isSkinnedMesh) rig.skeletons.push(n.skeleton);
+        if (n.isSkinnedMesh && studioRigOwnsSkeleton(rig, n.skeleton) && !rig.skeletons.includes(n.skeleton)) rig.skeletons.push(n.skeleton);
       });
     }
-    const obj = { id: root.uuid, name: entry.name, root, bones: entry.boneIds.map((id) => lookup.get(id)).filter(Boolean), bound: !!entry.bound, selected: null, basePoseId: entry.basePoseId || null, poseLibrary: (entry.poseLibrary || []).map((p) => ({ id: p.id, name: String(p.name || "Pose"), pose: unpackPose(p.pose, lookup) })), clips: (entry.clips || []).map((c) => AnimationClip.parse(c)), mixer: new AnimationMixer(root), customRig: rig, rest: new Map(entry.rest.map(([id, v]) => [lookup.get(id), { p: new Vector3().fromArray(v.p), q: new Quaternion().fromArray(v.q) }]).filter(([b]) => b)), keyframes: new Map((entry.keyframes || []).map(([f, k]) => [Number(f), { pose: unpackPose(k.pose, lookup), face: k.face }])) };
+    const obj = { id: root.uuid, name: entry.name, root, bones: entry.boneIds.map((id) => lookup.get(id)).filter(Boolean), bound: !!entry.bound, selected: null, basePoseId: entry.basePoseId || null, poseLibrary: (entry.poseLibrary || []).map((p) => ({ id: p.id, name: String(p.name || "Pose"), pose: unpackPose(p.pose, lookup) })), clips: (entry.clips || []).map((c) => AnimationClip.parse(c)), mixer: new AnimationMixer(root), customRig: rig, rest: new Map(entry.rest.map(([id, v]) => [lookup.get(id), { p: new Vector3().fromArray(v.p), q: new Quaternion().fromArray(v.q), s: v.s ? new Vector3().fromArray(v.s) : undefined }]).filter(([b]) => b)), keyframes: new Map((entry.keyframes || []).map(([f, k]) => [Number(f), { pose: unpackPose(k.pose, lookup), face: k.face }])) };
+    if (rig) {
+      studioRigRestInverses(rig, root, obj.rest);
+      updateCustomRig(rig, root);
+    }
     obj.followBone = entry.followBone || null;
     obj.faceRig = entry.faceRig || null;
     if(root.userData.studioSequence)await ensureSequenceRuntime(root);
@@ -65365,34 +65804,33 @@ ${notes}`;
         const transform = restPose.get(child.uuid);
         if (transform) {
           rest.set(child, { p: transform.p.clone(), q: transform.q.clone(), s: transform.s.clone() });
-          if (child.userData.explicitRotationBase) child.userData.explicitRotationBase = transform.q.toArray();
         }
       }
     }
     if (customRig) {
-      const removed = customRig.controls.find((c) => c.end === bone), remaining = customRig.controls.filter((c) => c.end !== bone), fallback = remaining.find((c) => c.end === parent) || remaining[0];
-      if (removed) {
-        removeSkinBone(object, removed.deform, fallback?.deform);
-        removed.deform.removeFromParent();
-      }
-      for (const control of remaining) if (control.start === bone) {
-        const start = parent.isBone ? parent : control.end;
-        control.start = start;
-        control.a = (remaining.find((c) => c.end === start)?.rest || control.rest).clone();
-        control.point = control.a.distanceToSquared(control.rest) < 1e-16;
-        control.inverseRest = control.point ? null : segmentMatrix(control.a, control.rest).invert();
-      }
-      customRig.controls = remaining;
-      customRig.bindOrientation?.clear();
-      if (!remaining.length) {
+      const removed = customRig.controls.find(c => c.end === bone);
+      const remaining = customRig.controls.filter(c => c !== removed);
+      const joints = remaining.filter(c => !c.neutral);
+      if (!joints.length) {
+        const skins = [];
+        object.root.traverse(mesh => {
+          if (mesh.isSkinnedMesh && studioRigOwnsSkeleton(customRig, mesh.skeleton)) skins.push(mesh);
+        });
+        for (const mesh of skins) freezeSkinnedMesh(mesh, object);
+        for (const skeleton of customRig.skeletons) skeleton.dispose();
         customRig.group.removeFromParent();
         customRig = null;
-        bound = false;
       } else {
-        customRig.skeletons = [];
-        object.root.traverse((n) => {
-          if (n.isSkinnedMesh) customRig.skeletons.push(n.skeleton);
-        });
+        const fallback = joints.find(c => c.end === parent) || joints[0];
+        if (removed) {
+          removeSkinBone(object, removed.deform, fallback.deform);
+          removed.deform.removeFromParent();
+        }
+        for (const control of joints) {
+          if (control.start === bone) control.start = parent.isBone ? parent : control.end;
+        }
+        customRig.controls = remaining;
+        for (const control of joints) delete control.inverseBind;
       }
     } else {
       removeSkinBone(object, bone, parent.isBone ? parent : null);
@@ -70099,6 +70537,8 @@ function mergeStudioStaticGeometry(chosen){
   $('shapeRadius').oninput=()=>{$('shapeRadiusValue').textContent=$('shapeRadius').value+' px'};
   function shapeBrushMatrix(mesh,i){
     if(!mesh.isSkinnedMesh)return mesh.matrixWorld.clone();
+    const dualMatrix = new Matrix4();
+    if (studioDualSkinMatrix(mesh, i, dualMatrix)) return dualMatrix.premultiply(mesh.matrixWorld);
     const weights=mesh.geometry.attributes.skinWeight,indices=mesh.geometry.attributes.skinIndex;
     if(!weights||!indices||!mesh.skeleton)return mesh.matrixWorld.clone();
     // Follow SkinnedMesh.applyBoneTransform exactly: current world bone matrices,
