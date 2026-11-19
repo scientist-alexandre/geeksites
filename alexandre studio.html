@@ -9853,7 +9853,8 @@ body.composition-active&gt;.compactTopbar,body.composition-active&gt;main{displa
 #compositionList .compositionVisibility::before{content:'';width:12px;height:8px;border:1px solid currentColor;border-radius:70% / 80%;background:radial-gradient(circle,currentColor 0 2px,transparent 2.5px)}
 #compositionList .compositionVisibility[aria-pressed="false"]{background:#242830;color:#aeb8c3;border-color:#4a5663}
 #compositionList .compositionVisibility[aria-pressed="false"]::after{content:'';position:absolute;width:15px;height:1px;background:currentColor;box-shadow:0 0 0 1px #242830;transform:rotate(-40deg)}
-#compositionList input{width:100%;min-width:0;font:inherit;padding:6px;color:inherit;background:#20252c;border:1px solid #88b0dc;border-radius:4px}
+#compositionList .compositionJoinChoice{flex:none;width:15px;height:15px;margin:0 2px;accent-color:#88b0dc}
+#compositionList input[type="text"]{width:100%;min-width:0;font:inherit;padding:6px;color:inherit;background:#20252c;border:1px solid #88b0dc;border-radius:4px}
 #compositionBrushCursor{position:absolute;inset:0 auto auto 0;border:1px solid white;border-radius:50%;pointer-events:none;translate:-50% -50%;box-shadow:0 0 2px #111}
 @media(max-width:420px){#compositionBar{padding-inline:5px;font-size:11px}#compositionBar button{padding-inline:5px}}
 
@@ -9982,6 +9983,7 @@ body.composition-active&gt;.compactTopbar,body.composition-active&gt;main{displa
     &lt;h2&gt;Objetos&lt;/h2&gt;
     &lt;button type="button" id="compositionDuplicateObject" disabled&gt;Duplicar objeto&lt;/button&gt;
     &lt;button type="button" id="compositionDeleteObject" disabled&gt;Deletar objeto&lt;/button&gt;
+    &lt;button type="button" id="compositionJoinObjects" title="Marque dois ou mais objetos visíveis na lista" disabled&gt;Unir objetos&lt;/button&gt;
     &lt;ul id="compositionList"&gt;&lt;/ul&gt;
    &lt;/div&gt;
   &lt;/aside&gt;
@@ -10223,6 +10225,7 @@ self.onmessage=({data:{meshes,operations}})=&gt;{
  const copyFacesButton=document.getElementById('compositionCopyFaces');
  const duplicateObjectButton=document.getElementById('compositionDuplicateObject');
  const deleteObjectButton=document.getElementById('compositionDeleteObject');
+ const joinObjectsButton=document.getElementById('compositionJoinObjects');
  const undoFacesButton=document.getElementById('compositionUndoFaces');
  const faceEditHistory=[];
  const compositionHiddenObjects=new WeakSet();
@@ -10698,6 +10701,8 @@ self.onmessage=({data:{meshes,operations}})=&gt;{
   const canEditObject=Boolean(selectedObject())&amp;&amp;!(outlineCut?.worker||transformDrag);
   duplicateObjectButton.disabled=!canEditObject;
   deleteObjectButton.disabled=!canEditObject;
+  joinObjectsButton.disabled=Boolean(outlineCut?.worker||transformDrag)||
+   list.querySelectorAll('.compositionJoinChoice:checked:enabled').length&lt;2;
   undoFacesButton.disabled=!faceEditHistory.length;
   continueExtrusionButton.disabled=drafting||Boolean(transformDrag)||!faceSelection?.boundary.length||
    !activeRegion?.every(update=&gt;update.mesh.geometry===update.geometry);
@@ -12849,8 +12854,7 @@ return earcut;})();
    action.newRow.remove();
    disposeCopyResources(action.resources);
   }
-  if(action.removed){
-   const {object,row,index}=action.removed;
+  for(const {object,row,index} of action.removed??[]){
    const insertBefore=list.children[index]??null;
    objects.add(object);
    const order=objects.children;
@@ -12884,6 +12888,7 @@ return earcut;})();
  copyFacesButton.onclick=()=&gt;editSelectedFaces('copy');
  duplicateObjectButton.onclick=duplicateSelectedObject;
  deleteObjectButton.onclick=deleteSelectedObject;
+ joinObjectsButton.onclick=joinSelectedObjects;
  undoFacesButton.onclick=undoFaceEdit;
 
  function navigate(){
@@ -13449,7 +13454,7 @@ return earcut;})();
   const neighbor=list.children[Math.min(index,list.children.length-1)];
   if(neighbor)select(neighbor.querySelector('button'));
   else gizmos.hidden=true;
-  faceEditHistory.push({before:[],removed:{object,row,index},previous});
+  faceEditHistory.push({before:[],removed:[{object,row,index}],previous});
   status.textContent='Objeto deletado da cena.';
   updateSelectionActions();
   requestRender();
@@ -13508,6 +13513,53 @@ return earcut;})();
   }
  }
 
+ function joinSelectedObjects(){
+  if(joinObjectsButton.disabled)return;
+  const removed=objects.children.flatMap((object,index)=&gt;{
+   const row=list.children[index];
+   return row.querySelector('.compositionJoinChoice:checked:enabled')?[{object,row,index}]:[];
+  });
+  if(removed.length&lt;2)return;
+  finishMeshErase(null,true);
+  finishSelectionGesture(null,true);
+  finishPaint(null);
+  finishGrab(null);
+  const previous=selected;
+  const resources={materials:new Map(),textures:new Map()};
+  let mesh;
+  try{
+   const roots=removed.map(({object})=&gt;object);
+   if(roots.some(root=&gt;root.animations.length)){
+    throw Error('Use objetos estáticos para unir as malhas.');
+   }
+   ({mesh}=mergeVisibleMeshes(objects,false,roots));
+   mesh.material=copyObjectMaterial(mesh.material,resources);
+  }catch(error){
+   mesh?.geometry.dispose();
+   disposeCopyResources(resources);
+   status.textContent='Não foi possível unir os objetos. '+error.message;
+   return;
+  }
+
+  const joined=new E.Scene();
+  joined.name='Objetos unidos '+(++count);
+  joined.add(mesh);
+  const sources=[...new Set(removed.flatMap(({object})=&gt;compositionOrigins.get(object)??[]))];
+  compositionOrigins.set(joined,sources);
+  navigate();
+  for(const {object,row} of removed){
+   row.querySelector('.compositionJoinChoice').checked=false;
+   objects.remove(object);
+   row.remove();
+  }
+  objects.add(joined);
+  const newRow=appendObjectRow(joined);
+  faceEditHistory.push({before:[],removed,newObject:joined,newRow,previous,resources});
+  select(newRow.querySelector('button'));
+  schedulePaintIndex([mesh.geometry]);
+  status.textContent=removed.length+' objetos unidos em uma única malha.';
+ }
+
  function appendObjectRow(object){
   const row=document.createElement('li');
   const button=document.createElement('button');
@@ -13515,6 +13567,14 @@ return earcut;})();
   button.textContent=object.name;
   button.onclick=()=&gt;{select(button);fit(object);};
   button.ondblclick=()=&gt;rename(button,object);
+  const joinChoice=document.createElement('input');
+  joinChoice.type='checkbox';
+  joinChoice.className='compositionJoinChoice';
+  joinChoice.title='Marcar para unir';
+  button.id='compositionObjectName-'+object.uuid;
+  joinChoice.setAttribute('aria-labelledby',button.id);
+  joinChoice.setAttribute('aria-description','Marcar para unir');
+  joinChoice.onchange=updateSelectionActions;
   const renameButton=document.createElement('button');
   renameButton.type='button';
   renameButton.className='compositionRename';
@@ -13534,6 +13594,9 @@ return earcut;})();
    visibilityButton.setAttribute('aria-pressed',String(show));
    visibilityButton.title=show?'Ocultar objeto':'Mostrar objeto';
    button.disabled=!show;
+   joinChoice.disabled=!show;
+   if(!show)joinChoice.checked=false;
+   updateSelectionActions();
    if(!show&amp;&amp;selected===button){
     finishMeshErase(null,true);
     finishSelectionGesture(null,true);
@@ -13548,7 +13611,7 @@ return earcut;})();
    }
    requestRender();
   };
-  row.append(button,renameButton,visibilityButton);
+  row.append(button,joinChoice,renameButton,visibilityButton);
   list.append(row);
   return row;
  }
@@ -13635,11 +13698,11 @@ return earcut;})();
   return ribbons.size;
  }
 
- function mergeVisibleMeshes(root,cleanReconstruction=false){
+ function mergeVisibleMeshes(root,cleanReconstruction=false,roots=[root]){
   root.updateWorldMatrix(true,true);
   const meshes=[];
   const sizes=new Map([['position',3],['normal',3]]);
-  root.traverseVisible(mesh=&gt;{
+  for(const source of roots)source.traverseVisible(mesh=&gt;{
    if(mesh.isLine||mesh.isPoints)throw Error('A cena contém linhas ou pontos. Unifique apenas modelos de triângulos.');
    if(!mesh.isMesh)return;
    const geometry=mesh.geometry;
@@ -13848,6 +13911,7 @@ return earcut;})();
   if(importAssembly(object,bounds))return;
   let merged,ribbons=0,mergeStatus;
   if(animations.length){
+   object.animations=animations;
    mergeStatus='Objeto carregado com a estrutura original para preservar a animação.';
   }else{
    try{
@@ -14219,6 +14283,9 @@ function clearPublishedCompositionObjects(roots){
  }
  for(let i=faceEditHistory.length-1;i&gt;=0;i--){
   const action=faceEditHistory[i];
+  if(published.has(action.newObject)){
+   for(const {object} of action.removed??[])published.add(object);
+  }
   if(!objects.children.length||published.has(action.newObject)||
      action.before.some(({mesh})=&gt;{
       for(let node=mesh;node;node=node.parent)if(published.has(node))return true;
