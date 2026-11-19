@@ -38,6 +38,7 @@ button:active{background:#444}
 .namebox{border-right:1px solid #444}
 .fx{display:flex;align-items:center;justify-content:center;border-right:1px solid #444;font-style:italic;color:#ccc}
 .workspace{flex:1;min-height:0;display:flex;flex-direction:column}
+.sheetwrap:focus{outline:none;box-shadow:none}
 .sheetwrap{flex:1;min-height:0;overflow:auto;position:relative;background:#202020}
 .sheet{border-collapse:separate;border-spacing:0;table-layout:fixed;width:max-content;min-width:0;user-select:none}
 .sheet th,.sheet td{
@@ -2053,6 +2054,46 @@ sheet.select("A3");</textarea>
     const r=+td.dataset.row;
     const c=+td.dataset.col;
 
+    if(cellEditor && cellEditor.input.value.trimStart().startsWith('=') &&
+       (r!==cellEditor.row || c!==cellEditor.col)){
+      const edit=cellEditor;
+      const input=edit.input;
+      const start=input.selectionStart??input.value.length;
+      const end=input.selectionEnd??start;
+      const insertReference=()=>{
+        if(cellEditor!==edit)return;
+        const ref=addr(r,c);
+        input.value=input.value.slice(0,start)+ref+input.value.slice(end);
+        input.setSelectionRange(start+ref.length,start+ref.length);
+        input.dispatchEvent(new Event('input',{bubbles:true}));
+        edit.referenceGesture=false;
+        input.focus({preventScroll:true});
+      };
+      if(e.pointerType==='touch'){
+        edit.referenceGesture=true;
+        const x=e.clientX,y=e.clientY;
+        let moved=false;
+        const move=ev=>{if(Math.hypot(ev.clientX-x,ev.clientY-y)>=8)moved=true;};
+        const finish=ev=>{
+          td.removeEventListener('pointermove',move);
+          td.removeEventListener('pointerup',finish);
+          td.removeEventListener('pointercancel',finish);
+          edit.referenceGesture=false;
+          if(!moved && ev.type!=='pointercancel')insertReference();
+          else finishCellEdit();
+        };
+        td.addEventListener('pointermove',move,{passive:true});
+        td.addEventListener('pointerup',finish,{once:true});
+        td.addEventListener('pointercancel',finish,{once:true});
+      }else{
+        e.preventDefault();
+        insertReference();
+      }
+      e.stopPropagation();
+      return;
+    }
+    finishCellEdit();
+
     // No celular, um dedo serve para navegar pela planilha. Um toque curto
     // ainda seleciona a célula, mas um arrasto fica totalmente com o scroll
     // nativo do navegador e não vira seleção/atalho por acidente.
@@ -2085,6 +2126,7 @@ sheet.select("A3");</textarea>
         state.clearEnd={row:r,col:c};
         refreshSelection();
         loadFx();
+        beginCellEdit();
       };
       const cancel=()=>{
         moved=true;
@@ -2172,11 +2214,12 @@ sheet.select("A3");</textarea>
       updateRange(+hit.dataset.row,+hit.dataset.col);
     };
 
-    const finish=()=>{
+    const finish=ev=>{
       td.removeEventListener('pointermove',move);
       td.removeEventListener('pointerup',finish);
       td.removeEventListener('pointercancel',finish);
       try{td.releasePointerCapture(id)}catch{}
+      if(ev?.type==='pointercancel')return;
 
       if(dragging){
         const end=state.clearEnd||start;
@@ -2189,6 +2232,7 @@ sheet.select("A3");</textarea>
         state.range=null;
         refreshSelection();
         loadFx();
+        beginCellEdit();
       }
     };
 
@@ -2197,6 +2241,151 @@ sheet.select("A3");</textarea>
     td.addEventListener('pointercancel',finish,{once:true});
   }
 
+
+  // Native input over the selected cell, preserving table rendering and formulas.
+  let cellEditor=null;
+  function finishCellEdit(cancel=false){
+    if(!cellEditor)return;
+    const edit=cellEditor;
+    cellEditor=null;
+    if(cancel){
+      data(edit.row,edit.col).raw=edit.original;
+      refreshLiveChange(edit.row,edit.col);
+    }
+    edit.input.remove();
+    state.editing=false;
+    state.formulaPicking=false;
+    loadFx();
+    status.textContent='Pronto';
+  }
+  function beginCellEdit(initial){
+    finishCellEdit();
+    const {row,col}=state.selected;
+    const td=tdAt(row,col);
+    if(!td)return;
+    const rect=td.getBoundingClientRect();
+    const original=String(data(row,col).raw??'');
+    const input=document.createElement('input');
+    input.type='text';
+    input.setAttribute('aria-label','Editar célula '+addr(row,col));
+    input.autocomplete='off';
+    input.style.cssText='position:fixed;z-index:1000;box-sizing:border-box;margin:0;border:2px solid #eee;border-radius:0;padding:0 4px;background:#303030;color:#fff;outline:none;min-width:0;';
+    input.style.left=rect.left+'px';
+    input.style.top=rect.top+'px';
+    input.style.width=rect.width+'px';
+    input.style.height=rect.height+'px';
+    const computed=getComputedStyle(td);
+    input.style.font=computed.font;
+    input.style.textAlign=computed.textAlign;
+    input.value=initial===undefined?original:initial;
+    cellEditor={input,row,col,original,changed:false};
+    const measure=document.createElement('canvas').getContext('2d');
+    const resizeEditor=()=>{
+      if(!measure)return;
+      measure.font=getComputedStyle(input).font;
+      const desired=Math.ceil(measure.measureText(input.value).width)+24;
+      const available=Math.max(rect.width,document.documentElement.clientWidth-rect.left-8);
+      input.style.width=Math.min(available,Math.max(rect.width,desired))+'px';
+    };
+    document.body.appendChild(input);
+    resizeEditor();
+    state.editing=true;
+    const update=()=>{
+      if(cellEditor)cellEditor.changed=true;
+      resizeEditor();
+      data(row,col).raw=input.value;
+      formula.value=input.value;
+      state.caret=input.selectionStart??input.value.length;
+      refreshLiveChange(row,col);
+      status.textContent='Editando';
+    };
+    input.addEventListener('input',update);
+    input.addEventListener('blur',()=>{
+      if(!cellEditor?.referenceGesture)finishCellEdit();
+    });
+    input.addEventListener('keydown',e=>{
+      e.stopPropagation();
+      if(e.isComposing)return;
+      if((e.key==='Delete'||e.key==='Backspace') && !cellEditor?.changed){
+        e.preventDefault();
+        if(e.key==='Delete')clearKeyboardSelection();
+        else beginCellEdit('');
+        return;
+      }
+      if(!e.ctrlKey&&!e.metaKey&&!e.altKey && /^Arrow(Up|Down|Left|Right)$/.test(e.key)){
+        e.preventDefault();navigateCell(e.key);return;
+      }
+      if(e.key==='Escape'){
+        e.preventDefault();finishCellEdit(true);
+      }else if(e.key==='Enter'||e.key==='Tab'){
+        e.preventDefault();
+        const step=e.shiftKey?-1:1;
+        finishCellEdit();
+        selectCell(Math.max(1,Math.min(ROWS,row+(e.key==='Enter'?step:0))),
+          Math.max(1,Math.min(COLS,col+(e.key==='Tab'?step:0))));
+        beginCellEdit();
+      }
+    });
+    input.focus({preventScroll:true});
+    input.setSelectionRange(input.value.length,input.value.length);
+    if(initial!==undefined)update();
+  }
+  function clearKeyboardSelection(){
+    // Only the current selection; a previous range must never be cleared.
+    const rg=state.range?{...state.range}:{
+      r1:state.selected.row,r2:state.selected.row,
+      c1:state.selected.col,c2:state.selected.col
+    };
+    finishCellEdit();
+    for(let r=rg.r1;r<=rg.r2;r++){
+      for(let c=rg.c1;c<=rg.c2;c++)delete state.cells[key(r,c)];
+    }
+    refreshAll();
+    loadFx();
+    wrap.tabIndex=0;
+    wrap.focus({preventScroll:true});
+    status.textContent='Conteúdo apagado';
+  }
+  function navigateCell(key){
+    const directions={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]};
+    const delta=directions[key];
+    if(!delta)return false;
+    const row=Math.max(1,Math.min(ROWS,state.selected.row+delta[0]));
+    const col=Math.max(1,Math.min(COLS,state.selected.col+delta[1]));
+    finishCellEdit();
+    selectCell(row,col);
+    if(!tdAt(row,col)){
+      wrap.scrollTop=28+(row-1)*DEFAULT_ROW;
+      renderVirtualRows(true);
+    }
+    tdAt(row,col)?.scrollIntoView({block:'nearest',inline:'nearest'});
+    wrap.tabIndex=0;
+    wrap.focus({preventScroll:true});
+    return true;
+  }
+  document.addEventListener('keydown',e=>{
+    if(e.defaultPrevented||e.isComposing||e.ctrlKey||e.metaKey||e.altKey)return;
+    if(e.target.closest('input,textarea,select,button,[contenteditable="true"],.modal'))return;
+    if(e.key==='Delete'||e.key==='Backspace'){
+      e.preventDefault();
+      if(e.key==='Delete')clearKeyboardSelection();
+      else beginCellEdit('');
+      return;
+    }
+    if(navigateCell(e.key)){e.preventDefault();return;}
+    if(e.key.length===1){e.preventDefault();beginCellEdit(e.key);}
+    else if(e.key==='F2'){e.preventDefault();beginCellEdit();}
+  });
+  // Input fields scroll internally when text exceeds their width.
+  // Only scrolling the sheet or page should commit the fixed editor.
+  function handleSheetEditScroll(e){
+    if(e.target===wrap || e.target===document ||
+       e.target===document.documentElement || e.target===document.body){
+      finishCellEdit();
+    }
+  }
+  document.addEventListener('scroll',handleSheetEditScroll,true);
+  window.addEventListener('resize',()=>finishCellEdit());
 
   formula.addEventListener('pointerdown',()=>{
     state.formulaPointerFocus=true;
@@ -3480,12 +3669,13 @@ sheet.select("A3");</textarea>
 
 
   function save(){
+    finishCellEdit();
     const snapshot=workbookSnapshot();
     const blob=new Blob([JSON.stringify(snapshot,null,2)],{type:'application/json'});
 
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download='Open Excel Workbook.json';
+    a.download='Open Excel Workbook.openexcel';
     a.click();
     URL.revokeObjectURL(a.href);
   }
@@ -3494,7 +3684,7 @@ sheet.select("A3");</textarea>
   function openFile(){
     const i=document.createElement('input');
     i.type='file';
-    i.accept='.json';
+    i.accept='.openexcel,.json';
 
     i.onchange=()=>{
       const f=i.files[0];
