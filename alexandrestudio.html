@@ -59295,6 +59295,23 @@ void main() {
     const angle=objectGizmo.studioRotationAngle;
     if(Number.isFinite(angle)&&angle!==gesture.rotationAngles.at(-1))gesture.rotationAngles.push(angle);
   }
+  const studioFullTurn=2*Math.PI-1e-3;
+  const studioPlaybackRotationRuns=new WeakMap();
+  function studioCompactRotationRuns(runs) {
+    const compact=[];
+    for(const run of runs){
+      if(Math.abs(run[3])<1e-8)continue;
+      const last=compact.at(-1);
+      const sameAxis=last&&run[0]*last[0]+run[1]*last[1]+run[2]*last[2]>1-1e-10;
+      // Backtracking on the same ring is an adjustment unless it completes
+      // a revolution in both directions. Keep the same signed endpoint.
+      if(sameAxis&&(run[3]*last[3]>0||Math.min(Math.abs(run[3]),Math.abs(last[3]))<studioFullTurn)){
+        last[3]+=run[3];
+        if(Math.abs(last[3])<1e-8)compact.pop();
+      }else compact.push(run.slice());
+    }
+    return compact;
+  }
   function studioGizmoRotationRuns(gesture,sweep) {
     const angles=gesture.rotationAngles;
     const index=['X','Y','Z'].indexOf(gesture.rotationAxis);
@@ -59305,7 +59322,7 @@ void main() {
       for(const angle of angles){
         if(!direction)direction=Math.sign(angle-start);
         if((angle-peak)*direction>=0)peak=angle;
-        else if(Math.abs(angle-peak)>Math.PI/12){
+        else if(Math.abs(angle-peak)>=studioFullTurn){
           runs.push([...axis.toArray(),peak-start]);
           start=peak;peak=angle;direction=-direction;
         }
@@ -59316,15 +59333,7 @@ void main() {
       if(index<0)runs.push([...sweep.clone().divideScalar(angle).toArray(),angle]);
       else runs.push([...new Vector3().setComponent(index,1).toArray(),sweep.getComponent(index)]);
     }
-    const combined=(gesture.previousTurnEdit?.runs||[]).map(run=>run.slice());
-    for(const run of runs){
-      if(Math.abs(run[3])<1e-6)continue;
-      const last=combined.at(-1);
-      const axisMatches=last&&run[0]*last[0]+run[1]*last[1]+run[2]*last[2]>.9999;
-      if(axisMatches&&(run[3]*last[3]>0||Math.abs(run[3])<Math.PI/12))last[3]+=run[3];
-      else combined.push(run);
-    }
-    return combined;
+    return studioCompactRotationRuns([...(gesture.previousTurnEdit?.runs||[]),...runs]);
   }
   function studioMotionRotation(runs,progress,target=new Quaternion()) {
     let remaining=runs.reduce((length,run)=>length+Math.abs(run[3]),0)*progress;
@@ -59339,7 +59348,9 @@ void main() {
     return target.normalize();
   }
   function studioRecordedMotion(runs,gesture,layer,referenceParent) {
-    if(runs.reduce((distance,run)=>distance+Math.abs(run[3]),0)<Math.PI*2-1e-3)return null;
+    // Partial motions on another axis are covered by the final keyframe orientation.
+    runs=runs.filter(run=>Math.abs(run[3])>=studioFullTurn);
+    if(!runs.length)return null;
     const basis=referenceParent?.getWorldQuaternion(new Quaternion())||new Quaternion();
     if(layer!=='follow'&&gesture.pathPose)basis.multiply(gesture.pathPose.inverseHeading.clone().invert());
     if(layer==='additive'){
@@ -59351,7 +59362,12 @@ void main() {
   }
   function studioApplyMotion(rotation,motion,t,referenceParent) {
     if(!motion?.runs?.length||t<=0||t>=1)return rotation;
-    const spin=studioMotionRotation(motion.runs,t);
+    let runs=studioPlaybackRotationRuns.get(motion);
+    if(!runs){
+      runs=studioCompactRotationRuns(motion.runs);
+      studioPlaybackRotationRuns.set(motion,runs);
+    }
+    const spin=studioMotionRotation(runs,t);
     if(referenceParent){
       const parent=referenceParent.getWorldQuaternion(new Quaternion());
       spin.multiply(parent).premultiply(parent.invert());
