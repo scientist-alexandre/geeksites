@@ -59,6 +59,7 @@ body{display:flex;flex-direction:column}header{flex-shrink:0}main{flex:1;height:
 aside{display:flex;flex-direction:column;overflow:hidden}aside>section{height:auto;min-height:0;flex:1;overflow:auto}#sceneObjectPanel{position:static;flex:none;border-bottom:1px solid #414654;background:#20232b;padding:8px}#sceneObjectPanel>summary{font-size:12px;padding:5px;cursor:pointer}#sceneObjects{max-height:180px;overflow:auto}.sceneObjectRow{display:flex;gap:4px;margin:4px 0}.sceneObjectRow button{padding:5px;min-width:26px;font-size:11px}.sceneObjectName{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:left;white-space:nowrap}.sceneObjectRow.selected .sceneObjectName{background:#514780;border-color:#9683de}nav{overflow-y:auto}
 .skyPanel{padding:16px;font-size:12px;overflow:auto}.skyCheck{display:flex;align-items:center;gap:8px;margin:12px 0}.skyCheck input{width:auto}.skyButtons{display:flex;gap:6px;flex-wrap:wrap}.skyButtons button{font-size:11px;padding:8px}#skyPanoramaName{color:#a8a4bc;font-size:11px;margin:10px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.skyRange{display:block;margin:18px 0}.skyRange output{float:right;color:#baa4ff}.skyRange input{display:block;width:100%;margin-top:10px;accent-color:#a995ed}.skyPanel hr{border:0;border-top:1px solid #414654;margin:20px 0}
 .groundPanel h3{margin:0 0 12px;font-size:14px}.groundNumber{display:flex;justify-content:space-between;align-items:center;margin:12px 0;gap:10px}.groundNumber input{width:100px;background:#151820;color:#eee;border:1px solid #454a58;border-radius:4px;padding:6px}#groundName{font-size:11px;color:#b6afc9;margin-top:10px}#ground_color{height:32px;padding:2px}.skyPanel input:disabled{opacity:.4}
+.groundNumber select{width:142px;min-width:0;background:#151820;color:#eee;border:1px solid #454a58;border-radius:4px;padding:6px}.groundPanel .groundSurfaceControls{margin:12px 0}.groundPanel .groundSurfaceControls[hidden]{display:none}
 #groundTextureName{font-size:11px;color:#b6afc9;margin:10px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #panoramaFxDialog{width:min(1200px,94vw);max-height:92vh;background:#20232d;color:#e9e5f4;border:1px solid #8572ba;border-radius:9px;padding:16px}#panoramaFxDialog::backdrop{background:#0009}.panFxHeader{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:14px}.panFxBody{display:grid;grid-template-columns:235px minmax(0,1fr);gap:16px}.panFxBody aside{display:block;box-sizing:border-box;min-width:0;overflow:auto;max-height:70vh}.panFxBody aside>*{box-sizing:border-box;max-width:100%;width:100%;margin-bottom:10px}.panFxBody label{font-size:12px;display:block;margin:10px 0}.panFxBody input:not([type=checkbox]),.panFxBody select{display:block;width:100%;background:#151820;color:#e9e5f4;border:1px solid #454a5a;padding:6px;border-radius:4px}.panFxBody input[type=checkbox]{width:auto}.panFxBody input[type=range]{padding:0;accent-color:#b79cf0}.panFxBody select[size]{height:115px}.panFxPainting{min-width:0}.panFxTools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px}.panFxTools label{display:flex;align-items:center;gap:6px}.panFxTools select{width:auto}.panFxTools input{max-width:120px}#panFxCanvas{width:100%;height:auto;max-width:100%;position:static;transform:none;touch-action:none;cursor:crosshair;border:1px solid #555;display:block}.panFxPainting p{font-size:11px;color:#b2acc6}.environmentParticles{position:static;padding:0 0 12px;border:0}.environmentParticles summary{font-size:14px;font-weight:600;margin-bottom:12px}.environmentParticles select{width:130px;background:#171b23;color:#eee;padding:5px}#environmentParticleName{font-size:11px;color:#beb4d1;margin:10px 0}@media(max-width:700px){.panFxBody{grid-template-columns:1fr}.panFxBody aside{max-height:35vh}}
 
@@ -279,6 +280,12 @@ main>nav button::before,main>nav button::after{display:none!important;content:no
 #pathEditOverlay[hidden]{display:none}
 #panelPath .pathMotion{border-top:1px solid #414654;margin-top:16px;padding-top:12px}
 #panelPath .pathMotion h3{margin:0 0 8px}
+#panelPath .pathSpeed{margin:12px 0 0}
+#pathSpeed{display:block;width:100%;margin:0;accent-color:#a892ec}
+#panelPath .pathSpeedEnds{display:flex;justify-content:space-between;gap:6px;font-size:11px;margin-top:2px}
+#panelPath .pathTravel{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin:12px 0 0}
+#panelPath .pathTravel label{margin:0}
+#pathTravelFrames{width:7ch;padding:6px;background:#171b23;color:inherit;border:1px solid #454b59;border-radius:4px}
 #panelPath .pathActions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 #panelPath .pathActions button{padding:6px 8px}
 #viewport.studioPathDrawing > canvas{cursor:crosshair}
@@ -1175,7 +1182,12 @@ body:has(#panelObjects:not([hidden])) main > nav #baseGrabUndo {
 <label class="faceRange">Altura da região<input id="handRegionHeight" type="range" min="0.1" max="200" step="0.1" value="14"></label>
 <label class="faceRange">Posição horizontal<input id="handRegionX" type="range" min="-100" max="100" step="0.1" value="0"></label>
 <label class="faceRange">Posição vertical<input id="handRegionY" type="range" min="-100" max="100" step="0.1" value="0"></label>
-<label class="faceRange">Suavidade da região<input id="handRegionSoftness" type="range" min="5" max="90" step="1" value="30"></label><p class="muted">Selecione a mão, clique em marcar e escolha o ponto na personagem. Todos os ajustes ficam nesta aba.</p><label class="faceRange"><input id="handGeometryMode" type="checkbox" checked> Mãos 3D com cinco dedos</label><div class="faceButtons"><button id="rebuildHandGeometry">Atualizar mãos 3D</button></div><div class="handColorRow"><span>Cor das mãos</span><button id="studioHandColor" class="handColorSwatch" type="button" aria-label="Capturar cor para as mãos" aria-pressed="false" title="Capturar cor para as mãos" disabled><span aria-hidden="true"></span></button></div><label class="faceRange handSliderRow"><span>Encaixe do punho</span><input id="studioHandWristFit" type="range" min="70" max="135" step="1" value="100" title="Ajusta largura e espessura juntas"><output id="studioHandWristFitOut">100%</output></label><label class="faceRange">Largura das mãos<input id="studioHandWidth" type="range" min="65" max="145" step="1" value="100"><output id="studioHandWidthOut">100%</output></label><p class="muted">Ajusta a largura sem mudar a extensão dos dedos. Use Atualizar mãos 3D após marcar as regiões.</p></div><div id="handSliders" class="handGroups"><div class="handGroup" id="handGroupL"><span class="handGroupTitle">Mão esquerda</span><div class="handGroupBody" id="handGroupLBody"></div></div><div class="handGroup" id="handGroupR"><span class="handGroupTitle">Mão direita</span><div class="handGroupBody" id="handGroupRBody"></div></div></div><div class="faceButtons"><button id="handReset">Zerar controles das mãos</button><button id="handKey">◆ Gravar mãos</button></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="studioCloudPanel" open><summary>Nuvens leves</summary><div class="skyButtons"><button id="studioCloudAdd">＋ Adicionar nuvens</button><button id="studioCloudSelect">Selecionar</button><button id="studioCloudFocus">Ver nuvens</button><button id="studioCloudDelete">Excluir</button></div><div id="studioCloudName">Nenhuma área de nuvens</div><label class="groundNumber">Cor das nuvens<input id="studioCloud_tint" type="color" value="#ffffff"></label><label class="skyRange">Quantidade<output id="studioCloudValue_count"></output><input id="studioCloud_count" aria-label="Quantidade das nuvens" type="range" min="1" max="60" step="1" value="12"></label><label class="skyRange">Distância<output id="studioCloudValue_distance"></output><input id="studioCloud_distance" aria-label="Distância das nuvens" type="range" min="5" max="500" step="1" value="100"></label><label class="skyRange">Altura<output id="studioCloudValue_height"></output><input id="studioCloud_height" aria-label="Altura das nuvens" type="range" min="1" max="200" step="1" value="20"></label><label class="skyRange">Tamanho<output id="studioCloudValue_size"></output><input id="studioCloud_size" aria-label="Tamanho das nuvens" type="range" min="1" max="80" step="1" value="18"></label><label class="skyRange">Dispersão lateral<output id="studioCloudValue_spread"></output><input id="studioCloud_spread" aria-label="Dispersão lateral das nuvens" type="range" min="1" max="300" step="1" value="100"></label><label class="skyRange">Dispersão em profundidade<output id="studioCloudValue_depth"></output><input id="studioCloud_depth" aria-label="Dispersão em profundidade das nuvens" type="range" min="1" max="300" step="1" value="70"></label><label class="skyRange">Opacidade<output id="studioCloudValue_opacity"></output><input id="studioCloud_opacity" aria-label="Opacidade das nuvens" type="range" min="0.05" max="1" step="0.01" value="0.9"></label><label class="skyRange">Velocidade do vento<output id="studioCloudValue_wind"></output><input id="studioCloud_wind" aria-label="Velocidade do vento das nuvens" type="range" min="0" max="10" step="0.1" value="0"></label><label class="skyRange">Direção do vento<output id="studioCloudValue_direction"></output><input id="studioCloud_direction" aria-label="Direção do vento das nuvens" type="range" min="0" max="360" step="1" value="75"></label><label><input id="studioCloud_previewWind" type="checkbox"> Prévia do vento com a animação parada</label><p style="font-size:11px;opacity:.7">Nuvens por texturas, sem volume 3D. O vento acompanha a animação e a exportação de vídeo.</p></details><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" title="Altura relativa ao piso 3D (Y = 0)" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.01"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Ondulações do terreno</label><div id="groundWaveControls" hidden><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section><section id="panelPath" role="tabpanel" aria-labelledby="tabPath" hidden>
+<label class="faceRange">Suavidade da região<input id="handRegionSoftness" type="range" min="5" max="90" step="1" value="30"></label><p class="muted">Selecione a mão, clique em marcar e escolha o ponto na personagem. Todos os ajustes ficam nesta aba.</p><label class="faceRange"><input id="handGeometryMode" type="checkbox" checked> Mãos 3D com cinco dedos</label><div class="faceButtons"><button id="rebuildHandGeometry">Atualizar mãos 3D</button></div><div class="handColorRow"><span>Cor das mãos</span><button id="studioHandColor" class="handColorSwatch" type="button" aria-label="Capturar cor para as mãos" aria-pressed="false" title="Capturar cor para as mãos" disabled><span aria-hidden="true"></span></button></div><label class="faceRange handSliderRow"><span>Encaixe do punho</span><input id="studioHandWristFit" type="range" min="70" max="135" step="1" value="100" title="Ajusta largura e espessura juntas"><output id="studioHandWristFitOut">100%</output></label><label class="faceRange">Largura das mãos<input id="studioHandWidth" type="range" min="65" max="145" step="1" value="100"><output id="studioHandWidthOut">100%</output></label><p class="muted">Ajusta a largura sem mudar a extensão dos dedos. Use Atualizar mãos 3D após marcar as regiões.</p></div><div id="handSliders" class="handGroups"><div class="handGroup" id="handGroupL"><span class="handGroupTitle">Mão esquerda</span><div class="handGroupBody" id="handGroupLBody"></div></div><div class="handGroup" id="handGroupR"><span class="handGroupTitle">Mão direita</span><div class="handGroupBody" id="handGroupRBody"></div></div></div><div class="faceButtons"><button id="handReset">Zerar controles das mãos</button><button id="handKey">◆ Gravar mãos</button></div></div></section><section id="panelScene" role="tabpanel" aria-labelledby="tabScene" hidden><div class="skyPanel"><details class="studioCloudPanel" open><summary>Nuvens leves</summary><div class="skyButtons"><button id="studioCloudAdd">＋ Adicionar nuvens</button><button id="studioCloudSelect">Selecionar</button><button id="studioCloudFocus">Ver nuvens</button><button id="studioCloudDelete">Excluir</button></div><div id="studioCloudName">Nenhuma área de nuvens</div><label class="groundNumber">Cor das nuvens<input id="studioCloud_tint" type="color" value="#ffffff"></label><label class="skyRange">Quantidade<output id="studioCloudValue_count"></output><input id="studioCloud_count" aria-label="Quantidade das nuvens" type="range" min="1" max="60" step="1" value="12"></label><label class="skyRange">Distância<output id="studioCloudValue_distance"></output><input id="studioCloud_distance" aria-label="Distância das nuvens" type="range" min="5" max="500" step="1" value="100"></label><label class="skyRange">Altura<output id="studioCloudValue_height"></output><input id="studioCloud_height" aria-label="Altura das nuvens" type="range" min="1" max="200" step="1" value="20"></label><label class="skyRange">Tamanho<output id="studioCloudValue_size"></output><input id="studioCloud_size" aria-label="Tamanho das nuvens" type="range" min="1" max="80" step="1" value="18"></label><label class="skyRange">Dispersão lateral<output id="studioCloudValue_spread"></output><input id="studioCloud_spread" aria-label="Dispersão lateral das nuvens" type="range" min="1" max="300" step="1" value="100"></label><label class="skyRange">Dispersão em profundidade<output id="studioCloudValue_depth"></output><input id="studioCloud_depth" aria-label="Dispersão em profundidade das nuvens" type="range" min="1" max="300" step="1" value="70"></label><label class="skyRange">Opacidade<output id="studioCloudValue_opacity"></output><input id="studioCloud_opacity" aria-label="Opacidade das nuvens" type="range" min="0.05" max="1" step="0.01" value="0.9"></label><label class="skyRange">Velocidade do vento<output id="studioCloudValue_wind"></output><input id="studioCloud_wind" aria-label="Velocidade do vento das nuvens" type="range" min="0" max="10" step="0.1" value="0"></label><label class="skyRange">Direção do vento<output id="studioCloudValue_direction"></output><input id="studioCloud_direction" aria-label="Direção do vento das nuvens" type="range" min="0" max="360" step="1" value="75"></label><label><input id="studioCloud_previewWind" type="checkbox"> Prévia do vento com a animação parada</label><p style="font-size:11px;opacity:.7">Nuvens por texturas, sem volume 3D. O vento acompanha a animação e a exportação de vídeo.</p></details><details class="environmentParticles" open><summary>Partículas 3D</summary><div class="skyButtons"><button id="environmentParticleAdd">＋ Adicionar emissor</button><button id="environmentParticleSelect">Selecionar emissor</button><button id="environmentParticleDelete" title="Excluir o emissor indicado abaixo da cena">Excluir emissor</button></div><div id="environmentParticleName">Nenhum emissor</div><label class="groundNumber">Tipo<select id="envParticle_type"><option value="rain">Chuva</option><option value="snow">Neve</option><option value="sparks">Faíscas / brasas</option><option value="fireflies">Vagalumes</option><option value="fog">Névoa</option></select></label><label class="skyRange">Quantidade<output id="envParticleValue_count"></output><input id="envParticle_count" aria-label="Quantidade das partículas" type="range" value="800" min="1" max="100000" step="1"></label><label class="skyRange">Largura do volume<output id="envParticleValue_width"></output><input id="envParticle_width" aria-label="Largura do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Altura do volume<output id="envParticleValue_height"></output><input id="envParticle_height" aria-label="Altura do volume das partículas" type="range" value="8" min="0.1" max="100" step="0.1"></label><label class="skyRange">Profundidade do volume<output id="envParticleValue_depth"></output><input id="envParticle_depth" aria-label="Profundidade do volume das partículas" type="range" value="12" min="0.1" max="100" step="0.1"></label><label class="skyRange">Posição X<output id="envParticleValue_x"></output><input id="envParticle_x" aria-label="Posição X das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Y<output id="envParticleValue_y"></output><input id="envParticle_y" aria-label="Posição Y das partículas" type="range" value="4" min="-100" max="100" step="0.1"></label><label class="skyRange">Posição Z<output id="envParticleValue_z"></output><input id="envParticle_z" aria-label="Posição Z das partículas" type="range" value="0" min="-100" max="100" step="0.1"></label><label class="skyRange">Velocidade<output id="envParticleValue_speed"></output><input id="envParticle_speed" aria-label="Velocidade das partículas" type="range" value="4" min="0" max="30" step="0.05"></label><label class="skyRange">Tamanho<output id="envParticleValue_size"></output><input id="envParticle_size" aria-label="Tamanho das partículas" type="range" value="0.3" min="0.005" max="5" step="0.005"></label><label class="skyRange">Vento lateral<output id="envParticleValue_wind"></output><input id="envParticle_wind" aria-label="Vento lateral das partículas" type="range" value="0" min="-10" max="10" step="0.1"></label><label class="skyRange">Opacidade<input id="envParticle_opacity" aria-label="Opacidade das partículas" type="range" min="0" max="1" step=".01" value=".65"></label><label class="groundNumber">Cor<input id="envParticle_color" aria-label="Cor das partículas" type="color" value="#c3dbf5"></label></details><hr><div class="groundPanel"><h3>Chão</h3><button id="groundAdd">＋ Adicionar chão</button><div id="groundName">Nenhum chão</div><label class="skyCheck"><input id="ground_visible" type="checkbox" checked>Mostrar chão</label><label class="groundNumber">Largura<input id="ground_width" aria-label="Largura" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Profundidade<input id="ground_depth" aria-label="Profundidade" type="number" value="20" min="0.1" max="10000" step="0.5"></label><label class="groundNumber">Altura do chão<input id="ground_height" title="Altura relativa ao piso 3D (Y = 0)" aria-label="Altura do chão" type="number" value="0" min="-10000" max="10000" step="0.01"></label><label class="groundNumber">Cor<input id="ground_color" aria-label="Cor do chão" type="color" value="#65734e"></label><label class="groundNumber">Material<select id="ground_surface"><option value="">Cor ou imagem</option></select></label>
+<div class="groundSurfaceControls" id="groundSurfaceControls" hidden>
+<label class="groundNumber">Semente<input id="groundSeed" type="number" min="1" max="999999" step="1" value="7341"></label>
+<button id="groundShuffle" type="button">Sortear variação</button>
+<label class="skyRange">Microrelevo<output id="groundValue_textureRelief">1</output><input id="ground_textureRelief" type="range" min="0" max="2.5" step="0.05" value="1"></label>
+</div><div class="skyButtons"><button id="groundTextureImport">Importar textura</button><button id="groundTextureRemove">Remover textura</button></div><div id="groundTextureName">Sem textura</div><input id="groundTextureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="groundNumber">Repetir X<input id="ground_repeatX" aria-label="Repetir textura X" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="groundNumber">Repetir Z<input id="ground_repeatZ" aria-label="Repetir textura Z" type="number" min="0.1" max="100" step="0.5" value="4"></label><label class="skyRange">Rugosidade<output id="groundValue_roughness">0.95</output><input id="ground_roughness" aria-label="Rugosidade do chão" type="range" min="0" max="1" step="0.01" value="0.95"></label><label class="skyCheck"><input id="ground_waves" type="checkbox">Relevo 3D</label><div id="groundWaveControls" hidden><label class="groundNumber">Forma do relevo<select id="ground_profile"></select></label><label class="skyRange">Altura do relevo<output id="groundValue_amplitude">0.6</output><input id="ground_amplitude" aria-label="Altura do relevo" type="range" min="0" max="5" step="0.05" value="0.6"></label><label class="skyRange">Espaçamento do relevo<output id="groundValue_length">5</output><input id="ground_length" aria-label="Espaçamento do relevo" type="range" min="0.5" max="30" step="0.1" value="5"></label><label class="skyRange">Direção do relevo<output id="groundValue_angle">0</output><input id="ground_angle" aria-label="Direção do relevo" type="range" min="0" max="360" step="1" value="0"></label></div></div><hr><label class="skyCheck"><input id="sky_enabled" type="checkbox">Ativar céu</label><div class="skyButtons"><button id="skyImport">Importar panorama 360°</button><button id="skyRemove">Remover</button></div><div id="skyPanoramaName">Sem panorama</div><button id="skyEditPanorama">Editar VFX do panorama</button><label class="skyRange">Dia / Noite<output id="skyValue_night">0</output><input id="sky_night" aria-label="Dia / Noite" type="range" min="0" max="100" step="1" value="0"></label><label class="skyRange">Girar panorama<output id="skyValue_rotation">0</output><input id="sky_rotation" aria-label="Girar panorama" type="range" min="0" max="360" step="1" value="0"></label><label class="skyRange">Exposição do céu<output id="skyValue_exposure">1</output><input id="sky_exposure" aria-label="Exposição do céu" type="range" min="0.1" max="2" step="0.05" value="1"></label><hr><label class="skyCheck"><input id="sky_sun" type="checkbox" checked>Sol</label><label class="skyRange">Direção do sol<output id="skyValue_azimuth">45</output><input id="sky_azimuth" aria-label="Direção do sol" type="range" min="0" max="360" step="1" value="45"></label><label class="skyRange">Altura do sol<output id="skyValue_elevation">40</output><input id="sky_elevation" aria-label="Altura do sol" type="range" min="-15" max="90" step="1" value="40"></label><label class="skyRange">Intensidade do sol<output id="skyValue_power">3</output><input id="sky_power" aria-label="Intensidade do sol" type="range" min="0" max="8" step="0.1" value="3"></label><label class="skyCheck"><input id="sky_shadows" type="checkbox" checked>Sombras do sol</label><button id="skyKey">◆ Gravar céu</button><input id="skyPanoramaFile" type="file" accept="image/jpeg,image/png,image/webp" hidden></div></section><section id="panelVFX" role="tabpanel" aria-labelledby="tabVFX" hidden><div id="studioVfxHost"></div></section><section id="panelPath" role="tabpanel" aria-labelledby="tabPath" hidden>
   <div class="pathSettings">
     <label for="pathSelected">Caminho em edição</label>
     <select id="pathSelected"></select>
@@ -1204,6 +1216,16 @@ body:has(#panelObjects:not([hidden])) main > nav #baseGrabUndo {
       <div class="pathActions">
         <button id="pathBind" type="button" disabled>Vincular objeto</button>
         <button id="pathUnbind" type="button" disabled>Desvincular</button>
+      </div>
+      <div class="pathSpeed">
+        <label for="pathSpeed">Velocidade</label>
+        <input id="pathSpeed" type="range" min="0" max="1000" step="1" disabled>
+        <div class="pathSpeedEnds muted" aria-hidden="true"><span>Mais lento</span><span>Mais rápido</span></div>
+      </div>
+      <div class="pathTravel">
+        <label for="pathTravelFrames">Percorrer em (quadros)</label>
+        <input id="pathTravelFrames" type="number" min="2" max="100000" step="1" disabled
+          title="Menos quadros deixam o objeto mais rápido. Em branco, usa a duração da timeline.">
       </div>
       <div class="pathActions">
         <button id="pathResume" type="button" disabled>Caminhar</button>
@@ -59062,7 +59084,7 @@ void main() {
   function syncObjectHandle(force = false) {
     const target = transformTarget();
     if (!target || gizmoGesture) return;
-    target.updateWorldMatrix(true, true);
+    target.updateWorldMatrix(true, false);
     if (target !== objectHandlePivotTarget || force) {
       objectHandlePivotTarget = target;
       objectHandlePivotLocal.copy(studioTurnCenter(target) || new Vector3());
@@ -59071,7 +59093,7 @@ void main() {
     objectTransformHandle.position.copy(objectHandlePivotLocal).applyMatrix4(target.matrixWorld);
     objectTransformHandle.updateMatrixWorld(true);
   }
-  function applyObjectHandle(target, gesture) {
+  function applyObjectHandle(target, gesture, supportFloor = true) {
     if (!target.parent) return;
     target.parent.updateWorldMatrix(true, false);
     if(gesture.mode==='scale'){
@@ -59094,7 +59116,7 @@ void main() {
         target.quaternion.premultiply(delta).normalize();
       }
       target.position.copy(pivotParent).sub(objectHandlePivotLocal.clone().multiply(target.scale).applyQuaternion(target.quaternion));
-      if(gesture.floor && target.quaternion.angleTo(gesture.q) > 1e-7){
+      if(supportFloor && gesture.floor && target.quaternion.angleTo(gesture.q) > 1e-7){
         const world = target.parent.matrixWorld.clone().multiply(new Matrix4().compose(target.position,target.quaternion,target.scale));
         studioLiftToFloor(target, gesture.floor.y - studioMinHeight(gesture.floor.vertices,world), parentInverse);
       }
@@ -59109,8 +59131,6 @@ void main() {
         activeObject.followBone.offset = bone.matrixWorld.clone().invert().multiply(target.matrixWorld).toArray();
       }
     }
-    model?.updateMatrixWorld(true);
-    updateCustomRig();
   }
   function studioFlatFloorAt(center) {
     const ground = sceneGroundObject();
@@ -59531,6 +59551,7 @@ void main() {
     } else {
       objectTransformHandle.updateMatrixWorld(true);
       applyObjectHandle(g.object, g);
+      if(g.poseBefore)g.poseMoved||=studioPoseChanged(g.object,g.poseBefore.transforms.get(g.object));
       if(g.mode==="rotate")commitPathRotationEdit(g.object);
       if (g.poseBefore && !g.poseMoved && !studioPoseChanged(g.object, g.poseBefore.transforms.get(g.object))) {
         g.owner.keyframes = g.keysBefore;
@@ -59564,6 +59585,7 @@ void main() {
     else if(g.pathPose)applyPathMotion(currentFrame);
     syncObjectHandle();
     updateCustomRig();
+    studioInvalidatePreview();
     if(g.pathPose&&!cancel&&autoKeyEnabled)
       status(`Transformação gravada no quadro ${Math.round(currentFrame)} na faixa Objetos.`);
     else status(cancel ? "Transforma\xE7\xE3o cancelada." : autoKeyEnabled ? "Keyframe gravado no frame " + Math.round(currentFrame) + "." : "Transforma\xE7\xE3o aplicada \xB7 Autokey desligado.");
@@ -59616,26 +59638,16 @@ void main() {
   },true);
   objectGizmo.addEventListener("objectChange", () => {
     const g = gizmoGesture;
-    if (g) {
-      applyObjectHandle(g.object,g);
-      if (g.poseBefore) {
-        g.poseMoved ||= studioPoseChanged(g.object, g.poseBefore.transforms.get(g.object));
-        if (!g.poseMoved) return;
-      }
-      if (g.mode === "rotate") {
-        captureStudioGizmoRotation(g);
-        appendRotationPoint(g.path, pathBaseRotation(g.object));
-        g.object.userData.rotationPath = g.path;
-        g.object.userData.rotationPathFrame = Math.round(currentFrame);
-        g.object.userData.rotationPathEditing = Math.round(currentFrame);
-        if(g.followPath){const q=studioFollowQuaternion(g.owner);if(q)appendRotationPoint(g.followPath,q);
-          g.object.userData.followRotationPath=g.followPath;
-          g.object.userData.followRotationPathFrame=Math.round(currentFrame);}
-      }
-      recordKeyframe(false, g.object.isBone ? "bone" : g.mode, g.object);
+    if (!g) return;
+    g.handleDirty = true;
+    // Preserve every signed rotation sample, even if several arrive before the next render.
+    if (g.mode === "rotate") {
+      applyObjectHandle(g.object,g,false);
+      captureStudioGizmoRotation(g);
+      appendRotationPoint(g.path,pathBaseRotation(g.object));
+      if(g.followPath){const q=studioFollowQuaternion(g.owner);if(q)appendRotationPoint(g.followPath,q);}
     }
-    model?.updateMatrixWorld(true);
-    updateCustomRig();
+    studioInvalidatePreview();
   });
   window.addEventListener("blur", () => finishGizmoGesture(true));
   document.addEventListener("keydown", (e) => {
@@ -62485,7 +62497,7 @@ void main() {
   const cameraGizmoTitle=svgNode('title',{});
   cameraGizmoTitle.textContent='Segure e arraste para girar como um joystick · Solte para parar · Botão direito ou Shift para deslocar';
   axisSvg.prepend(cameraGizmoTitle);
-  var studioCameraGizmoDrag=null,studioCameraGizmoIgnoreClick=false,studioCameraGizmoAnimation=0;
+  var studioCameraGizmoDrag=null,studioCameraGizmoIgnoreClick=false;
   function studioCameraGizmoDistance(){
     const offset=camera.position.clone().sub(controls.target);
     if(offset.lengthSq()<1e-12)offset.set(0,0,1).applyQuaternion(camera.quaternion).multiplyScalar(Math.max(camera.near*10,.01));
@@ -62497,12 +62509,10 @@ void main() {
     controls._sphericalDelta.set(0,0,0);controls._panOffset.set(0,0,0);controls._scale=1;
     camera.lookAt(controls.target);controls.update();camera.updateMatrixWorld(true);
     controls.enableDamping=damping;
-    updateViewGizmo();studioInvalidatePreview();
+    studioInvalidatePreview(false);
   }
   function studioCameraJoystickTick(now){
-    studioCameraGizmoAnimation=0;
     const drag=studioCameraGizmoDrag;if(!drag || !drag.moved)return;
-    if(now-drag.time<1000/30){studioCameraGizmoAnimation=requestAnimationFrame(studioCameraJoystickTick);return;}
     const dt=Math.min(.05,Math.max(0,(now-drag.time)/1000));drag.time=now;
     const offset=studioCameraGizmoDistance(),x=drag.vx,y=drag.vy;
     if(Math.abs(x)+Math.abs(y)>.001){
@@ -62519,28 +62529,27 @@ void main() {
       }
       studioCameraGizmoUpdate();
     }
-    studioCameraGizmoAnimation=requestAnimationFrame(studioCameraJoystickTick);
   }
   axisSvg.addEventListener('pointerdown',event=>{
     if(exportState || (event.button!==0 && event.button!==2))return;
     event.preventDefault();
     pauseTimeline();stop();finishDrag(false);commitCameraEdit();
     studioCameraGizmoIgnoreClick=false;
-    studioCameraGizmoDrag={id:event.pointerId,x:event.clientX,y:event.clientY,startX:event.clientX,startY:event.clientY,pan:event.button===2||event.shiftKey,enabled:controls.enabled,moved:false,vx:0,vy:0,time:performance.now()};
+    studioCameraGizmoDrag={id:event.pointerId,x:event.clientX,y:event.clientY,startX:event.clientX,startY:event.clientY,pan:event.button===2||event.shiftKey,enabled:controls.enabled,size:Math.max(1,axisSvg.getBoundingClientRect().width),moved:false,vx:0,vy:0,time:performance.now()};
     controls.enabled=false;axisSvg.style.cursor='grabbing';
   });
   axisSvg.addEventListener('pointermove',event=>{
     const drag=studioCameraGizmoDrag;if(!drag || drag.id!==event.pointerId)return;
     if(!drag.moved && Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)<4)return;
-    event.preventDefault();if(!drag.moved)axisSvg.setPointerCapture(event.pointerId);drag.moved=true;
-    const size=Math.max(1,axisSvg.getBoundingClientRect().width),dx=(event.clientX-drag.startX)/(size*.3),dy=(event.clientY-drag.startY)/(size*.3),length=Math.max(1,Math.hypot(dx,dy));
+    event.preventDefault();
+    if(!drag.moved){axisSvg.setPointerCapture(event.pointerId);drag.moved=true;drag.time=performance.now();}
+    const dx=(event.clientX-drag.startX)/(drag.size*.3),dy=(event.clientY-drag.startY)/(drag.size*.3),length=Math.max(1,Math.hypot(dx,dy));
     drag.vx=dx/length;drag.vy=dy/length;
-    if(!studioCameraGizmoAnimation){drag.time=performance.now();studioCameraGizmoAnimation=requestAnimationFrame(studioCameraJoystickTick);}
+    studioInvalidatePreview(false);
   });
   function studioFinishCameraGizmo(event){
     const drag=studioCameraGizmoDrag;if(!drag || drag.id!==event.pointerId)return;
     studioCameraGizmoDrag=null;studioCameraGizmoIgnoreClick=drag.moved;
-    cancelAnimationFrame(studioCameraGizmoAnimation);studioCameraGizmoAnimation=0;
     controls.enabled=drag.enabled;axisSvg.style.cursor='grab';
     if(axisSvg.hasPointerCapture(event.pointerId))axisSvg.releasePointerCapture(event.pointerId);
     if(drag.moved){commitCameraEdit();recordCameraKeyframe(false);}
@@ -62579,6 +62588,22 @@ function createCompactStudioZoom(options){
  window.addEventListener('blur',finish);options.container.append(bar);return bar;
 }
 
+  function studioFastWorldBounds(root,box,partBox){
+    root.updateWorldMatrix(true,true);
+    root.traverseVisible(node=>{
+      if(node.isBone){box.expandByPoint(partBox.min.setFromMatrixPosition(node.matrixWorld));return;}
+      if(!node.isMesh||!node.geometry?.attributes.position)return;
+      if(node.isInstancedMesh){
+        if(!node.boundingBox)node.computeBoundingBox();
+        partBox.copy(node.boundingBox);
+      }else{
+        if(!node.geometry.boundingBox)node.geometry.computeBoundingBox();
+        partBox.copy(node.geometry.boundingBox);
+      }
+      box.union(partBox.applyMatrix4(node.matrixWorld));
+    });
+    return box;
+  }
   // Camera navigation uses existing geometry bounds, never per-vertex scans.
   function studioNavigationPivot(root){
     root.updateWorldMatrix(true,true);const inverse=root.matrixWorld.clone().invert(),box=new Box3(),partBox=new Box3();
@@ -62588,7 +62613,7 @@ function createCompactStudioZoom(options){
   const mainZoomStyle=document.createElement('style');mainZoomStyle.textContent='.studio-compact-zoom{display:flex;align-items:center;gap:2px;padding:3px;background:#242b35ed;border:1px solid #4a5668;border-radius:5px;touch-action:none}.studio-compact-zoom button{flex:none;width:23px;height:23px;padding:0;font-size:17px;line-height:20px;margin:0;border:0;background:transparent;color:#dce6f3}.studio-compact-zoom input{min-width:0;flex:1;width:35px;margin:0;accent-color:#a5bff1;cursor:ew-resize}#studioViewZoom{position:absolute;top:140px;left:6px;right:6px;height:29px;z-index:6}';document.head.append(mainZoomStyle);
   createCompactStudioZoom({id:'studioViewZoom',container:$('viewGizmo'),allow:()=>!exportState&&!studioSaving,
     begin:()=>{pauseTimeline();stop();finishDrag(false);commitCameraEdit();},
-    limits:()=>{const root=activeObject?.root;let extent=1;if(root){root.updateWorldMatrix(true,true);const box=new Box3().setFromObject(root);if(!box.isEmpty())extent=Math.max(.01,box.getSize(new Vector3()).length());}return {min:Math.max(1e-5,camera.near*1.05),max:Math.max(10,camera.far*.75),step:Math.max(1e-4,camera.near*2,extent*.015)};},
+    limits:()=>{const root=activeObject?.root;let extent=1;if(root){const box=studioFastWorldBounds(root,new Box3(),new Box3());if(!box.isEmpty())extent=Math.max(.01,box.getSize(new Vector3()).length());}return {min:Math.max(1e-5,camera.near*1.05),max:Math.max(10,camera.far*.75),step:Math.max(1e-4,camera.near*2,extent*.015)};},
     distance:()=>camera.position.distanceTo(controls.target),
     set:distance=>{let offset=camera.position.clone().sub(controls.target);if(offset.lengthSq()<1e-14)offset=camera.getWorldDirection(new Vector3()).negate();camera.position.copy(controls.target).add(offset.normalize().multiplyScalar(distance));studioCameraGizmoUpdate();},
     pan:(dx,dy)=>{const depth=Math.max(camera.near*2,camera.position.distanceTo(controls.target)),scale=2*depth*Math.tan(camera.fov*Math.PI/360)/(Math.max(1,renderer.domElement.clientHeight)*Math.max(.001,camera.zoom||1)),delta=new Vector3(-dx*scale,dy*scale,0).applyQuaternion(camera.quaternion);camera.position.add(delta);controls.target.add(delta);studioCameraGizmoUpdate();},
@@ -65145,7 +65170,6 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     for (const obj of objects) {
       const rotation = interpolatePose(obj, studioObjectAnimationFrame(obj,frame2),frame2);
       if(rotation) floorRotations.push(rotation);
-      updateCustomRig(obj.customRig, obj.root);
     }
     // Keyframes antigos não podem desfazer um clique manual em Visibilidade.
     studioMorphReapplyManualVisibility();
@@ -67734,7 +67758,7 @@ ${notes}`;
       for (let i = 0; i < endFrame; i++) {
         if (state.cancel) throw new DOMException("Exporta\xE7\xE3o cancelada.", "AbortError");
         if (state.error) throw state.error;
-        sampleTimeline(i + 1);
+        sampleTimeline(i + 1,true);
         await prepareSequenceFrame(i/24);
         await prepareStudioVfxExport();
         const timestamp = Math.round(i * 1e6 / 24), duration = Math.round((i + 1) * 1e6 / 24) - timestamp;
@@ -68377,7 +68401,15 @@ ${notes}`;
   skySun.shadow.normalBias = 0.02;
   var skyShadowFlags = /* @__PURE__ */ new WeakMap();
   var skyShadowMode = false;
-  function syncSceneSky() {
+  function studioShadowResolution(source,exporting){
+    const shadow=source.shadow,size=exporting?1024:512;
+    if(shadow.mapSize.x===size&&shadow.mapSize.y===size)return;
+    shadow.mapSize.set(size,size);
+    shadow.map?.dispose();
+    shadow.map=null;
+    renderer.shadowMap.needsUpdate=true;
+  }
+  function syncSceneSky(exporting=false) {
     const enabled = skyState.enabled;
     skyMesh.visible = enabled;
     skySun.visible = enabled && skyState.sun;
@@ -68399,9 +68431,10 @@ ${notes}`;
     light.castShadow = !enabled && shadows;
     renderer.shadowMap.enabled = shadows;
     renderer.shadowMap.type = PCFSoftShadowMap;
-    const box = new Box3();
+    const box = new Box3(), partBox = new Box3();
     if (activeLighting) {
-      for (const o of objects) if (o.root.visible && !o.root.userData.studioFolder && !o.root.userData.studioGround && !o.root.userData.environmentParticles && !o.root.userData.studioClouds) box.union(new Box3().setFromObject(o.root));
+      for (const o of objects) if (o.root.visible && !o.root.userData.studioFolder && !o.root.userData.studioGround && !o.root.userData.environmentParticles && !o.root.userData.studioClouds)
+        studioFastWorldBounds(o.root,box,partBox);
     }
     const center = box.isEmpty() ? controls.target.clone() : box.getCenter(new Vector3()), radius = box.isEmpty() ? 10 : Math.max(2, box.getSize(new Vector3()).length() * 0.6);
     skySunTarget.position.copy(center);
@@ -68417,7 +68450,7 @@ ${notes}`;
       light.target.updateMatrixWorld(true);
     }
     const source = enabled ? skySun : light;
-    source.shadow.mapSize.set(1024, 1024);
+    if(shadows)studioShadowResolution(source,exporting);
     source.shadow.bias = -2e-4;
     source.shadow.normalBias = 0.02;
     const shadowCamera = source.shadow.camera;
@@ -68563,16 +68596,162 @@ ${notes}`;
   }
   syncSkyUI();
   var STUDIO_GROUND_BASE_Y = 0;
-  var groundDefaults = { wireframe: false, waves: false, amplitude: 0.6, length: 5, angle: 0, color: "#65734e", roughness: 0.95, repeatX: 4, repeatZ: 4 };
+  var groundDefaults = { wireframe: false, waves: false, amplitude: 0.6, length: 5, angle: 0, color: "#65734e", roughness: 0.95, repeatX: 4, repeatZ: 4, textureRelief: 1, profile: "waves", terrainSeed: 7341 };
   var groundRuntime = /* @__PURE__ */ new WeakMap();
   function sceneGroundObject() {
     return activeObject?.root.userData.studioGround ? activeObject : [...objects].reverse().find((o) => o.root.userData.studioGround);
   }
+  const groundSurfaces = {
+    grass: ["Grama e terra", "#40542b", "#87955a", 5, .95],
+    forest: ["Solo de floresta", "#352b21", "#8e7147", 5, .94],
+    dirt: ["Terra batida", "#5e4431", "#a7825c", 4, .91],
+    sand: ["Areia ondulada", "#a7895c", "#e9d2a0", 3, .93],
+    gravel: ["Cascalho", "#49453e", "#aeaa9e", 5, .92],
+    clay: ["Argila rachada", "#744632", "#b7815a", 4, .96],
+    basalt: ["Rocha vulcânica", "#26272a", "#6c6761", 4, .90],
+    snow: ["Neve compactada", "#a1b6c7", "#eff6ff", 3, .79]
+  };
+  const groundProfiles = [
+    ["waves", "Ondulações regulares"], ["hills", "Colinas irregulares"], ["dunes", "Dunas"],
+    ["ridges", "Cristas rochosas"], ["valley", "Vale sinuoso"], ["terraces", "Degraus de erosão"]
+  ];
+  function groundNoise(seed) {
+    const wrap = (v, period) => period ? ((v % period) + period) % period : v;
+    function hash(x, z) {
+      let h = Math.imul(x, 374761393) ^ Math.imul(z, 668265263) ^ Math.imul(seed, 1597334677);
+      h = Math.imul(h ^ (h >>> 13), 1274126177);
+      return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+    }
+    function noise(x, z, px = 0, pz = px) {
+      const i = Math.floor(x), j = Math.floor(z), u = MathUtils.smoothstep(x - i, 0, 1), v = MathUtils.smoothstep(z - j, 0, 1);
+      const a = wrap(i, px), b = wrap(i + 1, px), c = wrap(j, pz), d = wrap(j + 1, pz);
+      return MathUtils.lerp(MathUtils.lerp(hash(a, c), hash(b, c), u), MathUtils.lerp(hash(a, d), hash(b, d), u), v);
+    }
+    function cells(u, v, count) {
+      const x = u * count, z = v * count, i = Math.floor(x), j = Math.floor(z);
+      let first = Infinity, second = Infinity, tone = 0;
+      for (let b = j - 1; b <= j + 1; b++) for (let a = i - 1; a <= i + 1; a++) {
+        const ax = wrap(a, count), bz = wrap(b, count), t = hash(ax, bz);
+        const dx = x - a - .2 - t * .6, dz = z - b - .2 - hash(ax + 73, bz + 31) * .6;
+        const distance = dx * dx + dz * dz;
+        if (distance < first) { second = first; first = distance; tone = t; }
+        else if (distance < second) second = distance;
+      }
+      return [Math.sqrt(first), Math.sqrt(second) - Math.sqrt(first), tone];
+    }
+    return { noise, cells };
+  }
+  function createGroundSurface(preset, seed) {
+    const size = Math.min(512, renderer.capabilities.maxTextureSize);
+    const [label, dark, light] = groundSurfaces[preset];
+    const low = new Color(dark).convertLinearToSRGB(), high = new Color(light).convertLinearToSRGB();
+    const colors = [[low.r, high.r], [low.g, high.g], [low.b, high.b]];
+    const { noise, cells } = groundNoise(seed);
+    const canvases = [document.createElement("canvas"), document.createElement("canvas")];
+    const contexts = canvases.map(canvas => {
+      canvas.width = canvas.height = size;
+      return canvas.getContext("2d");
+    });
+    const [albedo, normal] = contexts.map(ctx => ctx.createImageData(size, size));
+    const heights = new Float32Array(size * size);
+    const grain = (u, v, n) => noise(u * n, v * n, n);
+    const smooth = (a, b, v) => MathUtils.smoothstep(v, a, b);
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+      const u = x / size, v = y / size, patch = grain(u, v, 6), flecks = grain(u, v, 43), fine = grain(u, v, 157);
+      let height, tone;
+      switch (preset) {
+        case "grass": {
+          const tufts = smooth(.31, .66, patch * .73 + flecks * .27), blades = noise(u * 132, v * 54, 132, 54);
+          height = patch * .25 + tufts * (.16 + blades * .4) + fine * .12;
+          tone = .20 + tufts * (.27 + blades * .39) + fine * .16;
+          break;
+        }
+        case "forest": {
+          const leaf = smooth(.50, .72, noise(u * 25 + patch * 2, v * 47, 25, 47));
+          height = patch * .34 + leaf * .31 + flecks * .23 + fine * .1;
+          tone = .14 + patch * .27 + leaf * .47 + fine * .13;
+          break;
+        }
+        case "sand": {
+          const ripple = .5 + .5 * Math.sin(2 * Math.PI * (u * 11 + v * 3 + patch * .65));
+          height = Math.pow(ripple, 2.2) * .35 + patch * .14 + fine * .08;
+          tone = .37 + patch * .25 + ripple * .21 + fine * .16;
+          break;
+        }
+        case "gravel": {
+          const [distance, edge, stone] = cells(u, v, 31);
+          const pebble = (1 - smooth(.13, .5, distance)) * smooth(.012, .13, edge);
+          height = pebble * .68 + flecks * .14 + fine * .09;
+          tone = .18 + pebble * (.31 + stone * .46) + fine * .12;
+          break;
+        }
+        case "clay":
+        case "basalt": {
+          const clay = preset === "clay";
+          const [, edge, cell] = cells(u + (flecks - .5) * .012, v + (patch - .5) * .022, clay ? 10 : 14);
+          const plate = smooth(.015, clay ? .095 : .19, edge);
+          height = plate * (clay ? .44 : .58) + patch * .22 + flecks * .18 + fine * .08;
+          tone = .05 + plate * (.32 + cell * .38) + patch * .12 + fine * .11;
+          break;
+        }
+        case "snow":
+          height = patch * .43 + flecks * .18 + fine * .08;
+          tone = .37 + patch * .41 + flecks * .14 + fine * .08;
+          break;
+        default:
+          height = patch * .31 + flecks * .26 + fine * .14;
+          tone = .13 + patch * .37 + flecks * .19 + fine * .21;
+      }
+      const index = y * size + x;
+      heights[index] = height;
+      for (let c = 0; c < 3; c++) albedo.data[index * 4 + c] = MathUtils.lerp(...colors[c], tone) * 255;
+      albedo.data[index * 4 + 3] = 255;
+    }
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+      const dx = heights[y*size + (x+1)%size] - heights[y*size + (x+size-1)%size];
+      const dy = heights[((y+1)%size)*size+x] - heights[((y+size-1)%size)*size+x];
+      const scale = 128 / Math.hypot(dx * 5, dy * 5, 1), i = (y*size+x)*4;
+      normal.data.set([128 - dx*5*scale, 128 + dy*5*scale, 128 + scale, 255], i);
+    }
+    contexts[0].putImageData(albedo, 0, 0);
+    contexts[1].putImageData(normal, 0, 0);
+    return canvases.map((canvas, index) => {
+      const texture = new CanvasTexture(canvas);
+      texture.name = label + (index ? " · normal" : " · cor");
+      if (index === 0) texture.colorSpace = SRGBColorSpace;
+      texture.wrapS = texture.wrapT = RepeatWrapping;
+      texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      return texture;
+    });
+  }
+  function groundProfileHeight(profile, x, z, noise) {
+    const broad = noise(x * .33, z * .33), detail = noise(x * 1.35 + 19, z * 1.35 + 8);
+    const ridges = 1 - Math.abs(2 * noise(x * .78 + broad, z * .47) - 1);
+    switch (profile) {
+      case "hills": return (broad - .5) * 1.65 + (detail - .5) * .35;
+      case "dunes": {
+        const crest = Math.sin(x * Math.PI * 2 + (broad - .5) * 3.1);
+        return Math.pow(.5 + crest * .5, 2.1) * 1.45 - .62 + (broad - .5) * .28;
+      }
+      case "ridges": return Math.pow(ridges, 2.5) * 1.6 - .72 + (detail - .5) * .35;
+      case "valley": {
+        const bank = Math.abs(x * .36 + (noise(z * .38, 15) - .5) * 1.45);
+        return MathUtils.smoothstep(bank, .08, 1.05) * (1.15 + broad * .42) - .58 + (detail - .5) * .15;
+      }
+      case "terraces": {
+        const level = broad * 4.5 + detail * .45;
+        return (Math.floor(level) + MathUtils.smoothstep(level % 1, .54, .93)) * .39 - .94;
+      }
+      default: return Math.sin(x * Math.PI * 2) * .65 + Math.sin(z * Math.PI * 2 * .73) * .35;
+    }
+  }
+
   function interpolateGroundSettings(a, b, t) {
     b = b || a;
     const result = { ...a };
     for (const key of Object.keys(groundDefaults)) {
-      if (typeof groundDefaults[key] === "number") result[key] = MathUtils.lerp(a[key] ?? groundDefaults[key], b[key] ?? groundDefaults[key], t);
+      if (key === "terrainSeed" || key === "profile") result[key] = (t < 1 ? a[key] : b[key]) ?? groundDefaults[key];
+      else if (typeof groundDefaults[key] === "number") result[key] = MathUtils.lerp(a[key] ?? groundDefaults[key], b[key] ?? groundDefaults[key], t);
       else if (key === "color") result.color = "#" + new Color(a.color).lerp(new Color(b.color), t).getHexString();
       else result[key] = t < 1 ? a[key] : b[key];
     }
@@ -68602,21 +68781,33 @@ ${notes}`;
       mesh.material.color.set(settings.color);
       mesh.material.roughness = settings.roughness;
       mesh.material.wireframe = false;
-      if (mesh.material.map) {
-        mesh.material.map.wrapS = mesh.material.map.wrapT = RepeatWrapping;
-        mesh.material.map.repeat.set(settings.repeatX, settings.repeatZ);
+      for (const texture of [mesh.material.map, mesh.material.normalMap]) {
+        if (!texture) continue;
+        texture.wrapS = texture.wrapT = RepeatWrapping;
+        texture.repeat.set(settings.repeatX, settings.repeatZ);
       }
-      const width = Math.abs(object.root.scale.x), depth = Math.abs(object.root.scale.z), amplitude = settings.waves ? Math.max(0, settings.amplitude) : 0, frequency = Math.PI * 2 / Math.max(0.25, settings.length), angle = MathUtils.degToRad(settings.angle), signature = [settings.waves, width, depth, amplitude, frequency, angle].join("|");
+      mesh.material.normalScale.set(settings.textureRelief, settings.textureRelief);
+      const width = Math.abs(object.root.scale.x), depth = Math.abs(object.root.scale.z), amplitude = settings.waves ? Math.max(0, settings.amplitude) : 0, frequency = Math.PI * 2 / Math.max(0.25, settings.length), angle = MathUtils.degToRad(settings.angle), signature = [settings.waves, width, depth, amplitude, frequency, angle, settings.profile, settings.terrainSeed].join("|");
       if (runtime.signature !== signature) {
         const position = geometry.attributes.position, normal = geometry.attributes.normal, c = Math.cos(angle), s = Math.sin(angle);
+        const shaped = amplitude > 0 && settings.profile !== "waves";
+        const noise = shaped ? groundNoise(settings.terrainSeed).noise : null;
+        const spacing = frequency / (2 * Math.PI);
         for (let i = 0; i < position.count; i++) {
-          const x = position.getX(i) * width, z = position.getZ(i) * depth, a = (x * c + z * s) * frequency, b = (-x * s + z * c) * frequency * 0.73;
+          const x = position.getX(i) * width, z = position.getZ(i) * depth;
+          const u = x * c + z * s, v = -x * s + z * c;
+          if (shaped) {
+            position.setY(i, amplitude * groundProfileHeight(settings.profile, u * spacing, v * spacing, noise));
+            continue;
+          }
+          const a = u * frequency, b = v * frequency * 0.73;
           position.setY(i, amplitude * (Math.sin(a) * 0.65 + Math.sin(b) * 0.35));
           const dx = amplitude * width * frequency * (Math.cos(a) * 0.65 * c - Math.cos(b) * 0.35 * 0.73 * s), dz = amplitude * depth * frequency * (Math.cos(a) * 0.65 * s + Math.cos(b) * 0.35 * 0.73 * c), n = Math.hypot(dx, 1, dz);
           normal.setXYZ(i, -dx / n, 1 / n, -dz / n);
         }
         position.needsUpdate = true;
-        normal.needsUpdate = true;
+        if (shaped) geometry.computeVertexNormals();
+        else normal.needsUpdate = true;
         geometry.computeBoundingBox();
         geometry.computeBoundingSphere();
         runtime.signature = signature;
@@ -68626,7 +68817,7 @@ ${notes}`;
   function syncGroundUI() {
     const object = sceneGroundObject(), config = object?.root.userData.studioGround;
     $("groundName").textContent = object?.name || "Nenhum ch\xE3o";
-    for (const id of ["visible", "width", "depth", "height", "color", "roughness", "waves", "amplitude", "length", "angle", "repeatX", "repeatZ"]) {
+    for (const id of ["visible", "width", "depth", "height", "color", "roughness", "waves", "amplitude", "length", "angle", "repeatX", "repeatZ", "profile", "textureRelief"]) {
       const input = $("ground_" + id);
       input.disabled = !object;
       if (!object) continue;
@@ -68637,8 +68828,13 @@ ${notes}`;
       if (output) output.textContent = typeof value === "number" ? Number(value.toFixed(2)) : value;
     }
     $("groundWaveControls").hidden = !config?.waves;
+    const preset = object?.root.userData.groundSurfacePreset || "";
+    $("ground_surface").value = preset;
+    $("groundSurfaceControls").hidden = !preset;
+    if (config) $("groundSeed").value = object.root.userData.groundSurfaceSeed ?? groundDefaults.terrainSeed;
     $("groundTextureName").textContent = object?.root.userData.groundTextureName || "Sem textura";
-    $("groundTextureImport").disabled = $("groundTextureRemove").disabled = !object;
+    $("ground_surface").disabled = $("groundTextureImport").disabled = !object;
+    $("groundTextureRemove").disabled = !object || !ensureGroundRuntime(object)?.mesh.material.map;
   }
   function addSceneGround() {
     if (exportState || studioSaving) return;
@@ -68677,7 +68873,7 @@ ${notes}`;
     finishDrag(false);
     pauseTimeline();
     stop();
-    const value = input.type === "checkbox" ? input.checked : input.type === "color" ? input.value : Number(input.value);
+    const value = input.type === "checkbox" ? input.checked : input.type === "color" || input.tagName === "SELECT" ? input.value : Number(input.value);
     if (id === "visible") {
       toggleSceneObject(object);
       syncGroundUI();
@@ -68697,10 +68893,12 @@ ${notes}`;
     vfxLastDraw = 0;
   }
   $("groundAdd").onclick = addSceneGround;
-  for (const id of ["visible", "width", "depth", "height", "color", "roughness", "waves", "amplitude", "length", "angle", "repeatX", "repeatZ"]) {
+  for (const id of ["visible", "width", "depth", "height", "color", "roughness", "waves", "amplitude", "length", "angle", "repeatX", "repeatZ", "profile", "textureRelief"]) {
     const input = $("ground_" + id);
-    input.addEventListener(input.type === "checkbox" ? "change" : "input", () => editSceneGround(id, input));
+    input.addEventListener(input.type === "checkbox" || input.tagName === "SELECT" ? "change" : "input", () => editSceneGround(id, input));
   }
+  for (const [id, label] of groundProfiles) $("ground_profile").add(new Option(label, id));
+  for (const [id, [label]] of Object.entries(groundSurfaces)) $("ground_surface").add(new Option(label, id));
   syncGroundUI();
   function disposeSceneGround(root) {
     if (!root.userData.studioGround) return;
@@ -68715,61 +68913,93 @@ ${notes}`;
       mesh.customDepthMaterial?.dispose();
     });
   }
+  function setGroundMaps(object, map, normalMap, name, preset = "", seed = null) {
+    const { root } = object, config = root.userData.studioGround;
+    const { material } = ensureGroundRuntime(object).mesh;
+    pauseTimeline();
+    if (map && !material.map) root.userData.groundSolidColor = config.color;
+    material.map?.dispose();
+    material.normalMap?.dispose();
+    material.map = map;
+    material.normalMap = normalMap;
+    material.needsUpdate = true;
+    root.userData.groundTextureName = name;
+    root.userData.groundSurfacePreset = preset;
+    if (!map) {
+      config.color = root.userData.groundSolidColor || groundDefaults.color;
+      delete root.userData.groundSolidColor;
+    } else if (seed === null || root.userData.groundSurfaceSeed === undefined) {
+      config.color = "#ffffff";
+    }
+    if (seed !== null) {
+      config.terrainSeed = seed;
+      root.userData.groundSurfaceSeed = seed;
+    } else delete root.userData.groundSurfaceSeed;
+    syncSceneGrounds((currentFrame - 1) / 24);
+    if (activeObject === object) recordKeyframe();
+    else if (autoKeyEnabled) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
+    syncGroundUI();
+    vfxLastDraw = 0;
+  }
+  function applyGroundSurface(object, preset, seed, resetTiling) {
+    const [label, , , repeat, roughness] = groundSurfaces[preset];
+    const [map, normal] = createGroundSurface(preset, seed);
+    if (resetTiling) {
+      const config = object.root.userData.studioGround;
+      config.repeatX = config.repeatZ = repeat;
+      config.roughness = roughness;
+    }
+    setGroundMaps(object, map, normal, label, preset, seed);
+    status("Material do chão aplicado · " + label + ".");
+  }
+  $("ground_surface").onchange = () => {
+    const object = sceneGroundObject(), preset = $("ground_surface").value;
+    if (!object || exportState || studioSaving) return;
+    if (preset) applyGroundSurface(object, preset, object.root.userData.groundSurfaceSeed ?? groundDefaults.terrainSeed, true);
+    else $("groundTextureRemove").click();
+  };
+  $("groundSeed").onchange = () => {
+    const object = sceneGroundObject(), preset = object?.root.userData.groundSurfacePreset;
+    if (!preset || exportState || studioSaving) return;
+    const seed = MathUtils.clamp(Math.round(Number($("groundSeed").value) || groundDefaults.terrainSeed), 1, 999999);
+    applyGroundSurface(object, preset, seed, false);
+  };
+  $("groundShuffle").onclick = () => {
+    const old = Number($("groundSeed").value);
+    $("groundSeed").value = 1 + (old + Math.floor(Math.random() * 999998)) % 999999;
+    $("groundSeed").onchange();
+  };
   $("groundTextureImport").onclick = () => $("groundTextureFile").click();
   $("groundTextureFile").onchange = async (e) => {
     const file = e.target.files[0], object = sceneGroundObject();
     if (!file || !object || exportState || studioSaving) return;
+    const runtime = ensureGroundRuntime(object), previousMap = runtime.mesh.material.map;
     try {
-      status("Importando textura do ch\xE3o\u2026");
+      status("Importando textura do chão…");
       const image = await createImageBitmap(file), max = Math.min(2048, renderer.capabilities.maxTextureSize), scale = Math.min(1, max / image.width, max / image.height), canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.round(image.width * scale));
       canvas.height = Math.max(1, Math.round(image.height * scale));
       canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
       image.close();
-      if (!objects.includes(object)) return;
-      const mesh = ensureGroundRuntime(object).mesh, texture = new CanvasTexture(canvas);
+      if (!objects.includes(object) || exportState || studioSaving || runtime.mesh.material.map !== previousMap) return;
+      const texture = new CanvasTexture(canvas);
       texture.colorSpace = SRGBColorSpace;
       texture.wrapS = texture.wrapT = RepeatWrapping;
       texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-      pauseTimeline();
-      if (!mesh.material.map) object.root.userData.groundSolidColor = object.root.userData.studioGround.color;
-      mesh.material.map?.dispose();
-      mesh.material.map = texture;
-      mesh.material.needsUpdate = true;
-      object.root.userData.groundTextureName = file.name;
-      object.root.userData.studioGround.color = "#ffffff";
-      syncSceneGrounds((currentFrame - 1) / 24);
-      if (activeObject === object) recordKeyframe();
-      else if (autoKeyEnabled) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
-      syncGroundUI();
-      vfxLastDraw = 0;
-      status("Textura aplicada ao ch\xE3o. Ajuste Repetir X e Repetir Z.");
+      setGroundMaps(object, texture, null, file.name);
+      status("Textura aplicada ao chão. Ajuste Repetir X e Repetir Z.");
     } catch (error) {
-      status("Falha ao importar textura: " + error.message);
+      status("Falha ao importar textura. " + error.message);
     } finally {
       e.target.value = "";
     }
   };
   $("groundTextureRemove").onclick = () => {
     const object = sceneGroundObject();
-    if (!object || exportState || studioSaving) return;
-    const mesh = ensureGroundRuntime(object).mesh;
-    if (!mesh.material.map) return status("O ch\xE3o j\xE1 est\xE1 usando cor s\xF3lida.");
-    pauseTimeline();
-    mesh.material.map.dispose();
-    mesh.material.map = null;
-    mesh.material.needsUpdate = true;
-    object.root.userData.groundTextureName = "";
-    object.root.userData.studioGround.color = object.root.userData.groundSolidColor || groundDefaults.color;
-    delete object.root.userData.groundSolidColor;
-    syncSceneGrounds((currentFrame - 1) / 24);
-    if (activeObject === object) recordKeyframe();
-    else if (autoKeyEnabled) object.keyframes.set(Math.round(currentFrame), { pose: capturePose(object) });
-    syncGroundUI();
-    vfxLastDraw = 0;
-    status("Textura do ch\xE3o removida.");
+    if (!object || exportState || studioSaving || !ensureGroundRuntime(object)?.mesh.material.map) return;
+    setGroundMaps(object, null, null, "");
+    status("Textura do chão removida.");
   };
-
 
   var studioCloudDefaults={count:12,spread:100,depth:70,size:18,opacity:.9,wind:0,direction:75,seed:31415,tint:'#ffffff',previewWind:false};
   var studioCloudCache=new WeakMap(),studioCloudSelected='';
@@ -70035,7 +70265,7 @@ ${notes}`;
     if(position){binding.position3D=position.slice();studioInvalidatePreview();}
     return binding.position3D.slice();
   }
-  function syncStudioLamps(){
+  function syncStudioLamps(exporting){
     const active=new Set();let shadowed=false,enabled=false;
     for(const [bank,entry]of studioVfxBankEntries(false)){
       if(entry.state?.enabled===false)continue;
@@ -70054,6 +70284,7 @@ ${notes}`;
           camera.updateMatrixWorld(true);lamp.position.fromArray(item.lampPosition||[0,0,-5]).applyMatrix4(camera.matrixWorld);
         }else lamp.position.copy(studioVfxWorld(studioLampBinding(item,bank)));
         lamp.castShadow=item.lampShadow!==false&&lamp.power>0;
+        if(lamp.castShadow)studioShadowResolution(lamp,exporting);
         lamp.shadow.radius=MathUtils.clamp(Number(item.lampSoftness??1),0,8);
         lamp.shadow.bias=-.0001;lamp.shadow.normalBias=.01;
         lamp.shadow.camera.near=.05;lamp.shadow.camera.far=lamp.distance>0?Math.max(.1,lamp.distance):Math.max(100,Math.min(camera.far,2000));
@@ -70083,13 +70314,13 @@ ${notes}`;
   // ===== INÍCIO VFX MATERIAIS — RESPOSTA DOS GLBS ÀS LUZES =====
   var studioLitMaterials = /* @__PURE__ */ new WeakMap();
   var studioUnlitMaterials = /* @__PURE__ */ new WeakMap();
-  function syncStudioLighting() {
+  function syncStudioLighting(exporting=false) {
     for (const light2 of studioBankLights.values()) {
       light2.intensity = 0;
       light2.visible = false;
     }
     studioPointLight.intensity = 0;
-    let enabled = syncStudioLamps() || studioAuraLights.size > 0 || skyState.enabled || objects.some((o) => o.root.visible && o.root.userData.studioGround);
+    let enabled = syncStudioLamps(exporting) || studioAuraLights.size > 0 || skyState.enabled || objects.some((o) => o.root.visible && o.root.userData.studioGround);
     for (const [id, bank] of studioVfxBankEntries(false)) {
       const values = bank.state?.config?.extensions?.sceneLight;
       if (bank.state?.enabled === false || !values?.enabled || objects.find(o=>o.id===id)?.root.userData.studioEmpty) continue;
@@ -71485,18 +71716,29 @@ ${notes}`;
     texture.matrixAutoUpdate=true;
     return {root:object.root,texture};
   }
-  function renderStudioFrame(time,exporting=false) {
+  function renderStudioFrame(time,exporting=false,pathSampled=false) {
     if(exporting)renderer.shadowMap.autoUpdate=true;
     restoreStudioGlassMaterials();
-    if(!exporting)applyPathMotion(currentFrame);
-    syncSequencePlayback(time,exporting);updateBoneFollowers();
+    syncSceneGrounds(time,exporting);
+    if(!exporting&&!pathSampled)applyPathMotion(currentFrame);
+    syncSequencePlayback(time,exporting);
+    for(const object of objects)if(!object.followBone&&object.customRig&&studioTreeVisible(object.root))updateCustomRig(object.customRig,object.root);
+    updateBoneFollowers();
+    for(const object of objects)if(object.followBone&&object.customRig&&studioTreeVisible(object.root))updateCustomRig(object.customRig,object.root);
+    if(!exporting&&!timelinePlaying&&!playing){
+      if(rigView.visible&&markers.length)updateStudioRigDisplay(renderer.domElement.clientHeight);
+      if(!gizmoGesture&&objectGizmo.object)syncObjectHandle();
+      updateFaceGuides();
+      if(activeObject?.faceRig)applyFaceRig(activeObject);
+      updateViewGizmo();
+    }
     syncVfxMoveHandle();refreshFollowPins();
     const environmentTime=environmentFxTime(time,exporting);
     syncEnvironmentEmitters(environmentTime);renderPanoramaFx(environmentTime,exporting);
     if(!exporting)updatePanoramaEditorPreview();
     const clockTime=!exporting&&!timelinePlaying?time+(performance.now()-vfxPreviewEpoch)/1000:time;
     syncStudioAuraLights(clockTime);syncStudioNativeExtensions(clockTime,exporting);
-    syncSceneGrounds(time,exporting);syncSceneSky();syncStudioClouds(time,exporting);syncStudioLighting();syncStudioTextureQuality(exporting);
+    syncSceneSky(exporting);syncStudioClouds(time,exporting);syncStudioLighting(exporting);syncStudioTextureQuality(exporting);
     const backdrop=studioVideoBackground();
     if(!backdrop)return renderStudioSceneFrame(clockTime,exporting);
     const originalBackground=scene.background,skyVisible=skyMesh.visible,sourceVisible=backdrop.root.visible;
@@ -73859,7 +74101,7 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     selectStudioVfxTarget(preferredStudioVfxTarget());
     refreshObjectSelect();
   });
-  function sampleTimeline(frame) {
+  function sampleTimeline(frame,renderFollows = false) {
     clearPathPoses();
     clearStudioLoopAdditions();
     studioPathObjectTurns=new WeakMap();
@@ -73868,7 +74110,10 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     if(sceneGroundObject()?.root.visible) for(const rotation of rotating) studioSupportInterpolatedRotation(rotation);
     applyStudioLoopAdditions(frame);
     syncStudioShapeTimelineSliders();
+    if(paths.some(path=>path.surfaceId&&!path.aerial&&path.actors.length))
+      syncSceneGrounds((frame-1)/24,!!exportState);
     applyPathMotion(frame);
+    if(!renderFollows)for(const object of objects)updateCustomRig(object.customRig,object.root);
   }
 
   const pathGrid = viewportGrid.clone();
@@ -73985,12 +74230,15 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     return meshes.length?{object,meshes,bounds:new Box3().setFromObject(object.root)}:null;
   }
   function projectPathSample(point,surface) {
+    return projectPathHit(point,surface)?.point||null;
+  }
+  function projectPathHit(point,surface) {
     const origin=pathProjectionRay.ray.origin;
     origin.set(point.x,surface.bounds.max.y+1,point.z);
     let closest=null,distance=Infinity;
     for(const hit of pathProjectionRay.intersectObjects(surface.meshes,false)){
       const separation=Math.abs(hit.point.y-point.y);
-      if(separation<distance){closest=hit.point;distance=separation;}
+      if(separation<distance){closest=hit;distance=separation;}
     }
     return closest;
   }
@@ -74144,19 +74392,20 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
   var paths = [];
   var selectedPath = null;
   var pathPoses = new Map();
+  const pathPreparedActors = new WeakSet();
   const pathHeadingAxis = new Vector3(0,1,0);
   const pathParentRotation = new Quaternion();
   const pathWorldTurn = new Quaternion();
   const pathLocalTurn = new Quaternion();
   const pathLateralAxis = new Vector3();
 
-  function createStudioPath(points,segments,surfaceId,{id=MathUtils.generateUUID(),name,closed=true,rounded=false,aerial=false,floorY=viewportGrid.position.y}={}) {
+  function createStudioPath(points,segments,surfaceId,{id=MathUtils.generateUUID(),name,closed=true,rounded=false,aerial=false,floorY=viewportGrid.position.y,travelFrames=null}={}) {
     if(!name){
       let number=paths.length+1;
       while(paths.some(path=>path.name===`Caminho ${number}`))number++;
       name=`Caminho ${number}`;
     }
-    const path={id,name,points,segments,surfaceId,closed,rounded,aerial,floorY,visible:true,actors:[],spacing:new Map(),pivotBases:new Map(),track:{id,name,isPathTrack:true,keyframes:new Map()}};
+    const path={id,name,points,segments,surfaceId,closed,rounded,aerial,floorY,travelFrames,visible:true,actors:[],spacing:new Map(),pivotBases:new Map(),track:{id,name,isPathTrack:true,keyframes:new Map()}};
     path.route=buildPathRoute(path);
     return path;
   }
@@ -74257,7 +74506,8 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
       previousFrame=keyFrame;
     }
     if(!paused)movingFrames+=frame-previousFrame;
-    return {progress:MathUtils.clamp(movingFrames/Math.max(1,endFrame-1),0,1),paused};
+    const travelFrames=path?.travelFrames??endFrame;
+    return {progress:MathUtils.clamp(movingFrames/Math.max(1,travelFrames-1),0,1),paused};
   }
 
   function updatePathObjectTransform(gesture) {
@@ -74292,7 +74542,6 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     root.position.copy(pathBasePosition(root));
     root.quaternion.copy(pathBaseRotation(root));
     pathPoses.delete(root);
-    root.updateWorldMatrix(true,true);
   }
   function clearPathPoses() {
     if(!pathPoses)return;
@@ -74301,6 +74550,96 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
   function pathActors(path=selectedPath) {
     return path?.actors.filter(actor=>objects.includes(actor))||[];
   }
+  function pathMotionSurface(object) {
+    const surface=pathProjectionSurface(object);
+    if(!surface||!object.root.userData.studioGround)return surface;
+    const mesh=ensureGroundRuntime(object)?.mesh;
+    const geometry=mesh?.geometry;
+    if(surface.meshes.length===1&&surface.meshes[0]===mesh&&geometry?.type==='PlaneGeometry'){
+      const inverse=mesh.matrixWorld.clone().invert();
+      // A world-vertical ray crosses only one grid cell when local Y is vertical.
+      if(Math.abs(inverse.elements[4])+Math.abs(inverse.elements[6])<1e-8)
+        surface.grid={mesh,inverse};
+    }
+    return surface;
+  }
+  function samplePathGround(point,surface) {
+    let position,normal,mesh,instanceId;
+    if(surface.grid){
+      ({mesh}=surface.grid);
+      const {parameters,attributes}=mesh.geometry;
+      const {width,height,widthSegments,heightSegments}=parameters;
+      position=point.clone().applyMatrix4(surface.grid.inverse);
+      const x=(position.x/width+.5)*widthSegments,z=(position.z/height+.5)*heightSegments;
+      if(x<0||x>widthSegments||z<0||z>heightSegments)return null;
+      const col=Math.min(Math.floor(x),widthSegments-1),row=Math.min(Math.floor(z),heightSegments-1);
+      const u=x-col,v=z-row,stride=widthSegments+1;
+      const a=row*stride+col,b=a+stride,c=b+1,d=a+1;
+      // Use the same diagonal as PlaneGeometry, including the rendered vertex normals.
+      const weights=u+v<=1?[[a,1-u-v],[b,v],[d,u]]:[[b,1-u],[c,u+v-1],[d,1-v]];
+      position.y=0;
+      normal=new Vector3();
+      for(const [index,weight] of weights){
+        position.y+=attributes.position.getY(index)*weight;
+        normal.x+=attributes.normal.getX(index)*weight;
+        normal.y+=attributes.normal.getY(index)*weight;
+        normal.z+=attributes.normal.getZ(index)*weight;
+      }
+      position.applyMatrix4(mesh.matrixWorld);
+    }else{
+      const hit=projectPathHit(point,surface);
+      if(!hit)return null;
+      mesh=hit.object;
+      instanceId=hit.instanceId;
+      position=hit.point;
+      normal=hit.normal||hit.face?.normal;
+    }
+    if(!normal)return null;
+    const matrix=mesh.matrixWorld;
+    if(instanceId!==undefined){
+      const instance=new Matrix4();
+      mesh.getMatrixAt(instanceId,instance);
+      normal.applyNormalMatrix(new Matrix3().getNormalMatrix(instance.premultiply(matrix)));
+    }else normal.applyNormalMatrix(new Matrix3().getNormalMatrix(matrix));
+    if(normal.y<0)normal.negate();
+    return normal.y>1e-5?{position,normal}:null;
+  }
+  function pathGroundSupport(root,reference) {
+    if(reference.groundSupport)return reference.groundSupport;
+    const vertices=studioSupportVertices(root);
+    const bounds=new Box3(),point=new Vector3();
+    for(const chunk of vertices)for(let i=0;i<chunk.length;i+=3)bounds.expandByPoint(point.fromArray(chunk,i));
+    const size=bounds.getSize(new Vector3());
+    // Keep the upper and lower extrema of each footprint cell in the reference stance.
+    const cells=new Map(),resolution=8;
+    for(const chunk of vertices)for(let i=0;i<chunk.length;i+=3){
+      point.fromArray(chunk,i);
+      const x=Math.min(resolution-1,Math.floor((point.x-bounds.min.x)/(size.x||1)*resolution));
+      const z=Math.min(resolution-1,Math.floor((point.z-bounds.min.z)/(size.z||1)*resolution));
+      const key=z*resolution+x,cell=cells.get(key);
+      if(!cell)cells.set(key,[point.clone(),point.clone()]);
+      else{
+        if(point.y<cell[0].y)cell[0].copy(point);
+        if(point.y>cell[1].y)cell[1].copy(point);
+      }
+    }
+    return reference.groundSupport=[...cells.values()].flat();
+  }
+  function pathGroundLift(points,root,rotation,normal) {
+    if(!points?.length)return 0;
+    const matrix=new Matrix4().compose(new Vector3(),rotation,root.scale);
+    if(root.parent)matrix.premultiply(root.parent.matrixWorld);
+    // Only transform directions here. The surface sample already supplies the world position.
+    const e=matrix.elements;
+    const axis=new Vector3(
+      normal.x*e[0]+normal.y*e[1]+normal.z*e[2],
+      normal.x*e[4]+normal.y*e[5]+normal.z*e[6],
+      normal.x*e[8]+normal.y*e[9]+normal.z*e[10]
+    );
+    let lowest=Infinity;
+    for(const point of points)lowest=Math.min(lowest,axis.dot(point));
+    return -lowest;
+  }
   function applyPathMotion(frame) {
     if(!paths?.length)return;
     const movers=new Map();
@@ -74308,7 +74647,7 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
       for(const actor of pathActors(path))if(!actor.followBone)movers.set(actor.root,{path,actor});
     }
     for(const root of pathPoses.keys())if(!movers.has(root))clearPathPose(root);
-    const updated=new Set();
+    const updated=new Set(),surfaces=new Map();
     function apply(root) {
       if(updated.has(root))return;
       for(let parent=root.parent;parent;parent=parent.parent)if(movers.has(parent)){apply(parent);break;}
@@ -74316,6 +74655,12 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
       const {path,actor}=movers.get(root);
       if(gizmoGesture?.object===root||objectDrag?.object===actor)return;
       let pose=pathPoses.get(root);
+      if(!pathPreparedActors.has(root)){
+        // Imported skin bounds can describe only the bind pose. Culling on them
+        // can make the entire character vanish when its animated limbs move out.
+        root.traverse(mesh=>{if(mesh.isSkinnedMesh)mesh.frustumCulled=false;});
+        pathPreparedActors.add(root);
+      }
       if(!pose){
         pose={path,heading:0,position:root.position.clone(),appliedPosition:root.position.clone(),
           rotation:root.quaternion.clone(),appliedRotation:root.quaternion.clone(),inverseHeading:new Quaternion()};
@@ -74324,11 +74669,19 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
       pose.position.copy(pathBasePosition(root));
       pose.rotation.copy(pathBaseRotation(root));
       const {points,distances,headings,vertexHeadings,initialHeading,length,aerialFrames}=path.route;
+      const reference=path.pivotBases.get(actor);
+      let surface=null;
+      if(!path.aerial&&path.surfaceId){
+        if(!surfaces.has(path.surfaceId))
+          surfaces.set(path.surfaceId,pathMotionSurface(objects.find(object=>object.id===path.surfaceId)));
+        surface=surfaces.get(path.surfaceId);
+      }
       const [along,lateral]=path.spacing.get(actor)||[0,0];
       const progress=pathTiming(MathUtils.clamp(frame,1,endFrame),path).progress;
       const shifted=progress*length+along;
       const distance=path.closed&&along!==0?MathUtils.euclideanModulo(shifted,length):MathUtils.clamp(shifted,0,length);
-      const {index:low,t}=samplePathPosition(points,distances,distance,root.position);
+      const pathPosition=new Vector3();
+      const {index:low,t}=samplePathPosition(points,distances,distance,pathPosition);
       const heading=vertexHeadings?vertexHeadings[low-1]+pathHeadingDelta(vertexHeadings[low-1],vertexHeadings[low])*t:headings[low-1];
       pose.heading=heading;
       if(aerialFrames){
@@ -74340,15 +74693,31 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
       }
       pose.right??=new Vector3();
       pose.right.copy(pathLateralAxis);
-      root.position.addScaledVector(pathLateralAxis,lateral);
-      root.position.y+=root.userData.studioPathHeight??0;
-      root.parent?.worldToLocal(root.position);
+      pathPosition.addScaledVector(pathLateralAxis,lateral);
+      const ground=surface?samplePathGround(pathPosition,surface):null;
+      if(ground){
+        const {position,normal}=ground;
+        const forward=new Vector3(Math.sin(heading),0,Math.cos(heading));
+        forward.y=-forward.dot(normal)/normal.y;
+        forward.normalize();
+        const right=new Vector3().crossVectors(normal,forward).normalize();
+        pathWorldTurn.setFromRotationMatrix(new Matrix4().makeBasis(right,normal,forward))
+          .multiply(new Quaternion().setFromAxisAngle(pathHeadingAxis,-initialHeading));
+        pathPosition.copy(position);
+      }
       pathLocalTurn.copy(pathWorldTurn);
       if(root.parent){
         root.parent.getWorldQuaternion(pathParentRotation);
         pathLocalTurn.multiply(pathParentRotation).premultiply(pathParentRotation.invert());
       }
-      const pivot=studioTurnCenter(root),reference=path.pivotBases.get(actor);
+      if(ground&&reference){
+        const stance=pathLocalTurn.clone().multiply(reference.rotation);
+        pathPosition.addScaledVector(ground.normal,pathGroundLift(pathGroundSupport(root,reference),root,stance,ground.normal));
+      }
+      pathPosition.y+=root.userData.studioPathHeight??0;
+      root.parent?.worldToLocal(pathPosition);
+      root.position.copy(pathPosition);
+      const pivot=studioTurnCenter(root);
       const center=pivot&&reference?pivot.clone().multiply(reference.scale).applyQuaternion(reference.rotation).applyQuaternion(pathLocalTurn):null;
       const spins=studioPathObjectTurns.get(root);
       if(spins)for(const spin of [spins.base,spins.additive])if(spin){
@@ -74360,7 +74729,7 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
       if(center)root.position.add(center.sub(pivot.clone().multiply(root.scale).applyQuaternion(root.quaternion)));
       pose.appliedPosition.copy(root.position);
       pose.appliedRotation.copy(root.quaternion);
-      root.updateWorldMatrix(true,true);
+      root.updateWorldMatrix(true,false);
     }
     for(const root of movers.keys())apply(root);
   }
@@ -74377,11 +74746,25 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     else if(path?.route)message=existing?`${selectedActor.name} já está em ${existing.name}.`:'Selecione o objeto em edição e vincule-o ao caminho.';
     else if(path)message='O traçado precisa ser contínuo para mover um objeto.';
     $('pathActor').textContent=message;
-    syncPathTimingUI();
+    $('pathTravelFrames').value=path?.travelFrames??'';
+    syncPathTimingUI(true);
   }
-  function syncPathTimingUI() {
+  function syncPathTimingUI(syncSlider=false) {
     if($('panelPath').hidden)return;
-    const edit=!pathDraft&&!!selectedPath?.route&&pathActors().length>0&&!exportState&&!studioSaving;
+    const input=$('pathTravelFrames'),slider=$('pathSpeed');
+    const editable=!pathDraft&&!!selectedPath?.route&&!exportState&&!studioSaving;
+    input.disabled=slider.disabled=!editable;
+    const travelFrames=selectedPath?.travelFrames??endFrame;
+    if(syncSlider||document.activeElement!==slider||!editable){
+      const position=Math.log(1e5/Math.max(2,travelFrames))/Math.log(5e4);
+      const value=String(Math.round(position*Number(slider.max)));
+      if(slider.value!==value)slider.value=value;
+    }
+    const valueText=`${travelFrames} quadros`;
+    if(slider.getAttribute('aria-valuetext')!==valueText)slider.setAttribute('aria-valuetext',valueText);
+    const placeholder=String(endFrame);
+    if(input.placeholder!==placeholder)input.placeholder=placeholder;
+    const edit=editable&&pathActors().length>0;
     const frame=Math.round(currentFrame),inRange=frame<=endFrame;
     const {progress,paused}=pathTiming(Math.min(frame,endFrame));
     $('pathPause').disabled=!edit||!inRange;
@@ -74429,6 +74812,35 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     selectedPath.pivotBases.delete(actor);
     renderTimeline();syncPathMotionUI();studioInvalidatePreview();
   };
+  const pathTravelInput=$('pathTravelFrames'),pathSpeedSlider=$('pathSpeed');
+  pathSpeedSlider.oninput=()=>{
+    const path=selectedPath;
+    if(!path?.route||pathSpeedSlider.disabled||pathDraft||exportState||studioSaving)return;
+    const position=pathSpeedSlider.valueAsNumber/Number(pathSpeedSlider.max);
+    // A logarithmic scale makes both short and long travel times adjustable.
+    path.travelFrames=Math.round(1e5/Math.pow(5e4,position));
+    pathTravelInput.value=path.travelFrames;
+    syncPathTimingUI();
+    studioInvalidatePreview();
+  };
+  pathSpeedSlider.onblur=()=>syncPathTimingUI(true);
+  pathTravelInput.onchange=()=>{
+    const path=selectedPath;
+    if(!path?.route||pathTravelInput.disabled||pathDraft||exportState||studioSaving)return;
+    if(pathTravelInput.validity.badInput){
+      pathTravelInput.value=path.travelFrames??'';
+      return;
+    }
+    const value=pathTravelInput.valueAsNumber;
+    path.travelFrames=Number.isFinite(value)?MathUtils.clamp(Math.round(value),2,1e5):null;
+    pathTravelInput.value=path.travelFrames??'';
+    applyPathMotion(currentFrame);
+    syncPathTimingUI();
+    studioInvalidatePreview();
+  };
+  pathTravelInput.addEventListener('keydown',event=>{
+    if(event.key==='Enter'){event.preventDefault();pathTravelInput.blur();}
+  });
   $('pathPause').onclick=()=>recordPathKey(true);
   $('pathResume').onclick=()=>recordPathKey(false);
   $('pathVisibility').onclick=()=>{
@@ -74457,7 +74869,7 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     if(!paths.length)return null;
     const routes=paths.map(path=>{
       const bindings=pathActors(path).map(actor=>({id:actor.id,position:pathLoopBaseTransform(actor,'position',pathBasePosition(actor.root)).toArray(),rotation:pathLoopBaseTransform(actor,'rotation',pathBaseRotation(actor.root)).toArray(),spacing:path.spacing.get(actor),pivotRotation:path.pivotBases.get(actor)?.rotation.toArray(),pivotScale:path.pivotBases.get(actor)?.scale.toArray()}));
-      return {id:path.id,name:path.name,points:path.points.map(point=>point.toArray()),segments:path.segments.map(point=>point.toArray()),surfaceId:path.surfaceId,closed:path.closed,rounded:path.rounded,aerial:path.aerial,floorY:path.floorY,visible:path.visible,keys:[...path.track.keyframes],bindings};
+      return {id:path.id,name:path.name,points:path.points.map(point=>point.toArray()),segments:path.segments.map(point=>point.toArray()),surfaceId:path.surfaceId,closed:path.closed,rounded:path.rounded,aerial:path.aerial,floorY:path.floorY,travelFrames:path.travelFrames,visible:path.visible,keys:[...path.track.keyframes],bindings};
     });
     return {selectedId:selectedPath?.id,routes};
   }
@@ -74491,7 +74903,8 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
         const floor=surface?projectPathSample(point,surface)?.y:surfaceId?undefined:floorY;
         return Number.isFinite(floor)&&point.y-floor>.015;
       });
-      const path=createStudioPath(vertices,routeSegments,surfaceId,{id,name,closed,rounded,aerial,floorY});
+      const travelFrames=Number.isInteger(entry.travelFrames)&&entry.travelFrames>=2&&entry.travelFrames<=1e5?entry.travelFrames:null;
+      const path=createStudioPath(vertices,routeSegments,surfaceId,{id,name,closed,rounded,aerial,floorY,travelFrames});
       path.visible=entry.visible!==false;
       usedIds.add(path.id);
       for(const keyEntry of Array.isArray(entry.keys)?entry.keys:[]){
@@ -74911,8 +75324,11 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     if (exportState) return;
     const w = Math.max(1, Math.min(vp.clientWidth, vp.clientHeight * 16 / 9)), h = w * 9 / 16;
     // Interactive resolution is temporary. Video export owns its full-size renderer.
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,(studioPreviewPixelLimit||1280)/w));
-    renderer.setSize(w, h);
+    const ratio=Math.min(window.devicePixelRatio||1,(studioPreviewPixelLimit||1280)/w);
+    if(renderer.getPixelRatio()!==ratio||renderer.domElement.width!==Math.floor(w*ratio)||renderer.domElement.height!==Math.floor(h*ratio))
+      renderer.setDrawingBufferSize(w,h,ratio);
+    renderer.domElement.style.width=w+"px";
+    renderer.domElement.style.height=h+"px";
     if (vfxComposite) {
       vfxComposite.style.width = w + "px";
       vfxComposite.style.height = h + "px";
@@ -74927,7 +75343,6 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
 
   var studioPreviewDirty=true,studioPreviewShadowDirty=true,studioPreviewPixelLimit=1280;
   var studioPreviewNavigation=false,studioPreviewNavigationUntil=0,studioPreviewCameraEndAt=0,studioPreviewQualityAt=0,studioPreviewRenderedAt=0;
-  var studioPreviewShadowAt=-Infinity;
   function studioInvalidatePreview(shadows=true){studioPreviewDirty=true;if(shadows)studioPreviewShadowDirty=true;}
   function studioContinuousPreview(){
     if(timelinePlaying||playing||gizmoGesture||drag||objectDrag||baseGrabStroke||shapeStroke||vfxMoveGizmo?.dragging||vfxWindStroke||studioWindEditing())return true;
@@ -74950,12 +75365,11 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
   }
   function studioAdaptivePreview(now,navigating,continuous){
     const active=navigating||continuous;
-    const max=timelinePlaying||playing||navigating?960:1280;
+    const max=timelinePlaying||playing||navigating||gizmoGesture||drag||objectDrag?960:1280;
     let limit=active?Math.min(studioPreviewPixelLimit,max):1280;
     if(active&&studioPreviewRenderedAt&&now-studioPreviewQualityAt>500){
       const interval=now-studioPreviewRenderedAt;
       if(interval>50)limit=Math.max(640,limit-160);
-      else if(interval<(navigating?22:35))limit=Math.min(max,limit+160);
     }
     if(limit!==studioPreviewPixelLimit){studioPreviewPixelLimit=limit;studioPreviewQualityAt=now;resizeViewport();}
   }
@@ -74977,27 +75391,33 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
       studioPreviewCameraEndAt=0;studioPreviewNavigationUntil=0;studioInvalidatePreview(false);
     }
     // Damping runs at display cadence; only scene changes submit a new frame.
-    updateViewportCamera();
-    const navigating=studioPreviewNavigation||previewNow<studioPreviewNavigationUntil;
+    const cameraGizmoMoving=!!studioCameraGizmoDrag?.moved;
+    if(!cameraGizmoMoving)updateViewportCamera();
+    const navigating=cameraGizmoMoving||studioPreviewNavigation||previewNow<studioPreviewNavigationUntil;
     const continuous=studioContinuousPreview();
     if(!studioPreviewDirty&&!continuous&&!navigating){
       if(studioPreviewPixelLimit===1280){studioPreviewElapsed=0;studioPreviewRenderedAt=0;return;}
     }
-    if(previewNow-studioPreviewAt<1000/(navigating?60:30)-.5)return;
+    if(previewNow-studioPreviewAt<1000/(navigating||gizmoGesture?60:30)-.5)return;
+    if(cameraGizmoMoving)studioCameraJoystickTick(previewNow);
     studioAdaptivePreview(previewNow,navigating,continuous);
     studioPreviewAt=previewNow;
     const editingShadow=!!(gizmoGesture||drag||objectDrag||baseGrabStroke||shapeStroke||vfxMoveGizmo?.dragging);
+    // The shadow and the animated skin must be drawn from the same pose.
     const animatedShadow=timelinePlaying||playing||studioRippleWasActive;
-    renderer.shadowMap.autoUpdate=studioPreviewShadowDirty||editingShadow||(animatedShadow&&previewNow-studioPreviewShadowAt>=1000/12);
-    if(renderer.shadowMap.autoUpdate)studioPreviewShadowAt=previewNow;
+    renderer.shadowMap.autoUpdate=studioPreviewShadowDirty||editingShadow||animatedShadow;
     if(studioPreviewShadowDirty)renderer.shadowMap.needsUpdate=true;
     studioPreviewDirty=false;studioPreviewShadowDirty=false;
+    if(gizmoGesture?.handleDirty){
+      gizmoGesture.handleDirty=false;
+      applyObjectHandle(gizmoGesture.object,gizmoGesture);
+    }
     flushBaseGrabStroke();flushShapeStroke();
     const dt=studioPreviewElapsed;studioPreviewElapsed=0;
     if (timelinePlaying) {
       timelineFraction = 1 + (timelineFraction - 1 + dt * 24) % Math.max(1,endFrame-(paths.some(path=>pathActors(path).length)?0:1));
       currentFrame = Math.min(timelineFraction,endFrame);
-      sampleTimeline(currentFrame);
+      sampleTimeline(currentFrame,true);
       updateTimelineHead();
       const head = 24 + (currentFrame - 1) * pixelsPerFrame;
       if (head < timeScroll.scrollLeft || head > timeScroll.scrollLeft + timeScroll.clientWidth - 40) timeScroll.scrollLeft = Math.max(0, head - 60);
@@ -75007,18 +75427,8 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
       clearPathPose(activeObject?.root);
       mixer?.update(dt);
     }
-    if (!timelinePlaying) {
-      model?.updateMatrixWorld(true);
-      updateCustomRig();
-      for (const obj of objects) if (obj !== activeObject) updateCustomRig(obj.customRig, obj.root);
-    }
-    if (rigView.visible && markers.length) updateStudioRigDisplay(renderer.domElement.getBoundingClientRect().height);
-    if (!gizmoGesture) syncObjectHandle();
-    updateFaceGuides();
-    if (!timelinePlaying && activeObject?.faceRig) applyFaceRig(activeObject);
-    updateViewGizmo();
     updateImageEditor();
-    renderStudioFrame((currentFrame - 1) / 24, false);
+    renderStudioFrame((currentFrame - 1) / 24, false, timelinePlaying);
     studioPreviewRenderedAt=previewNow;
   });
 
