@@ -1174,7 +1174,7 @@ body:has(#panelObjects:not([hidden])) main > nav #baseGrabUndo {
 .groundPanel label.groundNumber input[type="range"]{grid-column:1/-1;width:100%;min-width:0;margin:2px 0 7px;accent-color:#a995ed;cursor:ew-resize}
 .groundPanel .groundSliderValue{justify-self:end;font-size:11px;color:#cbb9ff;font-variant-numeric:tabular-nums}
 </style></head>
-<body><input id="imagePlaneFiles" type="file" accept="image/png,image/jpeg,image/webp,image/avif,image/bmp" multiple hidden><header id="studioHeader"><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="importImagePlane">Importar imagens como planos…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar projeto compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="openDrawing3D">Desenho para 3D</button><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="deleteAllBones" disabled>Apagar todos os ossos…</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button id="tabShapes" class="workspace-tab" role="tab" aria-selected="false" aria-controls="panelShapes">Shape Keys</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabHand" role="tab" aria-selected="false" aria-controls="panelHand">Mão</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button><button class="workspace-tab" id="tabSequences" role="tab" aria-selected="false" aria-controls="panelSequences">Sequências</button><button class="workspace-tab" id="tabImages" role="tab" aria-selected="false" aria-controls="panelImages">Imagens</button><button class="workspace-tab" id="tabObjects" role="tab" aria-selected="false" aria-controls="panelObjects">Objetos</button><button class="workspace-tab" id="tabMorph" role="tab" aria-selected="false" aria-controls="panelMorph">Morph</button><button class="workspace-tab" id="tabPath" role="tab" aria-selected="false" aria-controls="panelPath">Caminho</button></div><div id="boneDisplayTools"><label title="Ajustar o raio visual das juntas">Juntas <input id="boneDisplaySize" type="range" min="2" max="20" step="0.5" value="4" aria-label="Raio visual das juntas em pixels"><output id="boneDisplayValue">4 px</output></label></div></header>
+<body><input id="imagePlaneFiles" type="file" accept="image/png,image/jpeg,image/webp,image/avif,image/bmp" multiple hidden><header id="studioHeader"><details><summary>Arquivo</summary><div class="dropdown"><button id="import">Importar GLB…</button><button id="importImagePlane" hidden style="display:none">Importar imagens como planos…</button><button id="saveProject">Salvar projeto na pasta…</button><button id="saveCompactProject">Salvar projeto compacto…</button><button id="loadProjectFolder">Carregar pasta de projeto…</button><button id="loadProject">Carregar projeto…</button><button id="saveCharacter">Salvar personagem selecionado…</button><button id="loadCharacter">Carregar personagem…</button><button id="exportVideo">Exportar WebM · Full HD…</button></div></details><details><summary>Editar</summary><div class="dropdown"><button id="openDrawing3D">Desenho para 3D</button><button id="add">Colocar ossos</button><button id="deleteBone">Apagar osso selecionado</button><button id="deleteAllBones" disabled>Apagar todos os ossos…</button><button id="bind">Vincular malha aos ossos</button><button id="reset">Restaurar pose inicial</button><div id="clipPanel"><select id="clips" aria-label="Animações do GLB"></select><button id="play">▶ Reproduzir</button></div></div></details><div class="workspace-tabs" role="tablist" aria-label="Ferramentas"><button class="workspace-tab" id="tabPoses" role="tab" aria-selected="false" aria-controls="panelPoses">Poses</button><button id="tabShapes" class="workspace-tab" role="tab" aria-selected="false" aria-controls="panelShapes">Shape Keys</button><button class="workspace-tab" id="tabExpressions" role="tab" aria-selected="false" aria-controls="panelExpressions">Expressões</button><button class="workspace-tab" id="tabFace" role="tab" aria-selected="false" aria-controls="panelFace">Facerig</button><button class="workspace-tab" id="tabHand" role="tab" aria-selected="false" aria-controls="panelHand">Mão</button><button class="workspace-tab" id="tabScene" role="tab" aria-selected="false" aria-controls="panelScene">Cena</button><button class="workspace-tab" id="tabVFX" role="tab" aria-selected="false" aria-controls="panelVFX">VFX</button><button class="workspace-tab" id="tabSequences" role="tab" aria-selected="false" aria-controls="panelSequences">Vídeo</button><button class="workspace-tab" id="tabImages" role="tab" aria-selected="false" aria-controls="panelImages">Imagens</button><button class="workspace-tab" id="tabObjects" role="tab" aria-selected="false" aria-controls="panelObjects">Objetos</button><button class="workspace-tab" id="tabMorph" role="tab" aria-selected="false" aria-controls="panelMorph">Morph</button><button class="workspace-tab" id="tabPath" role="tab" aria-selected="false" aria-controls="panelPath">Caminho</button></div><div id="boneDisplayTools"><label title="Ajustar o raio visual das juntas">Juntas <input id="boneDisplaySize" type="range" min="2" max="20" step="0.5" value="4" aria-label="Raio visual das juntas em pixels"><output id="boneDisplayValue">4 px</output></label></div></header>
 <main><nav aria-label="Ferramentas da cena">
 <button id="orbit" title="Navegar pela cena">Navegar</button>
 <button id="toolPose" title="Modo pose" aria-keyshortcuts="Space">Modo pose</button>
@@ -1192,7 +1192,7 @@ body:has(#panelObjects:not([hidden])) main > nav #baseGrabUndo {
 <button id="objectVisibility" title="Mostrar ou ocultar o objeto selecionado">Visível</button>
 <button id="duplicateSceneObject" title="Duplicar objeto selecionado">Duplicar objeto</button>
 <button id="deleteSceneObject" title="Excluir objeto selecionado da cena">Excluir objeto</button>
-</nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="error"></div><div class="hint" id="hint">Arraste para olhar ao redor · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelSequences" role="tabpanel" aria-labelledby="tabSequences" hidden><div class="sequencePanel"><h3 id="sequenceHeading">Sequências</h3><button id="sequenceImport" class="primary">＋ Importar pasta de imagens</button><input id="sequenceFiles" type="file" accept="image/*" webkitdirectory directory multiple hidden><label>Sequência na cena<select id="sequenceSelect" aria-label="Sequência na cena"></select></label><div id="sequenceControls" hidden><button id="sequenceVideoBackground" type="button" aria-pressed="false" title="Preencher a área do vídeo, com recorte central se necessário">Usar como fundo do vídeo</button><div class="sequenceButtons"><button id="sequencePlay">▶ Play</button><button id="sequencePause">Ⅱ Pausar</button><button id="sequenceRestart">↺ Início</button></div><label><input id="sequenceLoop" type="checkbox"> Loop</label><label><input id="sequenceVisible" type="checkbox"> Visível na cena</label><div class="sequenceButtons"><button id="sequenceKeyPlay">◆ Play no frame</button><button id="sequenceKeyPause">◆ Pause no frame</button></div><button id="sequenceOpenTrack">Abrir timeline do objeto</button><label id="sequenceFpsLabel">Velocidade (FPS)<input id="sequenceFps" type="number" min="1" max="120" step="1" value="24" aria-label="Velocidade da sequência em FPS"></label><label>Posição / início <output id="sequenceTime">0.00 s</output><input id="sequenceSeek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Posição do vídeo"></label><div class="sequenceButtons"><button id="sequenceMove">Mover</button><button id="sequenceRotate">Girar</button><button id="sequenceScale">Escalar</button></div><button id="sequenceChooseFollowers" title="Escolher objetos que acompanham posição, rotação e escala desta sequência">Escolher objetos para seguir…</button><div id="sequenceFollowersInfo" class="muted"></div><div id="studioMorphPanel" class="studioMorphPanel"><h3>Cinema Morph</h3><label>Objeto de origem (sequência ou GLB)<select id="studioMorphSource" aria-label="Objeto de origem da metamorfose"></select></label><label>Destino da transformação (GLB ou sequência de imagens)<select id="studioMorphTarget"><option value="">Desativado</option></select></label><div class="studioMorphPair"><label>Frame inicial<input id="studioMorphStart" type="number" min="1" max="100000" step="1" value="24"></label><label>Frame final<input id="studioMorphEnd" type="number" min="2" max="100000" step="1" value="72"></label></div><label>Transição orgânica <output id="studioMorphSoftOut">35%</output><input id="studioMorphSoft" type="range" min="1" max="100" value="35"></label><label>Distorção da transformação <output id="studioMorphWarpOut">30%</output><input id="studioMorphWarp" type="range" min="0" max="100" value="30"></label><label>Brilho da transformação <output id="studioMorphGlowOut">35%</output><input id="studioMorphGlow" type="range" min="0" max="100" value="35"></label><div class="cinemaMorphExtra"><div class="cinemaMorphEyebrow">CINEMA MORPH</div><label>Preset de transformação<select id="studioMorphLook" aria-label="Preset de transformação"><option value="custom">Personalizado · ajustes manuais</option><option value="creature">Criatura · expansão muscular</option><option value="symbiote">Simbionte · cobertura viscosa</option><option value="skin">Metamorfo · mudança de pele</option><option value="liquid">Metal líquido</option><option value="organic">Orgânica · tecido vivo</option><option value="plasma">Plasma · energia</option><option value="crystal">Cristal · crescimento</option><option value="digital">Digital · reconstrução</option><option value="smoke">Fumaça · dissolução</option><option value="ash">Cinzas · desintegração</option><option value="ribbon">Membranas · faixas</option></select></label><button id="studioMorphApplyLook" style="width:100%">Aplicar preset</button><label>Tipo de transição<select id="studioMorphType" aria-label="Tipo de transição"><option value="organic">Orgânica · dissolução fluida</option><option value="symbiote">Simbionte · raízes vivas</option><option value="plasma">Plasma · energia elétrica</option><option value="crystal">Cristalização · fragmentos</option><option value="digital">Digital · blocos de dados</option><option value="smoke">Fumaça · névoa turbulenta</option><option value="creature">Criatura · expansão muscular</option><option value="skin">Metamorfo · troca de pele</option><option value="liquid">Metal líquido · superfície fluida</option><option value="ash">Cinzas · desintegração</option><option value="ribbon">Membranas · faixas orgânicas</option></select></label><label>Cor da metamorfose<input id="studioMorphColor" type="color" value="#14eda8"></label><label>Direção da metamorfose<output id="studioMorphDirectionOut" hidden>Cima → baixo</output><select id="studioMorphDirection" aria-label="Direção da metamorfose"><option value="1">De baixo para cima</option><option value="0" selected>De cima para baixo</option></select></label><label>Detalhamento fractal <output id="studioMorphDetailOut">65%</output><input id="studioMorphDetail" type="range" min="0" max="100" value="65"></label><label>Energia da borda <output id="studioMorphEnergyOut">100%</output><input id="studioMorphEnergy" type="range" min="10" max="200" value="100"></label><label>Deformação 3D <output id="studioMorphDisplaceOut">55%</output><input id="studioMorphDisplace" type="range" min="0" max="100" value="55"></label><label>Curva de transformação<select id="studioMorphEase"><option value="linear">Linear · constante</option><option value="smooth">Suave · entrada e saída</option><option value="cinematic">Cinemática · aceleração progressiva</option><option value="accelerate">Acelerar</option><option value="decelerate">Desacelerar</option></select></label><label>Pausa dramática <output id="studioMorphHoldOut">0%</output><input id="studioMorphHold" type="range" min="0" max="40" value="0"></label><label>Acabamento molhado / metálico <output id="studioMorphCoatOut">0%</output><input id="studioMorphCoat" type="range" min="0" max="100" value="0"></label><label style="display:flex;align-items:center;gap:8px"><input id="studioMorphAccents" type="checkbox" checked style="width:auto">Elementos 3D adicionais</label><div class="faceButtons"><button id="studioMorphPreviewStart">Início</button><button id="studioMorphPreviewMiddle">Meio</button><button id="studioMorphPreviewEnd">Fim</button></div><div class="cinemaMorphHint">Aplique um preset e ajuste os controles. Os efeitos mantêm origem e destino intactos; início e fim ficam limpos. Use modelos alinhados e com proporções próximas para uma metamorfose convincente. A timeline e a exportação usam o mesmo efeito.</div></div><p class="muted">Importe a sequência original e escolha como destino um GLB ou outra sequência de imagens. As duas sequências podem ser animadas e são reveladas pelo mesmo efeito procedural na timeline. Para melhor alinhamento, coloque os planos no mesmo lugar na cena.</p></div><button id="sequenceDelete">Excluir sequência</button><p class="muted" id="sequenceInfo"></p></div><p class="muted">A pasta vira um plano animado em 3D. As imagens são ordenadas pelo nome: 1, 2, 3… 10. PNG/WebP mantêm a transparência. Play e Pausar controlam a prévia. Use ◆ Play / Pause no frame para programar a reprodução na timeline geral do objeto e na exportação. Cada imagem é um quadro. Ajuste o FPS para definir a velocidade.</p></div></section><section id="panelMorph" role="tabpanel" aria-labelledby="tabMorph" hidden><div class="sequencePanel" id="studioMorphMount"></div></section><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><div id="studioClothPanel"><h3>Física · cabelo e tecido</h3>
+</nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="error"></div><div class="hint" id="hint">Arraste para olhar ao redor · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelSequences" role="tabpanel" aria-labelledby="tabSequences" hidden><div class="sequencePanel"><h3 id="sequenceHeading">Vídeo</h3><button id="sequenceImport" class="primary">＋ Importar vídeo (WebM/MP4)</button><input id="sequenceFiles" type="file" accept="video/webm,video/mp4,.webm,.mp4" multiple hidden><label>Vídeo na cena<select id="sequenceSelect" aria-label="Vídeo na cena"></select></label><div id="sequenceControls" hidden><button id="sequenceVideoBackground" type="button" aria-pressed="false" title="Preencher a área do vídeo, com recorte central se necessário">Usar como fundo do vídeo</button><div class="sequenceButtons"><button id="sequencePlay">▶ Play</button><button id="sequencePause">Ⅱ Pausar</button><button id="sequenceRestart">↺ Início</button></div><label><input id="sequenceLoop" type="checkbox"> Loop</label><label><input id="sequenceVisible" type="checkbox"> Visível na cena</label><label title="O plano do vídeo acompanha a rotação da câmera, sem mudar sua posição nem escala"><input id="sequenceFaceCamera" type="checkbox"> Sempre de frente para a câmera</label><div class="sequenceButtons"><button id="sequenceKeyPlay">◆ Play no frame</button><button id="sequenceKeyPause">◆ Pause no frame</button></div><button id="sequenceOpenTrack">Abrir timeline do objeto</button><label id="sequenceFpsLabel">Velocidade (FPS)<input id="sequenceFps" type="number" min="1" max="120" step="1" value="24" aria-label="Velocidade da sequência em FPS"></label><label>Posição / início <output id="sequenceTime">0.00 s</output><input id="sequenceSeek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Posição do vídeo"></label><div class="sequenceButtons"><button id="sequenceMove">Mover</button><button id="sequenceRotate">Girar</button><button id="sequenceScale">Escalar</button></div><button id="sequenceChooseFollowers" title="Escolher objetos que acompanham posição, rotação e escala desta sequência">Escolher objetos para seguir…</button><div id="sequenceFollowersInfo" class="muted"></div><div id="studioMorphPanel" class="studioMorphPanel"><h3>Cinema Morph</h3><label>Objeto de origem (vídeo ou GLB)<select id="studioMorphSource" aria-label="Objeto de origem da metamorfose"></select></label><label>Destino (vídeo ou GLB)<select id="studioMorphTarget"><option value="">Desativado</option></select></label><div class="studioMorphPair"><label>Frame inicial<input id="studioMorphStart" type="number" min="1" max="100000" step="1" value="24"></label><label>Frame final<input id="studioMorphEnd" type="number" min="2" max="100000" step="1" value="72"></label></div><label>Transição orgânica <output id="studioMorphSoftOut">35%</output><input id="studioMorphSoft" type="range" min="1" max="100" value="35"></label><label>Distorção da transformação <output id="studioMorphWarpOut">30%</output><input id="studioMorphWarp" type="range" min="0" max="100" value="30"></label><label>Brilho da transformação <output id="studioMorphGlowOut">35%</output><input id="studioMorphGlow" type="range" min="0" max="100" value="35"></label><div class="cinemaMorphExtra"><div class="cinemaMorphEyebrow">CINEMA MORPH</div><label>Preset de transformação<select id="studioMorphLook" aria-label="Preset de transformação"><option value="custom">Personalizado · ajustes manuais</option><option value="creature">Criatura · expansão muscular</option><option value="symbiote">Simbionte · cobertura viscosa</option><option value="skin">Metamorfo · mudança de pele</option><option value="liquid">Metal líquido</option><option value="organic">Orgânica · tecido vivo</option><option value="plasma">Plasma · energia</option><option value="crystal">Cristal · crescimento</option><option value="digital">Digital · reconstrução</option><option value="smoke">Fumaça · dissolução</option><option value="ash">Cinzas · desintegração</option><option value="ribbon">Membranas · faixas</option></select></label><button id="studioMorphApplyLook" style="width:100%">Aplicar preset</button><label>Tipo de transição<select id="studioMorphType" aria-label="Tipo de transição"><option value="organic">Orgânica · dissolução fluida</option><option value="symbiote">Simbionte · raízes vivas</option><option value="plasma">Plasma · energia elétrica</option><option value="crystal">Cristalização · fragmentos</option><option value="digital">Digital · blocos de dados</option><option value="smoke">Fumaça · névoa turbulenta</option><option value="creature">Criatura · expansão muscular</option><option value="skin">Metamorfo · troca de pele</option><option value="liquid">Metal líquido · superfície fluida</option><option value="ash">Cinzas · desintegração</option><option value="ribbon">Membranas · faixas orgânicas</option></select></label><label>Cor da metamorfose<input id="studioMorphColor" type="color" value="#14eda8"></label><label>Direção da metamorfose<output id="studioMorphDirectionOut" hidden>Cima → baixo</output><select id="studioMorphDirection" aria-label="Direção da metamorfose"><option value="1">De baixo para cima</option><option value="0" selected>De cima para baixo</option></select></label><label>Detalhamento fractal <output id="studioMorphDetailOut">65%</output><input id="studioMorphDetail" type="range" min="0" max="100" value="65"></label><label>Energia da borda <output id="studioMorphEnergyOut">100%</output><input id="studioMorphEnergy" type="range" min="10" max="200" value="100"></label><label>Deformação 3D <output id="studioMorphDisplaceOut">55%</output><input id="studioMorphDisplace" type="range" min="0" max="100" value="55"></label><label>Curva de transformação<select id="studioMorphEase"><option value="linear">Linear · constante</option><option value="smooth">Suave · entrada e saída</option><option value="cinematic">Cinemática · aceleração progressiva</option><option value="accelerate">Acelerar</option><option value="decelerate">Desacelerar</option></select></label><label>Pausa dramática <output id="studioMorphHoldOut">0%</output><input id="studioMorphHold" type="range" min="0" max="40" value="0"></label><label>Acabamento molhado / metálico <output id="studioMorphCoatOut">0%</output><input id="studioMorphCoat" type="range" min="0" max="100" value="0"></label><input id="studioMorphAccents" type="checkbox" hidden disabled><div class="faceButtons"><button id="studioMorphPreviewStart">Início</button><button id="studioMorphPreviewMiddle">Meio</button><button id="studioMorphPreviewEnd">Fim</button></div><div class="cinemaMorphHint">Aplique um preset e ajuste os controles. Os efeitos mantêm origem e destino intactos; início e fim ficam limpos. Use modelos alinhados e com proporções próximas para uma metamorfose convincente. A timeline e a exportação usam o mesmo efeito.</div></div><p class="muted">Selecione Vídeo → GLB ou GLB → Vídeo. Defina os frames de início e fim; alinhe posição e escala para uma transição convincente. Vídeos chromakey-alpha mantêm a máscara de transparência.</p></div><button id="sequenceDelete">Excluir vídeo</button><p class="muted" id="sequenceInfo"></p></div><p class="muted">Importe arquivos WebM ou MP4 diretamente como planos animados em 3D. Play e Pausar controlam a prévia. Use ◆ Play / Pause no frame para programar a reprodução na timeline e na exportação.</p></div></section><section id="panelMorph" role="tabpanel" aria-labelledby="tabMorph" hidden><div class="sequencePanel" id="studioMorphMount"></div></section><section id="panelObjects" role="tabpanel" aria-labelledby="tabObjects" hidden><div class="objectSettings"><div id="studioClothPanel"><h3>Física · cabelo e tecido</h3>
 <button id="studioClothActivate" type="button">Ativar tecido no objeto</button>
 <label>Força do vento <output id="studioClothForceOut">35</output><input id="studioClothForce" type="range" min="0" max="200" value="35"></label>
 <label>Direção X <input id="studioClothX" type="range" min="-100" max="100" value="100"></label>
@@ -1351,7 +1351,7 @@ main{height:calc(100dvh - 54px)!important;width:100%!important;display:block!imp
 #proCloneBtn.proSelected{color:#c6ffcf!important;background:#285a3e!important;border-color:#4ecb7b!important}
 #proCloneSliderBox{position:fixed;z-index:21;right:13px;top:calc(54px + (100dvh - 54px)/2);transform:translateY(-50%);width:63px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:10px;background:#25272bdc;border:1px solid #44484f;border-radius:17px;box-shadow:0 8px 32px #0008;backdrop-filter:blur(16px)}
 body:has(#proLeftDock.proCloneActive) #proCloneSliderBox{display:flex}
-#proCloneSize{appearance:none;-webkit-appearance:none;writing-mode:vertical-lr;direction:rtl;width:7px;height:164px;margin:0;padding:0;background:linear-gradient(to top,#92bff2 0%,#92bff2 var(--range-pct,24%),#50545d var(--range-pct,24%),#50545d 100%);border:0;border-radius:20px;outline-offset:9px;cursor:ns-resize;touch-action:none}
+#proCloneSize{writing-mode:vertical-lr;direction:rtl;width:7px;height:164px;margin:0;padding:0;background:linear-gradient(to top,#92bff2 0%,#92bff2 var(--range-pct,24%),#50545d var(--range-pct,24%),#50545d 100%);border:0;border-radius:20px;outline-offset:9px;cursor:ns-resize;touch-action:none}
 #proCloneSize::-webkit-slider-runnable-track{width:7px;border-radius:20px;background:transparent}
 #proCloneSize::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;margin-left:-7.5px;border-radius:50%;border:4px solid #e8f0fc;background:#77aff0;box-shadow:0 2px 8px #0009}
 #proCloneSize::-moz-range-track{width:7px;background:transparent}
@@ -10423,6 +10423,34 @@ self.onmessage=({data:{meshes,operations}})=&gt;{
  dialog.append(document.getElementById('proColorPanel'),document.getElementById('proCloneSource'));
  const stage=document.getElementById('compositionStage');
  stage.append(document.getElementById('proLeftDock'),document.getElementById('proCloneSliderBox'));
+ // Navegação centralizada abaixo da cena: mão e zoom horizontal.
+ const editNavigation=document.createElement('div');
+ editNavigation.id='compositionNavigation';
+ editNavigation.style.cssText='position:absolute;z-index:24;left:50%;bottom:18px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);display:flex;align-items:center;flex-direction:row;gap:12px;padding:8px 14px;background:#25272bdc;border:1px solid #44484f;border-radius:17px;box-shadow:0 8px 32px #0008;backdrop-filter:blur(16px);touch-action:none';
+ const editPanButton=document.createElement('button');
+ editPanButton.id='compositionPanHand';
+ editPanButton.type='button';
+ editPanButton.setAttribute('aria-label','Mão / Pan da cena');
+ editPanButton.setAttribute('aria-pressed','false');
+ editPanButton.title='Mão: arraste com o botão esquerdo para navegar pela cena';
+ editPanButton.innerHTML='✋&lt;small style="font-size:9px;display:block;margin-top:4px"&gt;Pan&lt;/small&gt;';
+ editPanButton.style.cssText='width:49px;min-height:53px;padding:6px 2px;border:1px solid transparent;border-radius:12px;background:transparent;color:#c2c6cd;font:23px system-ui;cursor:pointer';
+ const editZoom=document.createElement('label');
+ editZoom.id='compositionZoomSlider';
+ editZoom.setAttribute('aria-label','Zoom da edição 3D');
+ editZoom.style.cssText='display:flex;align-items:center;flex-direction:row;gap:10px;font:11px system-ui;color:#d9dee7;touch-action:none';
+ editZoom.innerHTML='&lt;span&gt;Zoom&lt;/span&gt;&lt;input type="range" min="0" max="100" step="0.1" value="50" aria-label="Aproximar ou afastar a cena" style="appearance:none;-webkit-appearance:none;width:clamp(95px,22vw,200px);height:8px;accent-color:#a8cbef;cursor:ew-resize;touch-action:none;margin:0;border-radius:15px;background:#50545d"&gt;&lt;output style="min-width:36px;text-align:center;font-size:11px"&gt;50%&lt;/output&gt;';
+ editNavigation.append(editPanButton,editZoom);
+ stage.append(editNavigation);
+ // A mão é uma alça de arrasto: não exige ativação prévia.
+ editPanButton.removeAttribute('aria-pressed');
+ editPanButton.title='Segure e arraste esta mão para mover a visão da cena';
+ editPanButton.style.cursor='grab';
+ editNavigation.addEventListener('pointerdown',e=&gt;e.stopPropagation());
+ editNavigation.addEventListener('wheel',e=&gt;e.stopPropagation(),{passive:true});
+ const editZoomRange=editZoom.querySelector('input');
+ const editZoomOutput=editZoom.querySelector('output');
+
  document.getElementById('toolOrbit').click();
  let stroke=null,paintPointer=null,pendingPaint=null,cloneImage=null;
  let renderer,scene,objects,camera,controls,grid,keyLight,fillLight,selected,count=0,frame=0;
@@ -10471,7 +10499,102 @@ self.onmessage=({data:{meshes,operations}})=&gt;{
   camera=new E.Camera(45,1,.001,1000);
   camera.position.set(6,4,8);
   controls=new E.Orbit(camera,canvas);
+  const zoomNear=0.05,zoomFar=500;
+  function syncEditZoom(){
+   const distance=camera.position.distanceTo(controls.target);
+   const value=100*(Math.log(zoomFar)-Math.log(Math.max(zoomNear,Math.min(zoomFar,distance))))/Math.log(zoomFar/zoomNear);
+   editZoomRange.value=String(Math.max(0,Math.min(100,value)));
+   editZoomOutput.textContent=Math.round(value)+'%';
+  }
+  editZoomRange.addEventListener('input',()=&gt;{
+   const fraction=Number(editZoomRange.value)/100;
+   const distance=zoomFar*Math.pow(zoomNear/zoomFar,fraction);
+   const direction=camera.position.clone().sub(controls.target);
+   if(direction.lengthSq()&lt;1e-10)direction.set(0,0,1);
+   camera.position.copy(controls.target).add(direction.normalize().multiplyScalar(distance));
+   camera.updateMatrixWorld();
+   editZoomOutput.textContent=Math.round(fraction*100)+'%';
+   requestRender();
+  });
+  editZoom.addEventListener('pointerdown',e=&gt;e.stopPropagation());
+  editZoom.addEventListener('wheel',e=&gt;e.stopPropagation(),{passive:true});
+  syncEditZoom();
+
+  // Navegação disponível também durante pintura, seleção e edição.
+  // Quando OrbitControls está ativo, ele próprio cuida dos botões e da rodinha;
+  // o suporte abaixo atua somente quando as ferramentas desativam seus controles.
+  let editPan=null;
+  let handDrag=null;
+  editPanButton.addEventListener('pointerdown',e=>{
+   if(e.button!==0)return;
+   handDrag={id:e.pointerId,x:e.clientX,y:e.clientY};
+   editPanButton.setPointerCapture(e.pointerId);
+   editPanButton.style.cursor='grabbing';
+   e.preventDefault();e.stopPropagation();
+  });
+  editPanButton.addEventListener('pointermove',e=>{
+   if(!handDrag||e.pointerId!==handDrag.id||!camera||!controls)return;
+   const dx=e.clientX-handDrag.x,dy=e.clientY-handDrag.y;
+   handDrag.x=e.clientX;handDrag.y=e.clientY;
+   const distance=camera.position.distanceTo(controls.target);
+   const step=2*distance*Math.tan(camera.fov*Math.PI/360)/Math.max(1,canvas.clientHeight);
+   const right=new E.Vector(1,0,0).applyQuaternion(camera.quaternion);
+   const up=new E.Vector(0,1,0).applyQuaternion(camera.quaternion);
+   const shift=right.multiplyScalar(-dx*step).add(up.multiplyScalar(dy*step));
+   camera.position.add(shift);controls.target.add(shift);
+   camera.updateMatrixWorld();requestRender();
+   e.preventDefault();e.stopPropagation();
+  });
+  const stopHandDrag=e=>{
+   if(!handDrag||e.pointerId!==handDrag.id)return;
+   handDrag=null;editPanButton.style.cursor='grab';
+   if(editPanButton.hasPointerCapture(e.pointerId))editPanButton.releasePointerCapture(e.pointerId);
+  };
+  editPanButton.addEventListener('pointerup',stopHandDrag);
+  editPanButton.addEventListener('pointercancel',stopHandDrag);
+  editPanButton.addEventListener('lostpointercapture',e=>{
+   if(handDrag&&handDrag.id===e.pointerId){handDrag=null;editPanButton.style.cursor='grab';}
+  });
+  canvas.addEventListener('contextmenu',e=&gt;e.preventDefault());
+  canvas.addEventListener('wheel',e=&gt;{
+   if(controls.enabled)return;
+   e.preventDefault();e.stopImmediatePropagation();
+   const offset=camera.position.clone().sub(controls.target);
+   const distance=offset.length();
+   const factor=Math.exp(Math.max(-500,Math.min(500,e.deltaY))*.001);
+   offset.multiplyScalar(Math.max(.02,Math.min(5000,factor*distance))/Math.max(distance,1e-8));
+   camera.position.copy(controls.target).add(offset);
+   camera.updateMatrixWorld();requestRender();
+  },{capture:true,passive:false});
+  canvas.addEventListener('pointerdown',e=&gt;{
+   if(controls.enabled||!(e.button===1||e.button===2||e.button===0&amp;&amp;e.shiftKey))return;
+   editPan={id:e.pointerId,x:e.clientX,y:e.clientY};
+   e.preventDefault();e.stopImmediatePropagation();
+   canvas.setPointerCapture(e.pointerId);
+  },true);
+  canvas.addEventListener('pointermove',e=&gt;{
+   if(!editPan||e.pointerId!==editPan.id)return;
+   e.preventDefault();e.stopImmediatePropagation();
+   const dx=e.clientX-editPan.x,dy=e.clientY-editPan.y;
+   editPan.x=e.clientX;editPan.y=e.clientY;
+   const distance=camera.position.distanceTo(controls.target);
+   const step=2*distance*Math.tan(camera.fov*Math.PI/360)/Math.max(1,canvas.clientHeight);
+   const right=new E.Vector(1,0,0).applyQuaternion(camera.quaternion);
+   const up=new E.Vector(0,1,0).applyQuaternion(camera.quaternion);
+   const shift=right.multiplyScalar(-dx*step).add(up.multiplyScalar(dy*step));
+   camera.position.add(shift);controls.target.add(shift);
+   camera.updateMatrixWorld();requestRender();
+  },true);
+  const endEditPan=e=&gt;{
+   if(!editPan||e.pointerId!==editPan.id)return;
+   editPan=null;e.preventDefault();e.stopImmediatePropagation();
+   if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);
+  };
+  canvas.addEventListener('pointerup',endEditPan,true);
+  canvas.addEventListener('pointercancel',endEditPan,true);
+  canvas.addEventListener('lostpointercapture',e=&gt;{if(editPan&amp;&amp;e.pointerId===editPan.id)editPan=null;},true);
   controls.addEventListener('change',()=&gt;{
+   syncEditZoom();
    if(selectionPath.length)resetSelectionPath();
    requestRender();
   });
@@ -61254,7 +61377,26 @@ void main() {
     mesh.castShadow=false;mesh.receiveShadow=false;
     const texture=new VideoTexture(video);texture.colorSpace=SRGBColorSpace;texture.generateMipmaps=false;texture.minFilter=texture.magFilter=LinearFilter;texture.needsUpdate=true;
     const material=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;
-    material.map=texture;material.transparent=true;material.side=DoubleSide;material.toneMapped=false;material.needsUpdate=true;
+    material.map=texture;material.transparent=true;material.side=DoubleSide;material.toneMapped=false;
+    material.userData.studioPackedAlpha=!!config.packedAlpha;
+    // WebM chromakey-alpha: esquerda=RGB; direita=mascara de opacidade.
+    // Reconstrói o alpha no shader, sem gerar milhares de imagens em memória.
+    if(config.packedAlpha){
+      material.onBeforeCompile=shader=>{
+        shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>', `
+          #ifdef USE_MAP
+            vec2 studioUV = vMapUv;
+            vec4 studioRGB = texture2D(map, vec2(studioUV.x * 0.5, studioUV.y));
+            float studioMask = texture2D(map, vec2(0.5 + studioUV.x * 0.5, studioUV.y)).r;
+            float studioAlpha = smoothstep(0.015, 0.985, studioMask);
+            diffuseColor *= vec4(studioRGB.rgb, studioAlpha);
+          #endif
+        `);
+      };
+      material.customProgramCacheKey=()=> 'alexandre-studio-packed-alpha-1';
+      material.depthWrite=false;
+    }
+    material.needsUpdate=true;
     const runtime={root,video,texture,objectUrl:sourceUrl||null,lastFrame:-1,playPending:false};
     studioSequenceRuntimes.set(root,runtime);
     config.duration=video.duration;config.width=video.videoWidth;config.height=video.videoHeight;
@@ -61278,37 +61420,44 @@ void main() {
       if(runtime.objectUrl)URL.revokeObjectURL(runtime.objectUrl);studioSequenceRuntimes.delete(owner);
     }
   }
+  // Importação direta de vídeo. Mantém o vídeo comprimido no projeto,
+  // sem transformar em sequência de imagens nem recodificá-lo.
   async function importSequences(files){
     if(exportState||studioSaving)return;
-    const supported=/\.(png|jpe?g|webp|avif|bmp)$/i;
-    const images=files.filter(file=>supported.test(file.name)&&(!file.webkitRelativePath||file.webkitRelativePath.split('/').length===2));
-    const collator=new Intl.Collator(undefined,{numeric:true,sensitivity:'base'});
-    images.sort((a,b)=>collator.compare(a.name,b.name)||a.name.localeCompare(b.name));
-    if(!images.length){$('sequenceFiles').value='';return status('A pasta selecionada não contém PNG, JPG, WebP, AVIF ou BMP diretamente nela.')}
+    const videos=files.filter(file=>/\.(webm|mp4)$/i.test(file.name));
+    if(!videos.length){$('sequenceFiles').value='';return status('Selecione um vídeo WebM ou MP4.');}
     pauseTimeline();commitCameraEdit();finishDrag(false);saveActiveObject();
-    let root;
+    const importButton=$('sequenceImport');importButton.disabled=true;
+    let added=0,failed=[];
     try{
-      const folderName=images[0].webkitRelativePath?.split('/')[0]||'Sequência de imagens';
-      const frames=[];
-      for(let i=0;i<images.length;i++){
-        const file=images[i];status('Importando imagens: '+(i+1)+' / '+images.length);
-        const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Falha ao ler '+file.name));reader.readAsDataURL(file)});
-        frames.push({name:file.name,dataUrl});
-        if(i%16===15)await new Promise(resolve=>setTimeout(resolve,0));
+      for(const file of videos){
+        let root;
+        try{
+          status('Importando vídeo: '+file.name);
+          const dataUrl=await new Promise((resolve,reject)=>{
+            const reader=new FileReader();
+            reader.onload=()=>resolve(reader.result);
+            reader.onerror=()=>reject(new Error('Não foi possível ler o arquivo.'));
+            reader.readAsDataURL(file);
+          });
+          root=new Group();root.name=file.name;root.position.copy(controls.target);
+          const mesh=new Mesh(new PlaneGeometry(4,2.25),new MeshBasicMaterial({color:0xffffff,side:DoubleSide,transparent:true,toneMapped:false}));
+          mesh.userData.studioSequenceSurface=true;mesh.castShadow=false;mesh.receiveShadow=false;root.add(mesh);
+          root.userData.studioSequence={kind:'video',name:file.name,dataUrl,meshId:mesh.uuid,packedAlpha:/^chromakey-alpha/i.test(file.name),loop:true,playing:false,time:0};
+          const runtime=await ensureSequenceRuntime(root);
+          mesh.geometry.dispose();mesh.geometry=new PlaneGeometry(4,4*runtime.video.videoHeight/(runtime.root.userData.studioSequence.packedAlpha?runtime.video.videoWidth/2:runtime.video.videoWidth));
+          root.quaternion.identity();scene.add(root);root.updateMatrixWorld(true);
+          const object={id:root.uuid,name:file.name,root,bones:[],rest:new Map(),clips:[],mixer:new AnimationMixer(root),bound:false,selected:null,customRig:null,poseLibrary:[],keyframes:new Map()};
+          objects.push(object);object.keyframes.set(1,{pose:capturePose(object)});
+          added++;
+        }catch(error){
+          if(root){disposeSequenceRuntime(root);disposeTree(root);}
+          failed.push(file.name+': '+error.message);
+        }
       }
-      root=new Group();root.name=folderName;root.position.copy(controls.target);
-      const mesh=new Mesh(new PlaneGeometry(4,2.25),new MeshBasicMaterial({color:0xffffff,side:DoubleSide,transparent:true,toneMapped:false}));
-      mesh.userData.studioSequenceSurface=true;mesh.castShadow=false;mesh.receiveShadow=false;root.add(mesh);
-      root.userData.studioSequence={kind:'images',name:folderName,frames,fps:24,meshId:mesh.uuid,loop:true,playing:false,time:0};
-      const runtime=await ensureSequenceRuntime(root);
-      mesh.geometry.dispose();mesh.geometry=new PlaneGeometry(4,4*runtime.canvas.height/runtime.canvas.width);
-      root.quaternion.identity();scene.add(root);root.updateMatrixWorld(true);
-      const object={id:root.uuid,name:folderName,root,bones:[],rest:new Map(),clips:[],mixer:new AnimationMixer(root),bound:false,selected:null,customRig:null,poseLibrary:[],keyframes:new Map()};
-      objects.push(object);object.keyframes.set(1,{pose:capturePose(object)});
-      refreshObjectSelect();selectObject(object.id,true);frame();setMode('moveObject');syncObjectInspector();
-      status(frames.length+' imagens importadas em ordem numérica como um objeto 3D.');
-    }catch(error){if(root)disposeTree(root);status('Falha ao importar a sequência: '+error.message)}
-    finally{$('sequenceFiles').value='';syncSequenceUI()}
+      if(added){refreshObjectSelect();selectObject(objects.at(-1).id,true);frame();setMode('moveObject');syncObjectInspector();}
+      status((added?added+' vídeo(s) importado(s) sem conversão.':'Nenhum vídeo importado.')+(failed.length?' Erros: '+failed.join('; '):''));
+    }finally{importButton.disabled=false;$('sequenceFiles').value='';syncSequenceUI();}
   }
 
   // Metamorfose entre a sequência de quadros e um objeto GLB real.
@@ -61457,9 +61606,22 @@ void main() {
     // Materiais originais são restaurados, mas nenhuma visibilidade é modificada.
     for(const part of rec.parts){
       part.mesh.material=part.original;
+      for(const material of (Array.isArray(part.original)?part.original:[part.original]))studioMorphRestoreLiveMaterial(material);
       for(const material of part.clones)material.dispose();
     }
     studioMorphGLBMaterials.delete(root);
+  }
+  // Mantém o material especial em cache entre passagens: a cada loop alternamos
+  // o GLB original e o efeito, sem recriar shaders nem clonar clones antigos.
+  function studioMorphSelectGLBMaterial(rec,withEffect){
+    if(!rec)return;
+    for(const part of rec.parts){
+      if(!part.mesh?.parent)continue;
+      const desired=withEffect
+        ?(Array.isArray(part.original)?part.clones:part.clones[0])
+        :part.original;
+      if(part.mesh.material!==desired)part.mesh.material=desired;
+    }
   }
   // CINEMA MORPH VFX 3D — objects are preview-only and never become scene objects
   // in a saved project. Each effect shares the same animated progress and color.
@@ -61809,7 +61971,10 @@ void main() {
     return prefix;
   }
   function studioMorphShader(material,uniforms){
-    const prev=material.onBeforeCompile;
+    // For packed-alpha WebM, the morph shader must sample RGB and matte
+    // together: the original packed shader would consume map_fragment first.
+    const packedAlpha=!!material.userData.studioPackedAlpha;
+    const prev=packedAlpha?null:material.onBeforeCompile;
     material.onBeforeCompile=(shader,renderer)=>{
       if(prev)prev.call(material,shader,renderer);
       studioCinemaUniforms(shader,uniforms);
@@ -61849,7 +62014,14 @@ void main() {
             offset+=vec2(sin(cuv.y*17.+cinema2dTime*3.),cos(cuv.x*15.-cinema2dTime*2.))*nearFront*.08;
           }
           offset*=nearFront*phase*cinema2dWarp*.055;
-          vec4 sampledDiffuseColor=texture2D(map,clamp(cuv+offset,0.001,0.999));
+          vec2 sampleUV=clamp(cuv+offset,0.001,0.999);
+          ${packedAlpha ? `
+            vec4 sampledDiffuseColor=texture2D(map,vec2(sampleUV.x*.5,sampleUV.y));
+            float videoAlpha=texture2D(map,vec2(.5+sampleUV.x*.5,sampleUV.y)).r;
+            sampledDiffuseColor.a*=smoothstep(.015,.985,videoAlpha);
+          ` : `
+            vec4 sampledDiffuseColor=texture2D(map,sampleUV);
+          `}
           #ifdef DECODE_VIDEO_TEXTURE
             sampledDiffuseColor=sRGBTransferEOTF(sampledDiffuseColor);
           #endif
@@ -61881,7 +62053,7 @@ void main() {
         }
       `);
     };
-    material.customProgramCacheKey=()=> 'studio-cinema-source-styles-v5';
+    material.customProgramCacheKey=()=> packedAlpha?'studio-cinema-source-video-alpha-v6':'studio-cinema-source-styles-v6';
     material.transparent=true;
     material.depthWrite=false;
     material.needsUpdate=true;
@@ -61972,10 +62144,12 @@ void main() {
     material.customProgramCacheKey=()=> (key?key():'')+'-studio-cinema-creature-styles-v5';
     material.needsUpdate=true;
   }
-  function studioMorphPrepareGLB(root){
-    let rec=studioMorphGLBMaterials.get(root);if(rec)return rec;
+  function studioMorphPrepareGLB(root, safeVideoMode=false){
+    let rec=studioMorphGLBMaterials.get(root);
+    if(rec&&!!rec.safeVideoMode!==!!safeVideoMode){studioMorphRestoreGLB(root);rec=null;}
+    if(rec)return rec;
     const base=studioMorphBase(root);
-    rec={parts:[],nodes:[],rootVisible:base.rootVisible,uniforms:{progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},coat:{value:0},invert:{value:1},min:{value:new Vector3()},size:{value:new Vector3(1,1,1)}}};
+    rec={parts:[],nodes:[],safeVideoMode:!!safeVideoMode,rootVisible:base.rootVisible,uniforms:{progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},coat:{value:0},invert:{value:1},min:{value:new Vector3()},size:{value:new Vector3(1,1,1)}}};
     // Guardar a visibilidade de todos os nós: malhas, grupos e ossos.
     // Um GLB importado pode ter sido ocultado antes da transição.
     root.traverse(node=>{if(node!==root)rec.nodes.push({node,visible:base.nodes.has(node)?base.nodes.get(node):node.visible})});
@@ -61993,7 +62167,15 @@ void main() {
         // Preserve the original FaceRig and other material shaders before adding Cinema Morph.
         clone.onBeforeCompile=m.onBeforeCompile;
         clone.customProgramCacheKey=m.customProgramCacheKey.bind(m);
-        studioMorphGLBShader(clone,rec.uniforms);
+        if(safeVideoMode){
+          // Pares video/GLB: preservar shaders originais (incluindo FaceRig,
+          // skinning e morph targets). Apenas a opacidade muda com o tempo.
+          // O shader Cinema anterior podia falhar na compilacao e ocultar o GLB.
+          clone.transparent=true;
+          clone.depthWrite=false;
+          clone.opacity=m.opacity??1;
+          clone.needsUpdate=true;
+        }else studioMorphGLBShader(clone,rec.uniforms);
         return clone;
       });
       rec.parts.push({mesh,original,clones,visible:base.nodes.has(mesh)?base.nodes.get(mesh):mesh.visible});
@@ -62017,12 +62199,125 @@ void main() {
     rec.uniforms.type.value=studioMorphTypeIndex(c.type);
     rec.uniforms.invert.value=invert?1:0;
   }
+  // Para GLB -> GLB, os materiais originais são necessários: alguns GLBs
+  // (inclusive a cerejeira do projeto) não desenham suas cópias clonadas.
+  const studioMorphLiveMaterialStates=new Map();
+  function studioMorphRestoreLiveMaterial(material){
+    const state=studioMorphLiveMaterialStates.get(material);
+    if(!state)return;
+    material.opacity=state.opacity;
+    if(material.transparent!==state.transparent){material.transparent=state.transparent;material.needsUpdate=true;}
+    material.depthWrite=state.depthWrite;
+    if(state.emissive && material.emissive)material.emissive.copy(state.emissive);
+    studioMorphLiveMaterialStates.delete(material);
+  }
+  function studioMorphLiveGLBFade(rec,progress,revealing,c){
+    const t=studioMorphClamp(progress),alpha=revealing?t:1-t;
+    const edge=Math.sin(Math.PI*t),glow=studioMorphClamp(Number(c.glow??35)/100);
+    const rgb=studioMorphColorToVector(studioMorphNormalizeColor(c.color,c.preset||'alien'));
+    studioMorphSelectGLBMaterial(rec,false);
+    for(const part of rec.parts){
+      for(const material of (Array.isArray(part.original)?part.original:[part.original])){
+        if(!material)continue;
+        let state=studioMorphLiveMaterialStates.get(material);
+        if(!state){
+          state={opacity:material.opacity??1,transparent:material.transparent,depthWrite:material.depthWrite,emissive:material.emissive?.clone()};
+          studioMorphLiveMaterialStates.set(material,state);
+        }
+        material.opacity=state.opacity*alpha;
+        const transparent=alpha>=.999999?state.transparent:true;
+        if(material.transparent!==transparent){material.transparent=transparent;material.needsUpdate=true;}
+        material.depthWrite=alpha>=.999999?state.depthWrite:false;
+        if(state.emissive && material.emissive){
+          material.emissive.copy(state.emissive);
+          material.emissive.r=Math.min(1,material.emissive.r+rgb[0]*edge*glow*.4);
+          material.emissive.g=Math.min(1,material.emissive.g+rgb[1]*edge*glow*.4);
+          material.emissive.b=Math.min(1,material.emissive.b+rgb[2]*edge*glow*.4);
+        }
+      }
+    }
+  }
+  function studioMorphVideoGLBFade(rec,progress,revealing,c,frame){
+    if(!rec?.safeVideoMode)return;
+    const t=studioMorphClamp(progress);
+    const alpha=revealing?t:1-t;
+    const edge=Math.sin(Math.PI*t);
+    const glow=studioMorphClamp(Number(c.glow??35)/100);
+    const coat=studioMorphClamp(Number(c.coat??0)/100);
+    const rgb=studioMorphColorToVector(studioMorphNormalizeColor(c.color,c.preset||'alien'));
+    for(const part of rec.parts)for(let k=0;k<part.clones.length;k++){
+      const mat=part.clones[k],original=Array.isArray(part.original)?part.original[k]:part.original;
+      // Fade nativo: sem injetar GLSL nos materiais dos GLBs importados.
+      // Funciona nos dois sentidos e preserva as animacoes originais.
+      mat.opacity=(original.opacity??1)*alpha;
+      // O fade pertence apenas aos frames intermediarios. No destino final,
+      // recuperar o estado original de transparência e escrita de profundidade:
+      // manter transparent=true/depthWrite=false provoca aspecto translúcido.
+      const atRest=alpha>=0.999999;
+      const transparent=atRest?!!original.transparent:true;
+      const depthWrite=atRest?original.depthWrite:false;
+      if(mat.transparent!==transparent){mat.transparent=transparent;mat.needsUpdate=true;}
+      if(mat.depthWrite!==depthWrite)mat.depthWrite=depthWrite;
+      if(mat.emissive&&original.emissive){
+        mat.emissive.copy(original.emissive);
+        const intensity=edge*(glow*.42+coat*.18)*(Number(c.energy??100)/100);
+        mat.emissive.r=Math.min(1,mat.emissive.r+rgb[0]*intensity);
+        mat.emissive.g=Math.min(1,mat.emissive.g+rgb[1]*intensity);
+        mat.emissive.b=Math.min(1,mat.emissive.b+rgb[2]*intensity);
+      }
+    }
+    // Fisica/vento podem aplicar um material derivado DEPOIS do clone do
+    // Morph. Atualizar apenas part.clones deixa esse material visivel com
+    // a opacidade antiga (frequentemente 0, como no projeto reproduzido).
+    // Nunca alterar o material original usado fora do efeito.
+    for(const part of rec.parts){
+      const live=Array.isArray(part.mesh.material)?part.mesh.material:[part.mesh.material];
+      const originals=Array.isArray(part.original)?part.original:[part.original];
+      for(let k=0;k<live.length;k++){
+        const mat=live[k],original=originals[Math.min(k,originals.length-1)];
+        if(!mat||originals.includes(mat))continue;
+        mat.opacity=(original?.opacity??1)*alpha;
+        const atRest=alpha>=0.999999;
+        const transparent=atRest?!!original?.transparent:true;
+        const depthWrite=atRest?(original?.depthWrite??true):false;
+        if(mat.transparent!==transparent){mat.transparent=transparent;mat.needsUpdate=true;}
+        if(mat.depthWrite!==depthWrite)mat.depthWrite=depthWrite;
+      }
+    }
+  }
   function studioMorphSetGLBBounds(rec,root){
     const box=new Box3().setFromObject(root);
     if(!box.isEmpty()){
       rec.uniforms.min.value.copy(box.min);
       rec.uniforms.size.value.copy(box.max).sub(box.min);
     }
+  }
+  // Enquadra temporariamente GLB -> GLB na posição da origem.
+  // Preserva a posição original para salvar o .project e para desfazer o vínculo.
+  const studioMorphGLBAlignments=new Map();
+  function studioMorphUnalignGLB(root){
+    const a=studioMorphGLBAlignments.get(root);
+    if(!a)return;
+    if(root.position.distanceToSquared(a.aligned)<1e-8)root.position.copy(a.base);
+    root.updateMatrixWorld(true);
+    studioMorphGLBAlignments.delete(root);
+  }
+  function studioMorphAlignGLB(source,destination){
+    let a=studioMorphGLBAlignments.get(destination);
+    if(a){
+      // Uma edição manual real substitui a posição antiga, sem criar deriva.
+      if(destination.position.distanceToSquared(a.aligned)>1e-8)a.base.copy(destination.position);
+      destination.position.copy(a.base);
+      destination.updateMatrixWorld(true);
+    }
+    const srcBox=new Box3().setFromObject(source),dstBox=new Box3().setFromObject(destination);
+    if(srcBox.isEmpty()||dstBox.isEmpty())return;
+    if(!a){a={base:destination.position.clone(),aligned:destination.position.clone()};studioMorphGLBAlignments.set(destination,a);}
+    const srcCenter=srcBox.getCenter(new Vector3()),dstCenter=dstBox.getCenter(new Vector3());
+    // Manter a escala, rotação, materiais e animação do arquivo original.
+    a.aligned.copy(a.base).add(new Vector3(srcCenter.x-dstCenter.x,srcBox.min.y-dstBox.min.y,srcCenter.z-dstCenter.z));
+    destination.position.copy(a.aligned);
+    destination.updateMatrixWorld(true);
   }
   function studioMorphGLBVisibility(rec,root,show){
     // Visibilidade inteiramente manual: Cinema Morph atua apenas no shader.
@@ -62099,8 +62394,103 @@ void main() {
     // reexibir os dois planos neste instante causava quatro imagens visíveis.
     for(const root of touched)studioMorphRestoreBase(root);
   }
+  // Troca de direção deve ser uma transação: eliminar vínculos anteriores,
+  // devolver os planos temporariamente ocultos e reconstruir os shaders.
+  function studioMorphChangePair(owner,previousTargetId){
+    if(!owner)return;
+    const c=studioMorphConfig(owner.root),dest=objects.find(o=>o.id===c?.targetId);
+    const oldDest=objects.find(o=>o.id===previousTargetId);
+    const touched=new Set([owner.root,dest?.root,oldDest?.root].filter(Boolean));
+    for(const other of objects){
+      if(other===owner)continue;
+      const oc=studioMorphConfig(other.root);
+      if(!oc?.targetId)continue;
+      if(other===dest||oc.targetId===owner.id||(dest&&oc.targetId===dest.id)){
+        touched.add(other.root);
+        const old=objects.find(o=>o.id===oc.targetId);
+        if(old)touched.add(old.root);
+        if(other.root.userData.studioSequence)delete other.root.userData.studioSequence.metamorph;
+        else delete other.root.userData.studioCinemaMorph;
+      }
+    }
+    // Nunca conservar uma máscara/visibilidade do sentido anterior.
+    studioMorphRestoreCompletedVideos();
+    for(const root of touched){
+      studioMorphRestoreSequenceTarget(root);
+      studioMorphRestore(root);
+      studioMorphRestoreGLB(root);
+      cinemaVolumeDispose(root);
+      studioMorphForgetBase(root);
+      if(root.userData.studioSequence && studioMorphManualVisible(root)){
+        root.visible=true;
+        studioManualShowContents(root);
+        const mesh=studioMorphSourceMesh(root);
+        // A opacidade zero de projetos antigos é artefato do Morph, não
+        // uma configuração deliberada de transparência do vídeo.
+        if(root.userData.studioSequence.kind==='video' && mesh?.material){
+          for(const m of (Array.isArray(mesh.material)?mesh.material:[mesh.material]))
+            if(m.opacity<=0.000001)m.opacity=1;
+        }
+      }
+    }
+    if(c?.targetId)c.editSerial=studioMorphNextRevision();
+    studioMorphPairSignature='';
+    vfxLastDraw=0;
+  }
+  // Video -> GLB: the source plane must stop covering the final GLB.
+  // Snapshot the plane's OWN visibility (not the root), so timeline scrubbing,
+  // changing morph pairs and loading another project can restore it safely.
+  const studioMorphCompletedVideoPlanes=new Map();
+  function studioMorphRestoreCompletedVideos(active=new Set()){
+    for(const [mesh,visible] of studioMorphCompletedVideoPlanes){
+      if(active.has(mesh))continue;
+      if(mesh.parent)mesh.visible=visible;
+      studioMorphCompletedVideoPlanes.delete(mesh);
+    }
+  }
+  function studioMorphSetCompletedVideo(sourceRoot,done){
+    const mesh=studioMorphSourceMesh(sourceRoot);
+    if(!mesh)return;
+    if(done){
+      if(!studioMorphCompletedVideoPlanes.has(mesh))studioMorphCompletedVideoPlanes.set(mesh,mesh.visible);
+      mesh.visible=false;
+    }else if(studioMorphCompletedVideoPlanes.has(mesh)){
+      mesh.visible=studioMorphCompletedVideoPlanes.get(mesh);
+      studioMorphCompletedVideoPlanes.delete(mesh);
+    }
+  }
   let studioMorphPairSignature='';
+  // Reinicializa somente os recursos transitórios do Morph ao voltar ao início
+  // da timeline. Materiais base, visibilidade manual e keyframes são preservados.
+  let studioMorphPreviousPlaybackFrame=null;
+  function studioMorphResetAtLoop(frame){
+    if(!timelinePlaying||!Number.isFinite(frame)){
+      studioMorphPreviousPlaybackFrame=null;
+      return;
+    }
+    const previous=studioMorphPreviousPlaybackFrame;
+    studioMorphPreviousPlaybackFrame=frame;
+    if(previous===null||frame>=previous-0.5)return;
+    // Não interpretar pequenas correções de scrubbing como fim de ciclo.
+    if(previous-frame<Math.max(3,Math.min(12,endFrame*.1)))return;
+    // Manter materiais e shaders do GLB vivos entre ciclos: a troca/descarte
+    // interrompia os efeitos depois da primeira reproducao. O progresso e o
+    // tempo sao reescritos para todos os materiais em updateStudioMorphs().
+    for(const rec of studioMorphGLBMaterials.values()){
+      rec.uniforms.progress.value=0;
+      rec.uniforms.time.value=frame/24;
+    }
+    // WeakMap nao permite iteracao: consultar os materiais pelos objetos da cena.
+    for(const obj of objects){
+      const rec=studioMorphMaterials.get(obj.root);
+      if(!rec)continue;
+      rec.uniforms.progress.value=0;
+      rec.uniforms.time.value=frame/24;
+    }
+    vfxLastDraw=0;
+  }
   function updateStudioMorphs(frame=currentFrame){
+    studioMorphResetAtLoop(frame);
     // One owner per object, for all four combinations. Never let a saved
     // reverse link or an old pair keep running a second visibility controller.
     const candidates=[];
@@ -62111,8 +62501,8 @@ void main() {
       if(!destination)continue;
       const sourceSeq=source.root.userData.studioSequence;
       const destSeq=destination.root.userData.studioSequence;
-      if(sourceSeq && (sourceSeq.kind!=='images'||!studioSequenceRuntimes.has(source.root)||!studioMorphSourceMesh(source.root)))continue;
-      if(destSeq && (destSeq.kind!=='images'||!studioSequenceRuntimes.has(destination.root)||!studioMorphSourceMesh(destination.root)))continue;
+      if(sourceSeq && (!['images','video'].includes(sourceSeq.kind)||!studioSequenceRuntimes.has(source.root)||!studioMorphSourceMesh(source.root)))continue;
+      if(destSeq && (!['images','video'].includes(destSeq.kind)||!studioSequenceRuntimes.has(destination.root)||!studioMorphSourceMesh(destination.root)))continue;
       candidates.push({source,destination,cfg,index,serial:Number(cfg.editSerial)||0});
     }
     candidates.sort((a,b)=>b.serial-a.serial||b.index-a.index);
@@ -62122,6 +62512,9 @@ void main() {
       occupied.add(pair.source.root);occupied.add(pair.destination.root);
       pairs.push(pair);
     }
+    // Não deixar o deslocamento visual de uma direção contaminá-la ao inverter.
+    const glbAlignmentTargets=new Set(pairs.filter(p=>!p.source.root.userData.studioSequence&&!p.destination.root.userData.studioSequence).map(p=>p.destination.root));
+    for(const root of [...studioMorphGLBAlignments.keys()])if(!glbAlignmentTargets.has(root))studioMorphUnalignGLB(root);
     const pairSignature=pairs.map(p=>p.source.id+'>'+p.destination.id).sort().join(';');
     if(pairSignature!==studioMorphPairSignature){
       // An object may change role from target (invert=1) to source (invert=0).
@@ -62134,6 +62527,8 @@ void main() {
       }
       studioMorphPairSignature=pairSignature;
     }
+    // A different morph pair must not leave a previous video plane hidden.
+    studioMorphRestoreCompletedVideos(new Set(pairs.filter(p=>p.source.root.userData.studioSequence && !p.destination.root.userData.studioSequence).map(p=>studioMorphSourceMesh(p.source.root))));
     const targets=new Set(pairs.map(p=>p.destination.root));
     const activeSources=new Set(pairs.map(p=>p.source.root));
     const participating=new Set(occupied);
@@ -62165,7 +62560,11 @@ void main() {
       let data=studioMorphMaterials.get(root);
       if(!data||data.mesh!==mesh){
         studioMorphRestore(root);
-        const original=mesh.material,material=original.clone();
+        const original=mesh.material;
+        // Projetos antigos guardaram opacidade=0 do shader temporario,
+        // impedindo o video de aparecer apos inverter GLB -> video.
+        if(source.kind==='video' && original.opacity<=0.000001)original.opacity=1;
+        const material=original.clone();
         const uniforms={progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},coat:{value:0},invert:{value:0}};
         studioMorphShader(material,uniforms);mesh.material=material;
         // A visibilidade do plano/objeto é sempre controlada manualmente.
@@ -62174,6 +62573,9 @@ void main() {
       const start=Math.max(1,Number(c.start)||1),end=Math.max(start+1,Number(c.end)||start+1);
       const t=studioMorphProgress(c,frame);
       data.uniforms.progress.value=t;
+      // Guaranteed crossfade underneath Cinema's organic rim / distortion.
+      if(!targetIsSequence)data.material.opacity=(data.original.opacity??1)*(1-t);
+      else data.material.opacity=data.original.opacity??1;
       data.uniforms.coat.value=studioMorphClamp(Number(c.coat??0)/100);
       data.uniforms.soft.value=studioMorphClamp(Number(c.soft??35)/100);
       data.uniforms.warp.value=studioMorphClamp(Number(c.warp??30)/100);
@@ -62204,7 +62606,9 @@ void main() {
         let dest=studioMorphMaterials.get(targetRoot);
         if(!dest||dest.mesh!==targetMesh){
           studioMorphRestore(targetRoot);
-          const original=targetMesh.material,material=original.clone();
+          const original=targetMesh.material;
+          if(targetObject.root.userData.studioSequence?.kind==='video' && original.opacity<=0.000001)original.opacity=1;
+          const material=original.clone();
           const uniforms={progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},coat:{value:0},invert:{value:1}};
           studioMorphShader(material,uniforms);targetMesh.material=material;
           dest={mesh:targetMesh,original,material,uniforms,originalVisible:targetMesh.visible,originalRenderOrder:targetMesh.renderOrder};
@@ -62225,7 +62629,21 @@ void main() {
         if(data.lastProgress!==t){data.lastProgress=t;vfxLastDraw=0}
         continue;
       }
-      const creature=studioMorphPrepareGLB(targetObject.root);
+      // Full completion is a real hand-off: stop rasterizing the source video.
+      // Opacity and the shader alone cannot prevent a translucent fullscreen
+      // plane (or its depth buffer) from hiding an imported GLB.
+      studioMorphSetCompletedVideo(root,t>=0.999999);
+      // Ensure the GLB's saved manual visibility is respected at the end.
+      if(t>=0.999999 && studioMorphManualVisible(targetObject.root)){
+        targetObject.root.visible=true;
+        studioManualShowContents(targetObject.root);
+      }
+      // O mesmo material precisa sobreviver ao fim do ciclo. Em t=1 a
+      // deformacao vale zero e a opacidade do GLB volta a 100%; nao descartar
+      // o shader aqui, senao o proximo loop perde os efeitos.
+      const creature=studioMorphPrepareGLB(targetObject.root,true);
+      creature.uniforms.invert.value=1;
+      studioMorphVideoGLBFade(creature,t,true,c,frame);
       cinemaVolumeUpdate(targetObject.root,null,c,t,studioMorphNormalizeColor(c.color),frame,t);
       creature.uniforms.progress.value=t;
       creature.uniforms.coat.value=data.uniforms.coat.value;
@@ -62265,12 +62683,49 @@ void main() {
     for(const {root,c,destination} of glbPairs){
       const start=Math.max(1,Number(c.start)||1),end=Math.max(start+1,Number(c.end)||start+1);
       const t=studioMorphProgress(c,frame);
-      const sourceRec=studioMorphPrepareGLB(root);
+      const destinationIsVideo=['images','video'].includes(destination.userData.studioSequence?.kind);
+      // Todos os pares com GLB usam a mesma transição segura de materiais.
+      // O shader espacial antigo podia ocultar GLBs com skinning/FaceRig
+      // e falhar ao trocar de outro GLB ou vídeo repetidamente.
+      // O GLB e seus shaders são preparados uma única vez por vínculo.
+      // No início de CADA ciclo, usar o material original sem liberar clones.
+      const sourceRec=studioMorphPrepareGLB(root,true);
+      if(t<=0.000001){
+        studioMorphSetGLBState(sourceRec,c,0,frame,false);
+        studioMorphVideoGLBFade(sourceRec,0,false,c,frame);
+        studioMorphSelectGLBMaterial(sourceRec,false);
+        cinemaVolumeDispose(root);
+        const videoTarget=studioMorphSourceMesh(destination);
+        if(videoTarget){
+          const activeTarget=studioMorphMaterials.get(destination);
+          if(activeTarget){
+            activeTarget.material.opacity=0;
+            activeTarget.uniforms.progress.value=0;
+            activeTarget.uniforms.glow.value=0;
+            activeTarget.uniforms.warp.value=0;
+            activeTarget.uniforms.displace.value=0;
+          }
+          cinemaVolumeDispose(destination);
+        }
+        // Ainda é necessário preparar o shader do destino no frame inicial:
+        // sem isso o vídeo original aparece inteiro antes da metamorfose.
+      }
+      // Ao ultrapassar o frame inicial, reutiliza exatamente os mesmos
+      // materiais do ciclo anterior; isso evita opacidade/glow órfãos.
+      // Em progresso zero preservar o material original do GLB (skinning/FaceRig).
+      // O destino, porém, permanece com máscara alpha ativa desde o primeiro frame.
+      if(destinationIsVideo)studioMorphSelectGLBMaterial(sourceRec,t>0.000001);
       studioMorphSetGLBState(sourceRec,c,t,frame,false);
+      if(destinationIsVideo)studioMorphVideoGLBFade(sourceRec,t,false,c,frame);
+      else studioMorphLiveGLBFade(sourceRec,t,false,c);
       studioMorphSetGLBBounds(sourceRec,root);
+      // At the first frame of GLB -> Video, keep the original GLB shader.
+      // Some imported skinned GLBs become invisible when the Cinema shader
+      // is applied at zero progress, even though their skeleton still renders.
+      // The temporary morph uniforms remain available to the video target.
       studioMorphGLBVisibility(sourceRec,root,t<1);
       cinemaVolumeUpdate(root,null,c,t,studioMorphNormalizeColor(c.color),frame,1-t);
-      if(destination.userData.studioSequence?.kind==='images'){
+      if(['images','video'].includes(destination.userData.studioSequence?.kind)){
         // GLB -> sequência: the same 2D mask already used for imagem -> imagem
         // progressively reveals the destination without moving or scaling it.
         const targetMesh=studioMorphSourceMesh(destination);
@@ -62280,7 +62735,9 @@ void main() {
         let record=studioMorphMaterials.get(destination);
         if(!record||record.mesh!==targetMesh){
           studioMorphRestore(destination);
-          const original=targetMesh.material,material=original.clone();
+          const original=targetMesh.material;
+          if(destination.userData.studioSequence?.kind==='video' && original.opacity<=0.000001)original.opacity=1;
+          const material=original.clone();
           const uniforms={progress:{value:0},soft:{value:.35},warp:{value:.30},glow:{value:.35},time:{value:0},detail:{value:.65},energy:{value:1},displace:{value:.55},color:{value:new Vector3(.08,.93,.67)},direction:{value:new Vector2(0,-1)},type:{value:0},coat:{value:0},invert:{value:1}};
           studioMorphShader(material,uniforms);
           targetMesh.material=material;
@@ -62292,19 +62749,30 @@ void main() {
         u.color.value.copy(g.color.value);
         u.direction.value.copy(g.direction.value);
         u.invert.value=1;
+        // Keep decoded video alpha, fade in while GLB fades out.
+        record.material.opacity=(record.original.opacity??1)*t;
         cinemaVolumeUpdate(destination,targetMesh,c,t,studioMorphNormalizeColor(c.color),frame,t);
         // Não forçar visibilidade do destino GLB → sequência.
       }else{
-        const targetRec=studioMorphPrepareGLB(destination);
+        // GLBs são independentes e podem estar em posições diferentes na cena.
+        // Somente GLB -> GLB requer mostrar o destino no mesmo local da origem.
+        studioMorphAlignGLB(root,destination);
+        const targetRec=studioMorphPrepareGLB(destination,true);
         studioMorphSetGLBState(targetRec,c,t,frame,true);
+        studioMorphLiveGLBFade(targetRec,t,true,c);
         studioMorphSetGLBBounds(targetRec,destination);
         studioMorphGLBVisibility(targetRec,destination,t>0);
+        if(t>=0.999999 && studioMorphManualVisible(destination)){
+          destination.visible=true;
+          studioManualShowContents(destination);
+        }
         cinemaVolumeUpdate(destination,null,c,t,studioMorphNormalizeColor(c.color),frame,t);
       }
       targets.add(root);targets.add(destination);
       vfxLastDraw=0;
     }
-    for(const root of [...studioMorphGLBMaterials.keys()])if(!targets.has(root))studioMorphRestoreGLB(root);
+    // O GLB de origem também participa do Morph; não descartar seu shader durante o Play.
+    for(const root of [...studioMorphGLBMaterials.keys()])if(!participating.has(root))studioMorphRestoreGLB(root);
     for(const root of [...studioMorphSequenceTargets.keys()])if(!targets.has(root))studioMorphRestoreSequenceTarget(root);
     for(const root of [...cinemaVolumeOverlays.keys()]){
       const cfg=studioMorphConfig(root);
@@ -62319,17 +62787,35 @@ void main() {
   let studioMorphEditorSourceId=null;
   let studioMorphEditorExplicitSource=false;
   function studioMorphEditorObject(){
-    const active=activeObject;
     const pinned=objects.find(o=>o.id===studioMorphEditorSourceId);
-    // Explicit choice in "Objeto de origem" takes priority over scene selection.
     if(studioMorphEditorExplicitSource&&pinned)return pinned;
-    if(active&&studioMorphConfig(active.root)?.targetId){
-      studioMorphEditorSourceId=active.id;
-      return active;
+    // The saved MORPH OWNER determines direction, not the selected GLB.
+    // A destination selected in the scene is not a new source.
+    const configured=objects.filter(o=>studioMorphConfig(o.root)?.targetId &&
+      objects.some(other=>other!==o&&other.id===studioMorphConfig(o.root).targetId));
+    if(configured.length){
+      const activePair=configured.find(o=>o===activeObject || studioMorphConfig(o.root).targetId===activeObject?.id);
+      const owner=activePair||configured.sort((a,b)=>(Number(studioMorphConfig(b.root).editSerial)||0)-(Number(studioMorphConfig(a.root).editSerial)||0))[0];
+      studioMorphEditorSourceId=owner.id;
+      return owner;
     }
     if(pinned)return pinned;
-    if(active&&(active.root.userData.studioSequence?.kind==='images'||!active.root.userData.studioSequence))return active;
-    return objects.find(o=>studioMorphConfig(o.root)?.targetId)||null;
+    const owner=activeObject||objects[0]||null;
+    studioMorphEditorSourceId=owner?.id||null;
+    return owner;
+  }
+  // Reverse the saved pair atomically; never leave two opposing controllers.
+  function studioMorphReversePair(previous,newOwner){
+    if(!previous||!newOwner||previous===newOwner)return false;
+    const oldCfg=studioMorphConfig(previous.root);
+    if(!oldCfg?.targetId || oldCfg.targetId!==newOwner.id)return false;
+    const copy={...oldCfg,targetId:previous.id,editSerial:studioMorphNextRevision()};
+    if(previous.root.userData.studioSequence)delete previous.root.userData.studioSequence.metamorph;
+    else delete previous.root.userData.studioCinemaMorph;
+    if(newOwner.root.userData.studioSequence)newOwner.root.userData.studioSequence.metamorph=copy;
+    else newOwner.root.userData.studioCinemaMorph=copy;
+    studioMorphChangePair(newOwner,previous.id);
+    return true;
   }
   // Os parâmetros visuais do painel Morph são globais à sessão de edição.
   // Trocar origem/destino não deve sobrescrever o texto e os sliders.
@@ -62344,25 +62830,25 @@ void main() {
     c.type=studioMorphTypes.includes($('studioMorphType').value)?$('studioMorphType').value:'organic';
     c.color=studioMorphNormalizeColor($('studioMorphColor').value,c.preset||'alien');
     c.direction=studioMorphDirectionInfo($('studioMorphDirection').value).index;
-    c.ease=$('studioMorphEase').value;c.accents=$('studioMorphAccents').checked;
+    c.ease=$('studioMorphEase').value;c.accents=false;
     delete c.preset;
   }
   function syncStudioMorphUI(){
     const o=studioMorphEditorObject(),p=$('studioMorphPanel');if(!p)return;
-    p.hidden=!o||!!(o.root.userData.studioSequence&&o.root.userData.studioSequence.kind!=='images');
+    p.hidden=!o||!!(o.root.userData.studioSequence&&!['images','video'].includes(o.root.userData.studioSequence.kind));
     if(p.hidden)return;
     const heading=p.querySelector('h3');
     if(heading)heading.textContent='Cinema Morph · '+o.name;
     const sourceSelect=$('studioMorphSource');
-    const availableSources=objects.filter(x=>x.root.userData.studioSequence?.kind==='images'||!x.root.userData.studioSequence);
-    sourceSelect.replaceChildren(...availableSources.map(x=>new Option((x.root.userData.studioSequence?'🖼 Sequência · ':'◈ GLB · ')+x.name,x.id)));
+    const availableSources=objects.filter(x=>['images','video'].includes(x.root.userData.studioSequence?.kind)||!x.root.userData.studioSequence);
+    sourceSelect.replaceChildren(...availableSources.map(x=>new Option((x.root.userData.studioSequence?'▶ Vídeo · ':'◈ GLB · ')+x.name,x.id)));
     sourceSelect.value=o.id;
     const c=studioMorphConfig(o.root)||{},select=$('studioMorphTarget');
     const other=objects.filter(x=>x!==o&&x.root.getObjectByProperty&&(()=>{
-      if(x.root.userData.studioSequence)return x.root.userData.studioSequence.kind==='images'&&!!studioMorphSourceMesh(x.root);
+      if(x.root.userData.studioSequence)return ['images','video'].includes(x.root.userData.studioSequence.kind)&&!!studioMorphSourceMesh(x.root);
       let hasMesh=false;x.root.traverse(n=>{if(n.isMesh&&!n.userData.studioSequenceSurface)hasMesh=true});return hasMesh;
     })());
-    select.replaceChildren(new Option('Desativado',''),...other.map(x=>new Option((x.root.userData.studioSequence?'🖼 Sequência · ':'◈ GLB · ')+x.name,x.id)));
+    select.replaceChildren(new Option('Desativado',''),...other.map(x=>new Option((x.root.userData.studioSequence?'▶ Vídeo · ':'◈ GLB · ')+x.name,x.id)));
     select.value=other.some(x=>x.id===c.targetId)?c.targetId:'';
     // Inicializa uma única vez (inclusive a partir de um projeto existente).
     // Nas próximas seleções os valores permanecem exatamente como o usuário deixou.
@@ -62372,21 +62858,43 @@ void main() {
       }
       $('studioMorphType').value=studioMorphTypes.includes(c.type)?c.type:'organic';
       $('studioMorphColor').value=studioMorphNormalizeColor(c.color,c.preset||'alien');
-      $('studioMorphEase').value=c.ease||'linear';$('studioMorphAccents').checked=c.accents!==false;
+      $('studioMorphEase').value=c.ease||'linear';$('studioMorphAccents').checked=false;
       studioMorphFieldsInitialized=true;
     }
     for(const name of ['Soft','Warp','Glow','Detail','Energy','Displace','Coat','Hold'])$('studioMorph'+name+'Out').textContent=$('studioMorph'+name).value+'%';
     $('studioMorphDirectionOut').textContent=studioMorphDirectionInfo($('studioMorphDirection').value).label;
   }
   $('studioMorphSource').addEventListener('change',()=>{
-    studioMorphEditorSourceId=$('studioMorphSource').value;
+    const previous=studioMorphEditorObject();
+    const next=objects.find(x=>x.id===$('studioMorphSource').value);
+    if(!next||exportState||studioSaving)return;
+    // A origem e livre: qualquer GLB/video pode substituir a origem anterior.
+    // Transferir o morph de maneira atomica, sem deixar a direcao anterior ativa.
+    if(previous&&next!==previous){
+      const prevCfg=studioMorphConfig(previous.root);
+      if(prevCfg?.targetId){
+        studioMorphCopyPanelParameters(prevCfg);
+        const oldTarget=objects.find(x=>x.id===prevCfg.targetId);
+        // Se a nova origem era o antigo destino, inverter o par.
+        // Caso contrario, conservar o destino escolhido, desde que seja distinto.
+        const targetId=next===oldTarget?previous.id:(oldTarget&&oldTarget!==next?oldTarget.id:'');
+        const copy={...prevCfg,targetId,editSerial:studioMorphNextRevision()};
+        if(previous.root.userData.studioSequence)delete previous.root.userData.studioSequence.metamorph;
+        else delete previous.root.userData.studioCinemaMorph;
+        if(targetId){
+          if(next.root.userData.studioSequence)next.root.userData.studioSequence.metamorph=copy;
+          else next.root.userData.studioCinemaMorph=copy;
+          studioMorphChangePair(next,previous.id);
+        }else{
+          studioMorphChangePair(previous,prevCfg.targetId);
+        }
+      }
+    }
+    studioMorphEditorSourceId=next.id;
     studioMorphEditorExplicitSource=true;
-    const chosen=objects.find(x=>x.id===studioMorphEditorSourceId);
-    const existing=chosen&&studioMorphConfig(chosen.root);
+    const existing=studioMorphConfig(next.root);
     if(existing?.targetId){
-      // Mantém os parâmetros já escritos também quando a origem muda.
-      studioMorphCopyPanelParameters(existing);
-      if(!chosen.root.userData.studioSequence)studioMorphMakeGLBExclusive(chosen);
+      studioMorphChangePair(next,existing.targetId);
       updateStudioMorphs();vfxLastDraw=0;
     }
     syncStudioMorphUI();
@@ -62401,33 +62909,9 @@ void main() {
       const c=cfg[configKey]??={targetId:'',start:24,end:72,soft:35,warp:30,glow:35,color:'#14eda8',direction:0,detail:65,energy:100,displace:55};
       const previousTarget=c.targetId;
       c.targetId=$('studioMorphTarget').value;
-      if(field==='Target'&&previousTarget!==c.targetId&&o.root.userData.studioSequence?.kind==='images'){
-        studioMorphSwitchImagePair(o,c.targetId,previousTarget);
-        c.editSerial=studioMorphNextRevision();
-      }
-      // Editing a GLB pair is exclusive: reversing A→B to B→A should replace
-      // the old pair instead of creating a cyclic pair that cancels both.
-      if(!o.root.userData.studioSequence&&c.targetId&&field==='Target'){
-        for(const other of objects){
-          if(other===o)continue;
-          const oc=studioMorphConfig(other.root);
-          if(!oc?.targetId)continue;
-          if(other.id===c.targetId||oc.targetId===o.id||oc.targetId===c.targetId){
-            if(other.root.userData.studioSequence)delete other.root.userData.studioSequence.metamorph;
-            else delete other.root.userData.studioCinemaMorph;
-          }
-        }
-        // A reverse pair becomes the exclusive active link. Never prefer an
-        // old serial or the scene object ordering over the user's selection.
-        const oldDest=objects.find(x=>x.id===previousTarget);
-        const newDest=objects.find(x=>x.id===c.targetId);
-        for(const affected of [o,oldDest,newDest])if(affected){
-          studioMorphRestoreGLB(affected.root);
-          studioMorphRestore(affected.root);
-          studioMorphRestoreSequenceTarget(affected.root);
-        }
-        studioMorphMakeGLBExclusive(o,newDest);
-      }
+      // Exclusividade e restauração são iguais nos dois sentidos (vídeo/GLB).
+      if(field==='Target' && previousTarget!==c.targetId)
+        studioMorphChangePair(o,previousTarget);
       studioMorphCopyPanelParameters(c);
       if(!c.targetId){
         delete cfg[configKey];
@@ -62456,7 +62940,7 @@ void main() {
     for(const name of ['Soft','Warp','Glow','Detail','Energy','Displace','Coat','Hold'])$('studioMorph'+name).value=look[name.toLowerCase()];
     $('studioMorphType').value=look.type;$('studioMorphColor').value=look.color;
     if(look.type!=='creature')$('studioMorphDirection').value=1;
-    $('studioMorphEase').value=look.ease;$('studioMorphAccents').checked=look.accents;
+    $('studioMorphEase').value=look.ease;$('studioMorphAccents').checked=false;
     $('studioMorphType').dispatchEvent(new Event('change',{bubbles:true}));
     status('Cinema Morph: '+look.label+'. Ajuste o início e o fim na timeline.');
   };
@@ -62470,8 +62954,8 @@ void main() {
     syncSequenceFollowersUI();
     const select=$('sequenceSelect');if(!select)return;
     const list=objects.filter(o=>o.root.userData.studioSequence),object=sequenceObject();
-    select.replaceChildren(new Option('Selecionar sequência…',''),...list.map(o=>new Option(o.name,o.id)));select.value=object?.id||'';
-    $('sequenceHeading').textContent=object?.name||'Sequências';
+    select.replaceChildren(new Option('Selecionar vídeo…',''),...list.map(o=>new Option(o.name,o.id)));select.value=object?.id||'';
+    $('sequenceHeading').textContent=object?.name||'Vídeo';
     $('sequenceControls').hidden=!object;
     syncStudioMorphUI();
     // When another object is selected, only Cinema Morph remains as a pinned editor.
@@ -62485,13 +62969,13 @@ void main() {
     backgroundButton.hidden=c.kind!=='images';
     backgroundButton.disabled=!r;
     syncStudioVideoBackgroundButton(backgroundButton,!!c.videoBackground);
-    $('sequenceLoop').checked=!!c.loop;$('sequenceVisible').checked=object.root.visible!==false;
+    $('sequenceLoop').checked=!!c.loop;$('sequenceVisible').checked=object.root.visible!==false;$('sequenceFaceCamera').checked=!!c.faceCamera;
     const previewPlaying=r&&(!r.video.paused||r.playPending);$('sequencePlay').disabled=!!previewPlaying;$('sequencePause').disabled=!previewPlaying;
     $('sequenceFpsLabel').hidden=c.kind!=='images';if(document.activeElement!==$('sequenceFps'))$('sequenceFps').value=c.fps||24;
     $('sequenceSeek').step=c.kind==='images'?String(1/(c.fps||24)):'0.01';
     $('sequenceSeek').max=String(Math.max(0,(c.duration||1)-(c.kind==='images'?1/(c.fps||24):.001)));$('sequenceSeek').value=String(r?.video.currentTime||c.time||0);
     $('sequenceTime').textContent=(r?.video.currentTime||c.time||0).toFixed(2)+' / '+(c.duration||0).toFixed(2)+' s';
-    $('sequenceInfo').textContent=(c.width||0)+' × '+(c.height||0)+(c.kind==='images'?' · '+c.frames.length+' imagens · '+c.fps+' FPS':'')+' · '+object.name;
+    $('sequenceInfo').textContent=(c.width||0)+' × '+(c.height||0)+(c.kind==='images'?' · '+c.frames.length+' imagens · '+c.fps+' FPS':c.sourceImageCount?' · WebM de '+c.sourceImageCount+' imagens · '+c.sourceFps+' FPS':'')+' · '+object.name;
   }
   function syncSequencePlayback(time,exporting=false){
     if(!studioSequenceRuntimes)return;
@@ -62541,6 +63025,7 @@ void main() {
   $('sequencePause').onclick=()=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence,r=studioSequenceRuntimes.get(o.root);c.playing=false;c.time=r.video.currentTime;r.previewOverride=true;r.video.pause();syncSequenceUI()};
   $('sequenceRestart').onclick=()=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence,r=studioSequenceRuntimes.get(o.root);c.time=0;r.video.currentTime=0;vfxLastDraw=0;syncSequenceUI()};
   $('sequenceLoop').onchange=e=>{const o=sequenceObject();if(o){o.root.userData.studioSequence.loop=e.target.checked;syncSequenceUI()}};
+  $('sequenceFaceCamera').onchange=e=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence;c.faceCamera=e.target.checked;const mesh=studioMorphSourceMesh(o.root);if(mesh&&!c.faceCamera)mesh.quaternion.identity();studioInvalidatePreview();vfxLastDraw=0;syncSequenceUI()};
   $('sequenceFps').onchange=e=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence;if(c.kind!=='images')return;c.fps=Math.max(1,Math.min(120,Math.round(Number(e.target.value)||24)));c.duration=c.frames.length/c.fps;const r=studioSequenceRuntimes.get(o.root);r.lastFrame=-1;r.video.currentTime=Math.min(r.video.currentTime,Math.max(0,c.duration-1/c.fps));syncSequenceUI()};
   $('sequenceKeyPlay').onclick=()=>recordSequenceKey(true);
   $('sequenceKeyPause').onclick=()=>recordSequenceKey(false);
@@ -65760,8 +66245,31 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     const roots=root.userData.studioFolder?new Set(objects.map(o=>o.root)):null;
     const children=roots?root.children.filter(n=>roots.has(n)):[];
     const order=root.children.slice();for(const child of children)root.remove(child);
+    // Salvar a posição real do GLB, nunca o deslocamento temporário do Morph.
+    const alignment=studioMorphGLBAlignments.get(root);
+    const preview=alignment?root.position.clone():null;
+    if(alignment){root.position.copy(alignment.base);root.updateMatrixWorld(true);}
+    const liveMaterials=[];
+    root.traverse(node=>{
+      const mats=Array.isArray(node.material)?node.material:(node.material?[node.material]:[]);
+      for(const mat of mats){
+        const state=studioMorphLiveMaterialStates.get(mat);
+        if(!state||liveMaterials.some(item=>item.mat===mat))continue;
+        liveMaterials.push({mat,opacity:mat.opacity,transparent:mat.transparent,depthWrite:mat.depthWrite,emissive:mat.emissive?.clone()});
+        mat.opacity=state.opacity;mat.transparent=state.transparent;mat.depthWrite=state.depthWrite;
+        if(state.emissive&&mat.emissive)mat.emissive.copy(state.emissive);
+      }
+    });
     try{return serializeRuntimeFreeRoot(root, () => serializeRootGeometry(root));}
-    finally{for(const child of children)root.add(child);if(children.length)root.children.splice(0,root.children.length,...order);}
+    finally{
+      for(const item of liveMaterials){
+        item.mat.opacity=item.opacity;item.mat.transparent=item.transparent;item.mat.depthWrite=item.depthWrite;
+        if(item.emissive&&item.mat.emissive)item.mat.emissive.copy(item.emissive);
+      }
+      if(preview){root.position.copy(preview);root.updateMatrixWorld(true);}
+      for(const child of children)root.add(child);
+      if(children.length)root.children.splice(0,root.children.length,...order);
+    }
   }
   function serializeRootGeometry(root) {
     const swaps = [],seen=new Set();
@@ -65984,10 +66492,23 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       const restoredCamera = deserializeCamera(data.camera), restoredCameraKeys = new Map(data.cameraKeys.map(([f, k]) => [Number(f), { camera: deserializeCamera(k.camera), ...(typeof k.followToggle === "boolean" ? {followToggle:k.followToggle} : {}) }]));
       objectGizmo.detach();
       clearRigView();
+      studioMorphRestoreCompletedVideos();
+      // Release preview shaders BEFORE disposing the previous scene. Old morph
+      // maps must not retain destroyed GLBs or video surfaces across imports.
       for (const obj of objects) {
+        studioMorphRestoreSequenceTarget(obj.root);
+        studioMorphRestore(obj.root);
+        studioMorphRestoreGLB(obj.root);
+        cinemaVolumeDispose(obj.root);
         scene.remove(obj.root);
         disposeTree(obj.root);
+        studioMorphForgetBase(obj.root);
       }
+      studioMorphPairSignature='';
+      studioMorphPreviousPlaybackFrame=null;
+      studioMorphEditorSourceId=null;
+      studioMorphEditorExplicitSource=false;
+      studioMorphFieldsInitialized=false;
       objects.splice(0, objects.length, ...loaded);
       for (const obj of objects) {
         scene.add(obj.root);
@@ -66072,6 +66593,18 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       fillSurfaceSelect();
       if(objects.some(object=>object.root.userData.studioTimelineLoop?.additions))sampleTimeline(currentFrame);
       else applyPathMotion(currentFrame);
+      // Rebind saved source/destination IDs to freshly parsed scene objects.
+      // Recreate the morph at the saved frame instead of waiting for Play or a
+      // new file import to trigger its initialization.
+      for(const obj of objects){
+        if(obj.root.userData.studioManualVisibilityExplicit===true){
+          const visible=obj.root.userData.studioManualVisibilityValue!==false;
+          obj.root.visible=visible;
+          if(visible)studioManualShowContents(obj.root);
+        }
+      }
+      updateStudioMorphs(currentFrame);
+      vfxLastDraw=0;
       if(timelinePath)$('tabPath').click();
       status("Projeto carregado.");
     } catch (e) {
@@ -69454,7 +69987,21 @@ void main(){
       renderer.shadowMap.autoUpdate = shadow;
     }
   }
-  function serializeRuntimeFreeRoot(root,callback){return serializeWithoutStudioGlass(root,()=>serializeRuntimeFreeRootWithGlass(root,callback));}
+  // Never persist preview-only Cinema Morph material clones. The project must
+  // contain the GLB's original materials and the sequence's original material.
+  function serializeRuntimeFreeRoot(root,callback){
+    const swaps=[];
+    root.traverse(node=>{
+      if(!node.isMesh)return;
+      const glb=studioMorphGLBMaterials.get(root);
+      const part=glb?.parts.find(part=>part.mesh===node);
+      const seq=studioMorphMaterials.get(root);
+      const original=part?.original||(seq?.mesh===node?seq.original:null);
+      if(original && node.material!==original){swaps.push([node,node.material]);node.material=original;}
+    });
+    try{return serializeWithoutStudioGlass(root,()=>serializeRuntimeFreeRootWithGlass(root,callback));}
+    finally{for(const [node,material] of swaps)node.material=material;}
+  }
   function serializeRuntimeFreeRootWithGlass(root, callback) {
     const videoMaps=[];root.traverse(node=>{for(const material of node.material?(Array.isArray(node.material)?node.material:[node.material]):[])if(material.map?.isVideoTexture||material.map?.userData?.studioImageSequence){videoMaps.push([material,material.map]);material.map=null}});
     try{return serializeRuntimeFreeRootWithoutVideo(root,callback)}finally{for(const [material,map]of videoMaps)material.map=map}
@@ -72256,6 +72803,13 @@ void main(){
   function studioVideoBackground(){
     const object=objects.find(o=>o.root.userData.studioImagePlane?.videoBackground||o.root.userData.studioSequence?.videoBackground);
     const root=object?.root;
+    // A video promoted to a full-screen background must also relinquish that
+    // background after video -> GLB, not just its scene plane.
+    const cfg=root&&studioMorphConfig(root);
+    if(cfg?.targetId){
+      const dest=objects.find(o=>o.id===cfg.targetId);
+      if(dest&&!dest.root.userData.studioSequence && studioMorphProgress(cfg,currentFrame)>=0.999999)return null;
+    }
     const runtime=root?.userData.studioSequence?.kind==='images'?studioSequenceRuntimes.get(root):null;
     const mesh=runtime?null:imagePlaneMesh(object||null);
     const source=runtime&&studioTreeVisible(root)?runtime.texture:mesh&&studioTreeVisible(mesh)?mesh.material.map:null;
@@ -72283,6 +72837,23 @@ void main(){
     texture.matrixAutoUpdate=true;
     return {root:object.root,texture};
   }
+  // A orientação é aplicada somente ao plano: posição, escala e keyframes da raiz ficam intactos.
+  function studioOrientVideosToCamera(){
+    if(!studioSequenceRuntimes?.size)return;
+    camera.updateMatrixWorld(true);
+    const viewQ=camera.getWorldQuaternion(new Quaternion());
+    for(const [root] of studioSequenceRuntimes){
+      const c=root.userData?.studioSequence;
+      if(!c||c.kind!=='video'||!c.faceCamera)continue;
+      const mesh=root.getObjectByProperty('uuid',c.meshId)||root.children.find(n=>n.isMesh);
+      if(!mesh)continue;
+      const parent=mesh.parent||root;
+      parent.updateWorldMatrix(true,false);
+      const parentQ=parent.getWorldQuaternion(new Quaternion());
+      mesh.quaternion.copy(parentQ.invert().multiply(viewQ));
+      mesh.updateMatrixWorld(true);
+    }
+  }
   function renderStudioFrame(time,exporting=false,pathSampled=false) {
     if(exporting)renderer.shadowMap.autoUpdate=true;
     restoreStudioGlassMaterials();
@@ -72292,6 +72863,7 @@ void main(){
     for(const object of objects)if(!object.followBone&&object.customRig&&studioTreeVisible(object.root))updateCustomRig(object.customRig,object.root);
     updateBoneFollowers();
     studioCameraFollowUpdate();
+    studioOrientVideosToCamera();
     for(const object of objects)if(object.followBone&&object.customRig&&studioTreeVisible(object.root))updateCustomRig(object.customRig,object.root);
     if(!exporting&&!timelinePlaying&&!playing){
       if(rigView.visible&&markers.length)updateStudioRigDisplay(renderer.domElement.clientHeight);
@@ -72307,6 +72879,22 @@ void main(){
     const clockTime=!exporting&&!timelinePlaying?time+(performance.now()-vfxPreviewEpoch)/1000:time;
     syncStudioAuraLights(clockTime);syncStudioNativeExtensions(clockTime,exporting);
     syncSceneSky(exporting);syncStudioClouds(time,exporting);syncStudioLighting(exporting);syncStudioTextureQuality(exporting);
+    // Refresh the already-created morph uniforms, not GLB materials, at render time.
+    // This avoids the former late updateStudioMorphs() that hid some skinned GLBs.
+    for(const obj of objects){
+      const record=studioMorphGLBMaterials.get(obj.root);
+      if(!record)continue;
+      const pair=objects.find(o=>o.root===obj.root||studioMorphConfig(o.root)?.targetId===obj.id);
+      const config=pair&&studioMorphConfig(pair.root);
+      if(!config)continue;
+      const t=studioMorphProgress(config,exporting?time*24+1:currentFrame);
+      record.uniforms.progress.value=t;
+      record.uniforms.time.value=(exporting?time*24+1:currentFrame)/24;
+      if(record.safeVideoMode && pair.root===obj.root &&
+          ['video','images'].includes(objects.find(x=>x.id===config.targetId)?.root?.userData?.studioSequence?.kind)){
+        studioMorphSelectGLBMaterial(record,t>0.000001);
+      }
+    }
     const backdrop=studioVideoBackground();
     if(!backdrop)return renderStudioSceneFrame(clockTime,exporting);
     const originalBackground=scene.background,skyVisible=skyMesh.visible,sourceVisible=backdrop.root.visible;
@@ -72337,6 +72925,31 @@ void main(){
     vfxApi.setState(pass.state,false);
     return vfxApi.render(vfxInput,clockTime,1920,1080,exporting,pass.id===studioVfxTargetId);
   }
+  // A reprodução do vídeo e a preparação da cena podem tornar o plano visível
+  // APÓS updateStudioMorphs. Aplicar a entrega final imediatamente antes do
+  // render (inclusive ao repetir inversões e ao percorrer a timeline).
+  function studioMorphEnforceFinalHandoff(){
+    const active=new Set();
+    for(const obj of objects){
+      const cfg=studioMorphConfig(obj.root),seq=obj.root.userData.studioSequence;
+      if(!seq||!['video','images'].includes(seq.kind)||!cfg?.targetId)continue;
+      const dest=objects.find(o=>o.id===cfg.targetId);
+      if(!dest||dest.root.userData.studioSequence)continue;
+      const mesh=studioMorphSourceMesh(obj.root);
+      if(!mesh)continue;
+      if(studioMorphProgress(cfg,currentFrame)>=0.999999){
+        // Sempre reocultar mesmo se a rotina de vídeo tiver reativado a malha.
+        if(!studioMorphCompletedVideoPlanes.has(mesh))
+          studioMorphCompletedVideoPlanes.set(mesh,true);
+        mesh.visible=false;
+        active.add(mesh);
+      }else if(studioMorphCompletedVideoPlanes.has(mesh)){
+        mesh.visible=studioMorphCompletedVideoPlanes.get(mesh);
+        studioMorphCompletedVideoPlanes.delete(mesh);
+      }
+    }
+    studioMorphRestoreCompletedVideos(active);
+  }
   function renderStudioSceneFrame(clockTime,exporting){
     pathOverlay.visible=!exporting&&!$('panelPath').hidden;
     drawPathEditingLine();
@@ -72354,6 +72967,7 @@ void main(){
     syncStudioDirectionalRipple(clockTime);syncStudioSurfaceWind(clockTime);
     syncStudioGlass();
     syncStudioVfxVolumes(passes,clockTime,exporting);
+    studioMorphEnforceFinalHandoff();
     syncStudioPlaybackTools();
     // Native volumes are drawn once with scene depth; no texture/composite pass needed.
     if(!passes.some(pass=>pass.baseActive||pass.layers.some(layer=>!layer.native))){vfxComposite.hidden=true;renderer.render(scene,camera);return renderer.domElement;}
