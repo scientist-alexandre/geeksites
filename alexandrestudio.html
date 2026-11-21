@@ -62815,12 +62815,12 @@ function createCompactStudioZoom(options){
   }
   function captureCamera() {
     const orbitAngle=trackStudioOrbitAngle();
-    return { ...(orbitAngle!==null?{orbitAngle,orbitTargetId:studioCameraOrbitId}:{}), position: camera.position.clone(), quaternion: camera.quaternion.clone(), target: controls.target.clone(), up: camera.up.clone(), fov: camera.fov, zoom: camera.zoom, near: camera.near, far: camera.far };
+    return { ...(studioCameraFollowEnabled&&studioCameraFollowCenter()?{followAnchor:studioCameraFollowCenter().toArray()}:{}), ...(orbitAngle!==null?{orbitAngle,orbitTargetId:studioCameraOrbitId}:{}), position: camera.position.clone(), quaternion: camera.quaternion.clone(), target: controls.target.clone(), up: camera.up.clone(), fov: camera.fov, zoom: camera.zoom, near: camera.near, far: camera.far };
   }
   function recordCameraKeyframe(show = true, force = false) {
     if (timelineSky || timelineVFX || !timelineCamera || cameraApplying || exportState || !autoKeyEnabled && !force) return;
     const f = Math.round(currentFrame);
-    cameraTrack.keyframes.set(f, { camera: captureCamera() });
+    cameraTrack.keyframes.set(f, { ...cameraTrack.keyframes.get(f), camera: captureCamera() });
     renderTimeline();
   }
   function commitCameraEdit() {
@@ -62834,6 +62834,7 @@ function createCompactStudioZoom(options){
     frame2=studioOtherLoopFrame('camera',frame2);
     if(cameraEditing)commitCameraEdit();
     if (!cameraTrack.keyframes.size) return;
+    if(studioCameraFollowActive()){studioCameraFollowLastDelta.set(0,0,0);studioCameraFollowSampled=true;}
     cameraApplying = true;
     try {
       const frames = studioSortedFrames(cameraTrack.keyframes);
@@ -65434,6 +65435,13 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       const channels=unified?[unified.pose?'Pose/movimento':null,unified.shapes?'Shape Keys':null,unified.vfx?'VFX':null,unified.loop?(unified.loop.enabled?'Loop ON':'Loop OFF'):null,videoKey?(videoKey.playing?'Play':'Pause'):null,unified.additions?'Sobre o Loop':null].filter(Boolean).join(' + '):'';
       el.title = (channels?channels+" · ":"")+"Frame " + f + " · Ctrl: selecionar · Shift: intervalo · arraste para mover";
       el.setAttribute("aria-label", "Keyframe " + f);
+      if(timelineCamera && typeof cameraTrack.keyframes.get(f)?.followToggle === 'boolean'){
+        const on=cameraTrack.keyframes.get(f).followToggle;
+        el.classList.add('cameraFollowKey');
+        el.classList.toggle('cameraFollowOff',!on);
+        el.title=(on?'Seguir':'Não seguir')+' · Quadro '+f+' · Arraste para mover';
+        el.setAttribute('aria-label',(on?'Seguir':'Não seguir')+' no quadro '+f);
+      }
       if(timelineVFX)el.title=timelineTrack().name+' · Frame '+f+' · Arraste para mover';
       if(timelinePath){
         const key=timelineTrack().keyframes.get(f);
@@ -65660,7 +65668,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
   function buildProject(includeObjects = true) {
     saveActiveObject();
     stashStudioVfxBank();syncAutomaticTimelineEnd();
-    return { format: "MiniStudio3D", version: 1, fps: 24, cameraOrbitTargetId: studioCameraOrbitId, cameraOrbitOffset:studioCameraOrbitOffset.toArray(), path:packPathProject(), timelinePath, otherLoops:structuredClone(studioOtherLoops), audio: serializeStudioAudio(), sky: { state: { ...skyState }, keys: [...skyTrack.keyframes], panorama: skyPanorama, effects: serializePanoramaFx() }, timelineSky, timelineGround, timelineSequenceId, vfx: { banks: studioVfxBanks, state: vfxState, keys: [...sceneVfxTrack.keyframes], targetId: studioVfxTargetId, follow: studioVfxFollow, layerFollows: studioVfxLayerFollows }, timelineVFX, interpolation: animationInterpolation, endFrame, manualEndFrame:studioManualEndFrame, currentFrame: Math.round(currentFrame), pixelsPerFrame, autoKeyEnabled, activeId: activeObject?.id, timelineCamera, camera: serializeCamera(captureCamera()), cameraKeys: [...cameraTrack.keyframes].map(([f, k]) => [f, { camera: serializeCamera(k.camera) }]), objects: includeObjects ? objects.map((o) => packStudioObject(o)) : [] };
+    return { format: "MiniStudio3D", version: 1, fps: 24, cameraOrbitTargetId: studioCameraOrbitId, cameraFollowEnabled:studioCameraFollowEnabled, cameraFollowId:studioCameraFollowId, cameraFollowKeys:[...studioCameraFollowKeys], cameraOrbitOffset:studioCameraOrbitOffset.toArray(), path:packPathProject(), timelinePath, otherLoops:structuredClone(studioOtherLoops), audio: serializeStudioAudio(), sky: { state: { ...skyState }, keys: [...skyTrack.keyframes], panorama: skyPanorama, effects: serializePanoramaFx() }, timelineSky, timelineGround, timelineSequenceId, vfx: { banks: studioVfxBanks, state: vfxState, keys: [...sceneVfxTrack.keyframes], targetId: studioVfxTargetId, follow: studioVfxFollow, layerFollows: studioVfxLayerFollows }, timelineVFX, interpolation: animationInterpolation, endFrame, manualEndFrame:studioManualEndFrame, currentFrame: Math.round(currentFrame), pixelsPerFrame, autoKeyEnabled, activeId: activeObject?.id, timelineCamera, camera: serializeCamera(captureCamera()), cameraKeys: [...cameraTrack.keyframes].map(([f, k]) => [f, { camera: serializeCamera(k.camera), ...(typeof k.followToggle === "boolean" ? {followToggle:k.followToggle} : {}) }]), objects: includeObjects ? objects.map((o) => packStudioObject(o)) : [] };
   }
   async function buildStudioProjectResponsive(){
     const data=buildProject(false),snapshot=objects.slice();let yieldedAt=performance.now();
@@ -65934,7 +65942,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
           }
         }
       }
-      const restoredCamera = deserializeCamera(data.camera), restoredCameraKeys = new Map(data.cameraKeys.map(([f, k]) => [Number(f), { camera: deserializeCamera(k.camera) }]));
+      const restoredCamera = deserializeCamera(data.camera), restoredCameraKeys = new Map(data.cameraKeys.map(([f, k]) => [Number(f), { camera: deserializeCamera(k.camera), ...(typeof k.followToggle === "boolean" ? {followToggle:k.followToggle} : {}) }]));
       objectGizmo.detach();
       clearRigView();
       for (const obj of objects) {
@@ -66002,6 +66010,11 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       camera.up.copy(restoredCamera.up);
       controls.target.copy(restoredCamera.target);
       studioCameraOrbitId=objects.some(o=>o.id===data.cameraOrbitTargetId)?data.cameraOrbitTargetId:'';
+      studioCameraFollowId=objects.some(o=>o.id===data.cameraFollowId)?data.cameraFollowId:'';
+      studioCameraFollowEnabled=!!studioCameraFollowId;
+      studioCameraFollowKeys=new Map(Array.isArray(data.cameraFollowKeys)?data.cameraFollowKeys.filter(k=>Array.isArray(k)&&Number.isInteger(k[0])&&k[0]>=1&&typeof k[1]==='boolean'):[[1,true]]);
+      if(!studioCameraFollowKeys.size)studioCameraFollowKeys.set(1,true);
+      studioCameraFollowReset();studioCameraFollowRefresh();studioCameraFollowRefreshState(true);
       studioCameraOrbitOffset.fromArray(Array.isArray(data.cameraOrbitOffset)&&data.cameraOrbitOffset.length===3&&data.cameraOrbitOffset.every(Number.isFinite)?data.cameraOrbitOffset:[0,0,0]);
       controls.rotateInPlace=false;
       fillCameraOrbitTargets();
@@ -72016,6 +72029,7 @@ ${notes}`;
     syncSequencePlayback(time,exporting);
     for(const object of objects)if(!object.followBone&&object.customRig&&studioTreeVisible(object.root))updateCustomRig(object.customRig,object.root);
     updateBoneFollowers();
+    studioCameraFollowUpdate();
     for(const object of objects)if(object.followBone&&object.customRig&&studioTreeVisible(object.root))updateCustomRig(object.customRig,object.root);
     if(!exporting&&!timelinePlaying&&!playing){
       if(rigView.visible&&markers.length)updateStudioRigDisplay(renderer.domElement.clientHeight);
@@ -72291,6 +72305,135 @@ ${notes}`;
   // Select an explicit orbit pivot without changing the VFX application target.
   var studioCameraOrbitId='';
   var studioCameraOrbitOffset=new Vector3();
+  // Camera follow is independent from the orbit target and from object visibility.
+  var studioCameraFollowEnabled=false;
+  var studioCameraFollowId='';
+  var studioCameraFollowLastDelta=new Vector3();
+  var studioCameraFollowLastCenter=null;
+  var studioCameraFollowSampled=false;
+  var studioCameraFollowKeys=new Map([[1,true]]);
+  const cameraFollowKeyStyle=document.createElement('style');
+  cameraFollowKeyStyle.textContent='.timeKey.cameraFollowKey{background:#73d4ac;border-color:#c4ffe0}.timeKey.cameraFollowOff{background:#ef8995;border-color:#ffd3db}.timeKey.cameraFollowKey.current{box-shadow:0 0 0 2px #ffffff99}';
+  document.head.append(cameraFollowKeyStyle);
+  function studioCameraFollowAt(frame){
+    let enabled=true;
+    const events=[...studioCameraFollowKeys].map(([at,value])=>[at,value,0]);
+    for(const [at,key] of cameraTrack.keyframes)if(typeof key.followToggle==='boolean')events.push([at,key.followToggle,1]);
+    for(const [at,value] of events.sort((a,b)=>a[0]-b[0]||a[2]-b[2]))if(at<=frame)enabled=!!value;
+    return enabled;
+  }
+  function studioCameraFollowActive(){return studioCameraFollowEnabled&&studioCameraFollowAt(Math.round(currentFrame));}
+  function studioCameraFollowCenter(){
+    const object=objects.find(o=>o.id===studioCameraFollowId);
+    if(!object)return null;
+    object.root.updateWorldMatrix(true,false);
+    return studioNavigationPivot(object.root).applyMatrix4(object.root.matrixWorld);
+  }
+  function studioCameraFollowReset(){
+    studioCameraFollowLastDelta.set(0,0,0);
+    studioCameraFollowLastCenter=null;
+    studioCameraFollowSampled=false;
+  }
+  function studioCameraFollowUpdate(){
+    studioCameraFollowRefreshState();
+    if(!studioCameraFollowActive()){studioCameraFollowReset();return;}
+    const center=studioCameraFollowCenter();
+    if(!center){studioCameraFollowEnabled=false;studioCameraFollowReset();studioCameraFollowRefresh();return;}
+    let delta;
+    if(cameraTrack.keyframes.size){
+      const frames=studioSortedFrames(cameraTrack.keyframes);
+      const frame=studioOtherLoopFrame('camera',currentFrame);
+      let left=frames[0],right=frames.at(-1);
+      for(const f of frames){if(f<=frame)left=f;if(f>=frame){right=f;break;}}
+      const a=cameraTrack.keyframes.get(left)?.camera,b=cameraTrack.keyframes.get(right)?.camera;
+      const anchorA=Array.isArray(a?.followAnchor)?new Vector3().fromArray(a.followAnchor):a?.target?.clone()||center.clone();
+      const anchorB=Array.isArray(b?.followAnchor)?new Vector3().fromArray(b.followAnchor):b?.target?.clone()||center.clone();
+      const t=left===right?0:animationBlend(MathUtils.clamp((frame-left)/(right-left),0,1));
+      delta=center.clone().sub(anchorA.lerp(anchorB,t));
+      if(!studioCameraFollowSampled)delta.sub(studioCameraFollowLastDelta);
+    }else{
+      delta=studioCameraFollowLastCenter?center.clone().sub(studioCameraFollowLastCenter):new Vector3();
+    }
+    if(delta.lengthSq()>1e-16){
+      const wasApplying=cameraApplying;cameraApplying=true;
+      try{camera.position.add(delta);controls.target.add(delta);camera.updateMatrixWorld(true);}
+      finally{cameraApplying=wasApplying;}
+    }
+    studioCameraFollowLastDelta.copy(center);
+    if(cameraTrack.keyframes.size){
+      const frames=studioSortedFrames(cameraTrack.keyframes),frame=studioOtherLoopFrame('camera',currentFrame);
+      let left=frames[0],right=frames.at(-1);
+      for(const f of frames){if(f<=frame)left=f;if(f>=frame){right=f;break;}}
+      const a=cameraTrack.keyframes.get(left)?.camera,b=cameraTrack.keyframes.get(right)?.camera;
+      const anchorA=Array.isArray(a?.followAnchor)?new Vector3().fromArray(a.followAnchor):a?.target?.clone()||center.clone();
+      const anchorB=Array.isArray(b?.followAnchor)?new Vector3().fromArray(b.followAnchor):b?.target?.clone()||center.clone();
+      const t=left===right?0:animationBlend(MathUtils.clamp((frame-left)/(right-left),0,1));
+      studioCameraFollowLastDelta.copy(center).sub(anchorA.lerp(anchorB,t));
+    }
+    studioCameraFollowLastCenter=center;
+    studioCameraFollowSampled=false;
+  }
+  const followCameraBox=document.createElement('div');followCameraBox.id='studioCameraFollowBox';
+  followCameraBox.innerHTML='<b>Câmera acompanha personagem</b><label>Personagem / objeto<select id="studioCameraFollowTarget"></select></label><div id="studioFollowState" aria-live="polite"></div><button type="button" id="studioFollowToggle">Não seguir</button><button type="button" id="studioCameraFollowKey">Gravar ângulo neste quadro</button><small>O estado muda exatamente no quadro marcado, sem transição. Exemplo: quadro 1 seguir, quadro 100 não seguir, quadro 200 seguir novamente. O ângulo continua animável nos keyframes da câmera.</small>';
+  const followCameraStyle=document.createElement('style');followCameraStyle.textContent='#studioCameraFollowBox{border-top:1px solid #444858;padding:12px;display:grid;gap:10px;font-size:12px;color:#dcd5f4}#studioCameraFollowBox>b{color:#c8b4ff}#studioCameraFollowBox label{display:grid;gap:5px}#studioCameraFollowBox select{width:100%;min-width:0}#studioCameraFollowBox .studioFollowCheck{display:flex;align-items:center;gap:8px}#studioCameraFollowBox small{color:#aeb4c5;line-height:1.5}#studioFollowToggle{width:100%;padding:8px}#studioFollowState{color:#d5c7ff;font-weight:600}';document.head.append(followCameraStyle);
+  const followCameraSelect=followCameraBox.querySelector('#studioCameraFollowTarget');
+  function studioCameraFollowRefresh(){
+    const options=studioSelectableObjects().filter(o=>!o.root.userData.studioFolder);
+    const signature=JSON.stringify(options.map(o=>[o.id,o.name]));
+    if(followCameraSelect.dataset.objects!==signature){followCameraSelect.replaceChildren(new Option('Escolha um personagem',''),...options.map(o=>new Option(o.name,o.id)));followCameraSelect.dataset.objects=signature;}
+    followCameraSelect.value=studioCameraFollowId;
+  }
+  const studioFollowState=followCameraBox.querySelector('#studioFollowState');
+  const studioFollowToggle=followCameraBox.querySelector('#studioFollowToggle');
+  let studioFollowDisplaySignature='';
+  function studioCameraFollowRefreshState(force=false){
+    const frame=Math.round(currentFrame),following=studioCameraFollowActive();
+    const signature=[frame,studioCameraFollowId,studioCameraFollowEnabled,following,JSON.stringify([...studioCameraFollowKeys].sort((a,b)=>a[0]-b[0]))].join('|');
+    if(!force&&signature===studioFollowDisplaySignature)return;
+    studioFollowDisplaySignature=signature;
+    studioFollowState.textContent='Quadro '+frame+': '+(studioCameraFollowId?(following?'SEGUINDO':'NÃO SEGUINDO'):'selecione um personagem');
+    studioFollowToggle.textContent=following?'Não seguir':'Seguir';
+    studioFollowToggle.disabled=!studioCameraFollowId;
+  }
+  function studioCameraFollowMark(value){
+    if(exportState||studioSaving)return;
+    if(!studioCameraFollowId){status('Escolha um personagem para a câmera acompanhar.');return;}
+    pauseTimeline();commitCameraEdit();
+    const frame=Math.round(currentFrame);
+    studioCameraFollowKeys.delete(frame);
+    cameraTrack.keyframes.set(frame,{...cameraTrack.keyframes.get(frame),camera:captureCamera(),followToggle:!!value});
+    timelineCamera=true;timelineSky=false;timelineVFX=false;timelineGround=false;timelineShapes=false;timelinePath=false;timelineSequenceId=null;
+    studioCameraFollowReset();studioCameraFollowRefreshState(true);refreshObjectSelect();renderTimeline();
+    status('Quadro '+frame+': câmera '+(value?'segue o personagem':'deixa de seguir')+'.');
+  }
+  studioFollowToggle.addEventListener('click',()=>studioCameraFollowMark(!studioCameraFollowActive()));
+  function studioCameraFollowSet(enabled){
+    if(exportState||studioSaving)return;
+    if(enabled&&!studioCameraFollowId){studioCameraFollowId=activeObject&&!activeObject.root.userData.studioFolder?activeObject.id:'';}
+    if(enabled&&!studioCameraFollowCenter()){status('Selecione um personagem ou objeto para a câmera seguir.');studioCameraFollowRefresh();return;}
+    pauseTimeline();commitCameraEdit();studioCameraFollowEnabled=enabled;studioCameraFollowReset();
+    if(enabled){
+      studioCameraOrbitId=studioCameraFollowId;studioCameraOrbitOffset.copy(controls.target).sub(studioCameraOrbitCenter());
+      fillCameraOrbitTargets();
+      timelineCamera=true;timelineSky=false;timelineVFX=false;timelineGround=false;timelineShapes=false;timelineSequenceId=null;
+      if(!cameraTrack.keyframes.size)cameraTrack.keyframes.set(Math.round(currentFrame),{camera:captureCamera()});
+    }
+    studioCameraFollowRefresh();studioCameraFollowRefreshState(true);refreshObjectSelect();renderTimeline();
+    status(enabled?'Câmera acompanhando o personagem. Alterne quadros e grave outros ângulos.':'Acompanhamento de câmera desligado.');
+  }
+  followCameraSelect.addEventListener('focus',studioCameraFollowRefresh);
+  followCameraSelect.addEventListener('change',()=>{
+    studioCameraFollowId=followCameraSelect.value;
+    studioCameraFollowSet(!!studioCameraFollowId);
+  });
+  followCameraBox.querySelector('#studioCameraFollowKey').addEventListener('click',()=>{
+    if(exportState||studioSaving)return;
+    if(!studioCameraFollowEnabled){status('Selecione um personagem para a câmera seguir.');return;}
+    commitCameraEdit();timelineCamera=true;timelineSky=false;timelineVFX=false;timelineGround=false;timelineShapes=false;timelineSequenceId=null;
+    cameraTrack.keyframes.set(Math.round(currentFrame),{...cameraTrack.keyframes.get(Math.round(currentFrame)),camera:captureCamera()});renderTimeline();status('Ângulo da câmera gravado no quadro '+Math.round(currentFrame)+'.');
+  });
+  document.getElementById('panelObjects')?.append(followCameraBox);
+  studioCameraFollowRefresh();studioCameraFollowRefreshState(true);
   const cameraOrbitPanel=document.createElement('div');
   cameraOrbitPanel.id='studioCameraOrbitPanel';
   cameraOrbitPanel.style.cssText='position:static;flex:0 0 auto;display:flex;align-items:center;padding:4px 7px;border-left:1px solid #444b5c;font-size:11px;white-space:nowrap';
@@ -72300,6 +72443,7 @@ ${notes}`;
   cameraOrbitSelect.style.cssText='width:auto;max-width:220px;padding:5px;font-size:11px';
   cameraOrbitLabel.append(cameraOrbitSelect);cameraOrbitPanel.append(cameraOrbitLabel);document.querySelector('header').append(cameraOrbitPanel);
   function fillCameraOrbitTargets(){
+    if(typeof studioCameraFollowRefresh==='function')studioCameraFollowRefresh();
     if(studioCameraOrbitId&&!objects.some(o=>o.id===studioCameraOrbitId)){
       studioCameraOrbitId='';controls.rotateInPlace=false;
     }
