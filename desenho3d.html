@@ -3375,7 +3375,15 @@ function paintAt(e){
  const hex=$('paintColor').value,color=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255),centers=[hit.p];
  if(lastPaint){const dist=Math.hypot(...hit.p.map((v,i)=>v-lastPaint[i])),steps=Math.min(80,Math.ceil(dist/(hit.radius*.35)));for(let j=1;j<steps;j++)centers.push(hit.p.map((v,i)=>lastPaint[i]+(v-lastPaint[i])*j/steps));}lastPaint=hit.p;
  const command={centers:centers.map(c=>c.slice()),radius:hit.radius,normal:hit.normal.slice(),color,erase:!!window.compactEraserActive&&!document.querySelector('dialog[open]')};
- if(activePaintStroke)activePaintStroke.push(command);applyPaintCommand(command);
+ // Os eixos X e Z refletem as pinceladas em direita/esquerda e frente/costas.
+// Os quatro comandos fazem parte do mesmo traco para desfazer em conjunto.
+for(const [mx,mz] of [[1,1],[-1,1],[1,-1],[-1,-1]]){
+ const mirrored={...command,
+  centers:command.centers.map(([x,y,z])=>[x*mx,y,z*mz]),
+  normal:[command.normal[0]*mx,command.normal[1],command.normal[2]*mz]};
+ if(activePaintStroke)activePaintStroke.push(mirrored);
+ applyPaintCommand(mirrored);
+ }
 }
 function applyPaintCommand(command){
  if(command.cloneSamples){
@@ -9109,6 +9117,7 @@ body.composition-active>.compactTopbar,body.composition-active>main{display:none
    <button type="button" id="compositionGrabSymmetry" aria-pressed="false" title="Espelhar Agarrar no eixo X local, pelo centro do objeto" disabled>Simetria X</button>
    <button type="button" id="compositionSelect" aria-pressed="false">Extrudel</button>
    <button type="button" id="compositionEraseMesh" aria-pressed="false" title="Apagar faces visíveis da malha">Apagar malha</button>
+   <button type="button" id="compositionCutMesh" aria-pressed="false" title="Desenhe uma linha para dividir o objeto inteiro em duas partes abertas">Cortar</button>
   </aside>
   <div id="compositionStage">
    <canvas id="compositionCanvas" aria-label="Cena 3D" tabindex="0"></canvas>
@@ -9382,6 +9391,8 @@ self.onmessage=({data:{meshes,operations}})=>{
  const navigation=document.getElementById('compositionNavigate');
  const selectionTool=document.getElementById('compositionSelect');
  const eraseTool=document.getElementById('compositionEraseMesh');
+ const cutTool=document.getElementById('compositionCutMesh');
+ let cutEnabled=false,cutStroke=null;
  const eraseRadius=document.getElementById('compositionEraseRadius');
  const erasing=()=>eraseTool.getAttribute('aria-pressed')==='true';
  let eraseStroke=null;
@@ -9511,6 +9522,7 @@ self.onmessage=({data:{meshes,operations}})=>{
     if(selectionBoundary)selectionBoundary.visible=showFaces&&(!outlineCut?.results||transformDrag?.preview);
     renderCompositionScene();
     drawSelectionOverlay(width,height);
+    drawCutPreview();
     updateViewGizmo();
    }catch(error){
     status.textContent='Falha ao mostrar a cena 3D: '+error.message;
@@ -9637,6 +9649,11 @@ self.onmessage=({data:{meshes,operations}})=>{
   canvas.addEventListener('pointerup',releaseShiftPan);
   canvas.addEventListener('pointercancel',releaseShiftPan);
   window.addEventListener('blur',releaseShiftPan);
+  canvas.addEventListener('pointerdown',beginMeshCut,true);
+  canvas.addEventListener('pointermove',moveMeshCut,true);
+  canvas.addEventListener('pointerup',event=>finishMeshCut(event),true);
+  canvas.addEventListener('pointercancel',event=>finishMeshCut(event,true),true);
+  canvas.addEventListener('lostpointercapture',event=>finishMeshCut(event,true),true);
   canvas.addEventListener('pointerdown',beginMeshErase,true);
   canvas.addEventListener('pointerdown',beginSelection,true);
   canvas.addEventListener('pointerdown',beginPaint,true);
@@ -9651,6 +9668,7 @@ self.onmessage=({data:{meshes,operations}})=>{
    requestRender();
   });
   window.addEventListener('blur',()=>{
+   finishMeshCut(null,true);
    finishMeshErase(null,true);
    finishSelectionGesture(null,true);
    resetSelectionPath();
@@ -12123,10 +12141,11 @@ return earcut;})();
     newRow=appendObjectRow(newObject);
    }
    faceEditHistory.push({before,newObject,newRow,previous:selected,resources});
-   clearSelection();
-   if(newRow)select(newRow.querySelector('button'));
+   if(!copy){
+    clearSelection();
+    if(newRow)select(newRow.querySelector('button'));
+   }
    if(copy){
-    navigate();
     schedulePaintIndex(parts.map(part=>part.geometry));
     fit(objects);
    }
@@ -12217,6 +12236,7 @@ return earcut;})();
  undoFacesButton.onclick=undoFaceEdit;
 
  function navigate(){
+  setCutEnabled(false);
   setMeshEraseEnabled(false);
   setSelectionTool(false);
   setGrabEnabled(false);
@@ -12228,6 +12248,7 @@ return earcut;})();
 
  navigation.onclick=navigate;
  selectionTool.onclick=()=>{
+  setCutEnabled(false);
   if(selectionActive())navigate();
   else{
    setMeshEraseEnabled(false);
@@ -12282,6 +12303,286 @@ return earcut;})();
   status.textContent='';
   requestRender();
  });
+
+
+ // Corte por plano definido por uma linha desenhada na câmera. A malha não
+ // recebe tampas: somente os triângulos existentes são recortados em duas metades.
+ function setCutEnabled(enabled){
+  if(cutStroke)finishMeshCut(null,true);
+  cutEnabled=Boolean(enabled);
+  cutTool.setAttribute('aria-pressed',String(cutEnabled));
+  if(cutEnabled){
+   canvas.dataset.selecting='cut';
+   cursor.hidden=true;
+   status.textContent='Corte aberto: arraste uma linha atravessando o objeto. As duas partes ficam separadas e sem tampas.';
+  }else if(canvas.dataset.selecting==='cut')delete canvas.dataset.selecting;
+  requestRender();
+ }
+ cutTool.addEventListener('click',()=>{
+  const enable=!cutEnabled;
+  navigate();
+  if(enable){
+   clearSelection();
+   setCutEnabled(true);
+   navigation.setAttribute('aria-pressed','false');
+   canvas.focus({preventScroll:true});
+  }else status.textContent='';
+ });
+ // Sair da tesoura quando o usuário escolhe ferramentas de pintura.
+ for(const id of ['proBrushBtn','proEraserBtn','proCloneBtn','proDropper']){
+  document.getElementById(id)?.addEventListener('click',()=>setCutEnabled(false));
+ }
+
+ function drawCutPreview(){
+  if(!cutStroke)return;
+  const {start,end}=cutStroke,ctx=overlayContext;
+  ctx.save();
+  ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(start.x,start.y);ctx.lineTo(end.x,end.y);
+  ctx.lineWidth=5;ctx.strokeStyle='#152331';ctx.stroke();
+  ctx.lineWidth=2;ctx.strokeStyle='#95d8ff';ctx.setLineDash([9,5]);ctx.stroke();
+  ctx.setLineDash([]);
+  for(const p of [start,end]){
+   ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);
+   ctx.fillStyle='#d6eeff';ctx.fill();
+  }
+  ctx.restore();
+ }
+ function cutEventPoint(event){
+  const bounds=canvas.getBoundingClientRect();
+  return {x:event.clientX-bounds.left,y:event.clientY-bounds.top};
+ }
+ function beginMeshCut(event){
+  if(!cutEnabled||cutStroke||!event.isPrimary||event.button!==0||event.shiftKey||event.altKey)return;
+  const hit=objectHit(event);
+  const root=hit?rootOf(hit.object):selectedObject();
+  if(!root){status.textContent='Selecione um objeto para cortar.';return;}
+  if(hit&&root!==selectedObject())selectRoot(root);
+  event.preventDefault();event.stopImmediatePropagation();
+  canvas.focus({preventScroll:true});
+  const point=cutEventPoint(event);
+  cutStroke={pointer:event.pointerId,root,start:point,end:point};
+  canvas.setPointerCapture(event.pointerId);
+  requestRender();
+ }
+ function moveMeshCut(event){
+  if(!cutStroke||event.pointerId!==cutStroke.pointer)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  cutStroke.end=cutEventPoint(event);
+  requestRender();
+ }
+ function finishMeshCut(event,cancelled=false){
+  if(!cutStroke||(event&&event.pointerId!==cutStroke.pointer))return;
+  if(event){event.preventDefault();event.stopImmediatePropagation();}
+  const stroke=cutStroke;
+  cutStroke=null;
+  if(canvas.hasPointerCapture(stroke.pointer))canvas.releasePointerCapture(stroke.pointer);
+  if(!cancelled){
+   if(event)stroke.end=cutEventPoint(event);
+   const distance=Math.hypot(stroke.end.x-stroke.start.x,stroke.end.y-stroke.start.y);
+   if(distance>=12){
+    try{cutWholeObject(stroke.root,stroke.start,stroke.end);}
+    catch(error){status.textContent='Não foi possível cortar: '+error.message;}
+   }else status.textContent='Arraste uma linha mais longa atravessando o objeto.';
+  }
+  requestRender();
+ }
+ function cutWholeObject(root,start,end){
+  if(!root||root.parent!==objects)throw Error('Selecione um objeto da lista.');
+  if(root.animations?.length)throw Error('Este objeto tem animação; o corte requer uma malha estática.');
+  camera.updateMatrixWorld();
+  const bounds=canvas.getBoundingClientRect();
+  const projector=new E.Raycaster();
+  const screenRay=p=>{
+   projector.setFromCamera(new E.Vector2(2*p.x/bounds.width-1,1-2*p.y/bounds.height),camera);
+   return {origin:projector.ray.origin.clone(),direction:projector.ray.direction.clone()};
+  };
+  const from=screenRay(start),to=screenRay(end);
+  const origin=from.origin;
+  // Perspective: the plane contains the camera and both screen rays.
+  const p1=from.origin.clone().add(from.direction);
+  const p2=to.origin.clone().add(to.direction);
+  if(from.direction.clone().cross(to.direction).lengthSq()<1e-12)throw Error('A linha de corte é muito curta.');
+  root.updateWorldMatrix(true,true);
+  const first=new E.Scene(),second=new E.Scene();
+  first.name=(root.name||'Objeto')+' · parte 1';
+  second.name=(root.name||'Objeto')+' · parte 2';
+  const produced=[];
+  let countFirst=0,countSecond=0;
+  try{
+   root.traverse(mesh=>{
+    if(!mesh.isMesh)return;
+    if(mesh.isSkinnedMesh||mesh.isInstancedMesh||Object.keys(mesh.geometry?.morphAttributes||{}).some(key=>mesh.geometry.morphAttributes[key]?.length)){
+     throw Error('O corte necessita de malhas estáticas sem deformadores.');
+    }
+    const parts=cutTrianglesWithoutCaps(mesh,origin,p1,p2);
+    if(!parts)return;
+    for(let i=0;i<2;i++){
+     const {geometry,triangles}=parts[i];
+     if(!geometry)continue;
+     produced.push(geometry);
+     const piece=mesh.clone(false);
+     piece.geometry=geometry;
+     // A geometria continua local; somente a matriz do objeto é mundial.
+     piece.matrix.copy(mesh.matrixWorld);
+     piece.matrixAutoUpdate=false;
+     piece.matrixWorldNeedsUpdate=true;
+     (i===0?first:second).add(piece);
+     if(i===0)countFirst+=triangles;
+     else countSecond+=triangles;
+    }
+   });
+   if(!countFirst||!countSecond){
+    status.textContent='A linha não atravessou o objeto. Desenhe de um lado ao outro.';
+    for(const geometry of produced)geometry.dispose();
+    return;
+   }
+   finishCompositionGesture();
+   clearSelection();
+   const previous=selected,oldIndex=objects.children.indexOf(root),oldRow=list.children[oldIndex];
+   if(oldIndex<0||!oldRow)throw Error('Não foi possível localizar o objeto na lista.');
+   objects.remove(root);oldRow.remove();
+   objects.add(first,second);
+   // Manter a posição das partes na lista de objetos.
+   objects.children.splice(oldIndex,0,...objects.children.splice(-2,2));
+   const rowA=appendObjectRow(first),rowB=appendObjectRow(second);
+   list.insertBefore(rowA,list.children[oldIndex]||null);
+   list.insertBefore(rowB,list.children[oldIndex+1]||null);
+   rememberCompositionEdit(root,()=>{
+    objects.remove(first,second);rowA.remove();rowB.remove();
+    for(const geometry of produced){geometry.disposeBoundsTree?.();geometry.dispose();}
+    objects.add(root);
+    objects.children.splice(oldIndex,0,objects.children.pop());
+    list.insertBefore(oldRow,list.children[oldIndex]||null);
+    if(previous?.isConnected&&!previous.disabled)select(previous);
+    else select(oldRow.firstElementChild);
+   });
+   // Após cortar, selecionar uma metade e voltar à navegação com Mover ativo.
+   navigate();
+   select(rowA.firstElementChild);
+   gizmoMode='move';
+   objectGizmoActive=true;
+   updateSelectionPanel();
+   schedulePaintIndex(produced);
+   status.textContent='Objeto cortado em 2 partes abertas. Parte selecionada e gizmo Mover ativo.';
+   requestRender();
+  }catch(error){
+   for(const geometry of produced){geometry.disposeBoundsTree?.();geometry.dispose();}
+   throw error;
+  }
+ }
+
+ // Clipping exato de triângulos contra um semiplano, com interpolação de UV,
+ // cor, normais e demais atributos. Não gera nenhuma face no plano de corte.
+ function cutTrianglesWithoutCaps(mesh,originWorld,p1World,p2World){
+  const source=mesh.geometry,position=source?.attributes?.position;
+  if(!position?.count)return null;
+  const index=source.index,total=index?.count??position.count;
+  if(total<3)return null;
+  const local=mesh.matrixWorld.clone().invert();
+  const center=originWorld.clone().applyMatrix4(local);
+  const a=p1World.clone().applyMatrix4(local).sub(center);
+  const b=p2World.clone().applyMatrix4(local).sub(center);
+  const normal=a.cross(b);
+  if(normal.lengthSq()<1e-20)return null;
+  normal.normalize();
+  const nx=normal.x,ny=normal.y,nz=normal.z,d=-normal.dot(center);
+  const box=source.boundingBox||(source.computeBoundingBox(),source.boundingBox);
+  const span=Math.max(1e-7,box.max.distanceTo(box.min));
+  const epsilon=Math.max(1e-9,span*1e-8);
+  const distances=new Float64Array(position.count);
+  for(let i=0;i<position.count;i++)distances[i]=nx*position.getX(i)+ny*position.getY(i)+nz*position.getZ(i)+d;
+  const attrs=Object.entries(source.attributes).filter(([,attribute])=>attribute?.count===position.count);
+  const makeSide=()=>({data:attrs.map(()=>[]),vertices:new Map(),indices:[],groups:[],triangles:0});
+  const halves=[makeSide(),makeSide()];
+  const getData=(key,original)=>attrs.map(([,attribute])=>{
+   const size=attribute.itemSize,out=new Array(size);
+   for(let k=0;k<size;k++)out[k]=attribute.getComponent(original,k);
+   return out;
+  });
+  function putVertex(side,vertex){
+   const key=vertex.i===null?vertex:vertex.i;
+   let id=side.vertices.get(key);
+   if(id!==undefined)return id;
+   id=side.data[0].length/attrs[0][1].itemSize;
+   const values=vertex.v??getData(null,vertex.i);
+   for(let a=0;a<attrs.length;a++)side.data[a].push(...values[a]);
+   side.vertices.set(key,id);
+   return id;
+  }
+  function emit(side,polygon,material){
+   if(polygon.length<3)return;
+   for(let t=1;t<polygon.length-1;t++){
+    const tri=[polygon[0],polygon[t],polygon[t+1]];
+    const ids=tri.map(vertex=>putVertex(side,vertex));
+    if(ids[0]===ids[1]||ids[1]===ids[2]||ids[0]===ids[2])continue;
+    const last=side.groups.at(-1);
+    if(!last||last.materialIndex!==material)side.groups.push({start:side.indices.length,count:0,materialIndex:material});
+    side.indices.push(...ids);
+    side.groups.at(-1).count+=3;
+    side.triangles++;
+   }
+  }
+  const intersect=(v,w)=>{
+   const t=v.distance/(v.distance-w.distance);
+   const vvalues=getData(null,v.i),wvalues=getData(null,w.i);
+   const result=vvalues.map((values,attributeIndex)=>{
+    const [name]=attrs[attributeIndex];
+    const output=values.map((value,k)=>name==='skinIndex'?(t<.5?value:wvalues[attributeIndex][k]):value+(wvalues[attributeIndex][k]-value)*t);
+    if((name==='normal'||name==='tangent')&&output.length>=3){
+     const length=Math.hypot(output[0],output[1],output[2]);
+     if(length>1e-15){output[0]/=length;output[1]/=length;output[2]/=length;}
+    }
+    return output;
+   });
+   return {i:null,distance:0,v:result};
+  };
+  function clipped(triangle,sign,edgePoints){
+   const result=[];
+   for(let i=0;i<3;i++){
+    const v=triangle[i],w=triangle[(i+1)%3];
+    const dv=v.distance*sign,dw=w.distance*sign;
+    if(dv>=-epsilon)result.push(v);
+    if((dv>epsilon&&dw< -epsilon)||(dv< -epsilon&&dw>epsilon)){
+     if(!edgePoints[i])edgePoints[i]=intersect(v,w);
+     result.push(edgePoints[i]);
+    }
+   }
+   return result;
+  }
+  const first=Math.max(0,source.drawRange.start||0);
+  const limit=Math.min(total,Number.isFinite(source.drawRange.count)?first+source.drawRange.count:total);
+  const groups=source.groups.length?source.groups:[{start:0,count:total,materialIndex:0}];
+  const idx=offset=>index?index.getX(offset):offset;
+  for(const group of groups){
+   const lo=Math.max(first,group.start),hi=Math.min(limit,group.start+group.count);
+   for(let at=lo;at+2<hi;at+=3){
+    const triangle=[0,1,2].map(k=>{const i=idx(at+k);return {i,distance:distances[i]};});
+    const positives=triangle.some(v=>v.distance>epsilon);
+    const negatives=triangle.some(v=>v.distance< -epsilon);
+    if(!negatives){emit(halves[0],triangle,group.materialIndex);continue;}
+    if(!positives){emit(halves[1],triangle,group.materialIndex);continue;}
+    const edgePoints=[];
+    emit(halves[0],clipped(triangle,1,edgePoints),group.materialIndex);
+    emit(halves[1],clipped(triangle,-1,edgePoints),group.materialIndex);
+   }
+  }
+  return halves.map(side=>{
+   if(!side.triangles)return {geometry:null,triangles:0};
+   const geometry=new E.Geometry();
+   geometry.name=source.name;
+   geometry.userData={...source.userData};
+   for(let i=0;i<attrs.length;i++){
+    const [name,attribute]=attrs[i];
+    geometry.setAttribute(name,new E.Attribute(new Float32Array(side.data[i]),attribute.itemSize));
+   }
+   geometry.setIndex(side.indices);
+   for(const group of side.groups)geometry.addGroup(group.start,group.count,group.materialIndex);
+   geometry.setDrawRange(0,side.indices.length);
+   geometry.computeBoundingBox();geometry.computeBoundingSphere();
+   return {geometry,triangles:side.triangles};
+  });
+ }
 
  function pointerRay(event){
   const bounds=canvas.getBoundingClientRect();
@@ -12749,65 +13050,36 @@ return earcut;})();
   const start=geometry.drawRange.start||0;
   const count=Math.max(0,Math.min(length-start,geometry.drawRange.count));
   if(count<3)return null;
-  const topo=lisoWeld(position.array,index,start,count,1e-7);
+  // Mesma soldagem, intensidade e restrição geométrica do lisoPostMesh
+  // usado na reconstrução original do objeto.
+  const topo=lisoWeld(position.array,index,start,count,1e-6);
   if(!topo.faces.length)return null;
   const adj=lisoAdjacency(topo);
   const meanEdge=lisoMeanEdge(topo.pts,adj);
   if(!meanEdge)return null;
-  const pairs=lisoPairsFor(topo.diag,meanEdge,1);
-  const result=await lisoSmooth(topo,adj,pairs,yieldToEditor,{shrink:.12,sharpness:.3});
-  // Em malhas com arestas não-manifold ou triângulos de orientação mista,
-  // Taubin pode rejeitar todos os passos. Nesse caso, suavize pelos vizinhos
-  // geométricos, sem bloquear novas rodadas do botão.
-  let moved=false;
-  for(let k=0;k<topo.pts.length;k++)if(Math.abs(result.pts[k]-topo.pts[k])>1e-9){moved=true;break;}
-  if(!moved){
-   const source=topo.pts,averages=new Float32Array(source.length);
-   for(let i=0;i<topo.nodes;i++){
-    const j=i*3,a=adj.nStart[i],b=adj.nStart[i+1];
-    if(a===b){averages[j]=source[j];averages[j+1]=source[j+1];averages[j+2]=source[j+2];continue;}
-    let x=0,y=0,z=0;
-    for(let k=a;k<b;k++){const v=adj.nList[k]*3;x+=source[v];y+=source[v+1];z+=source[v+2];}
-    const w=1/(b-a);averages[j]=x*w;averages[j+1]=y*w;averages[j+2]=z*w;
-   }
-   const reference=lisoFaceNormals(source,topo.faces);
-   let weight=.18;
-   for(let attempt=0;attempt<8;attempt++,weight*=.5){
-    for(let k=0;k<source.length;k++)result.pts[k]=source[k]+weight*(averages[k]-source[k]);
-    if(lisoFlipped(result.pts,topo.faces,reference)<=Math.max(2,adj.F*.0005))break;
-   }
+  const mode=document.getElementById('sectionMode')?.value;
+  const strict=mode==='angular'||mode==='silhouette';
+  const pairs=Math.max(60,Math.min(300,Math.round(4e7/Math.max(1,topo.nodes))));
+  const result=await lisoSmooth(topo,adj,pairs,yieldToEditor,{shrink:0.12,sharpness:strict?0.15:0.3});
+  const step=Number(geometry.userData?.reconstruction?.step||geometry.userData?.reconstructionStep)||0;
+  const limit=Math.max(step*2.5,meanEdge*2.5,topo.diag*0.001);
+  for(let i=0;i<topo.nodes;i++){
+   const k=i*3,dx=result.pts[k]-topo.pts[k],dy=result.pts[k+1]-topo.pts[k+1],dz=result.pts[k+2]-topo.pts[k+2];
+   const displacement=Math.hypot(dx,dy,dz);
+   if(displacement>limit){const scale=limit/displacement;result.pts[k]=topo.pts[k]+dx*scale;result.pts[k+1]=topo.pts[k+1]+dy*scale;result.pts[k+2]=topo.pts[k+2]+dz*scale;}
   }
-  const before=lisoNodeNormals(topo,topo.pts),after=lisoNodeNormals(topo,result.pts);
-  const positions=position.clone(),normals=normal?normal.clone():null,tangents=tangent?tangent.clone():null;
-  const pa=positions.array,na=normals?normals.array:null,ta=tangents?tangents.array:null,ts=tangents?tangents.itemSize:0;
+  // Suaviza somente a geometria; UVs, cores, normais, tangentes e materiais
+  // permanecem exatamente como eram para não alterar a aparência da textura.
+  const positions=position.clone(),pa=positions.array;
   let changed=0;
   for(let i=0;i<position.count;i++){
    const id=topo.nodeOf[i]*3,x=result.pts[id],y=result.pts[id+1],z=result.pts[id+2];
-   if(x!==pa[i*3]||y!==pa[i*3+1]||z!==pa[i*3+2]){pa[i*3]=x;pa[i*3+1]=y;pa[i*3+2]=z;changed++;}
-   if(!na)continue;
-   const ox=before[id],oy=before[id+1],oz=before[id+2],nx=after[id],ny=after[id+1],nz=after[id+2];
-   if(!(ox||oy||oz)||!(nx||ny||nz))continue;
-   let vx=na[i*3],vy=na[i*3+1],vz=na[i*3+2];
-   const vl=Math.hypot(vx,vy,vz)||1;vx/=vl;vy/=vl;vz/=vl;
-   let rx=nx,ry=ny,rz=nz;
-   if(vx*ox+vy*oy+vz*oz<.9){
-    // Normal autoral (aresta dura): gira junto com a superfície.
-    const ax=oy*nz-oz*ny,ay=oz*nx-ox*nz,az=ox*ny-oy*nx,s=Math.hypot(ax,ay,az),c=ox*nx+oy*ny+oz*nz;
-    if(s<1e-6){rx=vx;ry=vy;rz=vz;}
-    else{
-     const kx=ax/s,ky=ay/s,kz=az/s,kv=kx*vx+ky*vy+kz*vz;
-     rx=vx*c+(ky*vz-kz*vy)*s+kx*kv*(1-c);ry=vy*c+(kz*vx-kx*vz)*s+ky*kv*(1-c);rz=vz*c+(kx*vy-ky*vx)*s+kz*kv*(1-c);
-    }
-   }
-   const rl=Math.hypot(rx,ry,rz)||1;rx/=rl;ry/=rl;rz/=rl;
-   na[i*3]=rx;na[i*3+1]=ry;na[i*3+2]=rz;
-   if(ta){
-    let tx=ta[i*ts],ty=ta[i*ts+1],tz=ta[i*ts+2];const d=tx*rx+ty*ry+tz*rz;tx-=rx*d;ty-=ry*d;tz-=rz*d;
-    const tl=Math.hypot(tx,ty,tz);if(tl>1e-9){ta[i*ts]=tx/tl;ta[i*ts+1]=ty/tl;ta[i*ts+2]=tz/tl;}
+   if(x!==pa[i*3]||y!==pa[i*3+1]||z!==pa[i*3+2]){
+    pa[i*3]=x;pa[i*3+1]=y;pa[i*3+2]=z;changed++;
    }
   }
   if(!changed)return null;
-  return {position:positions,normal:normals||undefined,tangent:tangents||undefined,changed,passes:result.pairs};
+  return {position:positions,changed,passes:result.pairs};
  }
 
  function applyWholeSmooth(mesh,result){
@@ -12884,6 +13156,7 @@ return earcut;})();
 
 
  grab.onclick=()=>{
+  setCutEnabled(false);
   if(grab.getAttribute('aria-pressed')==='true'){
    navigate();
    return;
@@ -13607,6 +13880,7 @@ return earcut;})();
  };
 
  function closeEditor(){
+  setCutEnabled(false);
   setMeshEraseEnabled(false);
   setSelectionTool(false);
   finishGrab(null);
@@ -13650,6 +13924,11 @@ return earcut;})();
    return;
   }
   if(event.key!=='Escape')return;
+  if(cutEnabled){
+   event.preventDefault();
+   if(cutStroke)finishMeshCut(null,true);else navigate();
+   return;
+  }
   if(erasing()){
    event.preventDefault();
    navigate();
