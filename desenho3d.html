@@ -2888,7 +2888,7 @@ let loadingDrawingViews=false;
 function requestReconstruction(){if(loadingDrawingViews||!images[0]||!images[1]||window.importedGLBActive)return;const key=modelKey();if(workerBusy||key===volumeKey||key===failedJob)return;activeJob=key;workerBusy=true;buildError='';$('progress').textContent='Reconstruindo o modelo…';try{if(!reconstructionWorker)startReconstructionWorker();const job={key,controls:{cutoff:committedAlpha,quality:$('quality').value,sectionMode:$('sectionMode').value,upperSurface:$('upperSurface').value,curve:Number($('bend').value)/360},sideFacing:sideOrientation()};if(workerVersion!==imageVersion){job.images=images.map(im=>im?({width:im.width,height:im.height,left:im.left,right:im.right,top:im.top,bottom:im.bottom,pixels:im.pixels}):null);workerVersion=imageVersion;}reconstructionWorker.postMessage(job);}catch(error){workerBusy=false;failedJob=key;buildError=error.message;$('progress').textContent='Erro: '+error.message;}}
 async function waitForReconstruction(){commitAlpha();const start=performance.now();requestReconstruction();while(volumeKey!==modelKey()){if(buildError)throw Error(buildError);if(performance.now()-start>120000)throw Error('A reconstrução está demorando. Tente a qualidade Leve.');await new Promise(resolve=>setTimeout(resolve,25));requestReconstruction();}}
 function fitCamera(){if(!volumeMesh?.bounds||!images[0])return;const im=images[0],focus=1-(im.top+im.bottom)/im.height,h=2*(im.bottom-im.top)/im.height,w=2*(im.right-im.left)/im.height,d=images[1]?viewWorldWidth(images[1]):w,scale=2/Math.max(h,w,d,.01),aspect=Math.max(.1,canvas.clientWidth/Math.max(1,canvas.clientHeight)),cy=Math.cos(angleY),sy=Math.sin(angleY),cx=Math.cos(angleX),sx=Math.sin(angleX),{lower,upper}=volumeMesh.bounds;let distance=1.7;for(let i=0;i<8;i++){const x=(i&1?upper[0]:lower[0])*scale,y=((i&2?upper[1]:lower[1])-focus)*scale,z=(i&4?upper[2]:lower[2])*scale,rx=cy*x+sy*z,rz=-sy*x+cy*z,ry=cx*y-sx*rz,depth=sx*y+cx*rz;distance=Math.max(distance,depth+1.9*Math.abs(rx)/(aspect*.80),depth+1.9*Math.abs(ry)/.78);}zoom=Math.max(1.7,distance*1.015);panX=panY=0;}
-function render(){if(window.importedGLBActive){requestAnimationFrame(render);return;}if(!gl)return;const d=1,w=Math.round(canvas.clientWidth*d),h=Math.round(canvas.clientHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;if(!cameraMoved)fitCamera();}requestReconstruction();const frame=[w,h,angleX,angleY,zoom,panX,panY,meshVersion,paintVersion,$('opacity').value,$('colors').checked,$('clayPreview').checked].join('|');if(frame===lastFrame){requestAnimationFrame(render);return;}lastFrame=frame;gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.CULL_FACE);gl.disable(gl.DEPTH_TEST);if($('volume').checked){drawVolume();requestAnimationFrame(render);return;}let planes=walls();
+function render(){if(window.importedGLBActive){setTimeout(()=>requestAnimationFrame(render),document.hidden?500:150);return;}if(!gl)return;if(document.hidden){setTimeout(()=>requestAnimationFrame(render),500);return;}const d=1,w=Math.round(canvas.clientWidth*d),h=Math.round(canvas.clientHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;if(!cameraMoved)fitCamera();}requestReconstruction();const frame=[w,h,angleX,angleY,zoom,panX,panY,meshVersion,paintVersion,$('opacity').value,$('colors').checked,$('clayPreview').checked].join('|');if(frame===lastFrame){setTimeout(()=>requestAnimationFrame(render),document.hidden?400:120);return;}lastFrame=frame;gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.CULL_FACE);gl.disable(gl.DEPTH_TEST);if($('volume').checked){drawVolume();requestAnimationFrame(render);return;}let planes=walls();
 // Paredes transparentes desenhadas do fundo para a frente, sem faces de topo ou base.
 const cameraZ=p=>Math.sin(angleX)*p[1]+Math.cos(angleX)*(-Math.sin(angleY)*p[0]+Math.cos(angleY)*p[2]);planes.sort((a,b)=>cameraZ(a.center)-cameraZ(b.center));
 for(const wall of planes){if(!textures[wall.i])continue;let data=[];for(const [u,v] of [[0,0],[0,1],[1,1],[0,0],[1,1],[1,0]])data.push(...wall.point(u,v),wall.flip?1-u:u,v);uniforms(program);position(program,buffer,data,true);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,textures[wall.i]);gl.uniform1i(cachedUniformLocation(program,'image'),0);gl.uniform1f(cachedUniformLocation(program,'opacity'),+$('opacity').value/100);gl.uniform1f(cachedUniformLocation(program,'cutoff'),+$('cutoff').value/255);gl.uniform1f(cachedUniformLocation(program,'colors'),$('colors').checked?1:0);gl.uniform3fv(cachedUniformLocation(program,'tint'),wall.color.slice(0,3));gl.drawArrays(gl.TRIANGLES,0,6)}
@@ -8751,6 +8751,9 @@ body.composition-active>.compactTopbar,body.composition-active>main{display:none
 #compositionLayout{display:grid;grid-template-columns:76px minmax(0,1fr) minmax(120px,220px);height:calc(100% - 46px)}
 @media(max-width:540px){#compositionLayout{height:calc(100% - 78px)}}
 #compositionStage{position:relative;min-width:0;min-height:0;overflow:hidden;background:#292d34}
+#compositionGridToggle{position:absolute;z-index:24;top:12px;left:12px;margin:0;padding:8px 12px;border:1px solid #566171;border-radius:8px;background:#252c36e8;color:#e7edf5;font:12px system-ui,sans-serif;cursor:pointer}
+#compositionGridToggle:hover{background:#394555}
+#compositionGridToggle[aria-pressed="false"]{background:#26282bdc;color:#b8c0ca}
 #compositionCanvas{width:100%;height:100%;display:block;touch-action:none}
 #compositionStatus{position:absolute;bottom:12px;left:12px;right:12px;color:#fff;pointer-events:none}
 #compositionObjects{display:grid;grid-template-rows:minmax(0,max-content) minmax(80px,1fr);padding:0;border:0;border-left:1px solid #3d444e;background:#242830;overflow:hidden}
@@ -8837,6 +8840,7 @@ body.composition-active>.compactTopbar,body.composition-active>main{display:none
   <div id="compositionStage">
    <canvas id="compositionCanvas" aria-label="Cena 3D" tabindex="0"></canvas>
    <canvas id="compositionSelectionCanvas" aria-hidden="true"></canvas>
+   <button id="compositionGridToggle" type="button" aria-pressed="true" title="Mostrar ou ocultar a grade de referência 3D">Ocultar grade</button>
    <div id="compositionViewGizmo" role="group" aria-label="Vistas da c?mera">
     <button type="button" data-axis="x" data-sign="1" aria-label="Direita" title="Direita" aria-pressed="false">X</button>
     <button type="button" data-axis="x" data-sign="-1" aria-label="Esquerda" title="Esquerda" aria-pressed="false">&minus;X</button>
@@ -9199,6 +9203,13 @@ self.onmessage=({data:{meshes,operations}})=>{
  document.getElementById('toolOrbit').click();
  let stroke=null,paintPointer=null,pendingPaint=null,cloneImage=null;
  let renderer,scene,objects,camera,controls,grid,keyLight,fillLight,selected,count=0,frame=0;
+ const gridToggle=document.getElementById('compositionGridToggle');
+ gridToggle.addEventListener('click',()=>{
+  const show=gridToggle.getAttribute('aria-pressed')!=='true';
+  gridToggle.setAttribute('aria-pressed',String(show));
+  gridToggle.textContent=show?'Ocultar grade':'Mostrar grade';
+  if(grid){grid.visible=show;requestRender();}
+ });
 
 
  function renderCompositionScene(){
@@ -9236,8 +9247,9 @@ self.onmessage=({data:{meshes,operations}})=>{
 
  function init(){
   if(renderer)return;
-  renderer=new E.Renderer({canvas,antialias:true,alpha:false});
-  renderer.setClearColor(0x292d34,1);
+  renderer=new E.Renderer({canvas,antialias:false,alpha:false,powerPreference:"default"});
+  canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();if(frame){cancelAnimationFrame(frame);frame=0;}status.textContent='Memória gráfica esgotada. Feche e reabra a edição 3D para recuperar.';},{passive:false});
+ renderer.setClearColor(0x292d34,1);
   renderer.setPixelRatio(1);
   scene=new E.Scene();
   objects=new E.Scene();
@@ -9383,6 +9395,7 @@ self.onmessage=({data:{meshes,operations}})=>{
   const geometry=new E.Geometry();
   geometry.setAttribute('position',new E.Attribute(new Float32Array(points),3));
   grid=new E.LineSegments(geometry,new E.LineMaterial({color:0x505862}));
+  grid.visible=gridToggle.getAttribute('aria-pressed')==='true';
   scene.add(objects,grid,keyLight,fillLight);
   canvas.addEventListener('webglcontextlost',event=>{
    event.preventDefault();
@@ -11393,7 +11406,7 @@ return earcut;})();
  }
 
  function drawSelectionOverlay(width,height){
-  const density=Math.min(2,window.devicePixelRatio||1);
+  const density=1; // Limita a resolução do overlay para reduzir uso de memória.
   const pixelWidth=Math.round(width*density),pixelHeight=Math.round(height*density);
   if(overlay.width!==pixelWidth||overlay.height!==pixelHeight){
    overlay.width=pixelWidth;overlay.height=pixelHeight;
@@ -13476,6 +13489,8 @@ return earcut;})();
   navigation.setAttribute('aria-pressed','true');
   if(!document.getElementById('proColorPanel').hidden)document.getElementById('proColorButton').click();
   dialog.hidden=true;
+  if(frame){cancelAnimationFrame(frame);frame=0;}
+  if(overlay.width||overlay.height){overlay.width=0;overlay.height=0;}
   document.body.classList.remove('composition-active');
   tab.focus();
  }
