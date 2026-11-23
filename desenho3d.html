@@ -1168,6 +1168,266 @@ let cameraMoved=false,lastFittedVersion=-1;
 let imageVersion=0,meshVersion=0,committedAlpha=128,alphaTimer=null,lastFrame="",paintVersion=0;
 let angleX=.18,angleY=-.6,zoom=3.6,panX=0,panY=0,images=[null,null,null],textures=[],program,lineProgram,buffer,lineBuffer;
 // Cada vista usa a altura útil do recorte, e não as margens do arquivo.
+// ===== Suavização Taubin (arrays tipados) =====
+// ===== Núcleo de suavização (Taubin λ|μ) em arrays tipados =====
+// Sem dependências: recebe posições/índices e devolve posições suavizadas.
+function lisoWeld(position,index,start,count,epsilonScale){
+ const n=position.length/3;
+ let lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];
+ for(let i=0;i<n;i++)for(let k=0;k<3;k++){const v=position[i*3+k];if(v<lo[k])lo[k]=v;if(v>hi[k])hi[k]=v;}
+ const diag=Math.hypot(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2])||1;
+ const eps=Math.max(diag*(epsilonScale||1e-7),1e-12);
+ let capacity=1;while(capacity<n*2)capacity*=2;
+ const table=new Int32Array(capacity).fill(-1),mask=capacity-1;
+ const nodeOf=new Uint32Array(n),rep=new Uint32Array(n);
+ const qx=new Int32Array(n),qy=new Int32Array(n),qz=new Int32Array(n);
+ let nodes=0;
+ for(let i=0;i<n;i++){
+  const x=Math.round((position[i*3]-lo[0])/eps),y=Math.round((position[i*3+1]-lo[1])/eps),z=Math.round((position[i*3+2]-lo[2])/eps);
+  qx[i]=x;qy[i]=y;qz[i]=z;
+  let slot=(Math.imul(x,73856093)^Math.imul(y,19349663)^Math.imul(z,83492791))&mask;
+  for(;;){
+   const t=table[slot];
+   if(t<0){table[slot]=nodes;rep[nodes]=i;nodeOf[i]=nodes++;break;}
+   const r=rep[t];
+   if(qx[r]===x&&qy[r]===y&&qz[r]===z){nodeOf[i]=t;break;}
+   slot=(slot+1)&mask;
+  }
+ }
+ const pts=new Float32Array(nodes*3);
+ for(let i=0;i<nodes;i++){const r=rep[i]*3;pts[i*3]=position[r];pts[i*3+1]=position[r+1];pts[i*3+2]=position[r+2];}
+ const total=index?count:n;
+ const faceBuf=new Uint32Array(Math.floor(total/3)*3),faceSrc=new Uint32Array(Math.floor(total/3));let fl=0;
+ for(let f=start;f+2<start+total;f+=3){
+  const a=nodeOf[index?index[f]:f],b=nodeOf[index?index[f+1]:f+1],c=nodeOf[index?index[f+2]:f+2];
+  if(a===b||b===c||c===a)continue;
+  faceSrc[fl/3]=f;faceBuf[fl++]=a;faceBuf[fl++]=b;faceBuf[fl++]=c;
+ }
+ return {nodes,nodeOf,pts,faces:faceBuf.slice(0,fl),faceSrc:faceSrc.slice(0,fl/3),diag};
+}
+
+function lisoAdjacency(topology){
+ const {nodes,faces,pts}=topology;
+ const F=faces.length/3;
+ const degree=new Uint32Array(nodes),inc=new Uint32Array(nodes);
+ for(let i=0;i<faces.length;i++){degree[faces[i]]+=2;inc[faces[i]]++;}
+ const off=new Uint32Array(nodes+1);for(let i=0;i<nodes;i++)off[i+1]=off[i]+degree[i];
+ const raw=new Uint32Array(off[nodes]),cur=off.slice(0,nodes);
+ for(let f=0;f<faces.length;f+=3){
+  const a=faces[f],b=faces[f+1],c=faces[f+2];
+  raw[cur[a]++]=b;raw[cur[a]++]=c;raw[cur[b]++]=a;raw[cur[b]++]=c;raw[cur[c]++]=a;raw[cur[c]++]=b;
+ }
+ // vizinhos únicos + contagem de faces por aresta
+ const nStart=new Uint32Array(nodes+1),nList=new Uint32Array(raw.length),nCount=new Uint8Array(raw.length);
+ let w=0;
+ for(let i=0;i<nodes;i++){
+  const s=off[i],e=off[i+1];raw.subarray(s,e).sort();nStart[i]=w;
+  for(let at=s;at<e;){const v=raw[at];let nx=at+1;while(nx<e&&raw[nx]===v)nx++;nList[w]=v;nCount[w]=Math.min(255,nx-at);w++;at=nx;}
+ }
+ nStart[nodes]=w;
+ // listas de suavização: bordas só andam pela borda; não-variedade congela
+ const sStart=new Uint32Array(nodes+1),sList=new Uint32Array(w),frozen=new Uint8Array(nodes),boundary=new Uint8Array(nodes);
+ let sw=0;
+ for(let i=0;i<nodes;i++){
+  sStart[i]=sw;
+  let nb=0,nm=0,total=nStart[i+1]-nStart[i];
+  for(let k=nStart[i];k<nStart[i+1];k++){if(nCount[k]===1)nb++;else if(nCount[k]>2)nm++;}
+  if(!total||nm){frozen[i]=1;continue;}
+  if(nb){boundary[i]=1;if(nb!==2){frozen[i]=1;continue;}for(let k=nStart[i];k<nStart[i+1];k++)if(nCount[k]===1)sList[sw++]=nList[k];}
+  else{for(let k=nStart[i];k<nStart[i+1];k++)sList[sw++]=nList[k];}
+ }
+ sStart[nodes]=sw;
+ // faces incidentes
+ const fOff=new Uint32Array(nodes+1);for(let i=0;i<nodes;i++)fOff[i+1]=fOff[i]+inc[i];
+ const fList=new Uint32Array(faces.length),fCur=fOff.slice(0,nodes);
+ for(let f=0;f<F;f++)for(let k=0;k<3;k++)fList[fCur[faces[f*3+k]]++]=f;
+ return {nStart,nList,sStart,sList:sList.slice(0,sw),frozen,boundary,fOff,fList,F};
+}
+
+function lisoFaceNormals(pts,faces,out){
+ const F=faces.length/3,n=out||new Float32Array(F*3);
+ for(let f=0;f<F;f++){
+  const a=faces[f*3]*3,b=faces[f*3+1]*3,c=faces[f*3+2]*3;
+  const ux=pts[b]-pts[a],uy=pts[b+1]-pts[a+1],uz=pts[b+2]-pts[a+2],vx=pts[c]-pts[a],vy=pts[c+1]-pts[a+1],vz=pts[c+2]-pts[a+2];
+  const x=uy*vz-uz*vy,y=uz*vx-ux*vz,z=ux*vy-uy*vx,l=Math.hypot(x,y,z);
+  if(l>0){n[f*3]=x/l;n[f*3+1]=y/l;n[f*3+2]=z/l;}else{n[f*3]=n[f*3+1]=n[f*3+2]=0;}
+ }
+ return n;
+}
+
+// Peso por vértice: 1 em superfície suave; cantos vivos giram devagar, mas
+// continuam arredondando quando a suavização é repetida.
+function lisoMobility(topology,adj,sharpness){
+ const {nodes,faces,pts}=topology,fn=lisoFaceNormals(pts,faces);
+ const mob=new Float32Array(nodes);
+ const minimum=sharpness==null?0.25:sharpness;
+ for(let i=0;i<nodes;i++){
+  if(adj.frozen[i])continue;
+  let sx=0,sy=0,sz=0;
+  for(let k=adj.fOff[i];k<adj.fOff[i+1];k++){const f=adj.fList[k]*3;sx+=fn[f];sy+=fn[f+1];sz+=fn[f+2];}
+  const l=Math.hypot(sx,sy,sz);
+  if(!l){mob[i]=minimum;continue;}
+  sx/=l;sy/=l;sz/=l;
+  let worst=1;
+  for(let k=adj.fOff[i];k<adj.fOff[i+1];k++){const f=adj.fList[k]*3,d=fn[f]*sx+fn[f+1]*sy+fn[f+2]*sz;if(d<worst)worst=d;}
+  const angle=Math.acos(Math.max(-1,Math.min(1,worst)))*180/Math.PI;
+  // até 30° é superfície curva normal; acima de 75° é canto vivo
+  const t=Math.max(0,Math.min(1,(angle-30)/45));
+  mob[i]=1-(1-minimum)*t*t*(3-2*t);
+ }
+ return mob;
+}
+
+// Um par λ|μ de Taubin. Retorna o vetor atual (pode ser a/b trocados).
+function lisoTaubinPair(sStart,sList,mob,frozen,a,b,lambda,mu){
+ const n=frozen.length;
+ for(let pass=0;pass<2;pass++){
+  const f=pass?mu:lambda;
+  for(let i=0;i<n;i++){
+   const k=i*3;
+   const s=sStart[i],e=sStart[i+1];
+   if(frozen[i]||s===e){b[k]=a[k];b[k+1]=a[k+1];b[k+2]=a[k+2];continue;}
+   let x=0,y=0,z=0;
+   for(let j=s;j<e;j++){const at=sList[j]*3;x+=a[at];y+=a[at+1];z+=a[at+2];}
+   const inv=1/(e-s),w=f*mob[i];
+   b[k]=a[k]+w*(x*inv-a[k]);b[k+1]=a[k+1]+w*(y*inv-a[k+1]);b[k+2]=a[k+2]+w*(z*inv-a[k+2]);
+  }
+  const t=a;a=b;b=t;
+ }
+ return [a,b];
+}
+
+// Conta faces invertidas em relação à forma de partida.
+function lisoFlipped(pts,faces,reference){
+ const F=faces.length/3;let flipped=0;
+ for(let f=0;f<F;f++){
+  const a=faces[f*3]*3,b=faces[f*3+1]*3,c=faces[f*3+2]*3;
+  const ux=pts[b]-pts[a],uy=pts[b+1]-pts[a+1],uz=pts[b+2]-pts[a+2],vx=pts[c]-pts[a],vy=pts[c+1]-pts[a+1],vz=pts[c+2]-pts[a+2];
+  const x=uy*vz-uz*vy,y=uz*vx-ux*vz,z=ux*vy-uy*vx;
+  if(x*reference[f*3]+y*reference[f*3+1]+z*reference[f*3+2]<=0)flipped++;
+ }
+ return flipped;
+}
+
+
+// Volume assinado e restauração por escala uniforme em torno do centróide
+// (só quando a malha é fechada); evita emagrecer a cada suavização.
+function lisoVolume(pts,faces){
+ let v=0;for(let f=0;f<faces.length;f+=3){const a=faces[f]*3,b=faces[f+1]*3,c=faces[f+2]*3;
+  v+=pts[a]*(pts[b+1]*pts[c+2]-pts[b+2]*pts[c+1])-pts[a+1]*(pts[b]*pts[c+2]-pts[b+2]*pts[c])+pts[a+2]*(pts[b]*pts[c+1]-pts[b+1]*pts[c]);}
+ return v/6;
+}
+function lisoRestoreVolume(before,after,faces,frozen,boundary){
+ const n=frozen.length;let open=0;for(let i=0;i<n;i++)open+=boundary[i];
+ if(open)return 1;
+ const v0=lisoVolume(before,faces),v1=lisoVolume(after,faces);
+ if(!(Math.abs(v0)>1e-18)||!(Math.abs(v1)>1e-18)||v0*v1<0)return 1;
+ let s=Math.cbrt(v0/v1);if(!isFinite(s))return 1;s=Math.max(0.985,Math.min(1.015,s));
+ let cx=0,cy=0,cz=0,m=0;for(let i=0;i<n;i++){if(frozen[i])continue;cx+=after[i*3];cy+=after[i*3+1];cz+=after[i*3+2];m++;}
+ if(!m)return 1;cx/=m;cy/=m;cz/=m;
+ for(let i=0;i<n;i++){if(frozen[i])continue;after[i*3]=cx+(after[i*3]-cx)*s;after[i*3+1]=cy+(after[i*3+1]-cy)*s;after[i*3+2]=cz+(after[i*3+2]-cz)*s;}
+ return s;
+}
+
+function lisoNodeNormals(topology,pts){
+ const out=new Float32Array(topology.nodes*3),F=topology.faces;
+ for(let f=0;f<F.length;f+=3){const a=F[f]*3,b=F[f+1]*3,c=F[f+2]*3;
+  const ux=pts[b]-pts[a],uy=pts[b+1]-pts[a+1],uz=pts[b+2]-pts[a+2],vx=pts[c]-pts[a],vy=pts[c+1]-pts[a+1],vz=pts[c+2]-pts[a+2];
+  const x=uy*vz-uz*vy,y=uz*vx-ux*vz,z=ux*vy-uy*vx;
+  for(let j=0;j<3;j++){const k=F[f+j]*3;out[k]+=x;out[k+1]+=y;out[k+2]+=z;}}
+ for(let i=0;i<out.length;i+=3){const l=Math.hypot(out[i],out[i+1],out[i+2]);if(l>0){out[i]/=l;out[i+1]/=l;out[i+2]/=l;}}
+ return out;
+}
+
+function lisoMeanEdge(pts,adj){
+ const n=adj.frozen.length,step=Math.max(1,Math.floor(n/16384));let sum=0,cnt=0;
+ for(let i=0;i<n;i+=step)for(let k=adj.nStart[i];k<adj.nStart[i+1];k++){const a=i*3,b=adj.nList[k]*3;sum+=Math.hypot(pts[a]-pts[b],pts[a+1]-pts[b+1],pts[a+2]-pts[b+2]);cnt++;}
+ return cnt?sum/cnt:0;
+}
+
+// Número de pares por clique: o raio de alisamento cresce com a raiz do número
+// de passos, então a quantidade acompanha a densidade da malha.
+function lisoPairsFor(diag,meanEdge,level){
+ if(!meanEdge)return 0;
+ const radius=diag*0.010*Math.sqrt(Math.max(1,level||1));
+ return Math.max(10,Math.min(240,Math.ceil(2.2*(radius/meanEdge)**2)));
+}
+
+function lisoSmoothSync(topology,adj,pairs,options,progress){
+ options=options||{};
+ const lambda=options.lambda||0.55,mu=options.mu||-lambda*(1-(options.shrink==null?0.12:options.shrink));
+ const mob=options.mobility||lisoMobility(topology,adj,options.sharpness);
+ let a=new Float32Array(topology.pts),b=new Float32Array(topology.pts.length);
+ const reference=lisoFaceNormals(topology.pts,topology.faces);
+ const good=new Float32Array(a);let done=0;
+ const chunk=options.chunk||6;
+ while(done<pairs){
+  const n=Math.min(chunk,pairs-done);
+  for(let i=0;i<n;i++)[a,b]=lisoTaubinPair(adj.sStart,adj.sList,mob,adj.frozen,a,b,lambda,mu);
+  done+=n;
+  if(lisoFlipped(a,topology.faces,reference)>Math.max(2,adj.F*0.0005)){a=new Float32Array(good);break;}
+  good.set(a);
+  if(progress)progress(done/pairs);
+ }
+ lisoRestoreVolume(topology.pts,a,topology.faces,adj.frozen,adj.boundary);
+ return {pts:a,pairs:done};
+}
+async function lisoSmooth(topology,adj,pairs,yieldFn,options){
+ options=options||{};
+ const lambda=options.lambda||0.55,mu=options.mu||-lambda*(1-(options.shrink==null?0.12:options.shrink));
+ const mob=options.mobility||lisoMobility(topology,adj,options.sharpness);
+ let a=new Float32Array(topology.pts),b=new Float32Array(topology.pts.length);
+ const reference=lisoFaceNormals(topology.pts,topology.faces);
+ const good=new Float32Array(a);let done=0;
+ const chunk=options.chunk||6;
+ while(done<pairs){
+  const n=Math.min(chunk,pairs-done);
+  for(let i=0;i<n;i++)[a,b]=lisoTaubinPair(adj.sStart,adj.sList,mob,adj.frozen,a,b,lambda,mu);
+  done+=n;
+  if(lisoFlipped(a,topology.faces,reference)>Math.max(2,adj.F*0.0005)){a=new Float32Array(good);break;}
+  good.set(a);
+  if(yieldFn)await yieldFn(done/pairs);
+ }
+ lisoRestoreVolume(topology.pts,a,topology.faces,adj.frozen,adj.boundary);
+ return {pts:a,pairs:done};
+}
+
+// Pós-processamento do gerador: mesh = grupos {data:[x,y,z,u,v]*, normals}.
+// Suaviza posições (Taubin, limitado a ~1 voxel da forma original) e refaz as
+// normais soldadas, preservando vincos acima de creaseDeg.
+function lisoPostMesh(mesh,step,mode){
+ let total=0;for(const g of mesh)if(g&&g.data)total+=g.data.length/5;
+ if(!total)return;
+ const pos=new Float32Array(total*3),offs=[];let o=0;
+ for(const g of mesh){offs.push(o);if(!g||!g.data)continue;const n=g.data.length/5;for(let i=0;i<n;i++){pos[(o+i)*3]=g.data[i*5];pos[(o+i)*3+1]=g.data[i*5+1];pos[(o+i)*3+2]=g.data[i*5+2];}o+=n;}
+ const topo=lisoWeld(pos,null,0,total,1e-6),adj=lisoAdjacency(topo);
+ const meanEdge=lisoMeanEdge(topo.pts,adj);
+ const strict=mode==='angular'||mode==='silhouette';
+ const pairs=Math.max(60,Math.min(300,Math.round(4e7/Math.max(1,topo.nodes))));
+ const res=lisoSmoothSync(topo,adj,pairs,{shrink:0.12,sharpness:strict?0.15:0.3});
+ const limit=Math.max(step*2.5,meanEdge*2.5,topo.diag*0.001),out=res.pts;
+ for(let i=0;i<topo.nodes;i++){const k=i*3,dx=out[k]-topo.pts[k],dy=out[k+1]-topo.pts[k+1],dz=out[k+2]-topo.pts[k+2],l=Math.hypot(dx,dy,dz);if(l>limit){const f=limit/l;out[k]=topo.pts[k]+dx*f;out[k+1]=topo.pts[k+1]+dy*f;out[k+2]=topo.pts[k+2]+dz*f;}}
+ for(let gi=0;gi<mesh.length;gi++){const g=mesh[gi];if(!g||!g.data)continue;const n=g.data.length/5,base=offs[gi];for(let i=0;i<n;i++){const nd=topo.nodeOf[base+i]*3;g.data[i*5]=out[nd];g.data[i*5+1]=out[nd+1];g.data[i*5+2]=out[nd+2];}}
+ // normais por canto, ponderadas por área, só com faces dentro do ângulo de vinco
+ const F=topo.faces.length/3,fnr=new Float32Array(F*3),fu=new Float32Array(F*3);
+ for(let f=0;f<F;f++){const a=topo.faces[f*3]*3,b=topo.faces[f*3+1]*3,c=topo.faces[f*3+2]*3;const ux=out[b]-out[a],uy=out[b+1]-out[a+1],uz=out[b+2]-out[a+2],vx=out[c]-out[a],vy=out[c+1]-out[a+1],vz=out[c+2]-out[a+2];const x=uy*vz-uz*vy,y=uz*vx-ux*vz,z=ux*vy-uy*vx,l=Math.hypot(x,y,z);fnr[f*3]=x;fnr[f*3+1]=y;fnr[f*3+2]=z;if(l>0){fu[f*3]=x/l;fu[f*3+1]=y/l;fu[f*3+2]=z/l;}}
+ const cosCrease=Math.cos((strict?38:70)*Math.PI/180);
+ const normalsOut=mesh.map(g=>g&&g.data?new Float32Array(g.data.length/5*3):null);
+ const groupOf=new Int32Array(total);for(let gi=0;gi<mesh.length;gi++){const g=mesh[gi];if(!g||!g.data)continue;const n=g.data.length/5;groupOf.fill(gi,offs[gi],offs[gi]+n);}
+ for(let f=0;f<F;f++){
+  const src=topo.faceSrc[f];
+  for(let j=0;j<3;j++){
+   const node=topo.faces[f*3+j];let x=0,y=0,z=0;
+   for(let k=adj.fOff[node];k<adj.fOff[node+1];k++){const h=adj.fList[k];if(fu[h*3]*fu[f*3]+fu[h*3+1]*fu[f*3+1]+fu[h*3+2]*fu[f*3+2]>=cosCrease){x+=fnr[h*3];y+=fnr[h*3+1];z+=fnr[h*3+2];}}
+   let l=Math.hypot(x,y,z);if(!l){x=fu[f*3];y=fu[f*3+1];z=fu[f*3+2];l=1;}
+   const corner=src+j,gi=groupOf[corner],g=mesh[gi],local=corner-offs[gi],old=g.normals;
+   if(old&&x*old[local*3]+y*old[local*3+1]+z*old[local*3+2]<0){x=-x;y=-y;z=-z;}
+   const t=normalsOut[gi];t[local*3]=x/l;t[local*3+1]=y/l;t[local*3+2]=z/l;
+  }
+ }
+ for(let gi=0;gi<mesh.length;gi++){const g=mesh[gi];if(!g||!g.data)continue;const t=normalsOut[gi],old=g.normals;for(let i=0;i<t.length;i+=3)if(!t[i]&&!t[i+1]&&!t[i+2]&&old){t[i]=old[i];t[i+1]=old[i+1];t[i+2]=old[i+2];}g.normals=t;g.projectionNormals=t.slice();}
+}
+
 function prepareProjections(){
  const front=images[0];if(!front)return;
  const height=2*(front.bottom-front.top)/front.height,centerY=1-(front.top+front.bottom)/front.height;
@@ -1312,6 +1572,7 @@ return [
 function uniforms(p){gl.useProgram(p);gl.uniform1f(cachedUniformLocation(p,'sideFacing'),sideFacing);let focus=0,scale=1;if(images[0]&&images[0].bottom>images[0].top){const im=images[0],height=2*(im.bottom-im.top)/im.height,width=2*(im.right-im.left)/im.height,depth=images[1]?viewWorldWidth(images[1]):width;focus=1-(im.top+im.bottom)/im.height;scale=2/Math.max(height,width,depth,.01);}gl.uniform2f(cachedUniformLocation(p,'framing'),focus,scale);gl.uniform2f(cachedUniformLocation(p,'rotation'),angleX,angleY);gl.uniform1f(cachedUniformLocation(p,'aspect'),canvas.width/canvas.height);gl.uniform1f(cachedUniformLocation(p,'zoom'),zoom);gl.uniform2f(cachedUniformLocation(p,'pan'),panX,panY)}
 function position(p,b,data,withUV){gl.uniform1f(cachedUniformLocation(p,'lighting'),0);gl.uniform1f(cachedUniformLocation(p,'surface'),0);const nl=cachedAttribLocation(p,'normal');if(nl>=0){gl.disableVertexAttribArray(nl);gl.vertexAttrib3f(nl,0,0,1);}gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);let loc=cachedAttribLocation(p,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,3,gl.FLOAT,false,withUV?20:12,0);loc=cachedAttribLocation(p,'uv');if(loc>=0){if(withUV){gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,20,12)}else{gl.disableVertexAttribArray(loc);gl.vertexAttrib2f(loc,0,0)}}}
 function buildRoundedVolume(){
+const strictAlpha=false;
 if(!images[0]||!images[1])return [];
 prepareProjections();
 const cut=+$('cutoff').value,groups=[{i:0,color:[.45,1,.72],data:[],normals:[]},{i:images[2]?2:0,color:[1,.67,.36],data:[],normals:[]}];
@@ -1415,14 +1676,14 @@ for(let z=0;z<nz;z++)for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){const wx=min[0]+
  field[x+y*nx+z*plane]=value;
 }
 // Costas fornece a pintura traseira; diferenças entre desenhos opostos não amputam a frente.
-const smooth=field.slice();for(let z=1;z<nz-1;z++)for(let y=1;y<ny-1;y++)for(let x=1;x<nx-1;x++){const k=x+y*nx+z*plane;field[k]=Math.min(frontD[x+y*nx],sideD[z+y*nz],(smooth[k]*6+smooth[k-1]+smooth[k+1]+smooth[k-nx]+smooth[k+nx]+smooth[k-plane]+smooth[k+plane])/12);}
+const smooth=new Float32Array(field.length);for(let pass=0;pass<3;pass++){smooth.set(field);for(let z=1;z<nz-1;z++)for(let y=1;y<ny-1;y++)for(let x=1;x<nx-1;x++){const k=x+y*nx+z*plane;field[k]=Math.min(frontD[x+y*nx],sideD[z+y*nz],(smooth[k]*6+smooth[k-1]+smooth[k+1]+smooth[k-nx]+smooth[k+nx]+smooth[k-plane]+smooth[k+plane])/12);}}
 const cube=[0,1,1+nx,nx,plane,plane+1,plane+1+nx,plane+nx];
 
 function point(k){return [min[0]+(k%nx)*step,min[1]+(Math.floor(k/nx)%ny)*step,min[2]+Math.floor(k/plane)*step];}
 function gradient(k){const x=k%nx,y=Math.floor(k/nx)%ny,z=Math.floor(k/plane),g=[];for(const [position,size,stride]of [[x,nx,1],[y,ny,nx],[z,nz,plane]]){const left=Math.min(2,position),right=Math.min(2,size-1-position);g.push((field[k+right*stride]-field[k-left*stride])/Math.max(1,left+right));}return g;}
 function crossing(a,b){const fa=field[a],fb=field[b],t=Math.abs(fa-fb)>1e-12?fa/(fa-fb):.5,pa=point(a),pb=point(b),ga=gradient(a),gb=gradient(b),p=pa.map((v,i)=>v+(pb[i]-v)*t),n=ga.map((v,i)=>-(v+(gb[i]-v)*t)),len=Math.hypot(...n)||1;return {p,n:n.map(v=>v/len)};}
 function triangle(a,b,c){let u=b.p.map((v,i)=>v-a.p[i]),v=c.p.map((v,i)=>v-a.p[i]),cross=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];if(Math.hypot(...cross)<1e-12)return;const normal=a.n.map((v,i)=>v+b.n[i]+c.n[i]);if(cross.reduce((s,v,i)=>s+v*normal[i],0)<0)[b,c]=[c,b];const group=normal[2]>=0?groups[0]:groups[1],tex=images[group.i];for(const vertex of [a,b,c]){const p=vertex.p;group.data.push(...p,center(tex)/tex.width+(group.i===2?-p[0]:p[0])/span(tex),.5-p[1]/2);group.normals.push(...vertex.n);}}
-const cellVertices=new Int32Array(field.length);cellVertices.fill(-1);const vertices=[],cubeEdges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+const cellVertices=new Int32Array(smooth.buffer);cellVertices.fill(-1);const vertices=[],cubeEdges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
 for(let z=0;z<nz-1;z++)for(let y=0;y<ny-1;y++)for(let x=0;x<nx-1;x++){const base=x+y*nx+z*plane;let positive=0;for(const offset of cube)positive+=field[base+offset]>0;if(!positive||positive===8)continue;const p=[0,0,0],n=[0,0,0];let count=0;for(const [a,b]of cubeEdges){const ia=base+cube[a],ib=base+cube[b];if((field[ia]>0)===(field[ib]>0))continue;const v=crossing(ia,ib);for(let j=0;j<3;j++){p[j]+=v.p[j];n[j]+=v.n[j];}count++;}const length=Math.hypot(...n)||1;cellVertices[base]=vertices.length;vertices.push({p:p.map(v=>v/count),n:n.map(v=>v/length)});}
 // Automatic geometry fairing runs on shared vertices before UV/group duplication.
 const faces=[],neighbors=Array.from({length:vertices.length},()=>[]);
@@ -1713,16 +1974,17 @@ for(let z=0;z<nz;z++)for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){const wx=min[0]+
 // Antialias geométrico da superfície: suaviza apenas variações menores que
 // um voxel. O limite de frente/lateral vem das máscaras do desenho, evitando
 // converter a forma torta em esfera idealizada.
-for(let pass=0;pass<(strictAlpha&&roof?0:2);pass++){
- const previous=field.slice();
+const scratch=new Float32Array(field.length);
+for(let pass=0;pass<(strictAlpha&&roof?0:4);pass++){
+ const previous=scratch;previous.set(field);
  for(let z=1;z<nz-1;z++)for(let y=1;y<ny-1;y++)for(let x=1;x<nx-1;x++){
   const k=x+y*nx+z*plane,base=x+y*nx,sideIndex=z+y*nz;
   if(Math.abs(previous[k])>step*3)continue;
   const filtered=(previous[k]*4+previous[k-1]+previous[k+1]+previous[k-nx]+previous[k+nx]+previous[k-plane]+previous[k+plane])/10;
-  const limit=strictAlpha?step*.16:step*.32;
+  const limit=strictAlpha?step*.3:step*.6;
   // Não permitir que o filtro ultrapasse o contorno original do desenho.
   field[k]=Math.min(frontD[base]+limit,sideD[sideIndex]+limit,
-                    Math.max(previous[k]-step*.18,Math.min(previous[k]+step*.18,filtered)));
+                    Math.max(previous[k]-step*.3,Math.min(previous[k]+step*.3,filtered)));
  }
 }
 const cube=[0,1,1+nx,nx,plane,plane+1,plane+1+nx,plane+nx];
@@ -1731,7 +1993,7 @@ function point(k){return [min[0]+(k%nx)*step,min[1]+(Math.floor(k/nx)%ny)*step,m
 function gradient(k){const x=k%nx,y=Math.floor(k/nx)%ny,z=Math.floor(k/plane),g=[];for(const [position,size,stride]of [[x,nx,1],[y,ny,nx],[z,nz,plane]]){const left=Math.min(2,position),right=Math.min(2,size-1-position);g.push((field[k+right*stride]-field[k-left*stride])/Math.max(1,left+right));}return g;}
 function crossing(a,b){const fa=field[a],fb=field[b],t=Math.abs(fa-fb)>1e-12?fa/(fa-fb):.5,pa=point(a),pb=point(b),ga=gradient(a),gb=gradient(b),p=pa.map((v,i)=>v+(pb[i]-v)*t),n=ga.map((v,i)=>-(v+(gb[i]-v)*t)),len=Math.hypot(...n)||1;return {p,n:n.map(v=>v/len)};}
 function triangle(a,b,c){let u=b.p.map((v,i)=>v-a.p[i]),v=c.p.map((v,i)=>v-a.p[i]),cross=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]];if(Math.hypot(...cross)<1e-12)return;const normal=a.n.map((v,i)=>v+b.n[i]+c.n[i]);if(cross.reduce((s,v,i)=>s+v*normal[i],0)<0)[b,c]=[c,b];const group=normal[2]>=0?groups[0]:groups[1],tex=images[group.i];for(const vertex of [a,b,c]){const p=vertex.p;group.data.push(...p,center(tex)/tex.width+(group.i===2?-p[0]:p[0])/span(tex),.5-p[1]/2);group.normals.push(...vertex.n);}}
-const cellVertices=new Int32Array(field.length);cellVertices.fill(-1);const vertices=[],cubeEdges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+const cellVertices=new Int32Array(scratch.buffer);cellVertices.fill(-1);const vertices=[],cubeEdges=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
 for(let z=0;z<nz-1;z++)for(let y=0;y<ny-1;y++)for(let x=0;x<nx-1;x++){const base=x+y*nx+z*plane;let positive=0;for(const offset of cube)positive+=field[base+offset]>0;if(!positive||positive===8)continue;const p=[0,0,0],n=[0,0,0];let count=0;for(const [a,b]of cubeEdges){const ia=base+cube[a],ib=base+cube[b];if((field[ia]>0)===(field[ib]>0))continue;const v=crossing(ia,ib);for(let j=0;j<3;j++){p[j]+=v.p[j];n[j]+=v.n[j];}count++;}const length=Math.hypot(...n)||1;cellVertices[base]=vertices.length;vertices.push({p:p.map(v=>v/count),n:n.map(v=>v/length)});}
 // Automatic geometry fairing runs on shared vertices before UV/group duplication.
 const faces=[],neighbors=Array.from({length:vertices.length},()=>[]);
@@ -2725,7 +2987,18 @@ ${buildRoundedVolume.toString()}
 ${buildVolume.toString()}
 ${curveAfterQuadrado.toString()}
 ${scan360Volume.toString()}
-let lastAlpha=-1,lastMaskMode='';onmessage=e=>{try{const job=e.data,start=performance.now();if(job.images){images=job.images;lastAlpha=-1;}controls=job.controls;sideFacing=job.sideFacing;if(lastAlpha!==Number(controls.cutoff)||lastMaskMode!==controls.sectionMode){for(const im of images)if(im)cleanSilhouette(im);lastAlpha=Number(controls.cutoff);lastMaskMode=controls.sectionMode;}let mesh=buildVolume();if(Number(controls.curve)>0)mesh=scan360Volume(mesh,controls.curve);const profile=mesh.viewProfile,details=mesh.reconstruction,metadata=images.map(im=>im?({left:im.left,right:im.right,top:im.top,bottom:im.bottom,projection:im.projection}):null),transfer=mesh.flatMap(g=>[g.data.buffer,g.normals.buffer,...(g.projectionNormals?[g.projectionNormals.buffer]:[])]);if(profile)transfer.push(profile.data.buffer);postMessage({key:job.key,mesh,profile,details,metadata,ms:performance.now()-start},transfer);}catch(error){postMessage({key:e.data.key,error:error.message});}};`;
+${lisoWeld.toString()}
+${lisoAdjacency.toString()}
+${lisoFaceNormals.toString()}
+${lisoMobility.toString()}
+${lisoTaubinPair.toString()}
+${lisoFlipped.toString()}
+${lisoVolume.toString()}
+${lisoRestoreVolume.toString()}
+${lisoMeanEdge.toString()}
+${lisoSmoothSync.toString()}
+${lisoPostMesh.toString()}
+let lastAlpha=-1,lastMaskMode='';onmessage=e=>{try{const job=e.data,start=performance.now();if(job.images){images=job.images;lastAlpha=-1;}controls=job.controls;sideFacing=job.sideFacing;if(lastAlpha!==Number(controls.cutoff)||lastMaskMode!==controls.sectionMode){for(const im of images)if(im)cleanSilhouette(im);lastAlpha=Number(controls.cutoff);lastMaskMode=controls.sectionMode;}let mesh=buildVolume();if(Number(controls.curve)>0)mesh=scan360Volume(mesh,controls.curve);if(mesh.reconstruction&&!mesh.reconstruction.organicContinuous){lisoPostMesh(mesh,mesh.reconstruction.step||0,mesh.reconstruction.mode);mesh.reconstruction.lisoDone=true;}const profile=mesh.viewProfile,details=mesh.reconstruction,metadata=images.map(im=>im?({left:im.left,right:im.right,top:im.top,bottom:im.bottom,projection:im.projection}):null),transfer=mesh.flatMap(g=>[g.data.buffer,g.normals.buffer,...(g.projectionNormals?[g.projectionNormals.buffer]:[])]);if(profile)transfer.push(profile.data.buffer);postMessage({key:job.key,mesh,profile,details,metadata,ms:performance.now()-start},transfer);}catch(error){postMessage({key:e.data.key,error:error.message});}};`;
  const url=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));try{reconstructionWorker=new Worker(url);}finally{URL.revokeObjectURL(url);}
  // Shade Smooth + Auto Smooth: solda as normais entre todas as partes da malha.
  // Não move vertices: a silhueta e as irregularidades do desenho permanecem intactas.
@@ -2881,7 +3154,7 @@ let lastAlpha=-1,lastMaskMode='';onmessage=e=>{try{const job=e.data,start=perfor
   }
  }
 
-reconstructionWorker.onmessage=e=>{workerBusy=false;const r=e.data;if(r.key!==modelKey()){requestReconstruction();return;}if(r.error){failedJob=r.key;buildError=r.error;$('progress').textContent='Erro: '+r.error;return;}releaseVolume(volumeMesh);volumeMesh=r.mesh;volumeMesh.viewProfile=r.profile;volumeMesh.reconstruction=r.details;if(!r.details?.organicContinuous){smoothVolumeGeometry(volumeMesh,r.details?.step||0);softenVolumeNormals(volumeMesh);}const lower=[Infinity,Infinity,Infinity],upper=[-Infinity,-Infinity,-Infinity];for(const g of volumeMesh)for(let k=0;k<g.data.length;k+=5)for(let c=0;c<3;c++){lower[c]=Math.min(lower[c],g.data[k+c]);upper[c]=Math.max(upper[c],g.data[k+c]);}volumeMesh.bounds={lower,upper};for(let i=0;i<3;i++)if(images[i]&&r.metadata[i])Object.assign(images[i],r.metadata[i]);if(!cameraMoved||lastFittedVersion!==imageVersion){fitCamera();lastFittedVersion=imageVersion;}volumeKey=r.key;meshVersion++;window.clearGrabHistory?.();window.replaySourceGrab?.();replayPaintStrokes();const triangles=volumeMesh.reduce((n,g)=>n+g.data.length/15,0);$('progress').textContent=triangles.toLocaleString('pt-BR')+' triângulos · '+$('quality').selectedOptions[0].text+(' · '+(r.details.scanner360?'scanner 360° · voxels':({depth:'volume e profundidade',silhouette:'fiel ao alpha',round:'arredondado · volume curvo',angular:'acabamento quadrado'}[r.details.mode]||'volume e profundidade')));$('status').textContent=$('progress').textContent;};
+reconstructionWorker.onmessage=e=>{workerBusy=false;const r=e.data;if(r.key!==modelKey()){requestReconstruction();return;}if(r.error){failedJob=r.key;buildError=r.error;$('progress').textContent='Erro: '+r.error;return;}releaseVolume(volumeMesh);volumeMesh=r.mesh;volumeMesh.viewProfile=r.profile;volumeMesh.reconstruction=r.details;if(!r.details?.organicContinuous&&!r.details?.lisoDone){smoothVolumeGeometry(volumeMesh,r.details?.step||0);softenVolumeNormals(volumeMesh);}const lower=[Infinity,Infinity,Infinity],upper=[-Infinity,-Infinity,-Infinity];for(const g of volumeMesh)for(let k=0;k<g.data.length;k+=5)for(let c=0;c<3;c++){lower[c]=Math.min(lower[c],g.data[k+c]);upper[c]=Math.max(upper[c],g.data[k+c]);}volumeMesh.bounds={lower,upper};for(let i=0;i<3;i++)if(images[i]&&r.metadata[i])Object.assign(images[i],r.metadata[i]);if(!cameraMoved||lastFittedVersion!==imageVersion){fitCamera();lastFittedVersion=imageVersion;}volumeKey=r.key;meshVersion++;window.clearGrabHistory?.();window.replaySourceGrab?.();replayPaintStrokes();const triangles=volumeMesh.reduce((n,g)=>n+g.data.length/15,0);$('progress').textContent=triangles.toLocaleString('pt-BR')+' triângulos · '+$('quality').selectedOptions[0].text+(' · '+(r.details.scanner360?'scanner 360° · voxels':({depth:'volume e profundidade',silhouette:'fiel ao alpha',round:'arredondado · volume curvo',angular:'acabamento quadrado'}[r.details.mode]||'volume e profundidade')));$('status').textContent=$('progress').textContent;};
  reconstructionWorker.onerror=e=>{workerBusy=false;failedJob=activeJob;buildError=e.message||'Falha no processamento';$('progress').textContent='Erro: '+buildError;};
 }
 let loadingDrawingViews=false;
@@ -12465,225 +12738,55 @@ return earcut;})();
   requestRender();
  }
 
- // The topology joins coincident positions for calculations only. UVs, groups
- // and the original index buffer stay in place, including across texture seams.
- function buildSmoothTopology(geometry){
-  const {position}=geometry.attributes;
-  const index=geometry.index;
-  geometry.computeBoundingBox();
-  const box=geometry.boundingBox;
-  const epsilon=Math.max(box.getSize(new E.Vector()).length()*1e-7,1e-12);
-  const ids=new Uint32Array(position.count);
-  const samples=new Uint32Array(position.count);
-  const points=new Float64Array(position.count*3);
-  const lookup=new Map();
-  for(let i=0;i<position.count;i++){
-   const x=position.getX(i),y=position.getY(i),z=position.getZ(i);
-   const key=[Math.round((x-box.min.x)/epsilon),Math.round((y-box.min.y)/epsilon),
-    Math.round((z-box.min.z)/epsilon)].join(',');
-   let id=lookup.get(key);
-   if(id===undefined){
-    id=lookup.size;
-    lookup.set(key,id);
-    points[id*3]=x;
-    points[id*3+1]=y;
-    points[id*3+2]=z;
-   }
-   ids[i]=id;
-   samples[id]++;
-  }
-  const size=lookup.size;
-  const incidentCount=new Uint32Array(size);
-  const degree=new Uint32Array(size);
-  const lengths=index?.count??position.count;
-  const faces=new Uint32Array(Math.floor(lengths/3)*3);
-  const edges=new Map();
-  let faceLength=0;
-  function edge(a,b){
-   const key=Math.min(a,b)*size+Math.max(a,b);
-   if(edges.has(key))edges.set(key,edges.get(key)+1);
-   else{
-    edges.set(key,1);
-    degree[a]++;
-    degree[b]++;
-   }
-  }
-  const end=Math.min(lengths,geometry.drawRange.start+geometry.drawRange.count);
-  for(let i=geometry.drawRange.start;i+2<end;i+=3){
-   const a=ids[index?index.getX(i):i],b=ids[index?index.getX(i+1):i+1],
-    c=ids[index?index.getX(i+2):i+2];
-   if(a===b||b===c||c===a)continue;
-   faces[faceLength++]=a;
-   faces[faceLength++]=b;
-   faces[faceLength++]=c;
-   incidentCount[a]++;
-   incidentCount[b]++;
-   incidentCount[c]++;
-   edge(a,b);
-   edge(b,c);
-   edge(c,a);
-  }
-  function offsets(counts){
-   const result=new Uint32Array(size+1);
-   for(let i=0;i<size;i++)result[i+1]=result[i]+counts[i];
-   return result;
-  }
-  const neighborStart=offsets(degree),vertexStart=offsets(samples),faceStart=offsets(incidentCount);
-  const neighbors=new Uint32Array(neighborStart[size]);
-  const vertices=new Uint32Array(position.count),incident=new Uint32Array(faceLength);
-  const nextNeighbor=neighborStart.slice(),nextVertex=vertexStart.slice(),nextFace=faceStart.slice();
-  const fixed=new Uint8Array(size);
-  for(const [key,count] of edges){
-   const a=Math.floor(key/size),b=key%size;
-   neighbors[nextNeighbor[a]++]=b;
-   neighbors[nextNeighbor[b]++]=a;
-   if(count!==2)fixed[a]=fixed[b]=1;
-  }
-  for(let i=0;i<ids.length;i++)vertices[nextVertex[ids[i]]++]=i;
-  for(let i=0;i<faceLength;i++)incident[nextFace[faces[i]]++]=i-i%3;
-  return {geometry,version:position.version,position,index,ids,points,fixed,neighbors,neighborStart,
-   vertices,vertexStart,faces,incident,faceStart,visited:new Uint32Array(size),visit:0};
- }
 
- function smoothGeometricNormal(topology,id,target){
-  const {points,faces,incident,faceStart}=topology;
-  let x=0,y=0,z=0;
-  for(let i=faceStart[id];i<faceStart[id+1];i++){
-   const at=incident[i],a=faces[at]*3,b=faces[at+1]*3,c=faces[at+2]*3;
-   const ux=points[b]-points[a],uy=points[b+1]-points[a+1],uz=points[b+2]-points[a+2];
-   const vx=points[c]-points[a],vy=points[c+1]-points[a+1],vz=points[c+2]-points[a+2];
-   x+=uy*vz-uz*vy;
-   y+=uz*vx-ux*vz;
-   z+=ux*vy-uy*vx;
-  }
-  return target.set(x,y,z).normalize();
- }
-
- function protectCreases(topology){
-  const {points,faces,incident,faceStart,fixed}=topology;
-  const normals=new Float32Array(faces.length);
-  for(let i=0;i<faces.length;i+=3){
-   const a=faces[i]*3,b=faces[i+1]*3,c=faces[i+2]*3;
-   const ux=points[b]-points[a],uy=points[b+1]-points[a+1],uz=points[b+2]-points[a+2];
-   const vx=points[c]-points[a],vy=points[c+1]-points[a+1],vz=points[c+2]-points[a+2];
-   const x=uy*vz-uz*vy,y=uz*vx-ux*vz,z=ux*vy-uy*vx;
-   const length=Math.hypot(x,y,z);
-   if(length)normals.set([x/length,y/length,z/length],i);
-  }
-  const crease=Math.cos(55*Math.PI/180);
-  for(let id=0;id<fixed.length;id++){
-   if(fixed[id])continue;
-   for(let i=faceStart[id];i<faceStart[id+1]&&!fixed[id];i++){
-    const a=incident[i];
-    for(let j=i+1;j<faceStart[id+1];j++){
-     const b=incident[j];
-     const cosine=normals[a]*normals[b]+normals[a+1]*normals[b+1]+normals[a+2]*normals[b+2];
-     if(cosine>=crease)continue;
-     for(let c=0;c<3;c++){
-      const v=faces[a+c];
-      if(v===id)continue;
-      if(v===faces[b]||v===faces[b+1]||v===faces[b+2]){
-       fixed[id]=1;
-       break;
-      }
-     }
-     if(fixed[id])break;
-    }
-   }
-  }
- }
-
- async function diffuseSurface(topology,passes,yieldToEditor){
-  const {points,neighbors,neighborStart,fixed}=topology;
-  let current=points.slice(0,3*fixed.length);
-  let next=current.slice();
-  let first;
-  // Two diffusion scales suppress ripples while compensating for broad shape shrinkage.
-  for(let pass=1;pass<=2*passes;pass++){
-   for(let id=0;id<fixed.length;id++){
-    if(fixed[id])continue;
-    const start=neighborStart[id],end=neighborStart[id+1];
-    if(end===start)continue;
-    const k=id*3;
-    let x=0,y=0,z=0;
-    for(let j=start;j<end;j++){
-     const at=neighbors[j]*3;
-     x+=current[at];
-     y+=current[at+1];
-     z+=current[at+2];
-    }
-    const scale=.5/(end-start);
-    next[k]=.5*current[k]+scale*x;
-    next[k+1]=.5*current[k+1]+scale*y;
-    next[k+2]=.5*current[k+2]+scale*z;
-   }
-   [current,next]=[next,current];
-   if(pass===passes)first=current.slice();
-   if(yieldToEditor&&pass%8===0)await yieldToEditor(pass/(2*passes));
-  }
-  for(let i=0;i<current.length;i++)current[i]=Math.fround(2*first[i]-current[i]);
-  return current;
- }
-
+ // Suavização por filtro Taubin em arrays tipados: cada clique aplica mais uma
+ // rodada completa (sem congelar vincos nem bordas), sem encolher a forma.
  async function smoothWholeGeometry(geometry,yieldToEditor){
-  const topology=buildSmoothTopology(geometry);
-  const {position,ids,fixed,points,neighborStart,neighbors}=topology;
-  const {normal,tangent}=geometry.attributes;
-  const at=topology.faces.length;
-  if(!at)return null;
-  // Derive the scale from vertex spacing as well as object size.
-  let meanEdge=0,edgeCount=0;
-  const step=Math.max(1,Math.floor(fixed.length/8192));
-  for(let id=0;id<fixed.length;id+=step){
-   for(let j=neighborStart[id];j<neighborStart[id+1];j++){
-    const a=id*3,b=neighbors[j]*3;
-    meanEdge+=Math.hypot(points[a]-points[b],points[a+1]-points[b+1],points[a+2]-points[b+2]);
-    edgeCount++;
-   }
-  }
+  const position=geometry.attributes.position,normal=geometry.attributes.normal,tangent=geometry.attributes.tangent;
+  if(!position||position.itemSize!==3)return null;
+  const index=geometry.index?geometry.index.array:null;
+  const length=index?index.length:position.count;
+  const start=geometry.drawRange.start||0;
+  const count=Math.max(0,Math.min(length-start,geometry.drawRange.count));
+  if(count<3)return null;
+  const topo=lisoWeld(position.array,index,start,count,1e-7);
+  if(!topo.faces.length)return null;
+  const adj=lisoAdjacency(topo);
+  const meanEdge=lisoMeanEdge(topo.pts,adj);
   if(!meanEdge)return null;
-  meanEdge/=edgeCount;
-  const diagonal=geometry.boundingBox.getSize(new E.Vector()).length();
-  const passes=Math.min(144,Math.max(2,Math.round(4*(diagonal*.015/meanEdge)**2)));
-  protectCreases(topology);
-  const next=await diffuseSurface(topology,passes,yieldToEditor);
-  const normalsBefore=new Float32Array(next.length),normalsAfter=new Float32Array(next.length);
-  const v=new E.Vector(),old=new E.Vector(),n=new E.Vector(),axis=new E.Vector(),rotation=new E.Vector();
-  for(let id=0;id<fixed.length;id++)smoothGeometricNormal(topology,id,v).toArray(normalsBefore,id*3);
-  topology.points=next;
-  for(let id=0;id<fixed.length;id++)smoothGeometricNormal(topology,id,v).toArray(normalsAfter,id*3);
-  const positions=position.clone(),normals=normal.clone(),tangents=tangent?.clone();
+  const pairs=lisoPairsFor(topo.diag,meanEdge,1);
+  const result=await lisoSmooth(topo,adj,pairs,yieldToEditor,{shrink:.12,sharpness:.3});
+  const before=lisoNodeNormals(topo,topo.pts),after=lisoNodeNormals(topo,result.pts);
+  const positions=position.clone(),normals=normal?normal.clone():null,tangents=tangent?tangent.clone():null;
+  const pa=positions.array,na=normals?normals.array:null,ta=tangents?tangents.array:null,ts=tangents?tangents.itemSize:0;
   let changed=0;
   for(let i=0;i<position.count;i++){
-   const at=ids[i]*3;
-   v.fromArray(next,at);
-   if(!fixed[ids[i]]&&(v.x!==position.getX(i)||v.y!==position.getY(i)||v.z!==position.getZ(i))){
-    positions.setXYZ(i,v.x,v.y,v.z);
-    changed++;
+   const id=topo.nodeOf[i]*3,x=result.pts[id],y=result.pts[id+1],z=result.pts[id+2];
+   if(x!==pa[i*3]||y!==pa[i*3+1]||z!==pa[i*3+2]){pa[i*3]=x;pa[i*3+1]=y;pa[i*3+2]=z;changed++;}
+   if(!na)continue;
+   const ox=before[id],oy=before[id+1],oz=before[id+2],nx=after[id],ny=after[id+1],nz=after[id+2];
+   if(!(ox||oy||oz)||!(nx||ny||nz))continue;
+   let vx=na[i*3],vy=na[i*3+1],vz=na[i*3+2];
+   const vl=Math.hypot(vx,vy,vz)||1;vx/=vl;vy/=vl;vz/=vl;
+   let rx=nx,ry=ny,rz=nz;
+   if(vx*ox+vy*oy+vz*oz<.9){
+    // Normal autoral (aresta dura): gira junto com a superfície.
+    const ax=oy*nz-oz*ny,ay=oz*nx-ox*nz,az=ox*ny-oy*nx,s=Math.hypot(ax,ay,az),c=ox*nx+oy*ny+oz*nz;
+    if(s<1e-6){rx=vx;ry=vy;rz=vz;}
+    else{
+     const kx=ax/s,ky=ay/s,kz=az/s,kv=kx*vx+ky*vy+kz*vz;
+     rx=vx*c+(ky*vz-kz*vy)*s+kx*kv*(1-c);ry=vy*c+(kz*vx-kx*vz)*s+ky*kv*(1-c);rz=vz*c+(kx*vy-ky*vx)*s+kz*kv*(1-c);
+    }
    }
-   n.fromArray(normalsAfter,at);
-   if(!n.lengthSq())continue;
-   old.fromArray(normalsBefore,at);
-   v.fromBufferAttribute(normal,i).normalize();
-   const agreement=v.dot(old);
-   if(agreement<.9){
-    // Rotate authored split normals along with the geometry.
-    const cosine=old.dot(n);
-    if(old.lengthSq()&&cosine>-.999){
-     axis.crossVectors(old,n);
-     rotation.crossVectors(axis,v);
-     axis.cross(rotation);
-     n.copy(v).add(rotation).addScaledVector(axis,1/(1+cosine)).normalize();
-    }else n.copy(v);
-   }
-   normals.setXYZ(i,n.x,n.y,n.z);
-   if(tangents){
-    v.fromBufferAttribute(tangent,i).addScaledVector(n,-v.dot(n)).normalize();
-    if(v.lengthSq())tangents.setXYZ(i,v.x,v.y,v.z);
+   const rl=Math.hypot(rx,ry,rz)||1;rx/=rl;ry/=rl;rz/=rl;
+   na[i*3]=rx;na[i*3+1]=ry;na[i*3+2]=rz;
+   if(ta){
+    let tx=ta[i*ts],ty=ta[i*ts+1],tz=ta[i*ts+2];const d=tx*rx+ty*ry+tz*rz;tx-=rx*d;ty-=ry*d;tz-=rz*d;
+    const tl=Math.hypot(tx,ty,tz);if(tl>1e-9){ta[i*ts]=tx/tl;ta[i*ts+1]=ty/tl;ta[i*ts+2]=tz/tl;}
    }
   }
   if(!changed)return null;
-  return {position:positions,normal:normals,tangent:tangents,changed,passes};
+  return {position:positions,normal:normals||undefined,tangent:tangents||undefined,changed,passes:result.pairs};
  }
 
  function applyWholeSmooth(mesh,result){
@@ -12702,6 +12805,7 @@ return earcut;})();
  let smoothingObject=false;
  const paintEditor=()=>new Promise(resolve=>setTimeout(resolve,0));
 
+
  async function smoothWholeObject(root){
   if(smoothingObject||!root)return 0;
   const meshes=[];
@@ -12718,8 +12822,12 @@ return earcut;})();
   try{
    status.textContent='Suavizando a malha inteira…';
    await paintEditor();
-   for(const mesh of meshes){
-    const result=await smoothWholeGeometry(mesh.geometry,paintEditor);
+   for(let m=0;m<meshes.length;m++){
+    const mesh=meshes[m],part=meshes.length>1?' ('+(m+1)+'/'+meshes.length+')':'';
+    const result=await smoothWholeGeometry(mesh.geometry,async fraction=>{
+     status.textContent='Suavizando… '+Math.round(fraction*100)+'%'+part;
+     await paintEditor();
+    });
     if(result){
      results.push({mesh,result});
      total+=result.changed;
@@ -12727,8 +12835,11 @@ return earcut;})();
    }
    if(!total)return 0;
    const restore=results.map(({mesh,result})=>applyWholeSmooth(mesh,result));
+   const round=(root.userData.smoothRounds||0)+1;
+   root.userData.smoothRounds=round;
    rememberCompositionEdit(root,()=>{
     for(const undo of restore)undo();
+    root.userData.smoothRounds=Math.max(0,(root.userData.smoothRounds||1)-1);
    });
    requestRender();
    return total;
@@ -12744,8 +12855,8 @@ return earcut;})();
   if(!root)return;
   try{
    const total=await smoothWholeObject(root);
-   status.textContent=total?'Malha inteira suavizada. Use Desfazer para restaurar a forma anterior.':
-    'Nenhuma alteração de forma foi necessária nesta malha.';
+   status.textContent=total?'Malha suavizada (rodada '+(root.userData.smoothRounds||1)+'). Clique de novo para suavizar mais; Desfazer restaura a forma anterior.':
+    'A malha já está lisa neste nível; nada mudou.';
   }catch(error){
    status.textContent='Falha ao suavizar a malha: '+error.message;
   }
