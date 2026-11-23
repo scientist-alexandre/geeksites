@@ -2622,45 +2622,6 @@ function draw(){bridge.invalidate?.()}function save(){}function autoKey(){}
             }
         `;
 
-        function installLoopPreview(application) {
-            const renderer=application.renderer;
-            const rawRender=renderer.render.bind(renderer);
-            let resources=null,busy=false;
-            const dispose=()=>{
-                renderer.render=rawRender;
-                if(resources){resources.sprite.destroy({texture:false,baseTexture:false});resources.filter.destroy();resources.head.destroy(true);resources.tail.destroy(true);resources=null;}
-            };
-            application._loopPreview={destroy:dispose};
-            renderer.render=(displayObject,options)=>{
-                // Offscreen brush painting, live editing and export capture use raw
-                // frames. Export closure is applied after any 3D camera projection.
-                const transition=!busy && displayObject===application.stage && !options?.renderTexture && application.ticker.started && !livePreviewActive && !isPreview3D?loopTransition(currentTime):null;
-                if(!transition)return rawRender(displayObject,options);
-                if(!resources){
-                    const head=PIXI.RenderTexture.create({width:compositionWidth,height:compositionHeight,resolution:1});
-                    const tail=PIXI.RenderTexture.create({width:compositionWidth,height:compositionHeight,resolution:1});
-                    const sprite=new PIXI.Sprite(head);
-                    sprite.filterArea=application.screen;
-                    const filter=new PIXI.Filter(null,loopBlendShader,{uTail:tail,uHeadWeight:0});
-                    sprite.filters=[filter];
-                    resources={head,tail,sprite,filter};
-                }
-                const time=currentTime;
-                busy=true;
-                try {
-                    rawRender(displayObject,{renderTexture:resources.head,clear:true});
-                    seek(transition.tailTime,false);
-                    rawRender(displayObject,{renderTexture:resources.tail,clear:true});
-                    seek(time,false);
-                    resources.filter.uniforms.uHeadWeight=transition.headWeight;
-                    return rawRender(resources.sprite,options);
-                } finally {
-                    if(currentTime!==time)seek(time,false);
-                    busy=false;
-                }
-            };
-        }
-
         function loopPhase(time, duration = EFFECT_CYCLE_SECONDS) {
             if (!(duration > 0)) return 0;
             return (((time % duration) + duration) % duration) / duration;
@@ -4311,14 +4272,6 @@ varying vec2 vTextureCoord;
             return x - Math.floor(x);
         }
 
-        function mixParticleColor(a, b, t) {
-            const ca = hexToRgb(a), cb = hexToRgb(b);
-            const r = Math.round((ca[0] + (cb[0] - ca[0]) * t) * 255);
-            const g = Math.round((ca[1] + (cb[1] - ca[1]) * t) * 255);
-            const bl = Math.round((ca[2] + (cb[2] - ca[2]) * t) * 255);
-            return (r << 16) | (g << 8) | bl;
-        }
-
         function ensureParticlePool(count) {
             if (!particleContainer) return;
             while (particlePool.length < count) {
@@ -4729,11 +4682,6 @@ varying vec2 vTextureCoord;
             });
         }
 
-        function createCompositionLayerId() {
-            compositionLayerSerial += 1;
-            return `composition-layer-${Date.now()}-${compositionLayerSerial}`;
-        }
-
         function applyCompositionLayerTransform(layer) {
             if (!layer || !layer.sprite || !layer.sprite.texture || layer.sprite.texture.width <= 1) return;
             const texture = layer.sprite.texture;
@@ -4769,10 +4717,6 @@ varying vec2 vTextureCoord;
                 createCompositionLayerSprite(layer);
             });
             updateCompositionLayerUI();
-        }
-
-        function getSelectedCompositionLayer() {
-            return compositionLayers[selectedCompositionLayer] || null;
         }
 
         function updateCompositionLayerUI() {
@@ -7387,58 +7331,6 @@ function drawActionCracks(g,action,time){
   }
   g.restore();
 }
-function sceneCracks(g,showUI){
- const time=showUI?timeNow():nativeTime();
- for(const layer of layers){
-  if(layer.isFolder||!isLayerVisible(layer)||!layer.vfx||layer.vfx.enabled===false)continue;
-  restore(layer);
-  const config=evaluateEffectBank(ensureEffectBank(layer.uid),time,dirty&&layer.uid===selectedId).config;
-  const action={...initialSettingsState.action,...config.action};
-  if(!['screenCracks','shatterGlass'].includes(action.kind)||time<=action.start)continue;
-  const progress=Math.min(1,(time-action.start)/Math.max(.05,action.duration));
-  const growth=Math.min(1,progress*5),cx=action.x*FW,cy=action.y*FH;
-  const radius=Math.hypot(FW,FH)*Math.min(1,action.radius*3)*Math.max(.05,action.strength);
-  const spokes=Math.max(6,Math.min(20,Math.round(action.pieces/5)));
-  const rings=[];
-  g.save();g.setTransform(1,0,0,1,0,0);g.beginPath();g.rect(0,0,FW,FH);g.clip();
-  function stroke(points,width){
-   g.beginPath();points.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));
-   g.strokeStyle='rgba(8,13,20,.85)';g.lineWidth=width+1.3;g.stroke();
-   g.save();g.translate(.7,-.7);g.strokeStyle='rgba(224,247,255,.86)';g.lineWidth=width;g.stroke();g.restore();
-  }
-  for(let ray=0;ray<spokes;ray++){
-   const angle=(ray+particleRandom(ray,0,991)*.45)/spokes*Math.PI*2;
-   const reach=radius*(.55+particleRandom(ray,1,991)*.45);
-   const points=[[cx,cy]],nodes=[];
-   for(let step=1;step<=6;step++){
-    const fraction=step/6,dist=reach*fraction;
-    const turn=angle+(particleRandom(ray,step+3,991)-.5)*.17;
-    const node=[cx+Math.cos(turn)*dist,cy+Math.sin(turn)*dist];
-    nodes.push(node);
-    if(fraction<=growth)points.push(node);
-    else{
-     const previous=step===1?[cx,cy]:nodes[step-2],partial=Math.max(0,(growth-(step-1)/6)*6);
-     points.push([previous[0]+(node[0]-previous[0])*partial,previous[1]+(node[1]-previous[1])*partial]);break;
-    }
-   }
-   stroke(points,Math.max(.7,FW*.0006));
-   rings.push(nodes);
-   if(growth>.4&&nodes.length>2){
-    const base=nodes[1],branchAngle=angle+.48;
-    stroke([base,[base[0]+Math.cos(branchAngle)*reach*.12,base[1]+Math.sin(branchAngle)*reach*.12],[base[0]+Math.cos(branchAngle+.25)*reach*.23,base[1]+Math.sin(branchAngle+.25)*reach*.23]],.6);
-   }
-  }
-  for(let ray=0;ray<rings.length;ray++)for(let ring=0;ring<3;ring++){
-   const from=rings[ray][ring],to=rings[(ray+1)%rings.length][ring];
-   if(from&&to&&growth>(ring+1)/6&&particleRandom(ray,ring+20,991)>.24){
-    stroke([from,[(from[0]+to[0])*.5+(cx-(from[0]+to[0])*.5)*.08,(from[1]+to[1])*.5+(cy-(from[1]+to[1])*.5)*.08],to],.5);
-   }
-  }
-  g.restore();
- }
-}
-
-
 const nativeResizeEngine=sizeEngine;sizeEngine=function(width,height){nativeResizeEngine(width,height);if(maskTexture&&(maskTexture.width!==width||maskTexture.height!==height)){const previous=maskTexture,newMask=PIXI.RenderTexture.create({width,height});const view=new PIXI.Sprite(previous);view.width=width;view.height=height;app.renderer.render(view,{renderTexture:newMask,clear:true});view.destroy({texture:false});maskTexture=newMask;maskSprite.texture=newMask;windFilter.uniforms.uMask=newMask;previous.destroy(true)}};
 let ready=false,master=true,syncing=false,lastConfigSignature='',lastCanvas=null,lastSize='',inputTexture=null,liveSource=null;
 const output=realDocument.createElement('canvas'),output2d=output.getContext('2d');
@@ -27493,9 +27385,20 @@ void main() {
       }
       this.boundingBox.makeEmpty();
       const positionAttribute = geometry.getAttribute("position");
-      for (let i = 0; i < positionAttribute.count; i++) {
+      // Desempenho (Play): o skinning por dual-quaternion e feito na CPU, vertice a vertice.
+      // Durante o Play os limites sao amostrados (~3000 vertices + margem); pausado/exportando
+      // o calculo continua exato.
+      const count = positionAttribute.count;
+      const stride = timelinePlaying && !exportState && count > 6000 ? Math.ceil(count / 2000) : 1;
+      for (let i = 0; i < count; i += stride) {
         this.getVertexPosition(i, _vertex);
         this.boundingBox.expandByPoint(_vertex);
+      }
+      if (stride > 1 && !this.boundingBox.isEmpty()) {
+        this.boundingBox.expandByScalar(this.boundingBox.getSize(new Vector3()).length() * 0.03);
+        // Uma unica passada serve para caixa e esfera (a esfera da caixa e conservadora para o culling).
+        if (this.boundingSphere === null) this.boundingSphere = new Sphere();
+        this.boundingBox.getBoundingSphere(this.boundingSphere);
       }
     }
     computeBoundingSphere() {
@@ -27505,7 +27408,12 @@ void main() {
       }
       this.boundingSphere.makeEmpty();
       const positionAttribute = geometry.getAttribute("position");
-      for (let i = 0; i < positionAttribute.count; i++) {
+      const count = positionAttribute.count;
+      if (timelinePlaying && !exportState && count > 6000) {
+        this.computeBoundingBox();
+        return;
+      }
+      for (let i = 0; i < count; i++) {
         this.getVertexPosition(i, _vertex);
         this.boundingSphere.expandByPoint(_vertex);
       }
@@ -44677,15 +44585,29 @@ void main() {
     }
     map(cameraTrack?.keyframes);map(skyTrack?.keyframes);map(sceneVfxTrack?.keyframes);
     const current=studioVfxTargetId||'__scene__';
-    for(const [id,bank]of Object.entries(studioVfxBanks||{}))if(id!==current)for(const entry of bank.keys||[])add(entry[0]);
+    for(const [id,bank]of Object.entries(studioVfxBanks||{})){
+      if(id!==current)for(const entry of bank.keys||[])add(entry[0]);
+      // VFX loop markers and extra keys also determine the playback/export end.
+      for(const entry of bank.overlayKeys||[])add(entry[0]);
+      for(const [at,loop]of Object.entries(bank.loopKeys||{})){
+        add(at);
+        if(loop?.enabled && Number.isFinite(+loop.end))add(loop.end);
+      }
+    }
     // Audio-only projects still have a useful playback/export duration.
     if(!last)for(const clip of studioAudioClips||[])last=Math.max(last,Math.min(1e5,Math.ceil(audioClipEnd(clip)*24)));
     return {last:Math.max(1,last),count:frames.size};
   }
-  function studioLastAuthoredFrame(){return studioAuthoredTimelineRange().last;}
   function syncAutomaticTimelineEnd(){
     const range=studioAuthoredTimelineRange();
-    const next=studioManualEndFrame??range.last;
+    // A single authored key or an animated VFX without later keys must not
+    // produce a one-frame video or a Play loop that appears frozen.
+    const animatedVfx=studioVfxBankEntries(false).some(([id,bank])=>
+      bank.state?.enabled!==false && (studioVfxHasBaseEffect(bank.state)||
+      bank.state?.config?.particles?.active ||
+      (bank.state?.config?.lights||[]).some(light=>light.active)));
+    const minimum=range.last<=1 && (animatedVfx||range.count>0)?120:range.last;
+    const next=studioManualEndFrame??Math.max(range.last,minimum,objects.length && range.last===1 ? Math.max(2,endFrame) : 1);
     const changed=endFrame!==next;endFrame=next;
     if(changed&&paths?.length)studioInvalidatePreview();
     const field=$('timeEnd');if(field){if(document.activeElement!==field)field.value=next;field.readOnly=false;field.title='Defina o quadro final. Deixe o campo vazio para acompanhar o último quadro da animação.';}
@@ -45758,56 +45680,8 @@ void main() {
   function appendRotationPoint(path, q) {
     if (!path.length || new Quaternion().fromArray(path.at(-1)).angleTo(q) > 1e-5) path.push(q.toArray());
   }
-  function isFullRotationPath(path) {
-    if (!path || path.length < 3) return false;
-    const net = new Vector3();
-    let travel = 0;
-    for (let i = 1; i < path.length; i++) {
-      const delta = new Quaternion().fromArray(path[i]).multiply(new Quaternion().fromArray(path[i - 1]).invert()).normalize();
-      if (delta.w < 0) delta.set(-delta.x, -delta.y, -delta.z, -delta.w);
-      const angle = 2 * Math.acos(MathUtils.clamp(delta.w, -1, 1)), sin = Math.sqrt(Math.max(0, 1 - delta.w * delta.w));
-      if (sin > 1e-7) {
-        net.addScaledVector(new Vector3(delta.x, delta.y, delta.z), angle / sin);
-        travel += angle;
-      }
-    }
-    return net.length() > Math.PI * 1.5 && net.length() / Math.max(travel, 1e-8) > 0.8;
-  }
-  function sampleRotationPath(path, t, result) {
-    const quaternions = path.map((q) => new Quaternion().fromArray(q));
-    const distances = [0];
-    for (let i2 = 1; i2 < quaternions.length; i2++) distances.push(distances[i2 - 1] + quaternions[i2 - 1].angleTo(quaternions[i2]));
-    const total = distances.at(-1);
-    if (total < 1e-8) return result.copy(quaternions.at(-1));
-    const target = t * total;
-    let i = 1;
-    while (i < distances.length - 1 && distances[i] < target) i++;
-    return result.slerpQuaternions(quaternions[i - 1], quaternions[i], (target - distances[i - 1]) / Math.max(distances[i] - distances[i - 1], 1e-8));
-  }
   // Preserve the actual quaternion trajectory from the gizmo, including complete
   // revolutions. Reducing it to a start/end quaternion loses any 360-degree laps.
-  function studioDirectedRotation(qa, qb, path, t, result) {
-    if (t <= 0) return result.copy(qa);
-    if (t >= 1) return result.copy(qb);
-    if (!path || path.length < 2) return result.slerpQuaternions(qa, qb, t);
-    // Each short sampled arc is retained. The total distance counts EVERY lap,
-    // even when the first and last orientations are identical.
-    const distances = [0];
-    const keys = [qa];
-    for (let i = 1; i < path.length - 1; i++)
-      keys.push(new Quaternion().fromArray(path[i]).normalize());
-    keys.push(qb);
-    for (let i = 1; i < keys.length; i++)
-      distances.push(distances[i - 1] + keys[i - 1].angleTo(keys[i]));
-    const total = distances[distances.length - 1];
-    if (total < 1e-9) return result.copy(qa);
-    const at = total * t;
-    let i = 1;
-    while (i < distances.length - 1 && distances[i] < at) i++;
-    const fraction = (at - distances[i - 1]) /
-      Math.max(1e-9, distances[i] - distances[i - 1]);
-    return result.slerpQuaternions(keys[i - 1], keys[i], fraction).normalize();
-  }
   function gestureRotationPath(root) {
     // A key owns only its incoming interval. Never inherit an earlier turn.
     const owner=objects.find(o=>o.root===root||o.bones.includes(root))||activeObject;
@@ -47309,7 +47183,48 @@ void main() {
     try {
       const gltf = await loader.parseAsync(await file.arrayBuffer(), "");
       gltf.scene.quaternion.identity();
-      adopt(gltf.scene, file.name, gltf.animations);
+      // Cada raiz com geometria é um objeto independente no Studio.
+      // Preserve a hierarquia interna (malhas, ossos e transformações).
+      const roots = gltf.scene.children.filter(child => {
+        let hasGeometry = false;
+        child.traverse(node => { if (node.isMesh || node.isSkinnedMesh) hasGeometry = true; });
+        return hasGeometry;
+      });
+      if (roots.length <= 1) {
+        adopt(gltf.scene, file.name, gltf.animations);
+      } else {
+        gltf.scene.updateMatrixWorld(true);
+        const imported = [];
+        for (let i = 0; i < roots.length; i++) {
+          const root = roots[i];
+          const world = root.matrixWorld.clone();
+          root.removeFromParent();
+          world.decompose(root.position, root.quaternion, root.scale);
+          const label = root.name?.trim() || file.name.replace(/\.glb$/i, '') + ' ' + (i + 1);
+          // Animações sem alvo dentro da raiz não devem afetar outro objeto.
+          const names = new Set();
+          root.traverse(node => { if (node.name) names.add(node.name); });
+          const ownAnimations = gltf.animations.map(clip => {
+            const tracks = clip.tracks.filter(track => names.has(track.name.split('.')[0]));
+            return tracks.length ? new AnimationClip(clip.name, clip.duration, tracks) : null;
+          }).filter(Boolean);
+          adopt(root, label, ownAnimations);
+          imported.push(activeObject);
+        }
+        const bounds = new Box3();
+        for (const item of imported) bounds.expandByObject(item.root);
+        if (!bounds.isEmpty()) {
+          const size = bounds.getSize(new Vector3()), center = bounds.getCenter(new Vector3());
+          const distance = Math.max(size.x, size.y, size.z, .1) * 1.9;
+          controls.target.copy(center);
+          camera.position.copy(center).add(new Vector3(0, 0, distance));
+          camera.near = distance / 1000;
+          camera.far = Math.max(2000, distance * 100);
+          camera.updateProjectionMatrix();
+          controls.update();
+        }
+        status(imported.length + ' objetos importados: ' + imported.map(item => item.name).join(', '));
+      }
     } catch (e) {
       status("N\xE3o foi poss\xEDvel importar: " + e.message);
     }
@@ -48507,65 +48422,8 @@ void main() {
     studioMorphEditRevision=newest+1;
     return studioMorphEditRevision;
   }
-  function studioMorphMakeGLBExclusive(owner,preferredDestination){
-    if(!owner||owner.root.userData.studioSequence)return;
-    const config=owner.root.userData.studioCinemaMorph;
-    if(!config?.targetId)return;
-    const destination=preferredDestination||objects.find(x=>x.id===config.targetId);
-    if(!destination||destination===owner)return;
-    // Include both direct inverse links and stale links that use either GLB.
-    for(const other of objects){
-      if(other===owner)continue;
-      const oc=studioMorphConfig(other.root);
-      if(!oc?.targetId)continue;
-      if(other===destination||oc.targetId===owner.id||oc.targetId===destination.id){
-        if(other.root.userData.studioSequence)delete other.root.userData.studioSequence.metamorph;
-        else delete other.root.userData.studioCinemaMorph;
-      }
-    }
-    config.editSerial=studioMorphNextRevision();
-    // Only the Cinema Morph resources are released. The meshes, transforms,
-    // FaceRig, and timeline data remain untouched regardless of object type.
-    for(const item of [owner,destination]){
-      studioMorphRestoreSequenceTarget(item.root);
-      studioMorphRestore(item.root);
-      studioMorphRestoreGLB(item.root);
-      cinemaVolumeDispose(item.root);
-      studioMorphRestoreBase(item.root);
-    }
-  }
   // Uma sequência não pode ser, ao mesmo tempo, o destino de uma transição
   // antiga e a origem da nova. Ao inverter A→B para B→A, liberar A/B.
-  function studioMorphSwitchImagePair(owner,newTargetId,previousTargetId){
-    const newTarget=objects.find(x=>x.id===newTargetId);
-    const oldTarget=objects.find(x=>x.id===previousTargetId);
-    const touched=new Set([owner?.root,newTarget?.root,oldTarget?.root].filter(Boolean));
-    if(newTarget){
-      for(const other of objects){
-        if(other===owner)continue;
-        const cfg=studioMorphConfig(other.root);
-        if(!cfg?.targetId)continue;
-        // Se dois morphs disputarem a nova origem/destino, o último escolhido vence.
-        if(other===newTarget||cfg.targetId===owner.id||cfg.targetId===newTarget.id){
-          touched.add(other.root);
-          const prev=objects.find(x=>x.id===cfg.targetId);
-          if(prev)touched.add(prev.root);
-          if(other.root.userData.studioSequence)delete other.root.userData.studioSequence.metamorph;
-          else delete other.root.userData.studioCinemaMorph;
-        }
-      }
-    }
-    // Limpar somente materiais e visibilidades temporárias do Cinema Morph.
-    for(const root of touched){
-      studioMorphRestoreSequenceTarget(root);
-      studioMorphRestore(root);
-      studioMorphRestoreGLB(root);
-      cinemaVolumeDispose(root);
-    }
-    // Os novos papéis são definidos em updateStudioMorphs(), nunca aqui:
-    // reexibir os dois planos neste instante causava quatro imagens visíveis.
-    for(const root of touched)studioMorphRestoreBase(root);
-  }
   // Troca de direção deve ser uma transação: eliminar vínculos anteriores,
   // devolver os planos temporariamente ocultos e reconstruir os shaders.
   function studioMorphChangePair(owner,previousTargetId){
@@ -48977,18 +48835,6 @@ void main() {
     return owner;
   }
   // Reverse the saved pair atomically; never leave two opposing controllers.
-  function studioMorphReversePair(previous,newOwner){
-    if(!previous||!newOwner||previous===newOwner)return false;
-    const oldCfg=studioMorphConfig(previous.root);
-    if(!oldCfg?.targetId || oldCfg.targetId!==newOwner.id)return false;
-    const copy={...oldCfg,targetId:previous.id,editSerial:studioMorphNextRevision()};
-    if(previous.root.userData.studioSequence)delete previous.root.userData.studioSequence.metamorph;
-    else delete previous.root.userData.studioCinemaMorph;
-    if(newOwner.root.userData.studioSequence)newOwner.root.userData.studioSequence.metamorph=copy;
-    else newOwner.root.userData.studioCinemaMorph=copy;
-    studioMorphChangePair(newOwner,previous.id);
-    return true;
-  }
   // Os parâmetros visuais do painel Morph são globais à sessão de edição.
   // Trocar origem/destino não deve sobrescrever o texto e os sliders.
   let studioMorphFieldsInitialized=false;
@@ -49967,13 +49813,6 @@ function createCompactStudioZoom(options){
     refreshFaceGuides();
   }
   var faceSurfaceTimer = null;
-  function scheduleFaceSurface(region) {
-    clearTimeout(faceSurfaceTimer);
-    const object = activeObject;
-    faceSurfaceTimer = setTimeout(() => {
-      if (object && objects.includes(object)) fitFaceRegionSurface(object, region);
-    }, 100);
-  }
   function faceSurfaceFrames(obj) {
     const regions = obj.faceRig.regions;
     if (!FACE_REGIONS.slice(0, FACE_SURFACE_REGIONS).some(id => regions[id])) return [];
@@ -50736,7 +50575,13 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
   }
 
   function setFaceValue(id, value) {
-    if (!activeObject || exportState) return;
+    if(exportState)return;
+    if(!activeObject?.faceRig?.regions ||
+       !['eyeL','eyeR','browL','browR','mouth'].some(key=>activeObject.faceRig.regions[key])){
+      const marked=studioFaceRigTarget();
+      if(marked&&marked!==activeObject)selectObject(marked.id,true);
+    }
+    if(!activeObject)return;
     commitCameraEdit();
     finishDrag(false);
     stop();
@@ -50745,8 +50590,12 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     if (!channel) return;
     rig.values[id] = MathUtils.clamp(Number(value) || 0, channel[2], channel[3]);
     applyFaceRig(activeObject);
+    studioInvalidatePreview();
     syncFaceValues();
     recordFaceKeyframe(false,id);
+    const missing=(/^(open|smile|width|pucker|press|jaw)/.test(id)&&!rig.regions.mouth)
+      ||(/^(blink|upper|lower|squint|eyeMood)/.test(id)&&!rig.regions.eyeL&&!rig.regions.eyeR);
+    if(missing)status('FaceRig: marque a região '+(/^(open|smile|width|pucker|press|jaw)/.test(id)?'Boca':'Olho')+' neste modelo para ver a deformação.');
   }
   function syncFaceValues() {
     const values = activeObject?.faceRig?.values || faceDefaults();
@@ -51017,9 +50866,20 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     };
     $(handId).onchange=()=>{$(faceId).dispatchEvent(new Event('change'));};
   }
+  // Entrar em FaceRig deve editar a malha que possui regiões faciais,
+  // não o último vídeo/plano selecionado quando o projeto foi salvo.
+  function studioFaceRigTarget(){
+    const facial = o=>o?.faceRig?.regions &&
+      ['eyeL','eyeR','browL','browR','mouth'].some(id=>!!o.faceRig.regions[id]);
+    if(facial(activeObject))return activeObject;
+    return objects.find(facial)||null;
+  }
   $('tabFace').addEventListener('click',()=>{
     if(faceMarking&&$('faceRegion').value.startsWith('hand'))$('faceMark').click();
     if($('faceRegion').value.startsWith('hand')){$('faceRegion').value='eyeL';$('faceRegion').dispatchEvent(new Event('change'));}
+    const target=studioFaceRigTarget();
+    if(target&&target!==activeObject)selectObject(target.id,true);
+    if(target){ensureFaceRig(target);applyFaceRig(target);syncFaceValues();studioInvalidatePreview();}
   });
   $('tabHand').addEventListener('click',()=>{
     if(faceMarking&&!$('faceRegion').value.startsWith('hand'))$('faceMark').click();
@@ -51404,16 +51264,6 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     if (activeObject) Object.assign(activeObject, { root: model, bones, rest, customRig, mixer, clips, bound, selected });
   }
   var studioUnifiedTracks=new WeakMap();
-  function objectVfxKeys(object){
-    if(studioVfxTargetId===object.id)return sceneVfxTrack.keyframes;
-    return new Map(studioVfxBanks?.[object.id]?.keys||[]);
-  }
-  function writeObjectVfxKeys(object,keys){
-    if(studioVfxTargetId===object.id)sceneVfxTrack.keyframes=keys;
-    const previous=studioVfxBanks[object.id]||{};
-    studioVfxBanks[object.id]={...previous,state:studioVfxTargetId===object.id?vfxState:previous.state||JSON.parse(JSON.stringify(vfxDefaultState)),keys:[...keys]};
-    vfxLastDraw=0;
-  }
   function unifiedObjectTrack(object){
     if(!object)return null;if(!studioUnifiedTracks)studioUnifiedTracks=new WeakMap();
     let track=studioUnifiedTracks.get(object);if(track){track.name=object.name;track.root=object.root;return track}
@@ -51802,12 +51652,6 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
   // Hold the object's geometric center fixed in its attachment coordinates.
   // The attachment offset's translation is NOT an orbital radius: it places the
   // prop in the hand. Only the rotation around the prop center is animated.
-  function studioKeepSpinCentered(position, before, after, scale, pivot) {
-    if (!pivot) return;
-    const localCenter = pivot.clone().multiply(scale);
-    const fixedCenter = position.clone().add(localCenter.clone().applyQuaternion(before));
-    position.copy(fixedCenter.sub(localCenter.applyQuaternion(after)));
-  }
   function studioLoopTurnInterval(object,frame,requireEnd=true){
     const track=unifiedObjectTrack(object).keyframes;
     const isAnimationKey=key=>!!(key?.pose||key?.shapes||key?.additions);
@@ -51931,9 +51775,14 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       if (va.m && node.morphTargetInfluences) for (let i = 0; i < va.m.length; i++) node.morphTargetInfluences[i] = MathUtils.lerp(va.m[i], vb.m?.[i] ?? va.m[i], t);
     }
     if (obj.faceRig) {
-      const av = a.face || faceDefaults(), bv = b.face || av;
-      for (const id of FACE_CHANNELS.map((c) => c[0])) obj.faceRig.values[id] = MathUtils.lerp(av[id] || 0, bv[id] || 0, t);
-      applyFaceRig(obj);
+      const av=a.face||faceDefaults(),bv=b.face||av;
+      let faceChanged=false;
+      for(const [id] of FACE_CHANNELS){
+        const next=MathUtils.lerp(av[id]||0,bv[id]||0,t);
+        if(Math.abs((obj.faceRig.values[id]||0)-next)>1e-6)faceChanged=true;
+        obj.faceRig.values[id]=next;
+      }
+      if(faceChanged)applyFaceRig(obj);
     }
     obj.root.updateMatrixWorld(true);
     return floorRotation;
@@ -51989,14 +51838,76 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     }
     renderTimeline();
   }
+  // Preview size affects the screen only, never the exported video.
+  function studioPlayPixelLimit(){return 720;}
+  // PLAY REESCRITO: a captura/avaliacao e o desenho do quadro sao atomicos.
+  // O relogio nao pode pular o piscar quando a GPU demora para terminar.
+  // O callback WebGL so desenha a tela parada; durante o Play este motor
+  // controla a pose, renderizacao e avancos sem depender da taxa do monitor.
+  let studioPlaybackTimer=0, studioPlaybackNextFrame=1;
+  let studioPlaybackFramesDrawn=0,studioPlaybackDrawMs=0;
+  function studioPlaybackTick(){
+    studioPlaybackTimer=0;
+    if(!timelinePlaying || exportState || studioSaving)return;
+    if(document.hidden){studioPlaybackTimer=setTimeout(studioPlaybackTick,100);return;}
+    const begin=performance.now();
+    try{
+      const length=Math.max(1,Math.round(endFrame));
+      const frame=MathUtils.clamp(studioPlaybackNextFrame,1,length);
+      currentFrame=frame;
+      timelineFraction=frame;
+      // Mesma avaliacao feita quando se arrasta o cabecote.
+      studioEvaluateTimelineFrame(frame);
+      updateTimelineHead();
+      const head=24+(frame-1)*pixelsPerFrame;
+      if(head<timeScroll.scrollLeft||head>timeScroll.scrollLeft+timeScroll.clientWidth-40)
+        timeScroll.scrollLeft=Math.max(0,head-60);
+      if(studioAudioReady)syncStudioAudio();
+      // Renderizar de imediato, ANTES de permitir que o cabecote avance.
+      // Isso evita que uma renderizacao lenta descarte quadros do FaceRig.
+      // Playback must run the same complete frame pipeline as scrubbing.
+      // Calling renderer.render directly here skipped native VFX updates,
+      // leaving crying tears detached from the moving head.
+      renderStudioFrame((frame-1)/24,false,true);
+      studioPreviewAt=performance.now();
+      studioPreviewRenderedAt=studioPreviewAt;
+      studioPreviewDirty=false;
+      studioPreviewShadowDirty=false;
+      studioPlaybackFramesDrawn++;
+      studioPlaybackDrawMs=studioPreviewAt-begin;
+      // Never downscale to 320 / 128 px. Keep native VFX + FaceRig
+      // synchronized, adjusting only the drawing resolution when requested.
+      if(studioPlaybackDrawMs>200 && !studioFastPlayback){
+        studioFastPlayback=true;
+        renderer.shadowMap.autoUpdate=false;
+        status('Prévia otimizada: FaceRig e VFX acompanham o objeto.');
+      }
+      studioPlaybackNextFrame=frame===length?1:frame+1;
+    }catch(error){
+      pauseTimeline();
+      status('Erro no Play: '+(error?.message||error));
+      console.error('Alexandre Studio Play',error);
+      return;
+    }
+    if(timelinePlaying)
+      studioPlaybackTimer=setTimeout(studioPlaybackTick,Math.max(0,Math.round(1000/24-(performance.now()-begin))));
+  }
   function pauseTimeline() {
-    if (studioAudioReady) stopStudioAudio();
+    const wasPlaying=timelinePlaying, wasFast=studioFastPlayback || studioPreviewPixelLimit<1280;
+    if(studioPlaybackTimer){clearTimeout(studioPlaybackTimer);studioPlaybackTimer=0;}
+    if (studioAudioReady && wasPlaying) stopStudioAudio();
     if (timelinePlaying) {
       currentFrame = Math.round(currentFrame);
       timelineFraction = currentFrame;
       updateTimelineHead();
     }
     timelinePlaying = false;
+    if(wasPlaying)for(const object of objects)object.root.traverse(node=>{if(node.isSkinnedMesh)node.boundingBox=node.boundingSphere=null;});
+    studioFastPlayback=false;
+    studioSlowPlaybackFrames=0;
+    if(wasFast){studioPreviewPixelLimit=1280;resizeViewport();}
+    studioInvalidatePreview();
+    studioPlaybackLastTick=0;
     syncStudioPlaybackTools();
     paintTimelineSelection();
     updateEditingButtons();
@@ -52017,6 +51928,12 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     studioMorphReapplyManualVisibility();
     return floorRotations;
   }
+  // Uma unica avaliacao de pose para arraste, Play e exportacao.
+  function studioEvaluateTimelineFrame(frame, morph=true) {
+    sampleTimeline(frame, false);
+    if(morph) updateStudioMorphs(frame);
+    studioInvalidatePreview();
+  }
   function setTimelineFrame(frame2, sample = true) {
     studioInvalidatePreview();
     commitCameraEdit();
@@ -52033,7 +51950,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     if (sample) {
       finishDrag(true);
       stop();
-      sampleTimeline(currentFrame);
+      studioEvaluateTimelineFrame(currentFrame);
     }
     updateTimelineHead();
     syncInterpolation();
@@ -52210,8 +52127,22 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     finishDrag(false);
     stop();
     saveActiveObject();syncAutomaticTimelineEnd();
-    timelineFraction = currentFrame >= endFrame ? 1 : currentFrame;
+    timelineFraction = currentFrame >= endFrame ? 1 : Math.max(1,Math.round(currentFrame));
+    currentFrame=timelineFraction;
     timelinePlaying = true;
+    studioPlaybackNextFrame=currentFrame;
+    studioPlaybackFramesDrawn=0;
+    studioPlaybackDrawMs=0;
+    // Nas cenas com vídeo + vários objetos animados, priorizar a pose facial
+    // desde o primeiro frame. O render completo permanece na exportação.
+    const heavyScene=renderer.info.render.triangles>250000 ||
+      (objects.length>=4&&objects.some(o=>o.faceRig&&Object.keys(o.faceRig.regions||{}).length));
+    studioFastPlayback=heavyScene;
+    studioPreviewPixelLimit=studioPlayPixelLimit();
+    resizeViewport();
+    if(heavyScene)renderer.shadowMap.autoUpdate=false;
+    studioPlaybackTimer=setTimeout(studioPlaybackTick,0);
+    studioInvalidatePreview();
     syncStudioPlaybackTools();
     $("timePlay").textContent = "\u2161";
   };
@@ -54664,14 +54595,14 @@ ${notes}`;
         if (state.cancel) throw new DOMException("Exporta\xE7\xE3o cancelada.", "AbortError");
         if (state.error) throw state.error;
         // O Morph e a renderizacao usam currentFrame, nao apenas o frame amostrado.
-        currentFrame = i + 1;
-        timelineFraction = currentFrame;
-        sampleTimeline(currentFrame,true);
+        currentFrame=i+1;
+        timelineFraction=currentFrame;
         await prepareSequenceFrame(i/24);
-        updateStudioMorphs(currentFrame);
+        // Aplicar a mesma pose do arraste depois que videos/imagens ficaram prontos.
+        studioEvaluateTimelineFrame(currentFrame);
         await prepareStudioVfxExport();
         const timestamp = Math.round(i * 1e6 / 24), duration = Math.round((i + 1) * 1e6 / 24) - timestamp;
-        const frame2 = new VideoFrame(renderStudioFrame(i / 24, true), { timestamp, duration });
+        const frame2 = new VideoFrame(renderStudioFrame((currentFrame-1) / 24, true, true), { timestamp, duration });
         try {
           encoder.encode(frame2, { keyFrame: i % 48 === 0 });
         } finally {
@@ -54738,8 +54669,7 @@ ${notes}`;
         controls.update();
         controls.enableDamping = true;
         $("exportOverlay").hidden = true;
-        if(objects.some(object=>Object.keys(object.root.userData.studioTimelineLoop?.additions||{}).length))sampleTimeline(currentFrame);
-        else applyPathMotion(currentFrame);
+        studioEvaluateTimelineFrame(currentFrame);
         updateTimelineHead();
         for (const obj of objects) updateCustomRig(obj.customRig, obj.root);
       }
@@ -55289,7 +55219,6 @@ ${notes}`;
   var timelineSky = false;
   var timelineGround = false;
   function studioSelectableObjects(){return objects.filter(object=>!object.root.userData.studioGround);}
-  function studioGroundNode(node){for(;node;node=node.parent)if(node.userData.studioGround)return true;return false;}
   var skyTrack = { id: "__sky__", name: "Cena / C\xE9u", keyframes: /* @__PURE__ */ new Map() };
   var skyMaterial = new ShaderMaterial({ side: BackSide, depthWrite: false, depthTest: false, uniforms: { panorama: { value: null }, hasPanorama: { value: 0 }, night: { value: 0 }, rotation: { value: 0 }, exposure: { value: 1 }, sunDirection: { value: new Vector3() }, sunStrength: { value: 1 }, palette: { value: 0 } }, vertexShader: "varying vec3 skyDirection;void main(){skyDirection=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}", fragmentShader: `varying vec3 skyDirection;
 uniform sampler2D panorama;
@@ -56126,29 +56055,6 @@ void main(){
       object.root.updateWorldMatrix(true, true);
     }
   }
-  function renderEnvironmentParticleOverlay(exclude) {
-    const roots = objects.filter((o) => o.root.visible && o.root.userData.environmentParticles && !exclude.has(o.id));
-    if (!roots.length) return;
-    environmentParticleOverlay.clear();
-    for (const object of roots) {
-      const runtime = ensureEnvironmentEmitter(object);
-      runtime.proxy.matrix.copy(runtime.node.matrixWorld);
-      environmentParticleOverlay.add(runtime.proxy);
-    }
-    const clear = renderer.getClearColor(new Color()), alpha = renderer.getClearAlpha(), auto = renderer.autoClear, shadow = renderer.shadowMap.autoUpdate;
-    try {
-      renderer.autoClear = false;
-      renderer.shadowMap.autoUpdate = false;
-      renderer.setClearColor(0, 0);
-      renderer.clear(true, false, false);
-      renderer.render(environmentParticleOverlay, camera);
-      vfxCompositeContext.drawImage(renderer.domElement, 0, 0);
-    } finally {
-      renderer.setClearColor(clear, alpha);
-      renderer.autoClear = auto;
-      renderer.shadowMap.autoUpdate = shadow;
-    }
-  }
   // Never persist preview-only Cinema Morph material clones. The project must
   // contain the GLB's original materials and the sequence's original material.
   function serializeRuntimeFreeRoot(root,callback){
@@ -56183,26 +56089,6 @@ void main(){
         parent.children.splice(index, 0, node);
       }
     }
-  }
-  function addEnvironmentParticles() {
-    if (exportState || studioSaving) return;
-    commitCameraEdit();
-    finishDrag(false);
-    pauseTimeline();
-    stop();
-    saveActiveObject();
-    const root = new Group(), count = objects.filter((o) => o.root.userData.environmentParticles).length + 1;
-    root.name = "Part\xEDculas 3D " + count;
-    root.userData.environmentParticles = { ...environmentParticleDefaults, seed: Math.floor(Math.random() * 1e6) };
-    root.position.set(controls.target.x, 4, controls.target.z);
-    scene.add(root);
-    const object = { id: root.uuid, name: root.name, root, bones: [], rest: /* @__PURE__ */ new Map(), customRig: null, mixer: new AnimationMixer(root), clips: [], bound: false, selected: null, poseLibrary: [], keyframes: /* @__PURE__ */ new Map() };
-    objects.push(object);
-    ensureEnvironmentEmitter(object);
-    selectObject(object.id, true);
-    recordKeyframe();
-    syncEnvironmentParticleUI();
-    status("Emissor 3D criado. Use Mover objeto ou as posi\xE7\xF5es X/Y/Z para posicion\xE1-lo.");
   }
   function syncEnvironmentParticleUI() {
     const object = environmentEmitterObject(), config = object?.root.userData.environmentParticles;
@@ -57084,6 +56970,23 @@ void main(){
     const hidden=[[target.root,target.root.visible],...scene.children.filter(o=>o.userData.isStudioSky||o.userData.studioVfxVolume||o.type==='GridHelper'||o.type==='AxesHelper'||o===rigView||o===faceGuides||o===objectGizmoHelper||o===vfxMoveHelper||o===followPinView).map(o=>[o,o.visible])];
     try{
       for(const [node]of hidden)node.visible=false;
+      // Atalho de desempenho: sem nenhuma outra malha visivel na cena nada pode
+      // ocluir o efeito (a mascara seria 100% opaca), entao as 2 renderizacoes 3D
+      // extras e as copias de canvas sao desnecessarias. Resultado identico.
+      let studioHasOccluder=false;
+      for(const child of scene.children){
+        if(!child.visible)continue;
+        child.traverseVisible(node=>{
+          if(studioHasOccluder||!(node.isMesh||node.isPoints||node.isLine||node.isSprite))return;
+          // A mascara vem so do buffer de profundidade: materiais com depthWrite:false (ex.: funil 3D) nao ocluem.
+          const list=Array.isArray(node.material)?node.material:[node.material];
+          if(list.some(m=>m&&m.depthWrite!==false))studioHasOccluder=true;
+        });
+        if(studioHasOccluder)break;
+      }
+      if(!studioHasOccluder)return processed;
+      // Extensoes 3D (funil etc.) usam depthWrite:false e a cor desta passada e descartada: nao desenhar.
+      for(const o of scene.children)if(o.userData.studioVfxExtension&&o.visible){hidden.push([o,true]);o.visible=false;}
       scene.background=null;renderer.setClearColor(0,0);renderer.autoClear=true;
       // Only other scene objects can occlude this effect. Reusing source-pass
       // depth also included the character itself and erased it at close range.
@@ -57637,21 +57540,6 @@ void main(){
   // ===== FIM VFX 04 — TIMELINE, CANAIS E BANCOS POR OBJETO =====
 
   // ===== INÍCIO VFX 05 — COMPOSIÇÃO E RENDERIZAÇÃO NA CENA =====
-  function studioVfxReplacesSource(state) {
-    const c = state?.config || {};
-    // Lighting and particles add to the existing character. Only effects that
-    // move, dissolve or replace the source need it removed from the base pass.
-    return !!(
-      (c.mirrorActive && c.mirrorStrength > 0) || c.zoomActive ||
-      (c.rippleActive && c.rippleStrength > 0) ||
-      (c.shakeActive && c.shakeStrength > 0) ||
-      (c.scrollActive !== false && c.scrollSpeed) ||
-      (c.windActive !== false && state?.mask && c.windStrength > 0) ||
-      (c.impactActive !== false && c.impactStart != null) ||
-      (c.vaporActive !== false && c.vaporProgress > 0) ||
-      c.action?.kind || c.imageSmoke?.active || c.imageGlass?.active
-    );
-  }
   // Spatial emitters become GPU mesh volumes with ordinary scene depth.
   // Image deformations keep their source pass; camera banks stay screen-space.
   function splitStudioSpatialEffects(state,bankId) {
@@ -58665,6 +58553,49 @@ void main(){
       }
     });
   }
+  // Projetos antigos: harmonize pesos nas bordas entre submalhas do cabelo.
+  const studioClothWeightsRepaired=new WeakSet();
+  function studioClothRepairWindSeams(target){
+    if(!target||studioClothWeightsRepaired.has(target.root))return;
+    studioClothWeightsRepaired.add(target.root);
+    const meshes=[];const bounds=new Box3();
+    target.root.updateWorldMatrix(true,true);
+    target.root.traverse(mesh=>{
+      if(!mesh.isMesh||!mesh.geometry?.getAttribute('studioWindWeight'))return;
+      meshes.push(mesh);
+      if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
+      bounds.union(mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld));
+    });
+    if(meshes.length<2||bounds.isEmpty())return;
+    const step=Math.max(bounds.getSize(new Vector3()).length()*.006,1e-5);
+    const field=new Map(),v=new Vector3();
+    const key=(x,y,z)=>x+','+y+','+z;
+    // Build a shared spatial field of original painted values for all parts.
+    for(const mesh of meshes){
+      const pos=mesh.geometry.getAttribute('position'),w=mesh.geometry.getAttribute('studioWindWeight');
+      for(let i=0;i<w.count;i++){
+        const weight=w.getX(i);if(weight<=.005)continue;
+        v.fromBufferAttribute(pos,i).applyMatrix4(mesh.matrixWorld);
+        const k=key(Math.round(v.x/step),Math.round(v.y/step),Math.round(v.z/step));
+        if(weight>(field.get(k)||0))field.set(k,weight);
+      }
+    }
+    if(!field.size)return;
+    for(const mesh of meshes){
+      const pos=mesh.geometry.getAttribute('position'),w=mesh.geometry.getAttribute('studioWindWeight');
+      let changed=false;
+      for(let i=0;i<w.count;i++){
+        v.fromBufferAttribute(pos,i).applyMatrix4(mesh.matrixWorld);
+        const x=Math.round(v.x/step),y=Math.round(v.y/step),z=Math.round(v.z/step);
+        let candidate=field.get(key(x,y,z))||0;
+        if(candidate<=w.getX(i))continue;
+        // Never overwrite painted values; only blend nearly coincident seams.
+        const next=Math.max(w.getX(i),candidate*.85);
+        if(next>w.getX(i)+.001){w.setX(i,next);changed=true;}
+      }
+      if(changed){w.needsUpdate=true;mesh.userData.studioClothWindWeights=Array.from(w.array);}
+    }
+  }
   function studioClothSavePins(target){target?.root?.traverse(mesh=>{const a=mesh.geometry?.getAttribute('studioClothPin');if(a)mesh.userData.studioClothPins=Array.from(a.array);const w=mesh.geometry?.getAttribute('studioWindWeight');if(w)mesh.userData.studioClothWindWeights=Array.from(w.array);});}
   function studioClothRefresh(){
     const target=activeObject,c=studioClothConfig(target),on=!!c;
@@ -58709,21 +58640,30 @@ void main(){
     const radius=Math.max(1e-6,camera.isPerspectiveCamera?dist*Math.tan(camera.fov*Math.PI/360)*brush/350/camera.zoom:(camera.top-camera.bottom)*brush/700/camera.zoom);
     const radius2=radius*radius,mesh=hit.object,isWind=studioClothMode==='windPaint'||studioClothMode==='windErase',a=mesh.geometry.getAttribute(isWind?'studioWindWeight':'studioClothPin');
     if(!a)return;
-    // Evita pintar faces traseiras: limita o pincel à malha efetivamente tocada.
-    const inv=mesh.matrixWorld.clone().invert(),center=studioClothCenter.copy(hit.point).applyMatrix4(inv);
-    const scale=mesh.matrixWorld.getMaxScaleOnAxis(),localRadius2=radius2/Math.max(scale*scale,1e-12);
-    const pos=mesh.geometry.getAttribute('position');
+    // Pinte todas as submalhas que compartilham a superfície do cabelo.
+    // Pintar somente o mesh atingido cria deslocamentos incompatíveis e abre buracos.
     const erase=studioClothMode==='erase'||studioClothMode==='windErase';
+    const worldCenter=hit.point.clone(),localCenter=new Vector3(),inv=new Matrix4();
     let changed=false;
-    for(let i=0;i<a.count;i++){
-      studioClothVertex.fromBufferAttribute(pos,i);
-      const d2=studioClothVertex.distanceToSquared(center);
-      if(d2>localRadius2)continue;
-      const influence=1-Math.sqrt(d2/localRadius2),old=a.getX(i);
-      a.setX(i,erase?Math.max(0,old-influence*.5):Math.min(1,old+influence*.5));
-      changed=true;
-    }
-    if(changed){a.needsUpdate=true;studioInvalidatePreview();}
+    target.root.traverse(part=>{
+      if(!part.isMesh||!part.geometry?.attributes?.position||!studioTreeVisible(part))return;
+      const a=part.geometry.getAttribute(isWind?'studioWindWeight':'studioClothPin');
+      if(!a)return;
+      inv.copy(part.matrixWorld).invert();localCenter.copy(worldCenter).applyMatrix4(inv);
+      const scale=part.matrixWorld.getMaxScaleOnAxis();
+      const localRadius2=radius2/Math.max(scale*scale,1e-12);
+      const pos=part.geometry.getAttribute('position');let touched=false;
+      for(let i=0;i<a.count;i++){
+        studioClothVertex.fromBufferAttribute(pos,i);
+        const d2=studioClothVertex.distanceToSquared(localCenter);
+        if(d2>localRadius2)continue;
+        const influence=1-Math.sqrt(d2/localRadius2),old=a.getX(i);
+        a.setX(i,erase?Math.max(0,old-influence*.5):Math.min(1,old+influence*.5));
+        touched=true;
+      }
+      if(touched){a.needsUpdate=true;changed=true;}
+    });
+    if(changed)studioInvalidatePreview();
   }
   function studioClothQueuePaint(e){
     studioClothPending={clientX:e.clientX,clientY:e.clientY};
@@ -58753,6 +58693,7 @@ void main(){
     attribute float studioWindWeight;
     attribute float studioClothPin;
     uniform float swClothEnabled,swPinEditing;
+    uniform float swLayeredHair,swLayeredHairWeight;
     varying float swPinTint;
     varying vec3 swLocalPaintPos;
     uniform sampler2D swLocalBrushMap;
@@ -58803,7 +58744,7 @@ void main(){
         float amount=style.x*edge*edge*(3.-2.*edge);
         localPaint=brush.w<0.?localPaint*(1.-amount):localPaint+(1.-localPaint)*amount;
       }
-      float localWeight=max(studioWindWeight,localPaint)*freeWeight;
+      float localWeight=mix(max(studioWindWeight,localPaint),swLayeredHairWeight,swLayeredHair)*freeWeight;
       swPinTint=0.;
       float swWindTint=studioWindWeight*swPinEditing;
       swPaint=max(localWeight*swEditing,worldWeight*swWorldEditing);
@@ -58815,6 +58756,7 @@ void main(){
   function studioSurfaceWindPatch(source,u){
     if(studioSurfaceWindMaterials?.get?.(source)===u)return source;
     const material=source.clone(),previous=source.onBeforeCompile,cache=source.customProgramCacheKey;
+    // Preserve the imported material opacity and alpha cutoff unchanged.
     material.onBeforeCompile=function(shader,renderer){
       previous?.call(this,shader,renderer);Object.assign(shader.uniforms,u);
       shader.vertexShader=studioSurfaceWindShader+'\n'+shader.vertexShader;
@@ -58856,7 +58798,7 @@ void main(){
     const worldEditing=studioWindEditing()&&studioVfxTargetId==='__free__';
     for(const target of objects){
       if(!studioSurfaceWindEnabled(target)&&!studioClothConfig(target)&&!strokes.length&&!studioSurfaceWindMeshes.has(target.root))continue;
-      if(studioClothConfig(target))studioClothPrepare(target);
+      if(studioClothConfig(target)){studioClothPrepare(target);studioClothRepairWindSeams(target);}
       studioSurfaceWindMeshes.set(target.root,true);
       const state=banks.get(target.id)?.state,c=studioSurfaceWindEnabled(target)?state?.config||{}:{};
       const localStrokes=target.root.userData.studioSurfaceWindStrokes||[];
@@ -58874,11 +58816,40 @@ void main(){
       });
       if(box.isEmpty())continue;
       const size=box.getSize(new Vector3());size.set(Math.max(size.x,.001),Math.max(size.y,.001),Math.max(size.z,.001));
+      // Malhas sobrepostas (camadas da touca/cabelo) precisam usar a MESMA
+      // deformação; pesos individuais abrem buracos entre as superfícies.
+      const layers=[];
+      target.root.traverse(mesh=>{
+        if(!mesh.isMesh||!mesh.geometry?.attributes.studioWindWeight)return;
+        if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
+        const bound=mesh.geometry.boundingBox.clone().applyMatrix4(inverse.clone().multiply(mesh.matrixWorld));
+        layers.push({mesh,bound,center:bound.getCenter(new Vector3()),size:bound.getSize(new Vector3())});
+      });
+      const layeredHair=new Map();
+      const used=new Set();
+      for(let i=0;i<layers.length;i++){
+        if(used.has(i))continue;
+        const a=layers[i],group=[a];
+        for(let j=i+1;j<layers.length;j++){
+          const b=layers[j],scale=Math.max(a.size.length(),b.size.length(),.001);
+          if(a.center.distanceTo(b.center)<scale*.025 && a.size.distanceTo(b.size)<scale*.05){group.push(b);used.add(j);}
+        }
+        if(group.length<2)continue;
+        // Use a média dos vértices pintados, igual para todas as cascas.
+        let sum=0,count=0;
+        for(const part of group){const w=part.mesh.geometry.getAttribute('studioWindWeight');
+          for(let k=0;k<w.count;k++){const value=w.getX(k);if(value>.001){sum+=value;count++;}}
+        }
+        const weight=count?MathUtils.clamp(sum/count,0,1):0;
+        for(const part of group)layeredHair.set(part.mesh,weight);
+      }
       target.root.traverse(mesh=>{
         if(!mesh.isMesh||!mesh.geometry?.attributes.studioWindWeight)return;
         let runtime=studioSurfaceWindMeshes.get(mesh);
-        if(!runtime){runtime={oldCulled:mesh.frustumCulled,uniforms:{swClothEnabled:{value:0},swPinEditing:{value:0},swWorldSpeed:{value:0},swWorldAmplitude:{value:0},swWorldEditing:{value:0},swBrushCount:{value:0},swBrushMap:{value:worldMap},swLocalBrushMap:{value:localMap},swLocalBrushCount:{value:0},swWorldDirection:{value:new Vector3()},swWorldToMesh:{value:new Matrix4()},swTime:{value:0},swSpeed:{value:0},swAmplitude:{value:0},swEditing:{value:0},swSize:{value:new Vector3()},swDirection:{value:new Vector3()},swToOwner:{value:new Matrix4()},swToMesh:{value:new Matrix4()}}};studioSurfaceWindMeshes.set(mesh,runtime);}
+        if(!runtime){runtime={oldCulled:mesh.frustumCulled,uniforms:{swClothEnabled:{value:0},swPinEditing:{value:0},swLayeredHair:{value:0},swLayeredHairWeight:{value:0},swWorldSpeed:{value:0},swWorldAmplitude:{value:0},swWorldEditing:{value:0},swBrushCount:{value:0},swBrushMap:{value:worldMap},swLocalBrushMap:{value:localMap},swLocalBrushCount:{value:0},swWorldDirection:{value:new Vector3()},swWorldToMesh:{value:new Matrix4()},swTime:{value:0},swSpeed:{value:0},swAmplitude:{value:0},swEditing:{value:0},swSize:{value:new Vector3()},swDirection:{value:new Vector3()},swToOwner:{value:new Matrix4()},swToMesh:{value:new Matrix4()}}};studioSurfaceWindMeshes.set(mesh,runtime);}
         const u=runtime.uniforms,cloth=studioClothConfig(target),clothWind=studioClothWindAt(target,currentFrame),clothPreview=true;
+        u.swLayeredHair.value=cloth&&layeredHair.has(mesh)?1:0;
+        u.swLayeredHairWeight.value=layeredHair.get(mesh)||0;
         u.swClothEnabled.value=cloth?1:0;
         u.swPinEditing.value=cloth&&studioClothMode&&target===activeObject?1:0;
         u.swLocalBrushMap.value=localMap;u.swLocalBrushCount.value=localStrokes.length;
@@ -58889,15 +58860,15 @@ void main(){
         u.swWorldDirection.value.set(Number(worldConfig.windDirX)||0,(Number(worldConfig.windDirY)||0)*.2,Number(worldConfig.windDirY)||0);
         u.swWorldToMesh.value.copy(mesh.matrixWorld).invert();
         u.swTime.value=Number.isFinite(time)?time:0;u.swSpeed.value=Math.max(0,Number(c.windSpeed)||0)/50;
-        u.swAmplitude.value=cloth? (clothPreview?size.length()*.024*MathUtils.clamp(Number(clothWind?.force)||0,0,200)/100:0):active&&!editing?size.length()*.024*MathUtils.clamp(Number(c.windStrength)||0,0,300)/100:0;
+        u.swAmplitude.value=cloth? (clothPreview?size.length()*.006*MathUtils.clamp(Number(clothWind?.force)||0,0,200)/100:0):active&&!editing?size.length()*.024*MathUtils.clamp(Number(c.windStrength)||0,0,300)/100:0;
         u.swEditing.value=editing?1:0;u.swSize.value.copy(size);
         if(cloth)u.swSpeed.value=Math.max(0,Number(clothWind?.speed)||0)/50;
         u.swDirection.value.set(cloth?Number(clothWind?.x)/100:Number(c.windDirX)||0,cloth?Number(clothWind?.y)/100:(Number(c.windDirY)||0)*.2,cloth?Number(clothWind?.z)/100:Number(c.windDirY)||0);
         u.swToOwner.value.copy(inverse).multiply(mesh.matrixWorld);u.swToMesh.value.copy(u.swToOwner.value).invert();
         const patch=material=>studioSurfaceWindPatch(material,u);
         mesh.material=studioMapMaterials(mesh.material,patch);
-        if(!mesh.customDepthMaterial){const source=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;mesh.customDepthMaterial=new MeshDepthMaterial({depthPacking:RGBADepthPacking,map:source.map,alphaMap:source.alphaMap,alphaTest:source.alphaTest,side:source.side});}
-        if(!mesh.customDistanceMaterial){const source=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;mesh.customDistanceMaterial=new MeshDistanceMaterial({map:source.map,alphaMap:source.alphaMap,alphaTest:source.alphaTest,side:source.side});}
+        if(!mesh.customDepthMaterial){const source=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;mesh.customDepthMaterial=new MeshDepthMaterial({depthPacking:RGBADepthPacking,map:source.map,alphaMap:source.alphaMap,alphaTest:Math.max(source.alphaTest||0,(source.map||source.alphaMap)?0.01:0),side:source.side});}
+        if(!mesh.customDistanceMaterial){const source=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;mesh.customDistanceMaterial=new MeshDistanceMaterial({map:source.map,alphaMap:source.alphaMap,alphaTest:Math.max(source.alphaTest||0,(source.map||source.alphaMap)?0.01:0),side:source.side});}
         mesh.customDepthMaterial=patch(mesh.customDepthMaterial);mesh.customDistanceMaterial=patch(mesh.customDistanceMaterial);
         mesh.frustumCulled=active||worldActive||!!cloth?false:runtime.oldCulled;
       });
@@ -59195,11 +59166,24 @@ void main(){
       const split=splitStudioSpatialEffects(bank.state,id),baseActive=studioVfxHasBaseEffect(split.base)||(!exporting&&id===(studioVfxTargetId||'__scene__')&&studioWindEditing()&&id!=='__free__'&&!studioSurfaceWindEnabled(target));
       if(baseActive||split.layers.length)passes.push({id,target,sky,state:split.base,layers:split.layers,baseActive});
     }
-    syncStudioDirectionalRipple(clockTime);syncStudioSurfaceWind(clockTime);
+    syncStudioDirectionalRipple(clockTime);
+    // Durante o Play, a timeline pode ter somente 2 frames (1/24 s).
+    // O vento precisa de um relogio continuo no preview para nao congelar.
+    const windTime=!exporting&&timelinePlaying?(performance.now()-vfxPreviewEpoch)/1000:clockTime;
+    syncStudioSurfaceWind(windTime);
+    // FaceRig is already sampled by interpolatePose() on every timeline tick.
+    // Do not reinstall its shaders in the render pass: that stalls preview.
     syncStudioGlass();
     syncStudioVfxVolumes(passes,clockTime,exporting);
     studioMorphEnforceFinalHandoff();
     syncStudioPlaybackTools();
+    // Em maquinas lentas, nao renderizar varios passes VFX por quadro no Play.
+    // A cena continua animada; ao pausar e ao exportar os efeitos voltam completos.
+    if(!exporting && timelinePlaying && studioFastPlayback){
+      vfxComposite.hidden=true;
+      renderer.render(scene,camera);
+      return renderer.domElement;
+    }
     // Native volumes are drawn once with scene depth; no texture/composite pass needed.
     if(!passes.some(pass=>pass.baseActive||pass.layers.some(layer=>!layer.native))){vfxComposite.hidden=true;renderer.render(scene,camera);return renderer.domElement;}
     const helpers=[rigView,faceGuides,objectGizmoHelper,vfxMoveHelper,followPinView,pathOverlay].map(node=>[node,node.visible]);
@@ -59484,14 +59468,17 @@ void main(){
           const count=state.loops.length,steps=96;
           const TAU=Math.PI*2;
           // Superfície do funil: ondas radiais + espirais que se propagam entre os aros.
-          function tubePoint(u,angle){
+          // Desempenho: tudo que depende so de u (raio e z) e calculado UMA vez por anel;
+          // cos/sin dos angulos ficam em tabelas. Mesmas formulas, mesmo resultado.
+          const row={radius:0,z:0};
+          function tubeRow(u){
             const zBase=direction*(u-.5)*extent;
             // Cada extremidade tem seu raio independente, inclusive com funil invertido.
-            // Sem raio mínimo: 0% em qualquer ponta fecha o funil até um único ponto.
+            // Sem raio minimo: 0% em qualquer ponta fecha o funil ate um unico ponto.
             const base=2.78*(openingStart*(1-u)+openingEnd*u);
             const progression=u*19-t*(velocity*10);
-            // A ondulação acontece AO LONGO do funil, mas cada seção transversal
-            // permanece circular. Isso evita que o anel vire uma forma torta.
+            // A ondulacao acontece AO LONGO do funil, mas cada secao transversal
+            // permanece circular.
             const liquid=Math.sin(progression);
             const harshWave=Math.sin(progression*1.45);
             const aggressive=Math.sign(harshWave)*Math.pow(Math.abs(harshWave),4);
@@ -59499,36 +59486,35 @@ void main(){
             const secondary=Math.sin(progression*1.85+Math.sin(progression)*0.45)*(1-style)
               +Math.sin(progression*4.35)*style;
             const radialEnvelope=1+intensity*((.16+.12*style)*wave+(.04+.04*style)*secondary);
-            const radius=Math.max(0,base*radialEnvelope);
-            // A variação axial é uniforme em toda a circunferência para preservar
-            // o contorno redondo, inclusive quando a ponta fecha completamente.
+            row.radius=Math.max(0,base*radialEnvelope);
             const tipFactor=Math.min(1,base*8);
-            const axialShift=intensity*(.18+.09*style)*tipFactor*wave;
-            const z=zBase+direction*axialShift;
-            return [Math.cos(angle)*radius,Math.sin(angle)*radius,z];
+            row.z=zBase+direction*(intensity*(.18+.09*style)*tipFactor*wave);
           }
-          const surfacePos=state.surface.geometry.attributes.position;
           const axial=state.surfaceAxial,radial=state.surfaceRadial;
+          if(!state.trig){
+            state.trig={cosS:new Float64Array(radial+1),sinS:new Float64Array(radial+1),cosR:new Float64Array(steps),sinR:new Float64Array(steps)};
+            for(let b=0;b<=radial;b++){state.trig.cosS[b]=Math.cos(b/radial*TAU);state.trig.sinS[b]=Math.sin(b/radial*TAU);}
+            for(let j=0;j<steps;j++){state.trig.cosR[j]=Math.cos(j/steps*TAU);state.trig.sinR[j]=Math.sin(j/steps*TAU);}
+          }
+          const {cosS,sinS,cosR,sinR}=state.trig;
+          const surfacePos=state.surface.geometry.attributes.position,surfaceArray=surfacePos.array;
           for(let a=0;a<=axial;a++){
-            const u=a/axial;
-            for(let b=0;b<=radial;b++){
-              const point=tubePoint(u,b/radial*TAU);
-              surfacePos.setXYZ(a*(radial+1)+b,point[0],point[1],point[2]);
-            }
+            tubeRow(a/axial);
+            const radius=row.radius,z=row.z;let k=a*(radial+1)*3;
+            for(let b=0;b<=radial;b++){surfaceArray[k++]=cosS[b]*radius;surfaceArray[k++]=sinS[b]*radius;surfaceArray[k++]=z;}
           }
           surfacePos.needsUpdate=true;
           state.surface.material.uniforms.uTime.value=t;
           state.surface.material.uniforms.uDepth.value=intensity;
           state.surface.material.uniforms.uSpeed.value=velocity;
           state.surface.material.uniforms.uStyle.value=style;
-          // Aros discretos seguem exatamente a superfície (em vez de cortar as ondas).
+          // Aros discretos seguem exatamente a superficie (em vez de cortar as ondas).
           for(let i=0;i<count;i++){
             const u=(i/count+t*velocity*.37)%1;
-            const ring=state.loops[i],position=ring.geometry.attributes.position;
-            for(let j=0;j<steps;j++){
-              const point=tubePoint(u,j/steps*TAU);
-              position.setXYZ(j,point[0],point[1],point[2]);
-            }
+            const ring=state.loops[i],position=ring.geometry.attributes.position,ringArray=position.array;
+            tubeRow(u);
+            const radius=row.radius,z=row.z;
+            for(let j=0;j<steps;j++){const k=j*3;ringArray[k]=cosR[j]*radius;ringArray[k+1]=sinR[j]*radius;ringArray[k+2]=z;}
             position.needsUpdate=true;
             ring.material.opacity=(.11+.12*(1-Math.abs(u-.5)*.7))*(.4+.6*intensity);
           }
@@ -61585,9 +61571,7 @@ function mergeStudioStaticGeometry(chosen){
     $('objectGrabUndo').disabled=$('baseGrabUndo').disabled;
   }
 function objectDrawingGrabFalloff(distance,radius){const t=Math.max(0,Math.min(1,distance/radius));return 1-t*t*t*(10+t*(-15+6*t));}
-function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=item.mirrorWeight||0,sum=w+other;if(!sum)return [0,0,0];const mirrored=other?(s.mirrorDelta?s.mirrorDelta(d):[-d[0],d[1],d[2]]):d,factor=Math.max(w,other)/sum;let result=d.map((x,k)=>(x*w+mirrored[k]*other)*factor);if(s.localDelta)result=s.localDelta(result,a);return result;}
-
-  function refreshBaseGrabGeometry(mesh){
+function refreshBaseGrabGeometry(mesh){
     const g=mesh.geometry;g.computeVertexNormals();autoSmoothGeometry(g);g.userData.studioAutoSmoothPasses=0;
     if(g.boundsTree)g.disposeBoundsTree?.();g.computeBoundingBox();g.computeBoundingSphere();
     if(mesh.isSkinnedMesh){mesh.boundingBox=null;mesh.boundingSphere=null;}
@@ -63085,8 +63069,10 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
   new ResizeObserver(resizeViewport).observe(vp);
   var clock = new Clock();
   var studioPreviewElapsed=0,studioPreviewAt=-Infinity;
+  var studioPlaybackLastTick=0;
 
   var studioPreviewDirty=true,studioPreviewShadowDirty=true,studioPreviewPixelLimit=1280;
+  var studioFastPlayback=false,studioSlowPlaybackFrames=0;
   var studioPreviewNavigation=false,studioPreviewNavigationUntil=0,studioPreviewCameraEndAt=0,studioPreviewQualityAt=0,studioPreviewRenderedAt=0;
   function studioInvalidatePreview(shadows=true){studioPreviewDirty=true;if(shadows)studioPreviewShadowDirty=true;}
   function studioContinuousPreview(){
@@ -63111,8 +63097,9 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     return false;
   }
   function studioAdaptivePreview(now,navigating,continuous){
+    if(timelinePlaying)return;
     const active=navigating||continuous;
-    const max=timelinePlaying||playing||navigating||gizmoGesture||drag||objectDrag?960:1280;
+    const max=timelinePlaying?720:(playing||navigating||gizmoGesture||drag||objectDrag?960:1280);
     let limit=active?Math.min(studioPreviewPixelLimit,max):1280;
     if(active&&studioPreviewRenderedAt&&now-studioPreviewQualityAt>500){
       const interval=now-studioPreviewRenderedAt;
@@ -63145,6 +63132,9 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     if(!studioPreviewDirty&&!continuous&&!navigating){
       if(studioPreviewPixelLimit===1280){studioPreviewElapsed=0;studioPreviewRenderedAt=0;return;}
     }
+    // O motor de Play ja redesenhou cada quadro. Nunca desenhar uma pose
+    // concorrente aqui: isso causava engasgos e repeticao de frames antigos.
+    if(timelinePlaying){studioPreviewElapsed=0;return;}
     if(previewNow-studioPreviewAt<1000/(navigating||gizmoGesture?60:30)-.5)return;
     if(cameraGizmoMoving)studioCameraJoystickTick(previewNow);
     studioAdaptivePreview(previewNow,navigating,continuous);
@@ -63161,21 +63151,24 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     }
     flushBaseGrabStroke();flushShapeStroke();
     const dt=studioPreviewElapsed;studioPreviewElapsed=0;
-    if (timelinePlaying) {
-      timelineFraction = 1 + (timelineFraction - 1 + dt * 24) % Math.max(1,endFrame-(paths.some(path=>pathActors(path).length)?0:1));
-      currentFrame = Math.min(timelineFraction,endFrame);
-      sampleTimeline(currentFrame,true);
-      updateTimelineHead();
-      const head = 24 + (currentFrame - 1) * pixelsPerFrame;
-      if (head < timeScroll.scrollLeft || head > timeScroll.scrollLeft + timeScroll.clientWidth - 40) timeScroll.scrollLeft = Math.max(0, head - 60);
-    }
     if (studioAudioReady) syncStudioAudio();
     if(playing){
       clearPathPose(activeObject?.root);
       mixer?.update(dt);
     }
     updateImageEditor();
+    const studioRenderStart=performance.now();
     renderStudioFrame((currentFrame - 1) / 24, false, timelinePlaying);
+    if(timelinePlaying){
+      const cost=performance.now()-studioRenderStart;
+      if(cost>145)studioSlowPlaybackFrames++;
+      else if(cost<75)studioSlowPlaybackFrames=Math.max(0,studioSlowPlaybackFrames-1);
+      if(studioSlowPlaybackFrames>=2&&!studioFastPlayback){
+        studioFastPlayback=true;
+        studioInvalidatePreview();
+        status('Prévia leve durante o Play; VFX completo ao pausar e na exportação.');
+      }
+    }
     studioPreviewRenderedAt=previewNow;
   });
 
@@ -63197,25 +63190,6 @@ function objectDrawingGrabDisplacement(s,item,d,a){const w=item.weight,other=ite
     }
     node.name=name;
     if(object===activeObject){rebuild();syncSliders();}
-  }
-  function studioRenameEntries(category) {
-    const entries=[];
-    function add(id,label,read,write){entries.push({id,label,read,write})}
-    for(const object of objects){
-      if(category==='objects'&&!object.root.userData.studioGround)add(object.id,'Objeto da cena',()=>object.name,n=>studioRenameObject(object,n));
-      if(category==='shapes')for(const item of shapeData(object).items)add(item.id,object.name,()=>item.name,n=>{item.name=n;refreshShapes()});
-      if(category==='poses')for(const item of object.poseLibrary||[])add(item.id,object.name,()=>item.name,n=>{item.name=n;refreshPoseLibrary()});
-      if(category==='expressions')for(const item of object.faceRig?.expressions||[])add(item.id,object.name,()=>item.name,n=>{item.name=n;renderFaceExpressions()});
-      if(category==='bones')for(const node of object.bones)add(node.uuid,object.name,()=>node.name,n=>studioRenameNode(object,node,n));
-      if(category==='meshes')object.root.traverse(node=>{if(node.isMesh)add(node.uuid,object.name,()=>node.name||'',n=>studioRenameNode(object,node,n))});
-      if(category==='materials'){
-        const seen=new Set();object.root.traverse(node=>{for(const material of (Array.isArray(node.material)?node.material:[node.material]).filter(Boolean))if(!seen.has(material.uuid)){seen.add(material.uuid);add(material.uuid,object.name,()=>material.name||'',n=>material.name=n)}});
-      }
-      if(category==='animations')for(const clip of object.clips||[])add(clip.uuid,object.name,()=>clip.name,n=>{clip.name=n;if(object===activeObject){$('clips').replaceChildren(...object.clips.map((c,i)=>new Option(c.name||'Animação '+(i+1),i)))}});
-    }
-    if(category==='audio')for(const source of studioAudioSources)add(source.id,'Arquivo de áudio',()=>source.name,n=>{source.name=n;renderStudioAudio()});
-    if(category==='audioClips')for(const clip of studioAudioClips){const source=studioAudioSources.find(s=>s.id===clip.sourceId);add(clip.id,(source?.name||'Áudio')+' · '+clip.start.toFixed(2)+'s',()=>clip.name||source?.name||'',n=>{clip.name=n;renderStudioAudio()})}
-    return entries;
   }
   // Renomeação individual: um único campo, sem lista e sem janelas modais.
   const renameStyle=document.createElement('style');
