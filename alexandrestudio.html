@@ -61965,7 +61965,7 @@ function refreshBaseGrabGeometry(mesh){
     for(const edge of edges||points.slice(0,edgeCount).keys()){
       const start=points[edge],end=points[(edge+1)%points.length];
       let previous=start;
-      const steps=MathUtils.clamp(Math.ceil(start.distanceTo(end)/.12),12,limit);
+      const steps=MathUtils.clamp(Math.ceil(start.distanceTo(end)/(surface?.65:.12)),surface?3:8,surface?Math.min(limit,32):limit);
       for(let step=1;step<=steps;step++){
         let next=end;
         if(step<steps){
@@ -61993,7 +61993,8 @@ function refreshBaseGrabGeometry(mesh){
   }
   function projectPathSegment(start,end,surface,limit) {
     if(!surface)return [start,end];
-    const steps=MathUtils.clamp(Math.ceil(start.distanceTo(end)/0.12),2,limit);
+    // Terrain de alta densidade: limitar os raycasts durante a marcação dos pontos.
+    const steps=MathUtils.clamp(Math.ceil(start.distanceTo(end)/0.65),2,Math.min(limit,32));
     const segments=[];
     let previous=start;
     const sample=new Vector3();
@@ -62022,7 +62023,42 @@ function refreshBaseGrabGeometry(mesh){
   function studioPathActive() {
     return !$('panelPath').hidden&&!!pathDraft&&!exportState&&!studioSaving;
   }
-  pathSurfaceSelect.onchange=()=>{pathSurfaceId=pathSurfaceSelect.value;studioInvalidatePreview(false);};
+  pathSurfaceSelect.onchange=()=>{
+    const requested=pathSurfaceSelect.value;
+    // A escolha também pode adaptar um caminho já desenhado, não apenas os novos.
+    if(selectedPath&&!pathDraft){
+      const path=selectedPath;
+      const surface=requested?pathProjectionSurface(objects.find(object=>object.id===requested)):null;
+      if(requested&&!surface){pathSurfaceSelect.value=path.surfaceId||'';status('Objeto sem superfície visível.');return;}
+      const points=[];
+      for(const original of path.points){
+        const projected=surface?projectPathSample(original,surface):new Vector3(original.x,viewportGrid.position.y,original.z);
+        if(!projected){
+          pathSurfaceSelect.value=path.surfaceId||'';
+          status('O caminho ultrapassa a superfície desse objeto. Ajuste a posição do terrain.');
+          return;
+        }
+        points.push(projected.clone());
+      }
+      const segments=roundPathSegments(points,path.closed,surface,64);
+      const route=segments&&buildPathRoute({...path,points,segments,rounded:true,aerial:false});
+      if(!route){
+        pathSurfaceSelect.value=path.surfaceId||'';
+        status('Não foi possível projetar todo o caminho nessa superfície.');
+        return;
+      }
+      resetPathPointEditing();
+      Object.assign(path,{points,segments,route,surfaceId:requested,rounded:true,aerial:false,floorY:viewportGrid.position.y});
+      for(const actor of pathActors(path))clearPathPose(actor.root);
+      pathSurfaceId=requested;
+      refreshPathView();
+      studioInvalidatePreview();
+      status(requested?`Caminho adaptado à superfície de ${surface.object.name}.`:'Caminho adaptado à grade 3D.');
+      return;
+    }
+    pathSurfaceId=requested;
+    studioInvalidatePreview(false);
+  };
   $('pathNew').onclick=()=>{pathDraft={points:[],segments:[],surface:null};refreshPathView();showPathTimeline();};
   pathSelected.onchange=()=>{
     resetPathPointEditing();
@@ -62068,10 +62104,18 @@ function refreshBaseGrabGeometry(mesh){
       studioInvalidatePreview(false);
     }
   },true);
+  let pathPreviewLastTime=0,pathPreviewLastX=-Infinity,pathPreviewLastY=-Infinity;
   renderer.domElement.addEventListener('pointermove',event=>{
     if(!studioPathActive()||!pathDraft.points.length||event.buttons)return;
+    // Não executar dezenas de interseções com a malha a cada evento do mouse.
+    const now=performance.now();
+    if(now-pathPreviewLastTime<55||Math.hypot(event.clientX-pathPreviewLastX,event.clientY-pathPreviewLastY)<3)return;
+    pathPreviewLastTime=now;
+    pathPreviewLastX=event.clientX;
+    pathPreviewLastY=event.clientY;
     const point=pathAtStartPoint(event)?pathDraft.points.length>=3?pathDraft.points[0]:null:pickPathPoint(event);
-    setPathGeometry(pathPreview,point?projectPathSegment(pathDraft.points.at(-1),point,pathDraft.surface,20):[]);
+    // O traço temporário é leve; a projeção detalhada só acontece ao confirmar o ponto.
+    setPathGeometry(pathPreview,point?[pathDraft.points.at(-1),point]:[]);
     studioInvalidatePreview(false);
   });
   renderer.domElement.addEventListener('pointerleave',()=>{
@@ -62270,9 +62314,32 @@ function refreshBaseGrabGeometry(mesh){
   function pathActors(path=selectedPath) {
     return path?.actors.filter(actor=>objects.includes(actor))||[];
   }
+  // Cache de superfícies importadas: evita reconstruir bounding boxes e
+  // percorrer toda a hierarquia do terrain a cada quadro da animação.
+  const pathMotionSurfaceCache=new WeakMap();
   function pathMotionSurface(object) {
+    if(!object)return null;
+    if(!object.root.userData.studioGround){
+      object.root.updateWorldMatrix(true,true);
+      const old=pathMotionSurfaceCache.get(object);
+      if(old&&old.meshes.every((mesh,index)=>
+        studioTreeVisible(mesh)&&mesh.geometry===old.geometries[index]&&
+        mesh.geometry.attributes.position?.version===old.versions[index]&&
+        mesh.matrixWorld.elements.every((value,i)=>value===old.matrices[index][i]))&&
+        old.meshes.length===old.matrices.length){
+        return old.surface;
+      }
+      const surface=pathProjectionSurface(object);
+      if(surface)pathMotionSurfaceCache.set(object,{
+        surface,meshes:surface.meshes,
+        geometries:surface.meshes.map(mesh=>mesh.geometry),
+        versions:surface.meshes.map(mesh=>mesh.geometry.attributes.position.version),
+        matrices:surface.meshes.map(mesh=>Array.from(mesh.matrixWorld.elements))
+      });
+      return surface;
+    }
     const surface=pathProjectionSurface(object);
-    if(!surface||!object.root.userData.studioGround)return surface;
+    if(!surface)return null;
     const mesh=ensureGroundRuntime(object)?.mesh;
     const geometry=mesh?.geometry;
     if(surface.meshes.length===1&&surface.meshes[0]===mesh&&geometry?.type==='PlaneGeometry'){

@@ -1,22 +1,30 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Natureza 3D · Realismo otimizado</title><style>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Natureza 3D</title><style>
 :root{color-scheme:dark;--bg:#17191c;--panel:#202226;--line:#34373d;--text:#e6e7ea;--muted:#969ba5;--accent:#c4cbd4}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}button,input,select{font:inherit}button{cursor:pointer;color:inherit}button,input,select{outline:none}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #b2c3db;outline-offset:3px}button{transition:background .15s,border-color .15s}button:hover{background:#363941}svg{width:18px;height:18px;flex-shrink:0}main{height:100dvh;display:flex;position:relative}aside{width:292px;flex-shrink:0;display:flex;flex-direction:column;background:var(--panel);border-right:1px solid #34373d;z-index:5}.panel-top{height:58px;flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding:0 20px;color:#d9dce2;font-size:13px;font-weight:600}.icon-button{border:0;background:transparent;border-radius:6px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;color:#b3b7c0;font-size:16px}.library-entry{padding:0 16px 18px}.species-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;border:1px solid #41454e;border-radius:7px;background:#292c31;text-align:left;padding:12px}.species-toggle small{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.species-toggle b{font-size:12px;font-weight:500}.species-toggle svg{width:15px;color:#9ba1ac}.tabs{display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:0 12px;flex-shrink:0}.tabs button{flex:1;background:transparent;border:0;border-bottom:2px solid transparent;color:#8e949f;padding:13px 0 12px;font-size:11px}.tabs button[aria-selected=true]{border-bottom-color:#c6cdd8;color:#edf0f5}.panel-scroll{overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:#444851 transparent;padding:0 20px 22px}.section{padding-top:22px}.section+.section{margin-top:22px;border-top:1px solid var(--line)}h2{font-size:11px;font-weight:600;margin:0 0 18px;color:#b7bdc8}label{display:flex;align-items:center;justify-content:space-between;margin:16px 0 9px;color:#aeb3bd;font-size:11px}output{color:#e0e3e8;font-size:10px;font-variant-numeric:tabular-nums}.check{justify-content:flex-start;gap:9px;margin-top:16px;cursor:pointer}.check input{margin:0;accent-color:#b8c6db;width:14px;height:14px}input[type=range]{width:100%;height:3px;display:block;margin:12px 0 20px;accent-color:#bcc7d7;cursor:pointer}input:disabled{opacity:.3;cursor:default}select,input[type=number]{width:100%;height:34px;border:1px solid #3d4149;border-radius:5px;padding:0 8px;background:#272a30;color:#d1d5dd;font-size:11px}select{cursor:pointer}input[type=color]{width:34px;height:24px;padding:0;border:0;background:transparent;cursor:pointer}.color-row{display:flex;align-items:center;justify-content:space-between;margin:18px 0}.color-row label{margin:0}.panel-footer{padding:14px 16px 10px;border-top:1px solid var(--line);flex-shrink:0}.export-row{display:flex;gap:7px}.export-primary{background:#d1d7e0;color:#23272d;border:1px solid #d1d7e0;border-radius:6px;height:36px;flex:1;padding:0 12px;text-align:left;font-weight:600;display:flex;align-items:center;justify-content:space-between}.export-primary:hover{background:#edf1f7}.export-secondary{height:36px;padding:0 12px;border:1px solid #41454e;border-radius:6px;background:#2b2e34;font-size:10px}#status{color:#737b88;font-size:9px;margin:10px 1px 0;min-height:12px}.viewport{flex:1;min-width:0;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#34383e,#191c20 80%)}canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}canvas:active{cursor:grabbing}.floating{position:absolute;left:308px;top:16px;z-index:6;background:#24272ce8;border:1px solid #3b4048;box-shadow:0 2px 10px #0002}.view-tools{position:absolute;right:18px;bottom:18px;display:flex;padding:3px;border:1px solid #3b4048;border-radius:8px;background:#24272ce8;gap:3px}.view-tools .icon-button[aria-pressed=true]{color:#edf2fa;background:#353a43}.panel-hidden aside{display:none}.panel-hidden .floating{left:16px}.library-overlay{position:fixed;inset:0;z-index:30;background:#080a0da8;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px}.library-overlay[hidden],[hidden]{display:none!important}.library-dialog{width:620px;max-width:100%;height:min(660px,85dvh);background:#24272c;border:1px solid #454a53;border-radius:12px;box-shadow:0 24px 120px #0008;display:flex;flex-direction:column;overflow:hidden}.dialog-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 10px}.dialog-header h2{font-size:14px;font-weight:500;margin:0;color:var(--text)}.dialog-header h2 span{font-size:10px;color:#9aa3b2;margin-left:8px;border:1px solid #414854;border-radius:4px;padding:2px 5px}.library-filters{display:flex;gap:10px;padding:10px 20px 18px;border-bottom:1px solid var(--line)}.search-field{height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;background:#1a1d21;border:1px solid #414650;border-radius:6px;flex:1;min-width:0;color:#858e9d}.search-field svg{width:15px}.search-field input{background:none;border:0;color:var(--text);width:100%;min-width:0;font-size:11px}#libraryCategory{width:174px;height:36px;background:#2d3138}#libraryList{padding:0 12px 12px;overflow:auto;flex:1;scrollbar-width:thin}.group-title{margin:22px 10px 10px;font-size:10px;font-weight:500;color:#8e98a9}.group-title:first-child{margin-top:18px}#libraryList button{display:inline-flex;width:calc(50% - 8px);margin:3px 4px;border:1px solid #393e46;border-radius:6px;background:#2b2f35;padding:11px;gap:10px;align-items:center;text-align:left;min-height:57px;vertical-align:top;font-size:11px}#libraryList button:hover{border-color:#747f91;background:#343a44}#libraryList button[aria-pressed=true]{border-color:#9aa9bf;background:#35404e}.swatch{width:22px;height:28px;flex-shrink:0;border-radius:3px;box-shadow:inset 0 0 0 1px #ffffff12}.latin{display:block;margin-top:5px;color:#858f9f;font-size:9px}.library-empty{padding:30px;text-align:center;color:var(--muted)}@media(max-width:760px){aside{position:absolute;left:12px;top:12px;bottom:12px;width:292px;max-width:calc(100vw - 72px);border:1px solid #424751;border-radius:10px;box-shadow:0 12px 60px #0007}.floating{left:min(316px,calc(100vw - 48px));top:16px}.panel-hidden .floating{left:16px}.viewport{width:100%;height:100%}.library-overlay{padding:14px}.library-filters{flex-direction:column;gap:8px;padding:10px 16px 14px}.search-field{min-height:36px}#libraryCategory{width:100%}#libraryList button{width:calc(100% - 8px)}.dialog-header{padding:12px 16px 6px}}@media(prefers-reduced-motion:reduce){button{transition:none}}
 .search-field input:focus-visible{outline:none}.search-field:focus-within{border-color:#92a0b5}
 #generatorTabs{height:46px;display:flex;gap:1px;align-items:stretch;padding:0 12px;border-bottom:1px solid #363b43;background:#202328;overflow-x:auto;scrollbar-width:thin;flex-shrink:0}#generatorTabs button{white-space:nowrap;border:0;border-bottom:2px solid transparent;background:none;color:#8f97a4;font-size:11px;padding:0 14px}#generatorTabs button[aria-selected=true]{color:#eef2f8;background:#2b3038;border-bottom-color:#b6c5da}#generatorTabs button:hover{color:#edf2fa;background:#2b3038}#sceneCount{font-size:9px;background:#404958;color:#c9d6e9;padding:2px 5px;border-radius:3px;margin-left:7px}main{height:calc(100dvh - 46px)}.scene-add{height:32px;width:100%;border:1px solid #485260;border-radius:5px;background:#2a323d;color:#bdcadb;margin-bottom:9px;font-size:11px}.scene-add:hover{background:#35404e}.export-primary:disabled{opacity:.4;cursor:default}.quiet-note{font-size:10px;color:#8793a3;line-height:1.65}.scene-row{display:flex;align-items:center;gap:7px;margin:5px 0}.scene-row input{accent-color:#b8c6db}.scene-row button{border:1px solid #3a434f;border-radius:5px;background:#292e36;color:#b9c4d4;text-align:left;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:9px 7px;font-size:10px}.scene-row button[aria-pressed=true]{border-color:#8b9db7;background:#364253}.xyz-fields{display:flex;gap:6px}.xyz-fields label{display:block;flex:1;min-width:0}.xyz-fields input{margin-top:6px;width:100%;padding:0 5px}.scene-actions{display:flex;gap:6px;margin:12px 0}.scene-actions button{flex:1;background:#303640;border:1px solid #48505d;color:#c0cada;padding:9px 5px;font-size:10px;border-radius:5px}#sceneRemove{color:#d4a5a0}#assetPanel select{font-size:11px}#scenePanel{padding-bottom:10px}@media(max-width:760px){#generatorTabs{padding:0 5px}#generatorTabs button{padding:0 11px}main{height:calc(100dvh - 46px)}}
-.finish-group{border-top:1px solid #34373d;padding-top:18px;margin-top:22px}.finish-group summary{font-size:11px;font-weight:600;color:#c0c8d4;cursor:pointer;margin-bottom:12px}.finish-group[open] summary{margin-bottom:18px}#finishingPanel{padding-bottom:8px}</style></head><body><nav id="generatorTabs" role="tablist" aria-label="Geradores de ambiente"></nav><main><aside id="controls" aria-label="Controles do modelo"><div class="panel-top"><span id="panelTitle">Árvores</span><button id="generate" class="icon-button" title="Gerar nova variação" aria-label="Gerar nova variação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"/></svg></button></div><div class="library-entry" id="treeLibraryEntry"><button class="species-toggle" id="speciesToggle" aria-expanded="false" aria-controls="speciesMenu"><span><small>Biblioteca</small><b id="chosen">Ipê-amarelo</b></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div><nav id="treeConfigTabs" class="tabs" aria-label="Configurações" role="tablist"><button id="tab-model" data-tab="model" role="tab" aria-selected="true" aria-controls="pane-model">Modelo</button><button id="tab-structure" data-tab="structure" role="tab" aria-selected="false" aria-controls="pane-structure">Estrutura</button><button id="tab-appearance" data-tab="appearance" role="tab" aria-selected="false" aria-controls="pane-appearance">Aparência</button></nav><div class="panel-scroll"><div class="section" id="meshQuality"><h2>Detalhamento</h2><label for="quality">Resolução da malha</label><select id="quality"><option value="1">Econômico</option><option value="1.6" selected>Realista · equilibrado</option><option value="2.4">Ultra · mais geometria</option></select></div><div id="treePanels"><div id="pane-model" role="tabpanel" aria-labelledby="tab-model"><div class="section"><h2>Composição</h2><label for="mode">Componentes</label><select id="mode"><option value="full">Árvore completa</option><option value="bare">Árvore sem folhagem</option><option value="log">Tronco caído</option></select><label class="check"><input id="dead" type="checkbox">Madeira morta</label><label class="check"><input id="rootsEnabled" type="checkbox" checked>Raízes expostas</label></div><div class="section"><h2>Crescimento</h2><label for="height">Altura<output id="heightVal"></output></label><input id="height" type="range" min="65" max="140" value="100"><label for="depth">Ramificação<output id="depthVal"></output></label><input id="depth" type="range" min="3" max="6" value="5"><label for="spread">Abertura<output id="spreadVal"></output></label><input id="spread" type="range" min="25" max="95" value="65"><label for="foliage">Folhagem<output id="foliageVal"></output></label><input id="foliage" type="range" min="0" max="140" value="90"></div><div class="section"><h2>Variação</h2><label for="seedInput">Semente</label><input class="seed-input" id="seedInput" type="number" min="1" max="999999" value="7341"></div></div><div id="pane-structure" role="tabpanel" aria-labelledby="tab-structure" hidden><div class="section"><h2>Madeira</h2><label for="thickness">Espessura<output id="thicknessVal"></output></label><input id="thickness" type="range" min="40" max="250" value="100"><label for="twist">Torção<output id="twistVal"></output></label><input id="twist" type="range" min="0" max="150" value="25"><label for="barkRelief">Relevo da casca<output id="barkReliefVal"></output></label><input id="barkRelief" type="range" min="0" max="100" value="55"></div><div class="section"><h2>Raízes</h2><label for="rootCount">Quantidade<output id="rootCountVal"></output></label><input id="rootCount" type="range" min="3" max="18" value="8"><label for="rootLength">Alcance<output id="rootLengthVal"></output></label><input id="rootLength" type="range" min="30" max="220" value="100"><label for="rootLift">Arqueamento<output id="rootLiftVal"></output></label><input id="rootLift" type="range" min="0" max="140" value="25"></div></div><div id="pane-appearance" role="tabpanel" aria-labelledby="tab-appearance" hidden><div class="section"><h2>Superfície</h2><div class="color-row"><label for="leaf">Folhagem</label><input type="color" id="leaf" value="#dfc34b"></div><div class="color-row"><label for="bark">Madeira</label><input type="color" id="bark" value="#756049"></div></div></div></div><div id="assetPanel" hidden><div class="section"><h2>Modelo</h2><label for="assetPreset">Variação</label><select id="assetPreset"></select></div><div class="section"><h2>Geometria</h2><label for="assetAmount">Quantidade<output id="assetAmountVal"></output></label><input type="range" id="assetAmount" min="1" max="260" value="1"><label for="assetSize">Escala<output id="assetSizeVal"></output></label><input type="range" id="assetSize" min="5" max="240" value="100"><label for="assetArea">Área de distribuição<output id="assetAreaVal"></output></label><input type="range" id="assetArea" min="40" max="1000" value="280"><label for="assetVertical">Altura / proporção<output id="assetVerticalVal"></output></label><input type="range" id="assetVertical" min="20" max="240" value="100"><label for="assetDetail">Irregularidade<output id="assetDetailVal"></output></label><input type="range" id="assetDetail" min="0" max="100" value="55"></div><div class="section"><h2>Variação</h2><label for="assetSeed">Semente</label><input id="assetSeed" type="number" value="7341" min="1" max="999999"></div><div id="landformOptions" class="section" hidden><h2>Formação do relevo</h2><p class="quiet-note">Relevo procedural com erosão, sedimentos e materiais por altitude e inclinação. A semente reproduz a mesma paisagem.</p>
+.finish-group{border-top:1px solid #34373d;padding-top:18px;margin-top:22px}.finish-group summary{font-size:11px;font-weight:600;color:#c0c8d4;cursor:pointer;margin-bottom:12px}.finish-group[open] summary{margin-bottom:18px}#finishingPanel{padding-bottom:8px}#addCurrentToScene{white-space:nowrap;padding:0 9px}#scenePanel .scene-add{margin-top:16px}#scenePanel .section{padding-top:20px}#scenePanel .xyz-fields label{font-size:10px}#scenePanel .xyz-fields input{height:31px}#sceneList .scene-row button{overflow:hidden}#sceneList .scene-row button.active{border-color:#b4c8e7;background:#364253}#sceneList .scene-row small{color:#8c9cb0}#scenePanel .scene-actions button:disabled{opacity:.35;cursor:default}#gizmoModes button[aria-pressed="true"]{background:#526582;border-color:#9bb4d3;color:#fff}#sceneGizmo{display:block;pointer-events:none;overflow:visible;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;z-index:20!important}#sceneGizmo[hidden]{display:none!important}#sceneGizmo .gizmo-hit{pointer-events:stroke;cursor:grab;stroke:transparent;stroke-width:13;fill:none}#sceneGizmo .gizmo-hit:active{cursor:grabbing}#sceneGizmo .gizmo-handle{pointer-events:all;cursor:grab}#sceneGizmo .gizmo-handle:active{cursor:grabbing}#sceneGizmo .gizmo-marker{pointer-events:none;font:600 10px Arial,sans-serif;paint-order:stroke;stroke:#111820;stroke-width:2px}</style></head><body><nav id="generatorTabs" role="tablist" aria-label="Geradores de ambiente"></nav><main><aside id="controls" aria-label="Controles do modelo"><div class="panel-top"><span id="panelTitle">Árvores</span><button id="generate" class="icon-button" title="Gerar nova variação" aria-label="Gerar nova variação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"/></svg></button></div><div class="library-entry" id="treeLibraryEntry"><button class="species-toggle" id="speciesToggle" aria-expanded="false" aria-controls="speciesMenu"><span><small>Biblioteca</small><b id="chosen">Ipê-amarelo</b></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div><nav id="treeConfigTabs" class="tabs" aria-label="Configurações" role="tablist"><button id="tab-model" data-tab="model" role="tab" aria-selected="true" aria-controls="pane-model">Modelo</button><button id="tab-structure" data-tab="structure" role="tab" aria-selected="false" aria-controls="pane-structure">Estrutura</button><button id="tab-appearance" data-tab="appearance" role="tab" aria-selected="false" aria-controls="pane-appearance">Aparência</button></nav><div class="panel-scroll"><div class="section" id="meshQuality"><h2>Detalhamento</h2><label for="quality">Resolução da malha</label><select id="quality"><option value="1">Econômico</option><option value="1.6" selected>Realista · equilibrado</option><option value="2.4">Ultra · mais geometria</option></select></div><div id="treePanels"><div id="pane-model" role="tabpanel" aria-labelledby="tab-model"><div class="section"><h2>Composição</h2><label for="mode">Componentes</label><select id="mode"><option value="full">Árvore completa</option><option value="bare">Árvore sem folhagem</option><option value="log">Tronco caído</option></select><label class="check"><input id="dead" type="checkbox">Madeira morta</label><label class="check"><input id="rootsEnabled" type="checkbox" checked>Raízes expostas</label></div><div class="section"><h2>Crescimento</h2><label for="height">Altura<output id="heightVal"></output></label><input id="height" type="range" min="65" max="140" value="100"><label for="depth">Ramificação<output id="depthVal"></output></label><input id="depth" type="range" min="3" max="6" value="5"><label for="spread">Abertura<output id="spreadVal"></output></label><input id="spread" type="range" min="25" max="95" value="65"><label for="foliage">Folhagem<output id="foliageVal"></output></label><input id="foliage" type="range" min="0" max="140" value="90"></div><div class="section"><h2>Variação</h2><label for="seedInput">Semente</label><input class="seed-input" id="seedInput" type="number" min="1" max="999999" value="7341"></div></div><div id="pane-structure" role="tabpanel" aria-labelledby="tab-structure" hidden><div class="section"><h2>Madeira</h2><label for="thickness">Espessura<output id="thicknessVal"></output></label><input id="thickness" type="range" min="40" max="250" value="100"><label for="twist">Torção<output id="twistVal"></output></label><input id="twist" type="range" min="0" max="150" value="25"><label for="barkRelief">Relevo da casca<output id="barkReliefVal"></output></label><input id="barkRelief" type="range" min="0" max="100" value="55"></div><div class="section"><h2>Raízes</h2><label for="rootCount">Quantidade<output id="rootCountVal"></output></label><input id="rootCount" type="range" min="3" max="18" value="8"><label for="rootLength">Alcance<output id="rootLengthVal"></output></label><input id="rootLength" type="range" min="30" max="220" value="100"><label for="rootLift">Arqueamento<output id="rootLiftVal"></output></label><input id="rootLift" type="range" min="0" max="140" value="25"></div></div><div id="pane-appearance" role="tabpanel" aria-labelledby="tab-appearance" hidden><div class="section"><h2>Superfície</h2><div class="color-row"><label for="leaf">Folhagem</label><input type="color" id="leaf" value="#dfc34b"></div><div class="color-row"><label for="bark">Madeira</label><input type="color" id="bark" value="#756049"></div></div></div></div><div id="assetPanel" hidden><div class="section"><h2>Modelo</h2><label for="assetPreset">Variação</label><select id="assetPreset"></select></div><div class="section"><h2>Geometria</h2><label for="assetAmount">Quantidade<output id="assetAmountVal"></output></label><input type="range" id="assetAmount" min="1" max="260" value="1"><label for="assetSize">Escala<output id="assetSizeVal"></output></label><input type="range" id="assetSize" min="5" max="240" value="100"><label for="assetArea">Área de distribuição<output id="assetAreaVal"></output></label><input type="range" id="assetArea" min="40" max="1000" value="280"><label for="assetVertical">Altura / proporção<output id="assetVerticalVal"></output></label><input type="range" id="assetVertical" min="20" max="240" value="100"><label for="assetDetail">Irregularidade<output id="assetDetailVal"></output></label><input type="range" id="assetDetail" min="0" max="100" value="55"></div><div class="section"><h2>Variação</h2><label for="assetSeed">Semente</label><input id="assetSeed" type="number" value="7341" min="1" max="999999"></div><div id="landformOptions" class="section" hidden><h2>Formação do relevo</h2><p class="quiet-note">Relevo procedural com erosão, sedimentos e materiais por altitude e inclinação. A semente reproduz a mesma paisagem.</p>
 <label for="landErosion">Erosão<output id="landErosionVal"></output></label><input id="landErosion" type="range" min="0" max="100" value="45">
 <label for="landSediment">Sedimentação<output id="landSedimentVal"></output></label><input id="landSediment" type="range" min="0" max="100" value="40">
 <label for="landStrata">Camadas geológicas<output id="landStrataVal"></output></label><input id="landStrata" type="range" min="0" max="100" value="35">
 <label for="landSnow">Cobertura de neve<output id="landSnowVal"></output></label><input id="landSnow" type="range" min="0" max="100" value="0">
-<label class="check"><input id="landWater" type="checkbox">Adicionar água nas áreas baixas</label>
-<label for="landWaterLevel">Nível da água<output id="landWaterLevelVal"></output></label><input id="landWaterLevel" type="range" min="0" max="65" value="22">
-<p class="quiet-note">Use a qualidade Ultra para mais geometria. Água animada na prévia; superfície estática no GLB.</p></div><div id="waterOptions" class="section" hidden><h2>Superfície</h2><label for="assetWaves">Ondulação<output id="assetWavesVal"></output></label><input type="range" id="assetWaves" min="0" max="100" value="45"><p id="waterNote" class="quiet-note">Água em movimento na prévia. O GLB exporta a superfície estática.</p></div><div class="section"><h2>Material</h2><div class="color-row"><label for="assetColor">Cor principal</label><input type="color" id="assetColor" value="#888888"></div></div></div><div id="finishingPanel"><details class="finish-group" open><summary>Superfície</summary><label for="surfaceDetail">Micro-relevo<output id="surfaceDetailVal"></output></label><input id="surfaceDetail" type="range" min="0" max="100" value="70"><label for="surfaceRoughness">Rugosidade<output id="surfaceRoughnessVal"></output></label><input id="surfaceRoughness" type="range" min="5" max="100" value="82"><label for="surfaceVariation">Variação tonal<output id="surfaceVariationVal"></output></label><input id="surfaceVariation" type="range" min="0" max="100" value="35"><label for="surfaceWeather">Desgaste<output id="surfaceWeatherVal"></output></label><input id="surfaceWeather" type="range" min="0" max="100" value="25"></details><details class="finish-group" open><summary>Iluminação</summary><label for="environment">Ambiente</label><select id="environment"><option value="0">Natural</option><option value="1">Entardecer</option><option value="2">Lua / terror</option><option value="3">Estúdio neutro</option></select><label for="lightIntensity">Intensidade<output id="lightIntensityVal"></output></label><input id="lightIntensity" type="range" min="10" max="240" value="100"><label for="lightAzimuth">Direção<output id="lightAzimuthVal"></output></label><input id="lightAzimuth" type="range" min="-180" max="180" value="-35"><label for="lightElevation">Elevação<output id="lightElevationVal"></output></label><input id="lightElevation" type="range" min="5" max="85" value="45"><label for="lightAmbient">Luz ambiente<output id="lightAmbientVal"></output></label><input id="lightAmbient" type="range" min="5" max="100" value="38"></details></div></div><div class="panel-footer"><div class="export-row"><button id="exportGlb" class="export-primary">Exportar GLB <span>↗</span></button><button id="download" hidden aria-hidden="true" tabindex="-1">PNG</button></div><div id="status" role="status"></div></div></aside><section class="viewport" aria-label="Visualização 3D"><canvas id="scene" aria-label="Modelo 3D. Arraste para girar, Shift e arraste para mover, role para aproximar." tabindex="0"></canvas></section><button id="panelToggle" class="floating icon-button" title="Mostrar ou ocultar controles" aria-label="Mostrar ou ocultar controles" aria-expanded="true" aria-controls="controls"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button><div class="view-tools"><button id="rotate" class="icon-button" aria-pressed="true" title="Rotação automática" aria-label="Rotação automática">Ⅱ</button><button id="reset" class="icon-button" title="Centralizar câmera" aria-label="Centralizar câmera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></button></div></main><div id="speciesMenu" class="library-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="libraryTitle"><div class="library-dialog"><div class="dialog-header"><h2 id="libraryTitle">Biblioteca <span>49</span></h2><button id="libraryClose" class="icon-button" title="Fechar biblioteca" aria-label="Fechar biblioteca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="library-filters"><div class="search-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input id="librarySearch" placeholder="Buscar modelo…" aria-label="Buscar na biblioteca" autocomplete="off"></div><select id="libraryCategory" aria-label="Categoria"><option value="">Todas as categorias</option><option>Espécies & paisagens</option><option>Coníferas</option><option>Tropicais & raízes</option><option>Árvores mortas</option><option>Terror & fantasia</option><option>Troncos & fragmentos</option></select></div><div id="libraryList"></div></div></div><span id="treeName" hidden></span><span id="seedLabel" hidden></span><span id="presetDetail" hidden></span><script>
+<label class="check" hidden><input id="landWater" type="checkbox">Adicionar água nas áreas baixas</label>
+<label for="landWaterLevel" hidden>Nível da água<output id="landWaterLevelVal"></output></label><input id="landWaterLevel" hidden type="range" min="0" max="65" value="22">
+<p class="quiet-note">Use a qualidade Ultra para mais geometria. Montanhas isoladas e terrenos sem água.</p></div><div id="tunnelBendOptions" class="section" hidden><h2>Curvatura 360°</h2><p class="quiet-note">Tubo fechado em toda a circunferência, com as duas extremidades abertas e sem plano inferior.</p><label for="tunnelLength">Comprimento do túnel<output id="tunnelLengthVal">100%</output></label><input id="tunnelLength" type="range" min="25" max="500" step="5" value="100"><label for="tunnelCurve">Curvar túnel<output id="tunnelCurveVal">0°</output></label><input id="tunnelCurve" type="range" min="-170" max="170" step="1" value="0"><label for="tunnelDirection">Direção da curva<output id="tunnelDirectionVal">0°</output></label><input id="tunnelDirection" type="range" min="-180" max="180" step="1" value="0"><p class="quiet-note">Curvatura positiva ou negativa; direção 0° = esquerda/direita, ±90° = cima/baixo. A geometria curvada também é exportada.</p></div><div id="waterOptions" class="section" hidden><h2>Superfície</h2><label for="lakeDepth">Profundidade da água<output id="lakeDepthVal">100%</output></label><input type="range" id="lakeDepth" min="15" max="300" value="100"><label for="lakeBank">Largura das beiradas<output id="lakeBankVal">50%</output></label><input type="range" id="lakeBank" min="10" max="150" value="50"><p class="quiet-note" id="lakeNote">Beiradas naturais para todas as águas, com profundidade ajustável e sem terreno quadrado.</p><label for="assetWaves">Ondulação<output id="assetWavesVal"></output></label><input type="range" id="assetWaves" min="0" max="100" value="45"><p id="waterNote" class="quiet-note">Água em movimento na prévia. O GLB exporta a superfície estática.</p></div><div class="section"><h2>Material</h2><div class="color-row"><label for="assetColor">Cor principal</label><input type="color" id="assetColor" value="#888888"></div></div></div><div id="scenePanel" hidden>
+<div class="section"><h2>Montagem do cenário completo</h2><p class="quiet-note">Escolha e configure um modelo na aba correspondente e clique em <b>Adicionar ao cenário</b>, ao lado de Exportar GLB. Os objetos ficam reunidos aqui para posicionamento e exportação em um único arquivo GLB.</p></div>
+<div class="section"><h2>Objetos do cenário <output id="sceneCount">0</output></h2><div id="sceneList"></div><div class="scene-actions"><button id="sceneDuplicate">Duplicar</button><button id="sceneRemove">Excluir</button></div></div>
+<div id="sceneTransform" class="section" hidden><h2>Gizmos de transformação</h2>
+<div class="scene-actions" id="gizmoModes" role="group" aria-label="Ferramentas do objeto"><button type="button" data-gizmo-mode="move" aria-pressed="true">Mover (G)</button><button type="button" data-gizmo-mode="rotate" aria-pressed="false">Girar (R)</button><button type="button" data-gizmo-mode="scale" aria-pressed="false">Escalar (S)</button></div>
+<label for="sceneSizeSlider">Tamanho do objeto <output id="sceneSizeValue">100%</output></label><input id="sceneSizeSlider" type="range" min="5" max="500" value="100" step="5"><p class="quiet-note">O controle de tamanho aumenta ou diminui o objeto inteiro, mantendo suas proporções.</p>
+<p class="quiet-note">Arraste os eixos coloridos no objeto: vermelho X, verde Y, azul Z. Na escala, segure <b>Shift</b> para aumentar ou diminuir tudo uniformemente. Arraste fora das alças para orbitar a câmera.</p>
+<button class="scene-add" id="sceneZero">Centralizar objeto</button></div>
+<div class="section"><h2>Arquivos do cenário</h2><button class="scene-add" id="sceneSaveProject">Salvar projeto editável no disco</button><button class="scene-add" id="sceneOpenProject">Abrir projeto ou GLB</button><input id="sceneProjectInput" type="file" accept=".n3d,.json,.gz,.glb" hidden><p class="quiet-note">O projeto preserva objetos, posições e geometria. No Chrome, use Exportar GLB para escolher onde salvar o conjunto diretamente no disco.</p><button class="scene-add" id="sceneClear">Limpar cenário</button><p class="quiet-note">O botão Exportar GLB salva <b>todo o conjunto</b> como um único arquivo, como um único objeto 3D, preservando materiais diferentes.</p></div></div><div id="finishingPanel"><details class="finish-group" open><summary>Superfície</summary><label for="surfaceDetail">Micro-relevo<output id="surfaceDetailVal"></output></label><input id="surfaceDetail" type="range" min="0" max="100" value="70"><label for="surfaceRoughness">Rugosidade<output id="surfaceRoughnessVal"></output></label><input id="surfaceRoughness" type="range" min="5" max="100" value="82"><label for="surfaceVariation">Variação tonal<output id="surfaceVariationVal"></output></label><input id="surfaceVariation" type="range" min="0" max="100" value="35"><label for="surfaceWeather">Desgaste<output id="surfaceWeatherVal"></output></label><input id="surfaceWeather" type="range" min="0" max="100" value="25"></details><details class="finish-group" open><summary>Iluminação</summary><label for="environment">Ambiente</label><select id="environment"><option value="0">Natural</option><option value="1">Entardecer</option><option value="2">Lua / terror</option><option value="3">Estúdio neutro</option></select><label for="lightIntensity">Intensidade<output id="lightIntensityVal"></output></label><input id="lightIntensity" type="range" min="10" max="240" value="100"><label for="lightAzimuth">Direção<output id="lightAzimuthVal"></output></label><input id="lightAzimuth" type="range" min="-180" max="180" value="-35"><label for="lightElevation">Elevação<output id="lightElevationVal"></output></label><input id="lightElevation" type="range" min="5" max="85" value="45"><label for="lightAmbient">Luz ambiente<output id="lightAmbientVal"></output></label><input id="lightAmbient" type="range" min="5" max="100" value="38"></details></div></div><div class="panel-footer"><div class="export-row"><button id="exportGlb" class="export-primary">Exportar GLB <span>↗</span></button><button id="addCurrentToScene" class="export-secondary" type="button">+ Adicionar ao cenário</button><button id="download" hidden aria-hidden="true" tabindex="-1">PNG</button></div><div id="status" role="status"></div></div></aside><section class="viewport" aria-label="Visualização 3D"><canvas id="scene" aria-label="Modelo 3D. Arraste para girar, Shift e arraste para mover, role para aproximar." tabindex="0"></canvas><svg id="sceneGizmo" aria-label="Manipulador 3D" style="position:absolute;inset:0;width:100%;height:100%;z-index:3;overflow:visible;pointer-events:none" hidden></svg></section><button id="panelToggle" class="floating icon-button" title="Mostrar ou ocultar controles" aria-label="Mostrar ou ocultar controles" aria-expanded="true" aria-controls="controls"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button><div class="view-tools"><button id="rotate" class="icon-button" aria-pressed="true" title="Rotação automática" aria-label="Rotação automática">Ⅱ</button><button id="reset" class="icon-button" title="Centralizar câmera" aria-label="Centralizar câmera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></button></div></main><div id="speciesMenu" class="library-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="libraryTitle"><div class="library-dialog"><div class="dialog-header"><h2 id="libraryTitle">Biblioteca <span>49</span></h2><button id="libraryClose" class="icon-button" title="Fechar biblioteca" aria-label="Fechar biblioteca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="library-filters"><div class="search-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input id="librarySearch" placeholder="Buscar modelo…" aria-label="Buscar na biblioteca" autocomplete="off"></div><select id="libraryCategory" aria-label="Categoria"><option value="">Todas as categorias</option><option>Espécies & paisagens</option><option>Coníferas</option><option>Tropicais & raízes</option><option>Árvores mortas</option><option>Terror & fantasia</option><option>Troncos & fragmentos</option></select></div><div id="libraryList"></div></div></div><span id="treeName" hidden></span><span id="seedLabel" hidden></span><span id="presetDetail" hidden></span><script>
 const $=id=>document.getElementById(id),species=[{"name": "Ipê-amarelo", "latin": "Modelo procedural · round", "color": "#d7b934", "bark": "#76604a", "height": 100, "spread": 65, "depth": 5, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "flower": true, "desc": "Copa aberta com florações amarelas e ramificação irregular."}, {"name": "Ipê-roxo", "latin": "Modelo procedural · round", "color": "#ab75be", "bark": "#76604a", "height": 100, "spread": 75, "depth": 5, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "flower": true}, {"name": "Ipê-branco", "latin": "Modelo procedural · round", "color": "#e9e9d7", "bark": "#76604a", "height": 100, "spread": 70, "depth": 5, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "flower": true}, {"name": "Jacarandá", "latin": "Modelo procedural · round", "color": "#9c85c8", "bark": "#76604a", "height": 110, "spread": 85, "depth": 5, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "flower": true}, {"name": "Cerejeira", "latin": "Modelo procedural · round", "color": "#e5a8ba", "bark": "#76604a", "height": 85, "spread": 80, "depth": 5, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 40, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "flower": true}, {"name": "Carvalho", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 85, "depth": 6, "foliage": 120, "type": "round", "category": "Espécies & paisagens", "thickness": 140, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Bétula", "latin": "Modelo procedural · birch", "color": "#648343", "bark": "#d1ceba", "height": 125, "spread": 45, "depth": 5, "foliage": 75, "type": "birch", "category": "Espécies & paisagens", "thickness": 65, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 20, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Bordo de outono", "latin": "Modelo procedural · round", "color": "#c36a36", "bark": "#76604a", "height": 100, "spread": 75, "depth": 5, "foliage": 120, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Bordo vermelho", "latin": "Modelo procedural · round", "color": "#a63e34", "bark": "#76604a", "height": 100, "spread": 75, "depth": 5, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Faia", "latin": "Modelo procedural · round", "color": "#719050", "bark": "#76604a", "height": 115, "spread": 70, "depth": 5, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Oliveira", "latin": "Modelo procedural · round", "color": "#869279", "bark": "#887e61", "height": 70, "spread": 90, "depth": 5, "foliage": 65, "type": "round", "category": "Espécies & paisagens", "thickness": 160, "twist": 70, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Salgueiro-chorão", "latin": "Modelo procedural · willow", "color": "#7d984e", "bark": "#76604a", "height": 100, "spread": 95, "depth": 5, "foliage": 120, "type": "willow", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "desc": "Ramos pendentes com cortinas de pequenas folhas."}, {"name": "Eucalipto", "latin": "Modelo procedural · eucalyptus", "color": "#819c8a", "bark": "#b5a38c", "height": 140, "spread": 45, "depth": 5, "foliage": 60, "type": "eucalyptus", "category": "Espécies & paisagens", "thickness": 80, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Acácia", "latin": "Modelo procedural · acacia", "color": "#798b45", "bark": "#76604a", "height": 85, "spread": 95, "depth": 5, "foliage": 90, "type": "acacia", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "desc": "Ramificação aberta com copa achatada e assimétrica."}, {"name": "Flamboyant", "latin": "Modelo procedural · acacia", "color": "#cc5638", "bark": "#76604a", "height": 80, "spread": 95, "depth": 5, "foliage": 100, "type": "acacia", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "flower": true}, {"name": "Magnólia", "latin": "Modelo procedural · round", "color": "#e4cfc3", "bark": "#76604a", "height": 85, "spread": 70, "depth": 5, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "flower": true}, {"name": "Ginkgo", "latin": "Modelo procedural · round", "color": "#d4ba42", "bark": "#76604a", "height": 115, "spread": 55, "depth": 5, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Castanheira", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#76604a", "height": 130, "spread": 85, "depth": 6, "foliage": 100, "type": "round", "category": "Espécies & paisagens", "thickness": 160, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Pinheiro", "latin": "Modelo procedural · pine", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 65, "depth": 5, "foliage": 100, "type": "pine", "category": "Coníferas", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Abeto", "latin": "Modelo procedural · pine", "color": "#3b6954", "bark": "#76604a", "height": 100, "spread": 65, "depth": 5, "foliage": 100, "type": "pine", "category": "Coníferas", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Pícea-azul", "latin": "Modelo procedural · pine", "color": "#7b9d9a", "bark": "#76604a", "height": 100, "spread": 55, "depth": 5, "foliage": 100, "type": "pine", "category": "Coníferas", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Cedro", "latin": "Modelo procedural · pine", "color": "#55735d", "bark": "#76604a", "height": 100, "spread": 80, "depth": 5, "foliage": 100, "type": "pine", "category": "Coníferas", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Cipreste", "latin": "Modelo procedural · pine", "color": "#4d7045", "bark": "#76604a", "height": 140, "spread": 23, "depth": 5, "foliage": 100, "type": "pine", "category": "Coníferas", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Sequoia", "latin": "Modelo procedural · pine", "color": "#648343", "bark": "#8c5843", "height": 140, "spread": 50, "depth": 5, "foliage": 100, "type": "pine", "category": "Coníferas", "thickness": 220, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Pinheiro seco", "latin": "Modelo procedural · pine", "color": "#706a54", "bark": "#76604a", "height": 100, "spread": 65, "depth": 5, "foliage": 0, "type": "pine", "category": "Coníferas", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Araucária", "latin": "Modelo procedural · araucaria", "color": "#45664b", "bark": "#76604a", "height": 130, "spread": 85, "depth": 5, "foliage": 100, "type": "araucaria", "category": "Coníferas", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "desc": "Tronco alto com verticilos e copa elevada em guarda-chuva."}, {"name": "Baobá", "latin": "Modelo procedural · baobab", "color": "#648343", "bark": "#9b8264", "height": 85, "spread": 90, "depth": 5, "foliage": 75, "type": "baobab", "category": "Tropicais & raízes", "thickness": 180, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Mangue-vermelho", "latin": "Modelo procedural · mangrove", "color": "#648343", "bark": "#76604a", "height": 90, "spread": 65, "depth": 5, "foliage": 100, "type": "mangrove", "category": "Tropicais & raízes", "thickness": 100, "twist": 25, "rootCount": 14, "rootLength": 150, "rootLift": 120, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "desc": "Raízes-escora arqueadas ao redor do tronco."}, {"name": "Figueira-banyan", "latin": "Modelo procedural · banyan", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 95, "depth": 5, "foliage": 100, "type": "banyan", "category": "Tropicais & raízes", "thickness": 160, "twist": 25, "rootCount": 14, "rootLength": 170, "rootLift": 50, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "desc": "Copa ampla e raízes aéreas que descem dos galhos."}, {"name": "Coqueiro", "latin": "Modelo procedural · palm", "color": "#598b46", "bark": "#9a8870", "height": 130, "spread": 90, "depth": 5, "foliage": 100, "type": "palm", "category": "Tropicais & raízes", "thickness": 80, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true, "desc": "Tronco curvo com frondes de folíolos individuais."}, {"name": "Palmeira-real", "latin": "Modelo procedural · palm", "color": "#528647", "bark": "#76604a", "height": 140, "spread": 65, "depth": 5, "foliage": 100, "type": "palm", "category": "Tropicais & raízes", "thickness": 90, "twist": 5, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Jabuticabeira", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#ab9474", "height": 75, "spread": 80, "depth": 5, "foliage": 100, "type": "round", "category": "Tropicais & raízes", "thickness": 100, "twist": 55, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Seringueira", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#76604a", "height": 125, "spread": 85, "depth": 5, "foliage": 100, "type": "round", "category": "Tropicais & raízes", "thickness": 150, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": false, "rootsEnabled": true}, {"name": "Carvalho morto", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 90, "depth": 5, "foliage": 0, "type": "round", "category": "Árvores mortas", "thickness": 150, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Árvore ressecada", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 65, "depth": 6, "foliage": 0, "type": "round", "category": "Árvores mortas", "thickness": 70, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Árvore queimada", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#292a28", "height": 100, "spread": 65, "depth": 5, "foliage": 0, "type": "round", "category": "Árvores mortas", "thickness": 100, "twist": 70, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 95, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Tronco partido por raio", "latin": "Modelo procedural · snag", "color": "#648343", "bark": "#76604a", "height": 120, "spread": 65, "depth": 5, "foliage": 0, "type": "snag", "category": "Árvores mortas", "thickness": 160, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Salgueiro morto", "latin": "Modelo procedural · willow", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 95, "depth": 5, "foliage": 0, "type": "willow", "category": "Árvores mortas", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Árvore de inverno", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#8b8278", "height": 100, "spread": 80, "depth": 6, "foliage": 0, "type": "round", "category": "Árvores mortas", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Madeira esbranquiçada", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#b3ad97", "height": 100, "spread": 65, "depth": 5, "foliage": 0, "type": "round", "category": "Árvores mortas", "thickness": 130, "twist": 75, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Árvore da bruxa", "latin": "Modelo procedural · haunted", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 95, "depth": 6, "foliage": 0, "type": "haunted", "category": "Terror & fantasia", "thickness": 150, "twist": 125, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 90, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Carvalho assombrado", "latin": "Modelo procedural · haunted", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 95, "depth": 5, "foliage": 0, "type": "haunted", "category": "Terror & fantasia", "thickness": 200, "twist": 95, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 90, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Garras da floresta", "latin": "Modelo procedural · haunted", "color": "#648343", "bark": "#76604a", "height": 120, "spread": 90, "depth": 5, "foliage": 0, "type": "haunted", "category": "Terror & fantasia", "thickness": 100, "twist": 145, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 90, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Árvore do pântano", "latin": "Modelo procedural · mangrove", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 65, "depth": 5, "foliage": 0, "type": "mangrove", "category": "Terror & fantasia", "thickness": 100, "twist": 90, "rootCount": 16, "rootLength": 180, "rootLift": 140, "barkRelief": 90, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Floresta amaldiçoada", "latin": "Modelo procedural · haunted", "color": "#648343", "bark": "#76604a", "height": 125, "spread": 70, "depth": 6, "foliage": 0, "type": "haunted", "category": "Terror & fantasia", "thickness": 100, "twist": 130, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 90, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Árvore de ossos", "latin": "Modelo procedural · haunted", "color": "#648343", "bark": "#bdb6a4", "height": 100, "spread": 95, "depth": 5, "foliage": 0, "type": "haunted", "category": "Terror & fantasia", "thickness": 130, "twist": 120, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 90, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Monólito carbonizado", "latin": "Modelo procedural · snag", "color": "#648343", "bark": "#242925", "height": 100, "spread": 65, "depth": 5, "foliage": 0, "type": "snag", "category": "Terror & fantasia", "thickness": 220, "twist": 65, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 90, "mode": "full", "dead": true, "rootsEnabled": true}, {"name": "Tronco caído", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#76604a", "height": 100, "spread": 65, "depth": 5, "foliage": 0, "type": "round", "category": "Troncos & fragmentos", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 55, "mode": "log", "dead": false, "rootsEnabled": true}, {"name": "Tronco caído queimado", "latin": "Modelo procedural · round", "color": "#648343", "bark": "#34332e", "height": 100, "spread": 65, "depth": 5, "foliage": 0, "type": "round", "category": "Troncos & fragmentos", "thickness": 100, "twist": 25, "rootCount": 8, "rootLength": 100, "rootLift": 20, "barkRelief": 95, "mode": "log", "dead": true, "rootsEnabled": true}];
 let current=species[0],seed=7341,random,faces=[],yaw=.5,pitch=.12,zoom=1,auto=true,drag=null,panX=0,panY=0;
 const canvas=$('scene'),gl=canvas.getContext('webgl',{antialias:true,preserveDrawingBuffer:false,powerPreference:'high-performance',alpha:true});let W=0,H=0,vertexCount=0,modelCenter=[0,2.65,0],modelScale=1,part='Tronco',leafSerial=0;
 if(!gl)throw new Error('Seu navegador precisa de WebGL para exibir a árvore.');
 function shader(type,source){const sh=gl.createShader(type);gl.shaderSource(sh,source);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh}
-gl.getExtension('OES_standard_derivatives');const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,`attribute vec3 position,normal,color;attribute float kind;attribute vec2 uv;uniform float yaw,pitch,aspect,zoom;uniform vec3 center;uniform float fit;uniform float time,relief;uniform vec2 pan;varying vec3 N,C,P;varying float K;varying vec2 UV;varying vec3 shadowCoord;uniform vec3 shadowRight,shadowUp,shadowForward;void main(){UV=uv;P=position;N=normal;C=color;K=kind;vec3 rendered=position;if(kind>3.5&&kind<4.5)rendered.y+=sin(position.x*7.+position.z*4.+time*.9)*.012*relief;vec3 local=(rendered-center)*fit;shadowCoord=vec3(dot(local,shadowRight)/8.+.5,dot(local,shadowUp)/8.+.5,dot(local,shadowForward)/12.+.5);float cy=cos(yaw),sy=sin(yaw),cp=cos(pitch),sp=sin(pitch);vec3 p=vec3(local.x*cy+local.z*sy,local.y,-local.x*sy+local.z*cy);p.yz=mat2(cp,sp,-sp,cp)*p.yz;float z=9.0+p.z;float scale=2.65*zoom;gl_Position=vec4(p.x*scale/aspect+pan.x*z,p.y*scale+pan.y*z,z*.999-0.2,z);}`));
+gl.getExtension('OES_standard_derivatives');const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,`attribute vec3 position,normal,color;attribute float kind,objectIndex;attribute vec2 uv;uniform float editObject;uniform mat4 editMatrix;uniform float yaw,pitch,aspect,zoom;uniform vec3 center;uniform float fit;uniform float time,relief;uniform vec2 pan;varying vec3 N,C,P;varying float K;varying vec2 UV;varying vec3 shadowCoord;uniform vec3 shadowRight,shadowUp,shadowForward;void main(){UV=uv;vec3 pos=position;vec3 normalEdited=normal;if(editObject>=0.&&abs(objectIndex-editObject)<.5){pos=(editMatrix*vec4(position,1.)).xyz;normalEdited=normalize(mat3(editMatrix)*normal);}P=pos;N=normalEdited;C=color;K=kind;vec3 rendered=pos;if(kind>3.5&&kind<4.5)rendered.y+=sin(pos.x*7.+pos.z*4.+time*.9)*.012*relief;vec3 local=(rendered-center)*fit;shadowCoord=vec3(dot(local,shadowRight)/8.+.5,dot(local,shadowUp)/8.+.5,dot(local,shadowForward)/12.+.5);float cy=cos(yaw),sy=sin(yaw),cp=cos(pitch),sp=sin(pitch);vec3 p=vec3(local.x*cy+local.z*sy,local.y,-local.x*sy+local.z*cy);p.yz=mat2(cp,sp,-sp,cp)*p.yz;float z=9.0+p.z;float scale=2.65*zoom;gl_Position=vec4(p.x*scale/aspect+pan.x*z,p.y*scale+pan.y*z,z*.999-0.2,z);}`));
 gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`#extension GL_OES_standard_derivatives : enable
 precision highp float;
 uniform sampler2D barkMap,barkNormal,shadowMap;
@@ -47,7 +55,7 @@ void main(){
  if(K>3.5&&K<4.5){vec3 wn=normalize(n+vec3(cos(P.x*9.+P.z*4.+time)*.12,0.,sin(P.z*11.-time*.8)*.10)*(.2+relief*1.4));float fresnel=pow(1.-max(.0,dot(wn,V)),4.),glint=pow(max(0.,dot(reflect(-L,wn),V)),90.);col=base*(ambientStrength*.6+ndl*.55*keyIntensity)+vec3(.11,.16,.20)*(.4+fresnel)+sun*glint*.45*keyIntensity;if(abs(N.y)<.4){float streak=noise3(vec3(P.x*28.,P.y*2.-time*1.8,P.z*7.));col=mix(col,vec3(.67,.79,.81),smoothstep(.65,.94,streak)*.45);}}
  col=max(col,vec3(0.));col=(col*(2.51*col+.03))/(col*(2.43*col+.59)+.14);col=pow(clamp(col,0.,1.),vec3(1./2.2));gl_FragColor=vec4(col,(K>3.5&&K<4.5)?.88:((K>7.5&&K<8.5)?.78:1.));
 }
-`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);const uniformLocations=new Map();function uniform(name){if(!uniformLocations.has(name))uniformLocations.set(name,gl.getUniformLocation(program,name));return uniformLocations.get(name)}const gpuBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,gpuBuffer);for(const [name,size,offset]of [['position',3,0],['normal',3,12],['color',3,24],['kind',1,36],['uv',2,40]]){let loc=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,48,offset)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.disable(gl.CULL_FACE);
+`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);const uniformLocations=new Map();function uniform(name){if(!uniformLocations.has(name))uniformLocations.set(name,gl.getUniformLocation(program,name));return uniformLocations.get(name)}const gpuBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,gpuBuffer);for(const [name,size,offset]of [['position',3,0],['normal',3,12],['color',3,24],['kind',1,36],['uv',2,40],['objectIndex',1,48]]){let loc=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,52,offset)}gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.disable(gl.CULL_FACE);
 
 // One shared vertex buffer, one cached shadow pass, no postprocessing framebuffer chain.
 const shadowProgram=gl.createProgram();
@@ -56,11 +64,11 @@ gl.attachShader(shadowProgram,shader(gl.FRAGMENT_SHADER,`precision highp float;v
 const shadowTexture=gl.createTexture();gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,shadowTexture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1024,1024,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
 const shadowFramebuffer=gl.createFramebuffer(),shadowDepth=gl.createRenderbuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,shadowFramebuffer);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,shadowTexture,0);gl.bindRenderbuffer(gl.RENDERBUFFER,shadowDepth);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,1024,1024);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,shadowDepth);const shadowsAvailable=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;gl.bindFramebuffer(gl.FRAMEBUFFER,null);
 let shadowDirty=true,shadowKey='';
-function bindMainAttributes(){gl.bindBuffer(gl.ARRAY_BUFFER,gpuBuffer);for(const [name,size,offset]of [['position',3,0],['normal',3,12],['color',3,24],['kind',1,36],['uv',2,40]]){const loc=gl.getAttribLocation(program,name);if(loc>=0){gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,48,offset)}}}
+function bindMainAttributes(){gl.bindBuffer(gl.ARRAY_BUFFER,gpuBuffer);for(const [name,size,offset]of [['position',3,0],['normal',3,12],['color',3,24],['kind',1,36],['uv',2,40],['objectIndex',1,48]]){const loc=gl.getAttribLocation(program,name);if(loc>=0){gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,52,offset)}}}
 function updateShadow(){
  if(!vertexCount)return;const az=+$('lightAzimuth').value*Math.PI/180,el=+$('lightElevation').value*Math.PI/180,L=[Math.sin(az)*Math.cos(el),Math.sin(el),-Math.cos(az)*Math.cos(el)],forward=mul(L,-1),right=norm(cross(forward,[0,1,0])),up=cross(right,forward),key=az+':'+el;
- if(shadowsAvailable&&(shadowDirty||key!==shadowKey)){gl.useProgram(shadowProgram);gl.bindFramebuffer(gl.FRAMEBUFFER,shadowFramebuffer);gl.viewport(0,0,1024,1024);gl.disable(gl.BLEND);gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.bindBuffer(gl.ARRAY_BUFFER,gpuBuffer);for(const [name,size,offset]of [['position',3,0],['kind',1,36]]){const loc=gl.getAttribLocation(shadowProgram,name);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,48,offset)}for(const [name,value]of Object.entries({center:modelCenter,right,up,forward}))gl.uniform3fv(gl.getUniformLocation(shadowProgram,name),value);gl.uniform1f(gl.getUniformLocation(shadowProgram,'fit'),modelScale);gl.drawArrays(gl.TRIANGLES,0,vertexCount);gl.bindFramebuffer(gl.FRAMEBUFFER,null);bindMainAttributes();gl.enable(gl.BLEND);shadowDirty=false;shadowKey=key;}
- gl.useProgram(program);gl.uniform3fv(uniform('shadowRight'),right);gl.uniform3fv(uniform('shadowUp'),up);gl.uniform3fv(uniform('shadowForward'),forward);gl.uniform1i(uniform('shadowMap'),2);gl.uniform1f(uniform('shadowEnabled'),shadowsAvailable?1:0);
+ if(shadowsAvailable&&(shadowDirty||key!==shadowKey)){gl.useProgram(shadowProgram);gl.bindFramebuffer(gl.FRAMEBUFFER,shadowFramebuffer);gl.viewport(0,0,1024,1024);gl.disable(gl.BLEND);gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.bindBuffer(gl.ARRAY_BUFFER,gpuBuffer);for(const [name,size,offset]of [['position',3,0],['kind',1,36]]){const loc=gl.getAttribLocation(shadowProgram,name);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,gl.FLOAT,false,52,offset)}for(const [name,value]of Object.entries({center:modelCenter,right,up,forward}))gl.uniform3fv(gl.getUniformLocation(shadowProgram,name),value);gl.uniform1f(gl.getUniformLocation(shadowProgram,'fit'),modelScale);gl.drawArrays(gl.TRIANGLES,0,vertexCount);gl.bindFramebuffer(gl.FRAMEBUFFER,null);bindMainAttributes();gl.enable(gl.BLEND);shadowDirty=false;shadowKey=key;}
+ gl.useProgram(program);gl.uniform3fv(uniform('shadowRight'),right);gl.uniform3fv(uniform('shadowUp'),up);gl.uniform3fv(uniform('shadowForward'),forward);gl.uniform1i(uniform('shadowMap'),2);gl.uniform1f(uniform('shadowEnabled'),shadowsAvailable&&!scenePreview?1:0);
 }
 const sourceBarkCanvases=[];function createBarkTextures(){const size=512,height=new Float32Array(size*size),albedo=document.createElement('canvas'),normal=document.createElement('canvas');albedo.width=normal.width=albedo.height=normal.height=size;const ac=albedo.getContext('2d'),nc=normal.getContext('2d'),a=ac.createImageData(size,size),n=nc.createImageData(size,size);
 function hash(x,y){let h=Math.imul(x+37,374761393)^Math.imul(y+19,668265263);h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967295}function noise(u,v,nx,ny){let xx=u*nx,yy=v*ny,x=Math.floor(xx),y=Math.floor(yy),tx=xx-x,ty=yy-y;tx=tx*tx*(3-2*tx);ty=ty*ty*(3-2*ty);let p=hash(x%nx,y%ny),q=hash((x+1)%nx,y%ny),r=hash(x%nx,(y+1)%ny),s=hash((x+1)%nx,(y+1)%ny);return(p+(q-p)*tx)*(1-ty)+(r+(s-r)*tx)*ty}
@@ -93,10 +101,10 @@ const surfaceMaps=createSurfaceMaps();
 const rgbCache=new Map();function rgb(hex){if(!rgbCache.has(hex))rgbCache.set(hex,hex.slice(1).match(/../g).map(x=>parseInt(x,16)/255));return rgbCache.get(hex)}
 function upload(){
  shadowDirty=true;waterPresent=faces.some(f=>f.kind===4);if(typeof raf!=='undefined')resumeAnimation();vertexCount=faces.reduce((n,f)=>n+(f.points.length-2)*3,0);
- const data=new Float32Array(vertexCount*12);let offset=0;rgbCache.clear();
+ const data=new Float32Array(vertexCount*13);let offset=0;rgbCache.clear();
  for(const f of faces){const ns=f.normals||f.points.map(()=>norm(cross(f.points[1].map((v,i)=>v-f.points[0][i]),f.points[2].map((v,i)=>v-f.points[0][i]))));
  const cs=f.points.map(p=>surfaceColor(f,p)),uv=f.points.map((_,i)=>faceUV(f,i));
- for(let i=1;i<f.points.length-1;i++)for(const j of [0,i,i+1]){data.set(f.points[j],offset);data.set(ns[j],offset+3);data.set(cs[j],offset+6);data[offset+9]=f.kind||0;data.set(uv[j],offset+10);offset+=12}}
+ for(let i=1;i<f.points.length-1;i++)for(const j of [0,i,i+1]){data.set(f.points[j],offset);data.set(ns[j],offset+3);data.set(cs[j],offset+6);data[offset+9]=f.kind||0;data.set(uv[j],offset+10);data[offset+12]=f._sceneIndex??-1;offset+=13}}
  gl.bindBuffer(gl.ARRAY_BUFFER,gpuBuffer);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);
 }
 function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -115,7 +123,7 @@ function leafMesh(c,size,color,flower=false){
 }
 function crown(c,r,color){let saved=random;random=rng(seed+9157*(++leafSerial));let flowering=current.flower,amount=Math.round(85*(+$('foliage').value/100)*Math.sqrt(+$('quality').value));for(let i=0;i<amount;i++){let z=random()*2-1,t=random()*Math.PI*2,rad=r*Math.cbrt(random()),q=[Math.sqrt(1-z*z)*Math.cos(t),z*.8,Math.sqrt(1-z*z)*Math.sin(t)],p=add(c,mul(q,rad));const flower=flowering&&random()>.24;leafMesh(p,(flower?.072:.10)*(0.7+random()*.7),flower?color:(flowering?'#53823d':color),flower)}random=saved}
 // Environmental generators. All geometry and textures stay inside the HTML.
-const categories=[['trees','Árvores'],['rocks','Rochas e cascalho'],['water','Água'],['grass','Gramas'],['shrubs','Arbustos'],['litter','Folhas secas'],['mountains','Montanhas'],['terrains','Terrenos'],['flowers','Flores e samambaias'],['fungi','Fungos'],['wood','Madeira']];
+const categories=[['trees','Árvores'],['rocks','Rochas e cascalho'],['water','Água'],['grass','Gramas'],['shrubs','Arbustos'],['litter','Folhas secas'],['mountains','Montanhas'],['terrains','Terrenos'],['flowers','Flores e samambaias'],['fungi','Fungos'],['wood','Madeira'],['tunnels','Túneis'],['scenes','Cenários']];
 const assetCatalog={
  rocks:[['Boulder de granito','boulder','#858681',1,1.6],['Rocha basáltica','boulder','#454b4b',1,1.8],['Arenito erodido','sandstone','#ab8a62',1,1.7],['Rocha com musgo','mossrock','#79836a',3,1.1],['Pedras de rio','pebble','#8c8d82',12,.35],['Cascalho fino','gravel','#92918a',95,.10],['Cascalho de basalto','gravel','#575d61',85,.13],['Seixos arredondados','pebble','#a6a094',30,.22],['Paredão rochoso','cliff','#76716b',1,2],['Conjunto de rochas','boulder','#797f7c',7,.8],['Estalagmites','stalagmite','#8d8980',12,.4],['Cristais minerais','crystal','#7babb5',7,.45]],
  water:[['Lago','lake','#347d88',1,1],['Lagoa','pond','#527e69',1,1],['Rio sinuoso','river','#428692',1,1],['Riacho','stream','#5e9aa1',1,1],['Cachoeira','waterfall','#72b4c1',1,1],['Corredeira','rapids','#6f9fa5',1,1],['Piscina natural','pool','#3f9caa',1,1],['Poça de água','puddle','#627e81',1,1]],
@@ -126,11 +134,12 @@ const assetCatalog={
  terrains:[["Colinas e prados", "meadow", "#7b8860", 4, 1], ["Dunas de areia", "dunes", "#c5ac7b", 6, 1], ["Cânion fluvial", "canyon", "#ac815b", 4, 1.2], ["Vale de rio", "valley", "#82906b", 4, 1], ["Terreno alpino", "highlands", "#858d7c", 5, 1.3], ["Badlands erodidos", "badlands", "#b39b82", 6, 1], ["Ilha costeira", "island", "#8b956c", 3, 1], ["Planície aluvial", "floodplain", "#7e8b69", 3, 0.6], ["Campo de lava", "lavafield", "#575854", 5, 0.8], ["Costa com falésias", "coast", "#9a947e", 4, 1], ["Deserto pedregoso", "rockdesert", "#aa9776", 5, 0.8], ["Planalto com terraços", "terraces", "#96916f", 5, 1]],
  flowers:[['Rosas vermelhas','rose','#a31e36',1,.70],['Rosas brancas','rose','#e5dfd2',1,.70],['Rosas amarelas','rose','#d6ba66',1,.70],['Rosas cor-de-rosa','rose','#cf8fa2',1,.70],['Botões de rosa','rosebud','#b85768',1,.50],['Margaridas','daisy','#e8e5d0',32,.5],['Flores silvestres','wildflowers','#b993bd',45,.45],['Lavanda','lavender','#9881b5',50,.5],['Flores amarelas','wildflowers','#d8be4f',40,.4],['Samambaias','fern','#557e49',12,.65],['Brotos','sprouts','#80a664',35,.2],['Nenúfares','lilypads','#558563',15,.3],['Plantas secas','dryflowers','#a59369',30,.5]],
  fungi:[['Cogumelos de floresta','mushroom','#b09770',12,.24],['Cogumelos vermelhos','redmushroom','#b75340',9,.28],['Cogumelos altos','tallmushroom','#bfae8c',9,.38],['Pequenos cogumelos','mushroom','#ad946c',30,.12],['Cogumelos em prateleira','shelf','#9d8056',8,.3],['Líquens em rocha','lichen','#91a375',1,.7]],
+ tunnels:[['Caverna natural','cave','#777369',1,1],['Túnel de mina','mine','#806a50',1,1],['Túnel de concreto','concrete','#949592',1,1],['Túnel de tijolos','brick','#985d4b',1,1],['Túnel ferroviário','rail','#737575',1,1],['Túnel rodoviário','road','#888a85',1,1],['Túnel de metrô','metro','#777d83',1,1],['Galeria de esgoto','sewer','#69776e',1,1],['Caverna de gelo','ice','#8cc6dc',1,1],['Túnel vulcânico','lava','#554741',1,1],['Passagem abandonada','abandoned','#66645c',1,1],['Túnel futurista','scifi','#657c91',1,1]],
  wood:[['Tronco caído','log','#786149',1,1],['Tronco queimado','charlog','#3e3c34',1,1],['Galho seco','branch','#88755d',3,.7],['Galho retorcido','driftwood','#a8987f',2,.8],['Galhos espalhados','branches','#7c6b55',15,.35],['Pedaços de casca','barkchips','#7a6348',50,.17]]
 };
 const categoryStates={};let activeCategory='trees',assetPreset=null,waterClock=0,waterPresent=false;
 const assetDefaults={amount:1,size:100,area:280,vertical:100,detail:55,waves:45};
-const assetControlIds=['assetAmount','assetSize','assetArea','assetVertical','assetDetail','assetWaves','landErosion','landSediment','landStrata','landSnow','landWaterLevel'];
+const assetControlIds=['lakeDepth','lakeBank','assetAmount','assetSize','assetArea','assetVertical','assetDetail','assetWaves','landErosion','landSediment','landStrata','landSnow','landWaterLevel'];
 function environmentTriangle(a,b,c,color,kind=3,name='Objeto',shade=1){let n=norm(cross(b.map((x,i)=>x-a[i]),c.map((x,i)=>x-a[i])));if(Math.hypot(...n)<.5)return;faces.push({points:[a,b,c],normals:[n,n,n],color,kind,part:name,shade})}
 function smoothTriangle(a,b,c,na,nb,nc,color,kind,name,shade=1){faces.push({points:[a,b,c],normals:[na,nb,nc],color,kind,part:name,shade})}
 function emitPatch(grid,color,kind,name,shade=1){let rows=grid.length-1,cols=grid[0].length-1,normals=[];for(let j=0;j<=rows;j++){let ns=[];for(let i=0;i<=cols;i++){let du=grid[j][Math.min(i+1,cols)].map((x,k)=>x-grid[j][Math.max(0,i-1)][k]),dv=grid[Math.min(j+1,rows)][i].map((x,k)=>x-grid[Math.max(0,j-1)][i][k]),n=norm(cross(dv,du));ns.push(Math.hypot(...n)>.5?n:[0,1,0])}normals.push(ns)}for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const corners=[[j,i],[j+1,i],[j+1,i+1],[j,i+1]];for(const tri of [[0,1,2],[0,2,3]]){let indices=tri.map(k=>corners[k]),ps=indices.map(([r,c])=>grid[r][c]);if(Math.hypot(...cross(ps[1].map((x,k)=>x-ps[0][k]),ps[2].map((x,k)=>x-ps[0][k])))<1e-10)continue;faces.push({points:ps,normals:indices.map(([r,c])=>normals[r][c]),uv:indices.map(([r,c])=>[c/cols,r/rows]),color,kind,part:name,shade})}}}
@@ -257,13 +266,25 @@ function generateLandform(type,color,amount,size,width,vertical,rough,name){
   c=mix(c,[.88,.92,.94],snow===0?0:smooth(snowLine-.04,snowLine+.035,height)*(1-smooth(.45,.8,slope)));
   colors[k]=c;
  }
- function top(a,b,c){const k=faces.length;smoothTriangle(points[a],points[b],points[c],normals[a],normals[b],normals[c],color,3,name);if(faces.length>k)faces[k].landColors=[colors[a],colors[b],colors[c]]}
+ function top(a,b,c){
+  // Mountains contain only raised rock faces: clip away the flat surrounding terrain.
+  const threshold=terrain? -Infinity : Math.max(.012,relief*.025);
+  let poly=[a,b,c].map(k=>({p:points[k],n:normals[k],c:colors[k]}));
+  if(!terrain){const clipped=[];for(let i=0;i<poly.length;i++){
+   const v=poly[i],w=poly[(i+1)%poly.length],av=v.p[1]>=threshold,bv=w.p[1]>=threshold;
+   if(av)clipped.push(v);
+   if(av!==bv){const t=(threshold-v.p[1])/(w.p[1]-v.p[1]);clipped.push({p:v.p.map((x,k)=>x+(w.p[k]-x)*t),n:norm(v.n.map((x,k)=>x+(w.n[k]-x)*t)),c:v.c.map((x,k)=>x+(w.c[k]-x)*t)});}
+  }poly=clipped;}
+  for(let i=1;i+1<poly.length;i++){const tri=[poly[0],poly[i],poly[i+1]];const k=faces.length;smoothTriangle(...tri.map(v=>v.p),...tri.map(v=>v.n),color,3,name);if(faces.length>k)faces[k].landColors=tri.map(v=>v.c);}
+ }
  for(let j=0;j<n;j++)for(let i=0;i<n;i++){const a=j*stride+i,b=a+stride,c=b+1,d=a+1;top(a,b,c);top(a,c,d)}
- // Closed sides and one bottom plane, with no doubled projected top mesh.
+ // Only terrains have a bottom and side skirt; mountains are standalone peaks.
+ if(terrain){
  const boundary=[];for(let i=0;i<n;i++)boundary.push(i);for(let j=0;j<n;j++)boundary.push(j*stride+n);for(let i=n;i>0;i--)boundary.push(n*stride+i);for(let j=n;j>0;j--)boundary.push(j*stride);
  for(let i=0;i<boundary.length;i++){const a=points[boundary[i]],b=points[boundary[(i+1)%boundary.length]],aa=[a[0],bottom,a[2]],bb=[b[0],bottom,b[2]];environmentTriangle(a,b,bb,color,3,'Subsolo',.7);environmentTriangle(a,bb,aa,color,3,'Subsolo',.7)}
  const w=width/2;environmentTriangle([-w,bottom,-w],[w,bottom,-w],[w,bottom,w],color,3,'Subsolo',.6);environmentTriangle([-w,bottom,-w],[w,bottom,w],[-w,bottom,w],color,3,'Subsolo',.6);
- if($('landWater').checked){const level=maxH*+$('landWaterLevel').value/100;
+ }
+ if(false && $('landWater').checked){const level=maxH*+$('landWaterLevel').value/100;
   // Clip each water triangle against its sampled shoreline, including partial cells.
   function waterTriangle(ids){let poly=ids.map(k=>({p:points[k],d:level-h[k]})),clipped=[];for(let i=0;i<3;i++){const a=poly[i],b=poly[(i+1)%3];if(a.d>=0)clipped.push([a.p[0],level,a.p[2]]);if((a.d>=0)!==(b.d>=0)){let t=a.d/(a.d-b.d);clipped.push([a.p[0]+(b.p[0]-a.p[0])*t,level,a.p[2]+(b.p[2]-a.p[2])*t])}}for(let i=1;i+1<clipped.length;i++)environmentTriangle(clipped[0],clipped[i],clipped[i+1],'#527e86',4,'Água do terreno')}
   for(let j=0;j<n;j++)for(let i=0;i<n;i++){const a=j*stride+i,b=a+stride;waterTriangle([a,b,b+1]);waterTriangle([a,b+1,a+1])}
@@ -271,11 +292,224 @@ function generateLandform(type,color,amount,size,width,vertical,rough,name){
 }
 
 function finishEnvironment(){if(['mountains','terrains'].includes(activeCategory))for(const f of faces){if(f.part!=='Subsolo')f.uv=f.points.map(p=>[p[0]*2.2,p[2]*2.2])};if(!faces.length){modelCenter=[0,0,0];modelScale=1;$('status').textContent='Cena vazia';upload();draw();return}let min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];for(const f of faces)for(const p of f.points)p.forEach((v,i)=>{min[i]=Math.min(min[i],v);max[i]=Math.max(max[i],v)});modelCenter=min.map((v,i)=>(v+max[i])*.5);modelScale=4.7/Math.max(max[1]-min[1],max[0]-min[0],max[2]-min[2],1);const objects=new Set(faces.map(f=>f.part)).size;$('status').textContent=faces.reduce((n,f)=>n+f.points.length-2,0).toLocaleString('pt-BR')+' triângulos · '+objects+(objects===1?' objeto':' objetos');faces.sort((a,b)=>(a.kind===4?1:0)-(b.kind===4?1:0));upload();draw()}
-function generate(){if(activeCategory==='trees')return generateTree();return generateEnvironment()}
+function generate(){if(activeCategory==='scenes')return sceneRefresh();if(activeCategory==='trees')return generateTree();return generateEnvironment()}
+function tunnelBox(a,b,color,name){const [x,y,z]=a,[X,Y,Z]=b,v=[[x,y,z],[X,y,z],[X,Y,z],[x,Y,z],[x,y,Z],[X,y,Z],[X,Y,Z],[x,Y,Z]];for(const q of [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]]){environmentTriangle(v[q[0]],v[q[1]],v[q[2]],color,3,name);environmentTriangle(v[q[0]],v[q[2]],v[q[3]],color,3,name)}}
+function buildTunnels(type,color,amount,size,area,vertical,rough){
+ // Complete 360-degree hollow shells: both ends open; no caps, slabs or ground planes.
+ const detail=meshDetail(), segments=Math.max(24,Math.round(42*detail)), steps=Math.max(24,Math.round(42*detail*Number($('tunnelLength').value)/100));
+ const natural=['cave','ice','lava'].includes(type), old=type==='abandoned';
+ const built=!natural, square=['road','metro','scifi','concrete'].includes(type);
+ const mine=type==='mine',brick=type==='brick',industrial=['rail','metro','sewer'].includes(type);
+ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+ const quad=(a,b,c,d,clr,name,shade=1)=>{environmentTriangle(a,b,c,clr,3,name,shade);environmentTriangle(b,d,c,clr,3,name,shade)};
+ for(let idx=0;idx<amount;idx++){
+  const faceStart=faces.length;
+  const cx=(idx-(amount-1)/2)*Math.max(size*5,4),len=size*8.2*(Number($('tunnelLength').value)/100),w=size*(square?1.85:1.68),h=size*(square?2.02:1.83)*vertical;
+  const thick=size*(mine?.18:natural?.24:.13),zStart=-len/2,variation=seed*.019+idx*31.7;
+  const noise=(a,z)=>Math.sin(a*7+z*2.9+variation)*.48+Math.sin(a*16-z*4.3+variation*1.7)*.28+Math.cos(a*27+z*7.8)*.16;
+  const profile=(u,z,outer=false)=>{
+   const angle=u*Math.PI*2, ca=Math.cos(angle),sa=Math.sin(angle);
+   // Rounded rectangular profile for engineered tunnels; radial profile for caves.
+   const power=square?.58:mine||brick?.82:1;
+   const x=Math.sign(ca)*Math.pow(Math.abs(ca),power),y=Math.sign(sa)*Math.pow(Math.abs(sa),power);
+   const variationScale=natural?rough*.125:old?rough*.052:rough*.012;
+   const d=1+noise(angle,z)*variationScale,offset=outer?thick:0;
+   return [cx+x*(w*d+offset),h+y*(h*d+offset),z];
+  };
+  const inner=(u,z)=>profile(u,z,false),outer=(u,z)=>profile(u,z,true);
+  const lum=natural?.77:old?.83:1;
+  for(let j=0;j<steps;j++){
+   let z=zStart+len*j/steps,zn=zStart+len*(j+1)/steps;
+   for(let i=0;i<segments;i++){
+    let u=i/segments,v=(i+1)/segments;
+    let a=inner(u,z),b=inner(v,z),c=inner(u,zn),d=inner(v,zn),A=outer(u,z),B=outer(v,z),C=outer(u,zn),D=outer(v,zn);
+    const shade=lum*(1+(natural?rough*.12:.025)*noise((u+v)*1.57,z));
+    quad(a,b,c,d,color,'Interior do túnel',shade);
+    quad(B,A,D,C,color,'Exterior do túnel',shade*.88);
+    if(j===0)quad(b,a,B,A,color,'Arco da entrada',shade*.92);
+    if(j===steps-1)quad(c,d,C,D,color,'Arco da saída',shade*.92);
+    // No lateral base faces: the 360° shell connects around its full ring.
+   }
+  }
+  // Raised arch ribs, aligned to the curved walls rather than rectangular floating blocks.
+  const archBand=(z,widthBand,bandColor,name,radialRaise=0)=>{
+   const z1=clamp(z-widthBand/2,zStart,zStart+len),z2=clamp(z+widthBand/2,zStart,zStart+len);
+   for(let i=0;i<segments;i++){
+    let u=i/segments,v=(i+1)/segments;
+    const off=p=>{const q=inner(p,z);let dx=q[0]-cx,dy=q[1]-h,r=Math.hypot(dx,dy)||1;return [q[0]-dx/r*radialRaise,q[1]-dy/r*radialRaise,q[2]]};
+    let A=off(u),B=off(v);quad([A[0],A[1],z1],[B[0],B[1],z1],[A[0],A[1],z2],[B[0],B[1],z2],bandColor,name);
+   }
+  };
+  if(built){
+   const interval=size*(brick?.31:mine?.9:type==='scifi'?1.1:old?1.25:1.5);
+   const number=Math.max(2,Math.floor(len/interval));
+   const beam=mine?'#64503b':brick?'#b07a61':type==='scifi'?'#7bb1ce':type==='concrete'?'#aaaca7':old?'#524b40':'#697277';
+   for(let j=0;j<=number;j++){
+    const z=zStart+j*len/number;
+    archBand(z,size*(brick?.035:mine?.14:.065),beam,mine?'Arcos de madeira':brick?'Juntas dos tijolos':'Reforço arqueado',size*(mine?.045:.023));
+   }
+   if(brick){ // Alternate longitudinal masonry seams.
+    for(let row=1;row<10;row++){
+     let u=row/10;
+     for(let j=0;j<steps;j+=2){
+      let z=zStart+len*(j+(row%2))/steps,zn=Math.min(zStart+len,z+len/steps*.5);if(z>=zStart+len)continue;
+      let p=inner(u,z),q=inner(u,zn),t=size*.009;
+      tunnelBox([p[0]-t,p[1]-t,z],[q[0]+t,q[1]+t,zn],'#705449','Junta vertical');
+     }
+    }
+   }
+   if(mine){for(let j=0;j<Math.ceil(len/(size*1.5));j++){
+    let z=zStart+(j+.5)*size*1.5;if(z>zStart+len)break;
+    for(const side of [-1,1]){
+     let p=inner(side<0?0:1,z);
+     tunnelBox([p[0]-size*.055,0,z-size*.08],[p[0]+size*.055,h*.62,z+size*.08],'#594531','Poste de madeira');
+    }
+   }}
+   if(type==='scifi'||type==='metro'||type==='road'){
+    for(let j=0;j<Math.floor(len/(size*1.35));j++){
+     const z=zStart+(j+.5)*size*1.35;
+     let p=inner(.5,z);tunnelBox([p[0]-size*.26,p[1]-size*.055,z-size*.05],[p[0]+size*.26,p[1]-size*.018,z+size*.05],type==='scifi'?'#95ddf7':'#d6d3b3','Iluminação de teto');
+    }
+   }
+   if(type==='sewer'){
+    // Side conduits only; leave the entire bottom open.
+    for(let side of [-1,1])for(let j=0;j<steps;j++){
+     let z=zStart+len*j/steps,zn=zStart+len*(j+1)/steps,p=inner(side<0?.12:.88,z),q=inner(side<0?.12:.88,zn),r=size*.036;
+     tunnelBox([p[0]-r,p[1]-r,z],[q[0]+r,q[1]+r,zn],'#465b5c','Tubulação lateral');
+    }
+   }
+  }
+  if(natural){
+   // Hanging rock/ice spikes connected to the ceiling, not separate floor props.
+   const count=Math.round(16*detail);
+   for(let j=0;j<count;j++){
+    let z=zStart+len*(.055+random()*.89),u=.23+random()*.54,p=inner(u,z),r=size*(.07+random()*.09),drop=size*(.16+random()*.54),tip=[p[0]+(random()-.5)*r,p[1]-drop,z+(random()-.5)*r];
+    const c=type==='ice'?'#a8dce9':type==='lava'?'#5c4c44':'#918779';
+    for(let k=0;k<6;k++){
+     let a=k*Math.PI/3,b=(k+1)*Math.PI/3;
+     environmentTriangle([p[0]+Math.cos(a)*r,p[1],z+Math.sin(a)*r],[p[0]+Math.cos(b)*r,p[1],z+Math.sin(b)*r],tip,c,3,'Estalactites');
+    }
+   }
+  }
+  // Bend the COMPLETE generated mesh (shell, rings, props) along a circular
+  // centerline. Rotate cross-sections with its tangent, keeping the bore open.
+  const curve=Number($('tunnelCurve').value)*Math.PI/180;
+  const direction=Number($('tunnelDirection').value)*Math.PI/180;
+  if(Math.abs(curve)>1e-5){
+   const dx=Math.cos(direction),dy=Math.sin(direction),radius=len/curve;
+   // Adjacent triangles share point arrays. Transform each point exactly once:
+   // bending the same point repeatedly caused twisted walls and long spikes.
+   const transformed=new WeakSet();
+   const bentFaces=faces.slice(faceStart);
+   for(const face of bentFaces){
+    for(const point of face.points){
+     if(transformed.has(point))continue;
+     transformed.add(point);
+     const originalZ=point[2],theta=curve*originalZ/len;
+     const transverse=(point[0]-cx)*dx+(point[1]-h)*dy;
+     const orthogonal=-(point[0]-cx)*dy+(point[1]-h)*dx;
+     const bentTransverse=radius*(1-Math.cos(theta))+transverse*Math.cos(theta);
+     point[0]=cx+dx*bentTransverse-dy*orthogonal;
+     point[1]=h+dy*bentTransverse+dx*orthogonal;
+     point[2]=radius*Math.sin(theta)-transverse*Math.sin(theta);
+    }
+   }
+   // Update illumination normals for the final curved triangles.
+   for(const face of bentFaces){
+    const [a,b,c]=face.points;
+    const n=norm(cross(b.map((v,k)=>v-a[k]),c.map((v,k)=>v-a[k])));
+    face.normals=face.points.map(()=>n);
+   }
+  }
+ }
+}
+function generateLakeBasin(type,color,length,width,vertical,rough,flow,name,centerZ=0){
+ const n=Math.max(64,Math.round(112*meshDetail())),rings=Math.max(10,Math.round(22*meshDetail()));
+ const depth=(+$('lakeDepth').value/100)*vertical*1.65;
+ const bank=(+$('lakeBank').value/100)*.58;
+ const rx=length*.5,rz=width*.5,shapeSeed=seed*.00173;
+ const edge=a=>1+.06*Math.sin(a*3+shapeSeed)+.035*Math.cos(a*7-shapeSeed*2)+rough*.025*Math.sin(a*13+shapeSeed);
+ const pt=(a,r,y)=>[Math.cos(a)*rx*r*edge(a),y,Math.sin(a)*rz*r*edge(a)+centerZ];
+ const shore=(a,t)=>.04*Math.sin(a*11+shapeSeed)*t+.07*rough*Math.cos(a*19-shapeSeed)*t;
+ // A ring-shaped band outside the shoreline; no rectangular ground plane.
+ const outer=1+bank;
+ for(let j=0;j<rings;j++){
+  const t0=j/rings,t1=(j+1)/rings;
+  for(let i=0;i<n;i++){
+   const a=i/n*Math.PI*2,b=(i+1)/n*Math.PI*2;
+   const height=(a,t)=>.025+Math.pow(t,1.35)*(.24+bank*.65)+shore(a,t);
+   const p0=pt(a,1+bank*t0,height(a,t0)),p1=pt(b,1+bank*t0,height(b,t0)),p2=pt(a,1+bank*t1,height(a,t1)),p3=pt(b,1+bank*t1,height(b,t1));
+   const tone=t0<.16?'#9a9075':t0<.45?'#a69a78':t0<.78?'#7c8065':'#657452';
+   environmentTriangle(p0,p2,p3,tone,3,'Margem do lago');faces.at(-1).shoreT=[t0,t1,t1];
+   environmentTriangle(p0,p3,p1,tone,3,'Margem do lago');faces.at(-1).shoreT=[t0,t1,t0];
+  }
+ }
+ // A smoothly deepening lakebed, independently exportable as actual geometry.
+ for(let j=0;j<rings;j++){
+  const r0=j/rings,r1=(j+1)/rings;
+  for(let i=0;i<n;i++){
+   const a=i/n*Math.PI*2,b=(i+1)/n*Math.PI*2;
+   const bottom=r=>-depth*Math.pow(Math.max(0,1-r*r),1.45)-.025;
+   const p0=pt(a,r0,bottom(r0)),p1=pt(b,r0,bottom(r0)),p2=pt(a,r1,bottom(r1)),p3=pt(b,r1,bottom(r1));
+   const tone=r0<.52?'#394d48':r0<.82?'#667568':'#948d72';
+   environmentTriangle(p0,p3,p2,tone,3,'Fundo do lago');environmentTriangle(p0,p1,p3,tone,3,'Fundo do lago');
+  }
+ }
+ // Water surface: darker center and light shallows at the perimeter.
+ for(let j=0;j<rings;j++){
+  const r0=j/rings,r1=(j+1)/rings;
+  for(let i=0;i<n;i++){
+   const a=i/n*Math.PI*2,b=(i+1)/n*Math.PI*2;
+   const pos=(ang,r)=>pt(ang,r,flow(Math.cos(ang)*r,Math.sin(ang)*r)*.35+.005);
+   const p0=pos(a,r0),p1=pos(b,r0),p2=pos(a,r1),p3=pos(b,r1);
+   const col=r0<.58?'#194657':r0<.83?color:'#73b2b1';
+   environmentTriangle(p0,p2,p3,col,4,'Água profunda e rasa');environmentTriangle(p0,p3,p1,col,4,'Água profunda e rasa');
+  }
+ }
+}
+// River and stream banks follow the same winding centerline as the water.
+// Each bank has underwater shallows, an exposed sloping shoreline and an outer lip.
+function generateWaterChannel(type,color,length,width,vertical,rough,flow,name){
+ const segments=Math.max(80,Math.round(110*meshDetail())),across=Math.max(12,Math.round(20*meshDetail()));
+ const depth=(+$('lakeDepth').value/100)*vertical*.95;
+ const margin=(+$('lakeBank').value/100)*Math.max(.22,width*.54);
+ const halfWidth=width*.5,riverLength=length*2;
+ const rapids=type==='rapids';
+ const center=v=>Math.sin(v*6.3)*length*.14;
+ const level=(u,v)=>flow(u,v)+(rapids?(1-v)*vertical*.5:0);
+ const edge=(v,side)=>halfWidth*(1+.075*Math.sin(v*19+side*1.8+seed*.002)+rough*.025*Math.sin(v*48+side*3));
+ const point=(v,x,h)=>[center(v)+x,h,(v-.5)*riverLength];
+ // Stream surface is divided into shallow side bands and deeper center.
+ for(let j=0;j<segments;j++)for(let i=0;i<across;i++){
+  let v0=j/segments,v1=(j+1)/segments,t0=i/across*2-1,t1=(i+1)/across*2-1;
+  const water=(v,t)=>point(v,t*edge(v,Math.sign(t)||1),level(t,v)+.008);
+  let a=water(v0,t0),b=water(v1,t0),c=water(v0,t1),d=water(v1,t1);
+  let col=Math.abs((t0+t1)*.5)>.77?'#75ada9':Math.abs((t0+t1)*.5)>.54?color:'#245469';
+  environmentTriangle(a,b,d,col,4,'Água profunda e rasa');environmentTriangle(a,d,c,col,4,'Água profunda e rasa');
+  // Deep riverbed directly below the water, not a separate ground plane.
+  const bottom=(v,t)=>point(v,t*edge(v,Math.sign(t)||1),level(t,v)-depth*Math.pow(Math.max(0,1-t*t),.88)-.022);
+  a=bottom(v0,t0);b=bottom(v1,t0);c=bottom(v0,t1);d=bottom(v1,t1);
+  environmentTriangle(a,d,b,'#6b786b',3,'Fundo do rio');environmentTriangle(a,c,d,'#6b786b',3,'Fundo do rio');
+ }
+ const strips=Math.max(5,Math.round(9*meshDetail()));
+ for(const side of [-1,1])for(let j=0;j<segments;j++)for(let i=0;i<strips;i++){
+  let v0=j/segments,v1=(j+1)/segments,t0=i/strips,t1=(i+1)/strips;
+  const bank=(v,t)=>{
+   let e=edge(v,side),offset=side*(e+margin*t),h=level(side,v)+.025+Math.pow(t,1.35)*(.2+margin*.52)+rough*.035*Math.sin(v*31+side*2)*t;
+   return point(v,offset,h);
+  };
+  let a=bank(v0,t0),b=bank(v1,t0),c=bank(v0,t1),d=bank(v1,t1);
+  let tone=t0<.22?'#a69b79':t0<.62?'#867c62':'#667a55';
+  environmentTriangle(a,b,d,tone,3,'Beirada do rio');faces.at(-1).shoreT=[t0,t0,t1];
+  environmentTriangle(a,d,c,tone,3,'Beirada do rio');faces.at(-1).shoreT=[t0,t1,t1];
+ }
+}
 function generateEnvironment(){random=rng(seed);faces=[];const p=assetPreset||assetCatalog[activeCategory][0],type=p[1],color=$('assetColor').value,amount=+$('assetAmount').value,size=+$('assetSize').value/100,area=+$('assetArea').value/100,vertical=+$('assetVertical').value/100,rough=+$('assetDetail').value/100,waves=+$('assetWaves').value/100*(.4+Number($('surfaceDetail').value)/100*1.3);part=p[0];
- if(activeCategory==='rocks'){for(let i=0;i<amount;i++){let c=amount===1?[0,0,0]:scatterPoint(area),s=size*(.65+random()*.6),sy=s*(type==='pebble'?.45:type==='cliff'?1.8:type==='stalagmite'?3:1)*vertical;if(type==='crystal'){let n=6,r=s*.4,h=s*2.8*vertical,tip=add(c,[s*.15,h,0]);for(let j=0;j<n;j++){let a=j/n*Math.PI*2,b=(j+1)/n*Math.PI*2,pa=add(c,[Math.cos(a)*r,0,Math.sin(a)*r]),pb=add(c,[Math.cos(b)*r,0,Math.sin(b)*r]),qa=add(pa,[0,h*.7,0]),qb=add(pb,[0,h*.7,0]);environmentTriangle(pa,pb,qa,color,8,p[0]);environmentTriangle(pb,qb,qa,color,8,p[0]);environmentTriangle(qa,qb,tip,color,8,p[0])}}else{stone(add(c,[0,sy*.65,0]),[s,sy,s*(.6+random()*.3)],color,rough,p[0],type==='pebble'||type==='gravel');if(type==='mossrock')for(let j=0;j<8;j++)stone(add(c,[(random()-.5)*s,sy*(1+random()*.4),(random()-.5)*s]),[s*.25,s*.1,s*.23],'#667d45',.8,'Musgo',true)}}}
- else if(activeCategory==='water'){let length=area,width=size*2.5,amplitude=waves*.05,flow=(u,v)=>Math.sin(u*24+v*9)*amplitude+Math.sin(v*37-u*7)*amplitude*.35;if(type==='waterfall'){let h=vertical*3.5;gridSurface(48,32,(u,v)=>[(u-.5)*width*(.85+v*.15),h*(1-v),Math.sin(v*Math.PI)*.22+flow(u,v)],color,4,'Queda de água');gridSurface(30,60,(u,v)=>[Math.cos(u*Math.PI*2)*width*v,.02+flow(u,v),Math.sin(u*Math.PI*2)*width*v+width*.7],color,4,'Poço da cachoeira');for(let i=0;i<45;i++){let a=random()*6,r=Math.sqrt(random())*width*.7;stone([Math.cos(a)*r,.02,Math.abs(Math.sin(a)*r)],[.06+random()*.13,.02,.07],'#d4e5dc',.2,'Espuma',true)}for(let side of [-1,1])stone([side*width*.65,h*.47,0],[width*.3,h*.48,.5],'#69716b',.6,'Rochas da cachoeira')}
- else if(['river','stream','rapids'].includes(type)){let w=width*(type==='stream'?.45:1);gridSurface(70,22,(u,v)=>[(u-.5)*w+Math.sin(v*6.3)*length*.14,flow(u,v)+(type==='rapids'?(1-v)*vertical*.5:0),(v-.5)*length*2],color,4,p[0]);if(type==='rapids')for(let i=0;i<18;i++){let v=random(),x=Math.sin(v*6.3)*length*.14+(random()-.5)*w;stone([x,(1-v)*vertical*.5,(v-.5)*length*2],[.15,.12,.19],'#767d78',.5,'Pedras da corredeira')}}
+ if(activeCategory==='tunnels'){buildTunnels(type,color,amount,size,area,vertical,rough)}
+ else if(activeCategory==='rocks'){for(let i=0;i<amount;i++){let c=amount===1?[0,0,0]:scatterPoint(area),s=size*(.65+random()*.6),sy=s*(type==='pebble'?.45:type==='cliff'?1.8:type==='stalagmite'?3:1)*vertical;if(type==='crystal'){let n=6,r=s*.4,h=s*2.8*vertical,tip=add(c,[s*.15,h,0]);for(let j=0;j<n;j++){let a=j/n*Math.PI*2,b=(j+1)/n*Math.PI*2,pa=add(c,[Math.cos(a)*r,0,Math.sin(a)*r]),pb=add(c,[Math.cos(b)*r,0,Math.sin(b)*r]),qa=add(pa,[0,h*.7,0]),qb=add(pb,[0,h*.7,0]);environmentTriangle(pa,pb,qa,color,8,p[0]);environmentTriangle(pb,qb,qa,color,8,p[0]);environmentTriangle(qa,qb,tip,color,8,p[0])}}else{stone(add(c,[0,sy*.65,0]),[s,sy,s*(.6+random()*.3)],color,rough,p[0],type==='pebble'||type==='gravel');if(type==='mossrock')for(let j=0;j<8;j++)stone(add(c,[(random()-.5)*s,sy*(1+random()*.4),(random()-.5)*s]),[s*.25,s*.1,s*.23],'#667d45',.8,'Musgo',true)}}}
+ else if(activeCategory==='water'){let length=area,width=size*2.5,amplitude=waves*.05,flow=(u,v)=>Math.sin(u*24+v*9)*amplitude+Math.sin(v*37-u*7)*amplitude*.35;if(type==='waterfall'){let h=vertical*3.5;gridSurface(48,32,(u,v)=>[(u-.5)*width*(.85+v*.15),h*(1-v),Math.sin(v*Math.PI)*.22+flow(u,v)],color,4,'Queda de água');generateLakeBasin('pool',color,width*2.2,width*2.2,vertical,rough,flow,'Poço da cachoeira',width*.7);for(let i=0;i<35;i++){let a=random()*6.283,r=Math.sqrt(random())*width*.45;stone([Math.cos(a)*r,.03,Math.sin(a)*r+width*.7],[.04+random()*.09,.012,.06],'#d4e5dc',.2,'Espuma',true)}for(let side of [-1,1])stone([side*width*.65,h*.47,0],[width*.3,h*.48,.5],'#69716b',.6,'Rochas da cachoeira')}
+ else if(['river','stream','rapids'].includes(type)){let w=width*(type==='stream'?.45:1);generateWaterChannel(type,color,length,w,vertical,rough,flow,p[0]);if(type==='rapids')for(let i=0;i<18;i++){let v=random(),x=Math.sin(v*6.3)*length*.14+(random()-.5)*w;stone([x,(1-v)*vertical*.5,(v-.5)*length*2],[.15,.12,.19],'#767d78',.5,'Pedras da corredeira')}}
+ else if(['lake','pond','pool','puddle'].includes(type)){generateLakeBasin(type,color,length,width,vertical,rough,flow,p[0])}
  else{let n=Math.round(96*meshDetail()),rings=Math.round(36*meshDetail()),points=[];for(let j=0;j<=rings;j++){let row=[];for(let i=0;i<=n;i++){let a=i/n*Math.PI*2,r=j/rings,edge=1+.05*Math.sin(a*5)+.035*Math.cos(a*9);row.push([Math.cos(a)*length*.5*r*edge,flow(Math.cos(a)*r,Math.sin(a)*r),Math.sin(a)*width*.5*r*edge])}points.push(row)}for(let j=0;j<rings;j++)for(let i=0;i<n;i++){environmentTriangle(points[j][i],points[j+1][i+1],points[j+1][i],color,4,p[0]);if(j>0)environmentTriangle(points[j][i],points[j][i+1],points[j+1][i+1],color,4,p[0])}}
  }
  else if(activeCategory==='grass'){for(let i=0;i<amount;i++){let b=scatterPoint(area),h=size*vertical*(.6+random()*.7),a=random()*6.28,count=type==='tufts'?12:5;for(let j=0;j<count;j++)blade(add(b,[(random()-.5)*.06,0,(random()-.5)*.06]),h*(.55+random()*.45),h*(type==='reeds'?.012:.025),a+j*2.4,h*.25,color,p[0]);if(type==='cattails'){stem(b,add(b,[0,h*1.25,0]),.009,'#67804b',p[0]);stone(add(b,[0,h*1.15,0]),[.035,h*.13,.035],'#71533a',.1,'Espigas',true)}if(type==='pampas')for(let j=0;j<8;j++){let tip=add(b,[Math.cos(j)*.06,h*(.85+j*.03),Math.sin(j)*.06]);leafAt(tip,h*.24,h*.055,j,color,'Plumas',.07)}}}
@@ -285,11 +519,11 @@ function generateEnvironment(){random=rng(seed);faces=[];const p=assetPreset||as
  else if(activeCategory==='flowers'){for(let i=0;i<amount;i++){let b=scatterPoint(area),h=size*vertical*(.7+random()*.5);if(type==='fern')frond(b,h,color,p[0]);else if(type==='lilypads'){leafAt(b,h*1.7,h*.75,random()*6.28,color,p[0],.015);if(random()>.6)flower(b,.12,'#e1b6c8','wildflowers','Flores aquáticas')}else if(type==='sprouts'){stem(b,add(b,[0,h,0]),.004,'#60864c',p[0]);for(let j=0;j<4;j++)leafAt(add(b,[0,h*(.4+j*.2),0]),h*.5,h*.14,j*2.4,color,p[0],h*.1)}else if(type==='rose'||type==='rosebud')rose(b,h,color,type,p[0]);else flower(b,h,color,type,p[0])}}
  else if(activeCategory==='fungi'){if(type==='lichen'){stone([0,size*.35,0],[size,size*.4,size*.75],'#858b82',rough,'Rocha',true);for(let i=0;i<140;i++){let a=random()*6.28,r=Math.sqrt(random())*size*.8;leafAt([Math.cos(a)*r,size*.72+random()*.035,Math.sin(a)*r],size*.09,size*.035,random()*6.28,color,'Líquens',.01)}}else for(let i=0;i<amount;i++){let b=scatterPoint(area);if(type==='shelf'){b[1]=i*size*.15;mushroom(b,size,color,'mushroom',p[0])}else mushroom(b,size*(.65+random()*.5)*vertical,color,type,p[0])}}
  else if(activeCategory==='wood'){for(let i=0;i<amount;i++){let c=amount===1?[0,0,0]:scatterPoint(area),a=random()*6.28,len=size*(type==='log'||type==='charlog'?3.4:1.5),r=size*(type==='log'||type==='charlog'?.24:.05),tip=add(c,[Math.cos(a)*len,.1*vertical,Math.sin(a)*len]);part=p[0];if(type==='barkchips'){let start=faces.length;leafAt(c,size,size*.3,a,color,p[0],size*.15);for(let k=start;k<faces.length;k++)faces[k].kind=0;continue}cylinder(add(c,[0,r,0]),add(tip,[0,r,0]),r,r*.68,color,true,true);if(type==='branch'||type==='driftwood'||type==='branches')for(let j=1;j<4;j++){let q=add(c,mul(tip.map((x,k)=>x-c[k]),j/4));cylinder(q,add(q,[Math.cos(a+j)*len*.35,.1,Math.sin(a+j)*len*.35]),r*.45,.003,color,true,true)}}}
- if(activeCategory==='litter')for(const f of faces)if(f.kind===1)f.kind=7;for(let i=0;i<assetControlIds.length;i++)$(assetControlIds[i]+'Val').textContent=$(assetControlIds[i]).value+(i===0?'':'%');finishEnvironment()}
-function currentAssetName(){return activeCategory==='trees'?current.name:assetPreset?.[0]||'Elemento'}
-function applyAssetPreset(index=0){assetPreset=assetCatalog[activeCategory][index];const p=assetPreset;$('assetAmount').max=p[1]==='fern'?40:activeCategory==='grass'||activeCategory==='litter'?260:activeCategory==='rocks'?180:activeCategory==='shrubs'?20:['mountains','terrains'].includes(activeCategory)?8:activeCategory==='water'?1:activeCategory==='fungi'?60:activeCategory==='flowers'?120:60;$('assetSeed').value=seed;for(const [id,val]of Object.entries({assetAmount:p[3],assetSize:p[4]*100,assetArea:['mountains','terrains'].includes(activeCategory)?850:activeCategory==='water'?450:280,assetVertical:100,assetDetail:55,assetWaves:45,landErosion:45,landSediment:40,landStrata:['mesa','escarpment','chapada','canyon','terraces'].includes(p[1])?70:25,landSnow:['snowpeak','alpine','glacial','highlands'].includes(p[1])?55:0,landWaterLevel:p[1]==='floodplain'?55:22}))$(id).value=val;$('assetColor').value=p[2];$('assetAmount').disabled=activeCategory==='water';$('assetDetail').disabled=!['rocks','mountains','terrains','shrubs'].includes(activeCategory);$('landformOptions').hidden=!['mountains','terrains'].includes(activeCategory);$('landWater').checked=['island','coast','fjord','floodplain'].includes(p[1]);$('landWaterLevel').disabled=!$('landWater').checked;updateLandLabels();$('waterOptions').hidden=activeCategory!=='water';$('waterNote').hidden=activeCategory!=='water';$('assetWaves').disabled=activeCategory!=='water';generate()}
-function switchCategory(id){clearTimeout(regenerationTimer);saveFinishState(activeCategory);if(assetCatalog[activeCategory]&&assetPreset)categoryStates[activeCategory]={index:assetCatalog[activeCategory].indexOf(assetPreset),values:assetControlIds.map(k=>$(k).value),color:$('assetColor').value,water:$('landWater').checked};activeCategory=id;restoreFinishState(id);closeMenu();for(const b of document.querySelectorAll('[data-generator]'))b.setAttribute('aria-selected',String(b.dataset.generator===id));$('panelTitle').textContent=categories.find(c=>c[0]===id)[1];$('treeLibraryEntry').hidden=id!=='trees';$('treeConfigTabs').hidden=id!=='trees';$('treePanels').hidden=id!=='trees';$('assetPanel').hidden=id==='trees';$('exportGlb').disabled=false;if(id==='trees'){generate()}else{let select=$('assetPreset');select.replaceChildren();assetCatalog[id].forEach((p,i)=>{let o=document.createElement('option');o.value=i;o.textContent=p[0];select.append(o)});const saved=categoryStates[id];applyAssetPreset(saved?.index||0);if(saved){select.value=saved.index;assetControlIds.forEach((k,i)=>$(k).value=saved.values[i]);$('assetColor').value=saved.color;$('landWater').checked=!!saved.water;$('landWaterLevel').disabled=!saved.water;generate()}}zoom=1;panX=panY=0;pitch=id==='trees'?.12:['water','litter','grass','terrains'].includes(id)?-.65:-.25;draw()}
-function setupEnvironment(){const nav=$('generatorTabs');for(const [id,name]of categories){let b=document.createElement('button');b.textContent=name;b.dataset.generator=id;b.setAttribute('aria-label',name);b.setAttribute('role','tab');b.setAttribute('aria-selected',String(id==='trees'));b.onclick=()=>switchCategory(id);b.onkeydown=e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();let index=categories.findIndex(c=>c[0]===id),next=(index+(e.key==='ArrowRight'?1:-1)+categories.length)%categories.length;switchCategory(categories[next][0]);nav.children[next].focus()}};nav.append(b)}$('landWater').onchange=()=>{$('landWaterLevel').disabled=!$('landWater').checked;generate()};$('assetPreset').onchange=()=>applyAssetPreset(+$('assetPreset').value);$('assetSeed').onchange=()=>{seed=Math.max(1,Math.min(999999,Math.floor(Number($('assetSeed').value)||7341)));$('seedInput').value=$('assetSeed').value=seed;generate()};for(const id of [...assetControlIds,'assetColor'])$(id).oninput=()=>{clearTimeout(regenerationTimer);regenerationTimer=setTimeout(generate,130)}}
+ if(activeCategory==='litter')for(const f of faces)if(f.kind===1)f.kind=7;for(let i=0;i<assetControlIds.length;i++)$(assetControlIds[i]+'Val').textContent=$(assetControlIds[i]).value+(assetControlIds[i]==='assetAmount'?'':'%');finishEnvironment()}
+function currentAssetName(){return activeCategory==='scenes'?'Cenario-completo':activeCategory==='trees'?current.name:assetPreset?.[0]||'Elemento'}
+function applyAssetPreset(index=0){assetPreset=assetCatalog[activeCategory][index];const p=assetPreset;$('assetAmount').max=p[1]==='fern'?40:activeCategory==='grass'||activeCategory==='litter'?260:activeCategory==='rocks'?180:activeCategory==='shrubs'?20:activeCategory==='tunnels'?5:['mountains','terrains'].includes(activeCategory)?8:activeCategory==='water'?1:activeCategory==='fungi'?60:activeCategory==='flowers'?120:60;$('assetSeed').value=seed;for(const [id,val]of Object.entries({lakeDepth:100,lakeBank:50,assetAmount:p[3],assetSize:p[4]*100,assetArea:['mountains','terrains'].includes(activeCategory)?850:activeCategory==='water'?450:activeCategory==='tunnels'?450:280,assetVertical:100,assetDetail:55,assetWaves:45,landErosion:45,landSediment:40,landStrata:['mesa','escarpment','chapada','canyon','terraces'].includes(p[1])?70:25,landSnow:['snowpeak','alpine','glacial','highlands'].includes(p[1])?55:0,landWaterLevel:p[1]==='floodplain'?55:22}))$(id).value=val;$('assetColor').value=p[2];$('assetAmount').disabled=activeCategory==='water';$('assetDetail').disabled=!['rocks','mountains','terrains','shrubs','tunnels'].includes(activeCategory);$('landformOptions').hidden=!['mountains','terrains'].includes(activeCategory);$('landWater').checked=false;$('landWaterLevel').disabled=!$('landWater').checked;updateLandLabels();$('tunnelBendOptions').hidden=activeCategory!=='tunnels';$('waterOptions').hidden=activeCategory!=='water';$('waterNote').hidden=activeCategory!=='water';$('lakeDepth').parentElement.hidden=false;$('lakeDepth').hidden=$('lakeBank').hidden=$('lakeNote').hidden=activeCategory!=='water';document.querySelector('label[for=lakeDepth]').hidden=document.querySelector('label[for=lakeBank]').hidden=$('lakeDepth').hidden;$('assetWaves').disabled=activeCategory!=='water';generate()}
+function switchCategory(id){if(id==='scenes'){enterScene();return}if(activeCategory==='scenes')activeCategory='trees';$('scenePanel').hidden=true;$('meshQuality').hidden=false;$('finishingPanel').hidden=false;clearTimeout(regenerationTimer);saveFinishState(activeCategory);if(assetCatalog[activeCategory]&&assetPreset)categoryStates[activeCategory]={index:assetCatalog[activeCategory].indexOf(assetPreset),values:assetControlIds.map(k=>$(k).value),color:$('assetColor').value,water:$('landWater').checked};activeCategory=id;restoreFinishState(id);closeMenu();for(const b of document.querySelectorAll('[data-generator]'))b.setAttribute('aria-selected',String(b.dataset.generator===id));$('panelTitle').textContent=categories.find(c=>c[0]===id)[1];$('treeLibraryEntry').hidden=id!=='trees';$('treeConfigTabs').hidden=id!=='trees';$('treePanels').hidden=id!=='trees';$('assetPanel').hidden=id==='trees';$('tunnelBendOptions').hidden=id!=='tunnels';$('exportGlb').disabled=false;$('addCurrentToScene').hidden=false;if(id==='trees'){generate()}else{let select=$('assetPreset');select.replaceChildren();assetCatalog[id].forEach((p,i)=>{let o=document.createElement('option');o.value=i;o.textContent=p[0];select.append(o)});const saved=categoryStates[id];applyAssetPreset(saved?.index||0);if(saved){select.value=saved.index;assetControlIds.forEach((k,i)=>$(k).value=saved.values[i]);$('assetColor').value=saved.color;$('landWater').checked=false;$('landWaterLevel').disabled=!saved.water;generate()}}zoom=1;panX=panY=0;pitch=id==='trees'?.12:['water','litter','grass','terrains'].includes(id)?-.65:-.25;draw()}
+function setupEnvironment(){for(const id of ['tunnelCurve','tunnelDirection','tunnelLength'])$(id).addEventListener('input',()=>{$(id+'Val').textContent=$(id).value+(id==='tunnelLength'?'%':'°');clearTimeout(regenerationTimer);regenerationTimer=setTimeout(generate,90)});const nav=$('generatorTabs');for(const [id,name]of categories){let b=document.createElement('button');b.textContent=name;b.dataset.generator=id;b.setAttribute('aria-label',name);b.setAttribute('role','tab');b.setAttribute('aria-selected',String(id==='trees'));b.onclick=()=>switchCategory(id);b.onkeydown=e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();let index=categories.findIndex(c=>c[0]===id),next=(index+(e.key==='ArrowRight'?1:-1)+categories.length)%categories.length;switchCategory(categories[next][0]);nav.children[next].focus()}};nav.append(b)}$('landWater').onchange=()=>{$('landWaterLevel').disabled=!$('landWater').checked;generate()};$('assetPreset').onchange=()=>applyAssetPreset(+$('assetPreset').value);$('assetSeed').onchange=()=>{seed=Math.max(1,Math.min(999999,Math.floor(Number($('assetSeed').value)||7341)));$('seedInput').value=$('assetSeed').value=seed;generate()};for(const id of [...assetControlIds,'assetColor'])$(id).oninput=()=>{clearTimeout(regenerationTimer);regenerationTimer=setTimeout(generate,130)}}
 const numericControls=['height','depth','spread','foliage','thickness','twist','rootCount','rootLength','rootLift','barkRelief'];
 function generateTree(){random=rng(seed);faces=[];leafSerial=0;part='Tronco';const ht=+$('height').value/100,depth=+$('depth').value,spread=+$('spread').value/100,mode=$('mode').value,dead=$('dead').checked,fol=mode==='full'&&!dead?+$('foliage').value/100:0,bark=$('bark').value,leaf=$('leaf').value,thick=+$('thickness').value/100,twist=+$('twist').value/100,rootReach=+$('rootLength').value/100,lift=+$('rootLift').value/100,roots=$('rootsEnabled').checked;
 function branch(a,dir,len,r,level){let bend=twist*(1-level/(depth+1)),b=add(a,add(mul(dir,len),[Math.sin(a[1]*2+a[2])*bend*.23,0,Math.cos(a[1]*2+a[0])*bend*.23]));cylinder(a,b,r,r*(dead&&level===0?.08:.64),bark,dead&&level===0);if(level<=0){if(fol>0)crown(b,(.26+random()*.22)*fol,leaf);return}let n=level===depth?3:2;for(let i=0;i<n;i++){let angle=random()*Math.PI*2+i*2.4,h=spread*(.65+random()*.45),up=current.type==='acacia'?.12:current.type==='haunted'?(.1+random()*.65):.38+random()*.35,d=norm(add(mul(dir,current.type==='acacia'?.3:.55),[Math.cos(angle)*h,up,Math.sin(angle)*h]));let next=len*(.63+random()*.12);if(dead&&random()<.15&&level<depth-1){let tip=add(b,mul(d,next*.35));cylinder(b,tip,r*.58,.01,bark,true)}else branch(b,d,next,r*.61,level-1)}if(current.type==='banyan'&&roots&&level===2&&random()>.55){const old=part;part='Raízes';let dest=[b[0]+.1,0,b[2]+.1];tube([b,add(mul(b,.75),[.05,0,.05]),add(mul(b,.35),[.12,0,.12]),dest],.025*thick,.045*thick,bark);part=old}}
@@ -308,7 +542,7 @@ $('seedLabel').textContent='SEMENTE '+seed;$('status').textContent=Math.round(fa
 function shade(hex,k){return '#'+hex.slice(1).match(/../g).map(s=>Math.min(255,Math.round(parseInt(s,16)*k)).toString(16).padStart(2,'0')).join('')}
 function transform(p){let x=p[0]*Math.cos(yaw)+p[2]*Math.sin(yaw),z=-p[0]*Math.sin(yaw)+p[2]*Math.cos(yaw),y=p[1]-2.3;return[x,y*Math.cos(pitch)-z*Math.sin(pitch),y*Math.sin(pitch)+z*Math.cos(pitch)]}
 function project(p){let scale=Math.min(W/7,H/6.7)*zoom*9/(9+p[2]);return[W/2+p[0]*scale,H*.50-p[1]*scale]}
-function draw(){updateShadow();gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);for(const [key,value]of Object.entries({yaw,pitch,zoom,aspect:W/H}))gl.uniform1f(uniform(key),value);gl.uniform3fv(uniform('center'),modelCenter);gl.uniform1f(uniform('fit'),modelScale);gl.uniform2f(uniform('pan'),panX,panY);gl.uniform1f(uniform('environment'),+$('environment').value);gl.uniform1f(uniform('time'),waterClock);let az=+$('lightAzimuth').value*Math.PI/180,el=+$('lightElevation').value*Math.PI/180;gl.uniform3fv(uniform('lightDirection'),[Math.sin(az)*Math.cos(el),Math.sin(el),-Math.cos(az)*Math.cos(el)]);gl.uniform3fv(uniform('eye'),add(modelCenter,mul([Math.sin(yaw)*Math.cos(pitch),-Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch)],9/modelScale)));for(const [key,value]of Object.entries({relief:+$('surfaceDetail').value/100,roughness:+$('surfaceRoughness').value/100,keyIntensity:+$('lightIntensity').value/100,ambientStrength:+$('lightAmbient').value/100,enhanced:1}))gl.uniform1f(uniform(key),value);gl.drawArrays(gl.TRIANGLES,0,vertexCount)}
+function draw(){updateShadow();gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);for(const [key,value]of Object.entries({yaw,pitch,zoom,aspect:W/H}))gl.uniform1f(uniform(key),value);gl.uniform3fv(uniform('center'),modelCenter);gl.uniform1f(uniform('fit'),modelScale);if(scenePreview&&activeCategory==='scenes'&&sceneSelected>=0){const obj=sceneObjects[sceneSelected],old=sceneFullPoses?.get(obj?.id);if(obj&&old){gl.uniform1f(uniform('editObject'),sceneSelected);gl.uniformMatrix4fv(uniform('editMatrix'),false,scenePreviewMatrix(old,scenePose(obj)))}else gl.uniform1f(uniform('editObject'),-100)}else gl.uniform1f(uniform('editObject'),-100);gl.uniform2f(uniform('pan'),panX,panY);gl.uniform1f(uniform('environment'),+$('environment').value);gl.uniform1f(uniform('time'),waterClock);let az=+$('lightAzimuth').value*Math.PI/180,el=+$('lightElevation').value*Math.PI/180;gl.uniform3fv(uniform('lightDirection'),[Math.sin(az)*Math.cos(el),Math.sin(el),-Math.cos(az)*Math.cos(el)]);gl.uniform3fv(uniform('eye'),add(modelCenter,mul([Math.sin(yaw)*Math.cos(pitch),-Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch)],9/modelScale)));for(const [key,value]of Object.entries({relief:+$('surfaceDetail').value/100,roughness:+$('surfaceRoughness').value/100,keyIntensity:+$('lightIntensity').value/100,ambientStrength:+$('lightAmbient').value/100,enhanced:1}))gl.uniform1f(uniform(key),value);gl.drawArrays(gl.TRIANGLES,0,vertexCount);if(typeof sceneDrawGizmo==='function')sceneDrawGizmo()}
 let renderDpr=1.5;
 function resize(){let box=canvas.parentElement.getBoundingClientRect();W=box.width;H=box.height;let d=Math.min(devicePixelRatio,renderDpr);canvas.width=W*d;canvas.height=H*d;draw()}new ResizeObserver(resize).observe(canvas.parentElement);
 const menu=$('speciesMenu');
@@ -325,26 +559,431 @@ function resumeAnimation(){last=performance.now();if(!raf&&!document.hidden)raf=
 document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else resumeAnimation()});
 const motionPreference=matchMedia('(prefers-reduced-motion:reduce)');if(motionPreference.matches){auto=false;$('rotate').textContent='▶';$('rotate').setAttribute('aria-pressed','false')}
 $('rotate').addEventListener('click',resumeAnimation);canvas.addEventListener('pointerup',resumeAnimation);
-setupEnvironment();setupFinishing();choosePreset(species[0],false);resize();resumeAnimation();
+
+// Scene assembler. Each object retains its original local meshes and is transformed only on display/export.
+const sceneObjects=[];let sceneSelected=-1,sceneSequence=0,gizmoMode='move',gizmoDrag=null;
+const gizmoSvg=$('sceneGizmo'),gizmoNS='http://www.w3.org/2000/svg';
+function objectScale(o){return o.scaleXYZ||[o.scale/100,o.scale/100,o.scale/100]}
+function sceneProject(p){
+ const local=p.map((v,i)=>(v-modelCenter[i])*modelScale),cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+ const x=local[0]*cy+local[2]*sy,z=-local[0]*sy+local[2]*cy,y=local[1]*cp-z*sp,depth=9+local[1]*sp+z*cp;
+ return [W*.5+(x*2.65*zoom/(W/H)/depth+panX)*W*.5,H*.5-(y*2.65*zoom/depth+panY)*H*.5];
+}
+function gizmoElement(tag,attributes){const el=document.createElementNS(gizmoNS,tag);for(const [k,v] of Object.entries(attributes))el.setAttribute(k,String(v));gizmoSvg.appendChild(el);return el}
+function sceneDrawGizmo(){
+ gizmoSvg.replaceChildren();const obj=activeCategory==='scenes'&&sceneObjects[sceneSelected];if(obj&&obj.visible){gizmoSvg.removeAttribute('hidden');gizmoSvg.style.display='block'}else{gizmoSvg.setAttribute('hidden','');gizmoSvg.style.display='none'}if(!obj||!obj.visible||!W||!H)return;
+ gizmoSvg.setAttribute('viewBox',`0 0 ${W} ${H}`);gizmoSvg.setAttribute('width',W);gizmoSvg.setAttribute('height',H);
+ const center=[obj.x,obj.y+(obj._waterLift||0),obj.z],projected=sceneProject(center),origin=[Math.max(58,Math.min(W-58,projected[0])),Math.max(58,Math.min(H-58,projected[1]))],axes=[[1,0,0],[0,1,0],[0,0,1]],colors=['#f16b67','#79d88a','#6ba6ff'];
+ const radius=Math.max(.7,Math.min(5,2.5/Math.max(.0001,modelScale)))/3;
+ const baseAxisPx=axes.map(axis=>{const pt=sceneProject(center.map((v,k)=>v+axis[k]*radius));return Math.hypot(pt[0]-projected[0],pt[1]-projected[1])});
+ const gizmoFactor=96/Math.max(1,...baseAxisPx);
+ const originalProject=sceneProject;
+ const handleProject=p=>{const point=originalProject(p),dx=point[0]-projected[0],dy=point[1]-projected[1];return [origin[0]+dx,origin[1]+dy]};
+ const axisTip=(axis,i)=>{let point=handleProject(center.map((v,k)=>v+axis[k]*radius)),dx=point[0]-origin[0],dy=point[1]-origin[1],len=Math.hypot(dx,dy);if(len<7){const fallback=[[.9,.30],[0,-1],[-.85,.45]][i];return [origin[0]+fallback[0]*32,origin[1]+fallback[1]*32]}return [origin[0]+dx,origin[1]+dy]};
+ const bind=(el,axis)=>{el.dataset.axis=axis;el.addEventListener('pointerdown',gizmoStart)};
+ if(gizmoMode==='rotate'){
+  axes.forEach((axis,i)=>{let points=[];for(let j=0;j<=72;j++){let t=j/72*Math.PI*2,vec=i===0?[0,Math.cos(t),Math.sin(t)]:i===1?[Math.cos(t),0,Math.sin(t)]:[Math.cos(t),Math.sin(t),0];let pt=handleProject(center.map((v,k)=>v+vec[k]*radius));points.push(pt.join(','))}
+   gizmoElement('polyline',{points:points.join(' '),fill:'none',stroke:colors[i],'stroke-width':2,opacity:.9});const hit=gizmoElement('polyline',{points:points.join(' '),class:'gizmo-hit'});bind(hit,i);
+  });
+ }else{
+  axes.forEach((axis,i)=>{const end=axisTip(axis,i);gizmoElement('line',{x1:origin[0],y1:origin[1],x2:end[0],y2:end[1],stroke:'#151c24','stroke-width':4.5,'stroke-linecap':'round'});gizmoElement('line',{x1:origin[0],y1:origin[1],x2:end[0],y2:end[1],stroke:colors[i],'stroke-width':2.5,'stroke-linecap':'round'});const hit=gizmoElement('line',{x1:origin[0],y1:origin[1],x2:end[0],y2:end[1],class:'gizmo-hit'});bind(hit,i);
+   if(gizmoMode==='scale'){let r=gizmoElement('rect',{x:end[0]-5,y:end[1]-5,width:10,height:10,rx:1,fill:colors[i],stroke:'#20252e','stroke-width':1,class:'gizmo-handle'});bind(r,i)}else{let dx=end[0]-origin[0],dy=end[1]-origin[1],len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;let pts=[[end[0]+ux*5,end[1]+uy*5],[end[0]-ux*7-uy*3.5,end[1]-uy*7+ux*3.5],[end[0]-ux*7+uy*3.5,end[1]-uy*7-ux*3.5]].map(v=>v.join(',')).join(' ');let tri=gizmoElement('polygon',{points:pts,fill:colors[i],stroke:'#111820','stroke-width':1,class:'gizmo-handle'});bind(tri,i)}let label=gizmoElement('text',{x:end[0]+8,y:end[1]-8,fill:colors[i],class:'gizmo-marker'});label.textContent=['X','Y','Z'][i];
+  });
+ }
+ gizmoElement('circle',{cx:origin[0],cy:origin[1],r:5.5,fill:'#e5eaf1',stroke:'#30353c','stroke-width':1.5});
+}
+function gizmoStart(e){if(activeCategory!=='scenes'||sceneSelected<0)return;e.preventDefault();e.stopPropagation();const axis=Number(e.currentTarget.dataset.axis),obj=sceneObjects[sceneSelected],origin=sceneProject([obj.x,obj.y+(obj._waterLift||0),obj.z]),unit=[0,0,0];unit[axis]=1;const tip=sceneProject([obj.x+unit[0],obj.y+(obj._waterLift||0)+unit[1],obj.z+unit[2]]);let dx=tip[0]-origin[0],dy=tip[1]-origin[1],length=Math.hypot(dx,dy);if(length<12){const v=[[.9,.3],[0,-1],[-.85,.45]][axis];dx=v[0]*45;dy=v[1]*45;length=Math.hypot(dx,dy)}
+ gizmoDrag={axis,object:obj,start:[e.clientX,e.clientY],startPos:[obj.x,obj.y,obj.z],startScale:objectScale(obj).slice(),startRotation:obj.rotation,dir:[dx/length,dy/length],pxPerUnit:length};
+ gizmoDrag.startAngles=(obj.rotationXYZ||[0,0,0]).slice();
+ window.addEventListener('pointermove',gizmoMove,true);window.addEventListener('pointerup',gizmoEnd,true);window.addEventListener('pointercancel',gizmoEnd,true);
+}
+function gizmoMove(e){if(!gizmoDrag)return;e.preventDefault();e.stopPropagation();const d=gizmoDrag,dx=e.clientX-d.start[0],dy=e.clientY-d.start[1],amount=(dx*d.dir[0]+dy*d.dir[1])/d.pxPerUnit,o=d.object;
+ if(gizmoMode==='move'){let key=['x','y','z'][d.axis];o[key]=d.startPos[d.axis]+amount}
+ else if(gizmoMode==='scale'){let value=Math.max(.025,Math.min(40,d.startScale[d.axis]*(1+amount/1.5)));o.scaleXYZ=e.shiftKey?d.startScale.map(v=>Math.max(.025,Math.min(40,v*value/d.startScale[d.axis]))):d.startScale.map((v,i)=>i===d.axis?value:v)}
+ else {let delta=(dx*d.dir[1]-dy*d.dir[0])*.55;if(d.axis===1)o.rotation=d.startRotation+delta;else{o.rotationXYZ=d.startAngles.slice();o.rotationXYZ[d.axis]+=delta}}
+ sceneRefresh(true);
+}
+function gizmoEnd(e){if(!gizmoDrag)return;window.removeEventListener('pointermove',gizmoMove,true);window.removeEventListener('pointerup',gizmoEnd,true);window.removeEventListener('pointercancel',gizmoEnd,true);gizmoDrag=null;sceneRefresh();sceneRenderList()}
+function setGizmoMode(mode){gizmoMode=mode;for(const b of document.querySelectorAll('[data-gizmo-mode]'))b.setAttribute('aria-pressed',String(b.dataset.gizmoMode===mode));sceneDrawGizmo()}
+
+// Recorte de geometria: a malha do terreno e aparada sob a pegada
+// da agua e das margens. O resultado passa para a prévia E para o GLB.
+function sceneWaterAboveTerrain(ranges){
+ const terrain=[],wat=[];
+ for(const entry of ranges){
+  if(entry.obj.category==='terrains'){
+   for(let i=entry.start;i<entry.end;i++){
+    const f=faces[i];if(f.points.length!==3||/subsolo/i.test(f.part||''))continue;
+    const [a,b,c]=f.points,det=(b[2]-c[2])*(a[0]-c[0])+(c[0]-b[0])*(a[2]-c[2]);
+    if(Math.abs(det)<1e-9)continue;
+    const n=cross(b.map((v,k)=>v-a[k]),c.map((v,k)=>v-a[k]));
+    if(Math.abs(n[1])<Math.hypot(...n)*.25)continue;
+    terrain.push({f,a,b,c,det,minX:Math.min(a[0],b[0],c[0]),maxX:Math.max(a[0],b[0],c[0]),minZ:Math.min(a[2],b[2],c[2]),maxZ:Math.max(a[2],b[2],c[2])});
+   }
+  }else if(entry.obj.category==='water')wat.push(entry);
+ }
+ for(const e of wat)e.obj._waterLift=0;
+ if(!terrain.length||!wat.length)return;
+ const cell=.22,key=(x,z)=>Math.floor(x/cell)+','+Math.floor(z/cell),groundGrid=new Map();
+ function insert(grid,t){for(let x=Math.floor(t.minX/cell);x<=Math.floor(t.maxX/cell);x++)for(let z=Math.floor(t.minZ/cell);z<=Math.floor(t.maxZ/cell);z++){let k=x+','+z,arr=grid.get(k);if(!arr)grid.set(k,arr=[]);arr.push(t)}}
+ for(const t of terrain)insert(groundGrid,t);
+ function contains(t,x,z){
+  if(x<t.minX-1e-7||x>t.maxX+1e-7||z<t.minZ-1e-7||z>t.maxZ+1e-7)return null;
+  const {a,b,c,det}=t,u=((b[2]-c[2])*(x-c[0])+(c[0]-b[0])*(z-c[2]))/det,v=((c[2]-a[2])*(x-c[0])+(a[0]-c[0])*(z-c[2]))/det;
+  return u>=-1e-6&&v>=-1e-6&&u+v<=1.000001?[u,v,1-u-v]:null;
+ }
+ function groundHeight(x,z){let h=-Infinity;for(const t of groundGrid.get(key(x,z))||[]){const b=contains(t,x,z);if(b)h=Math.max(h,b[0]*t.a[1]+b[1]*t.b[1]+b[2]*t.c[1])}return h}
+ function groundSample(x,z){
+  let best=null,bestY=-Infinity;
+  for(const t of groundGrid.get(key(x,z))||[]){
+   const bary=contains(t,x,z);if(!bary)continue;
+   const y=bary[0]*t.a[1]+bary[1]*t.b[1]+bary[2]*t.c[1];
+   if(y<bestY)continue;
+   const face=t.f;
+   const cols=face.landColors&&face.landColors.length===face.points.length?face.landColors:face.points.map(()=>rgb(face.color));
+   const uvs=face.uv&&face.uv.length===face.points.length?face.uv:null;
+   bestY=y;
+   best={height:y,color:[0,1,2].map(i=>bary[0]*cols[0][i]+bary[1]*cols[1][i]+bary[2]*cols[2][i]),uv:uvs?[bary[0]*uvs[0][0]+bary[1]*uvs[1][0]+bary[2]*uvs[2][0],bary[0]*uvs[0][1]+bary[1]*uvs[1][1]+bary[2]*uvs[2][1]]:[x*2.2,z*2.2]};
+  }
+  return best;
+ }
+ function triRecord(a,b,c){return {a,b,c,det:(b[2]-c[2])*(a[0]-c[0])+(c[0]-b[0])*(a[2]-c[2]),minX:Math.min(a[0],b[0],c[0]),maxX:Math.max(a[0],b[0],c[0]),minZ:Math.min(a[2],b[2],c[2]),maxZ:Math.max(a[2],b[2],c[2])}}
+ const cutGrid=new Map(),shoreGrid=new Map(),trimFootprint=[];
+ for(const entry of wat){
+  const o=entry.obj;
+  let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity,waterY=-Infinity;
+  for(let i=entry.start;i<entry.end;i++){
+   const f=faces[i];if(f.kind!==4||f.points.length<3)continue;
+   const normal=cross(f.points[1].map((v,k)=>v-f.points[0][k]),f.points[2].map((v,k)=>v-f.points[0][k]));
+   if(Math.abs(normal[1])<Math.hypot(...normal)*.38)continue; // Quedas verticais não definem a altura do lago.
+   for(const p of f.points){minX=Math.min(minX,p[0]);maxX=Math.max(maxX,p[0]);minZ=Math.min(minZ,p[2]);maxZ=Math.max(maxZ,p[2]);waterY=Math.max(waterY,p[1])}
+  }
+  if(!Number.isFinite(waterY))continue;
+  const cx=(minX+maxX)/2,cz=(minZ+maxZ)/2;
+  const hh=[[cx,cz],[minX,cz],[maxX,cz],[cx,minZ],[cx,maxZ]]
+   .map(([x,z])=>groundHeight(x,z)).filter(Number.isFinite).sort((a,b)=>a-b);
+  if(hh.length){const ground=hh[Math.floor(hh.length/2)];o._waterLift=ground-.035-(waterY-o.y)}
+  for(let i=entry.start;i<entry.end;i++)for(const p of faces[i].points)p[1]+=o._waterLift;
+  // Adapta a faixa externa das margens à altura real do terreno.
+  // O lado interno continua ligado à lâmina d'água.
+  const bankFaces=[];
+  let bankLow=Infinity,bankHigh=-Infinity;
+  for(let i=entry.start;i<entry.end;i++){
+   const f=faces[i];
+   if(!/margem|beirada/i.test(f.part||''))continue;
+   bankFaces.push(f);
+   for(const p of f.points){bankLow=Math.min(bankLow,p[1]);bankHigh=Math.max(bankHigh,p[1])}
+  }
+  const heightCache=new Map();
+  function groundAt(x,z){const k=x.toFixed(4)+','+z.toFixed(4);if(!heightCache.has(k))heightCache.set(k,groundHeight(x,z));return heightCache.get(k)}
+  if(bankFaces.length&&bankHigh-bankLow>1e-4){
+   // A margem acompanha a altura do terreno sem aumentar o raio do lago.
+   // A transição usa a coordenada radial shoreT, nunca a altitude absoluta:
+   // isso elimina degraus em relevo irregular e não ergue paredões na margem.
+   const waterLine=waterY+o._waterLift;
+   for(const f of bankFaces){
+    const baseColors=f.landColors&&f.landColors.length===f.points.length?f.landColors.map(c=>c.slice()):f.points.map(()=>rgb(f.color));
+    const mixedColors=[],mixedUV=[];
+    f.points=f.points.map((p,idx)=>{
+     const sample=groundSample(p[0],p[2]);
+     const t=Math.max(0,Math.min(1,f.shoreT?.[idx]??((p[1]-bankLow)/(bankHigh-bankLow))));
+     const eased=t*t*(3-2*t),colorT=Math.pow(eased,1.1);
+     const base=baseColors[idx]||rgb(f.color),terrainColor=sample?.color||base;
+     mixedColors.push(base.map((c,i)=>c*(1-colorT)+terrainColor[i]*colorT));
+     mixedUV.push(sample?.uv||[p[0]*2.2,p[2]*2.2]);
+     if(!sample)return p;
+     // Água e margem começam no mesmo nível. A borda externa termina
+     // precisamente na elevação do solo; a rampa intermediária é contínua.
+     const inner=waterLine+.022;
+     const outer=sample.height+.003;
+     const y=inner*(1-eased)+outer*eased;
+     return [p[0],y,p[2]];
+    });
+    f.landColors=mixedColors;
+    f.uv=mixedUV;
+    f.kind=3;
+    delete f.normals;
+   }
+   // Normais compartilhadas entre triângulos adjacentes da mesma margem.
+   const sums=new Map(),keyPoint=p=>p.map(v=>Math.round(v*10000)).join(':');
+   for(const f of bankFaces){
+    const [a,b,c]=f.points,n=cross(b.map((v,i)=>v-a[i]),c.map((v,i)=>v-a[i]));
+    for(const pt of f.points){const k=keyPoint(pt),v=sums.get(k)||[0,0,0];sums.set(k,[v[0]+n[0],v[1]+n[1],v[2]+n[2]])}
+   }
+   for(const f of bankFaces)f.normals=f.points.map(pt=>norm(sums.get(keyPoint(pt))||[0,1,0]));
+  }
+  // Recorte: apenas na area da agua. As margens ficam sobrepostas ao terreno
+  // para esconder a emenda e dar aspecto mais natural.
+  for(let i=entry.start;i<entry.end;i++){
+   const f=faces[i];if(f.points.length!==3)continue;
+   const [a,b,c]=f.points;
+   if(f.kind===4){
+    const normal=cross(b.map((v,k)=>v-a[k]),c.map((v,k)=>v-a[k]));
+    if(Math.abs(normal[1])<Math.hypot(...normal)*.38)continue;
+    const t=triRecord(a,b,c);if(Math.abs(t.det)<1e-9)continue;
+    trimFootprint.push(t);insert(cutGrid,t);
+   }else if(/margem|beirada/i.test(f.part||'')){
+    const t=triRecord(a,b,c);if(Math.abs(t.det)<1e-9)continue;
+    insert(shoreGrid,t);
+   }
+  }
+ }
+ if(!trimFootprint.length)return;
+ // Recorte uniforme sob água E margens: evita que vértices isolados
+ // do terreno sejam puxados verticalmente e formem pontas.
+ const insideAny=(grid,p)=>{for(const t of grid.get(key(p[0],p[2]))||[])if(contains(t,p[0],p[2]))return true;return false};
+ const insideWater=p=>insideAny(cutGrid,p),insideShore=p=>insideAny(shoreGrid,p);
+ const insideCut=p=>insideWater(p)||insideShore(p);
+ const groundSet=new Set(terrain.map(t=>t.f)),output=[];
+ function mid(a,b){return a.map((v,i)=>(v+b[i])*.5)}
+ function recurse(f,p,uv,cols,level){
+  const m=mid(p[0],p[1]),n=mid(p[1],p[2]),q=mid(p[2],p[0]);
+  const flags=p.map(insideCut),center=insideCut(p[0].map((v,i)=>(p[0][i]+p[1][i]+p[2][i])/3));
+  if(flags.every(Boolean)&&center)return;
+  const hasNeighbor=(pt)=>{const k=key(pt[0],pt[2]);return cutGrid.has(k)||shoreGrid.has(k)};
+  const potentially=flags.some(Boolean)||center||[m,n,q].some(insideCut)||[...p,m,n,q].some(hasNeighbor)||[...p,m,n,q].some(insideShore);
+  if(!potentially){output.push(f);return}
+  if(level===0){
+   if(!center){
+    output.push({...f,points:p,uv:uv||f.uv,landColors:cols||f.landColors});
+   }
+   return;
+  }
+  const triangle=(a,b,c,ua,ub,uc,ca,cb,cc)=>recurse(f,[a,b,c],uv?[ua,ub,uc]:null,cols?[ca,cb,cc]:null,level-1);
+  const uvMid=(a,b)=>a&&b?mid(a,b):null,ab=uv&&uvMid(uv[0],uv[1]),bc=uv&&uvMid(uv[1],uv[2]),ac=uv&&uvMid(uv[0],uv[2]);
+  const cab=cols&&mid(cols[0],cols[1]),cbc=cols&&mid(cols[1],cols[2]),cac=cols&&mid(cols[0],cols[2]);
+  triangle(p[0],m,q,uv?.[0],ab,ac,cols?.[0],cab,cac);
+  triangle(m,p[1],n,ab,uv?.[1],bc,cab,cols?.[1],cbc);
+  triangle(q,n,p[2],ac,bc,uv?.[2],cac,cbc,cols?.[2]);
+  triangle(m,n,q,ab,bc,ac,cab,cbc,cac);
+ }
+ for(const f of faces){if(!groundSet.has(f)){output.push(f);continue}
+  recurse(f,f.points,f.uv||null,f.landColors||null,3);
+ }
+ faces=output;
+}
+let scenePreview=false,sceneFramePending=false,scenePreviewTime=0;
+let sceneFullFaces=null,sceneFullPoses=null;
+function scenePose(o){return {x:o.x,y:o.y+(o._waterLift||0),z:o.z,scale:objectScale(o).slice(),rotation:o.rotation,angles:(o.rotationXYZ||[0,0,0]).slice()}}
+function sceneOrient(pose,v,inverse=false){
+ let [x,y,z]=v;
+ const ax=pose.angles[0]*Math.PI/180,az=pose.angles[2]*Math.PI/180,ay=pose.rotation*Math.PI/180;
+ const cx=Math.cos(ax),sx=Math.sin(ax),cz=Math.cos(az),sz=Math.sin(az),cy=Math.cos(ay),sy=Math.sin(ay);
+ if(inverse){
+  [x,z]=[x*cy-z*sy,x*sy+z*cy];
+  [x,y]=[x*cz+y*sz,-x*sz+y*cz];
+  [y,z]=[y*cx+z*sx,-y*sx+z*cx];
+ }else{
+  [y,z]=[y*cx-z*sx,y*sx+z*cx];
+  [x,y]=[x*cz-y*sz,x*sz+y*cz];
+  [x,z]=[x*cy+z*sy,-x*sy+z*cy];
+ }
+ return [x,y,z];
+}
+function scenePreviewPosition(point,oldPose,newPose){
+ const local=sceneOrient(oldPose,point.map((v,i)=>v-[oldPose.x,oldPose.y,oldPose.z][i]),true)
+  .map((v,i)=>v/Math.max(.00001,oldPose.scale[i]));
+ const world=sceneOrient(newPose,local.map((v,i)=>v*newPose.scale[i]));
+ return [world[0]+newPose.x,world[1]+newPose.y,world[2]+newPose.z];
+}
+function scenePreviewMatrix(from,to){
+ const origin=scenePreviewPosition([0,0,0],from,to),ex=scenePreviewPosition([1,0,0],from,to),ey=scenePreviewPosition([0,1,0],from,to),ez=scenePreviewPosition([0,0,1],from,to);
+ return new Float32Array([ex[0]-origin[0],ex[1]-origin[1],ex[2]-origin[2],0,ey[0]-origin[0],ey[1]-origin[1],ey[2]-origin[2],0,ez[0]-origin[0],ez[1]-origin[1],ez[2]-origin[2],0,origin[0],origin[1],origin[2],1]);
+}
+function sceneRefresh(preview=false){
+ if(preview){
+  // GPU-only preview: the already uploaded complete mesh stays untouched.
+  // No geometry allocation, surface recoloring, terrain cutting or buffer upload per pointer event.
+  if(sceneFullPoses&&sceneObjects[sceneSelected]){
+   scenePreview=true;
+   if(!sceneFramePending){sceneFramePending=true;requestAnimationFrame(()=>{sceneFramePending=false;if(scenePreview){draw();sceneDrawGizmo()}})}
+   return;
+  }
+ }
+ scenePreview=false;
+ faces=[];
+ const ranges=[];
+ for(const [sceneIndex,obj] of sceneObjects.entries()){if(!obj.visible)continue;const faceStart=faces.length;const a=obj.rotation*Math.PI/180,c=Math.cos(a),sn=Math.sin(a),scale=objectScale(obj),ang=obj.rotationXYZ||[0,0,0],cx=Math.cos(ang[0]*Math.PI/180),sx=Math.sin(ang[0]*Math.PI/180),cz=Math.cos(ang[2]*Math.PI/180),sz=Math.sin(ang[2]*Math.PI/180);
+  const orient=q=>{let [x,y,z]=q;[y,z]=[y*cx-z*sx,y*sx+z*cx];[x,y]=[x*cz-y*sz,x*sz+y*cz];return [x*c+z*sn,y,-x*sn+z*c]};
+  for(const f of obj.faces){const transform=p=>{let q=orient(p.map((v,i)=>v*scale[i]));return [q[0]+obj.x,q[1]+obj.y,q[2]+obj.z]};const normal=n=>norm(orient(n.map((v,i)=>v/scale[i])));
+   faces.push({...f,_sceneIndex:sceneIndex,part:obj.id+' · '+(f.part||obj.name),points:f.points.map(transform),...(f.normals?{normals:f.normals.map(normal)}:{})});
+  }
+  ranges.push({obj,start:faceStart,end:faces.length});
+ }
+ sceneWaterAboveTerrain(ranges);
+ finishEnvironment();
+ // Referência íntegra: o preview usa a mesma topologia e recortes da cena real.
+ sceneFullFaces=null;sceneFullPoses=new Map(sceneObjects.filter(o=>o.visible).map(o=>[o.id,scenePose(o)]));
+ $('exportGlb').disabled=!sceneObjects.some(o=>o.visible);
+ $('sceneCount').textContent=sceneObjects.length;sceneDrawGizmo();
+}
+function sceneRenderList(){const list=$('sceneList');list.replaceChildren();sceneObjects.forEach((o,i)=>{let row=document.createElement('div');row.className='scene-row';let check=document.createElement('input');check.type='checkbox';check.checked=o.visible;check.title='Exibir ou ocultar';check.onchange=()=>{o.visible=check.checked;sceneRefresh()};let btn=document.createElement('button');btn.textContent=(i+1)+'. '+o.name;btn.className=i===sceneSelected?'active':'';btn.setAttribute('aria-pressed',String(i===sceneSelected));btn.onclick=()=>{sceneSelected=i;sceneRenderList()};row.append(check,btn);list.append(row)});
+ let o=sceneObjects[sceneSelected];$('sceneTransform').hidden=!o;if(o){const vals=objectScale(o);const scalar=Math.round(Math.cbrt(vals[0]*vals[1]*vals[2])*100);$('sceneSizeSlider').value=Math.max(5,Math.min(500,scalar));$('sceneSizeValue').textContent=scalar+'%'}$('sceneDuplicate').disabled=$('sceneRemove').disabled=!o;
+ sceneDrawGizmo();
+ $('sceneCount').textContent=sceneObjects.length;
+}
+function enterScene(){auto=false;$('rotate').textContent='▶';$('rotate').setAttribute('aria-pressed','false');clearTimeout(regenerationTimer);if(activeCategory!=='scenes')saveFinishState(activeCategory);activeCategory='scenes';closeMenu();for(const b of document.querySelectorAll('[data-generator]'))b.setAttribute('aria-selected',String(b.dataset.generator==='scenes'));$('panelTitle').textContent='Cenários';$('treeLibraryEntry').hidden=true;$('treeConfigTabs').hidden=true;$('treePanels').hidden=true;$('assetPanel').hidden=true;$('meshQuality').hidden=true;$('finishingPanel').hidden=false;$('scenePanel').hidden=false;$('addCurrentToScene').hidden=true;zoom=1;panX=panY=0;pitch=-.48;sceneRenderList();sceneRefresh()}
+function sceneAddCurrent(){
+ if(activeCategory==='scenes')return;
+ clearTimeout(regenerationTimer);
+ // Capture the exact visible model, including its geometry and current settings.
+ generate();
+ const cat=activeCategory,label=currentAssetName();
+ const captured=faces.map(f=>({...f,points:f.points.map(p=>p.slice()),...(f.normals?{normals:f.normals.map(n=>n.slice())}:{}),...(f.uv?{uv:f.uv.map(u=>u.slice())}:{})}));
+ if(!captured.length){$('status').textContent='Não há geometria para adicionar.';return}
+ let x=0,z=0;
+ if(sceneObjects.length&&!['terrains','mountains','water'].includes(cat)){const k=sceneObjects.length;x=(k%5-2)*2.5;z=Math.floor(k/5)*2.5}
+ sceneObjects.push({id:'Peça '+(++sceneSequence),name:label,category:cat,faces:captured,x,y:0,z,rotation:0,scale:100,scaleXYZ:[1,1,1],rotationXYZ:[0,0,0],visible:true});
+ sceneSelected=sceneObjects.length-1;
+ enterScene();
+ $('status').textContent=label+' adicionado · '+sceneObjects.length+' objeto(s) no cenário';
+}
+let sceneSliderActive=false,sceneSliderIdle=0;
+function setupScene(){$('addCurrentToScene').onclick=sceneAddCurrent;$('sceneSizeSlider').addEventListener('input',e=>{const o=sceneObjects[sceneSelected];if(!o)return;const next=Number(e.target.value)/100,prev=Math.cbrt(objectScale(o).reduce((a,b)=>a*b,1))||1,ratio=next/prev;o.scaleXYZ=objectScale(o).map(v=>Math.max(.025,Math.min(40,v*ratio)));$('sceneSizeValue').textContent=e.target.value+'%';sceneSliderActive=true;sceneRefresh(true);clearTimeout(sceneSliderIdle);sceneSliderIdle=setTimeout(()=>{sceneSliderActive=false;sceneRefresh()},220)});
+ for(const b of document.querySelectorAll('[data-gizmo-mode]'))b.onclick=()=>setGizmoMode(b.dataset.gizmoMode);
+ document.addEventListener('keydown',e=>{if(activeCategory!=='scenes'||e.target.matches('input,textarea,select')||e.ctrlKey||e.altKey)return;const mode={g:'move',r:'rotate',s:'scale'}[e.key.toLowerCase()];if(mode){e.preventDefault();setGizmoMode(mode)}});
+ $('sceneDuplicate').onclick=()=>{let o=sceneObjects[sceneSelected];if(!o)return;sceneObjects.push({...o,id:'Peça '+(++sceneSequence),scaleXYZ:objectScale(o).slice(),rotationXYZ:(o.rotationXYZ||[0,0,0]).slice(),x:o.x+1,z:o.z+1});sceneSelected=sceneObjects.length-1;sceneRenderList();sceneRefresh()};
+ $('sceneRemove').onclick=()=>{if(sceneSelected<0)return;sceneObjects.splice(sceneSelected,1);sceneSelected=Math.min(sceneSelected,sceneObjects.length-1);sceneRenderList();sceneRefresh()};
+ $('sceneClear').onclick=()=>{sceneObjects.length=0;sceneSelected=-1;sceneRenderList();sceneRefresh();$('status').textContent='Cenário limpo.'};
+ $('sceneZero').onclick=()=>{let o=sceneObjects[sceneSelected];if(!o)return;o.x=o.y=o.z=0;sceneRenderList();sceneRefresh()};
+}
+setupEnvironment();setupFinishing();setupScene();choosePreset(species[0],false);resize();resumeAnimation();
 
 const encodedMaps=new WeakMap();
 function buildGLB(){
+ if(activeCategory==='scenes'&&scenePreview)sceneRefresh();
  const gltf={asset:{version:'2.0',generator:'Ambiente 3D'},scene:0,scenes:[{nodes:[]}],nodes:[],meshes:[],materials:[{name:'Casca · textura e relevo',doubleSided:true,pbrMetallicRoughness:{metallicFactor:0,roughnessFactor:.96,baseColorTexture:{index:0}},normalTexture:{index:1,scale:1.1}},{name:'Folhas e flores',doubleSided:true,pbrMetallicRoughness:{metallicFactor:0,roughnessFactor:.76}},{name:'Madeira de corte e hastes',doubleSided:true,pbrMetallicRoughness:{metallicFactor:0,roughnessFactor:1}},{name:'Rocha mineral',doubleSided:true,pbrMetallicRoughness:{metallicFactor:0,roughnessFactor:.94}},{name:'Água',doubleSided:true,alphaMode:'BLEND',pbrMetallicRoughness:{baseColorFactor:[1,1,1,.80],metallicFactor:0,roughnessFactor:.12}},{name:'Superfície orgânica',doubleSided:true,pbrMetallicRoughness:{metallicFactor:0,roughnessFactor:1}},{name:'Orgânico acetinado',doubleSided:true,pbrMetallicRoughness:{metallicFactor:0,roughnessFactor:.58}},{name:'Folhas secas',doubleSided:true,pbrMetallicRoughness:{metallicFactor:0,roughnessFactor:.94}},{name:'Mineral translúcido',doubleSided:true,alphaMode:'BLEND',pbrMetallicRoughness:{baseColorFactor:[1,1,1,.78],metallicFactor:0,roughnessFactor:.16}},{name:'Pétalas acetinadas',doubleSided:true,pbrMetallicRoughness:{metallicFactor:0,roughnessFactor:.58}}],textures:[],samplers:[{magFilter:9729,minFilter:9987,wrapS:10497,wrapT:10497}],images:[],buffers:[{byteLength:0}],bufferViews:[],accessors:[],extras:{preset:currentAssetName(),category:activeCategory,seed,detailLevel:$('quality').value,mode:$('mode').value,units:'meters',procedural:true,rigged:false}};const chunks=[];let offset=0;
  function view(bytes,target){const index=gltf.bufferViews.length;chunks.push(bytes);gltf.bufferViews.push({buffer:0,byteOffset:offset,byteLength:bytes.byteLength,...(target?{target}:{})});offset+=bytes.byteLength;let pad=(4-offset%4)%4;if(pad){chunks.push(new Uint8Array(pad));offset+=pad}return index}
  function accessor(values,min,max,size=3){const array=new Float32Array(values),index=gltf.accessors.length,bv=view(new Uint8Array(array.buffer),34962);gltf.accessors.push({bufferView:bv,componentType:5126,count:values.length/size,type:'VEC'+size,...(min?{min,max}:{})});return index}
  const roughFactor=+$('surfaceRoughness').value/82,reliefFactor=+$('surfaceDetail').value/100;for(const mat of gltf.materials)mat.pbrMetallicRoughness.roughnessFactor=Math.max(.025,Math.min(1,mat.pbrMetallicRoughness.roughnessFactor*roughFactor));delete gltf.materials[0].pbrMetallicRoughness.baseColorTexture;delete gltf.materials[0].normalTexture;const loadedPairs={};function usePair(label,pair){if(loadedPairs[label]!==undefined)return loadedPairs[label];const first=gltf.textures.length;for(const canvas of pair){let png=encodedMaps.get(canvas);if(!png){const bin=atob(canvas.toDataURL('image/png').split(',')[1]);png=Uint8Array.from(bin,c=>c.charCodeAt(0));encodedMaps.set(canvas,png)}const source=gltf.images.length;gltf.images.push({bufferView:view(png),mimeType:'image/png'});gltf.textures.push({source,sampler:0})}loadedPairs[label]=first;return first}for(const kind of new Set(faces.map(f=>f.kind||0))){if(!texturedKind(kind))continue;const label=kind===0?'bark':kind===3?'rock':kind===6?'fungus':'leaf',pair=kind===0?barkAssets:surfaceMaps[label],index=usePair(label,pair);gltf.materials[kind].pbrMetallicRoughness.baseColorTexture={index};gltf.materials[kind].normalTexture={index:index+1,scale:reliefFactor*(kind===0?1.6:kind===3?1.65:kind===6?.55:.45)}}if(!gltf.images.length){delete gltf.images;delete gltf.textures;delete gltf.samplers}
- const groups=new Map();for(const f of faces){const name=f.part||'Tronco';if(!groups.has(name))groups.set(name,new Map());const kinds=groups.get(name),kind=f.kind||0;if(!kinds.has(kind))kinds.set(kind,[]);kinds.get(kind).push(f)}
+ // Apenas um nó e uma malha para todo o cenário; cada material é uma primitiva dessa malha.
+ const groups=new Map();for(const f of faces){const name=activeCategory==='scenes'?'Cenário completo':f.part||'Tronco';if(!groups.has(name))groups.set(name,new Map());const kinds=groups.get(name),kind=f.kind||0;if(!kinds.has(kind))kinds.set(kind,[]);kinds.get(kind).push(f)}
  for(const [name,kinds]of groups){const primitives=[];for(const [kind,subset]of kinds){
  const positions=[],normals=[],colors=[],uv=[],indices=[],lookup=new Map(),min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity],textured=texturedKind(kind);
  for(const f of subset){const ns=f.normals||f.points.map(()=>norm(cross(f.points[1].map((v,i)=>v-f.points[0][i]),f.points[2].map((v,i)=>v-f.points[0][i])))),ids=[];
- for(let k=0;k<f.points.length;k++){const p=f.points[k],n=ns[k],c=surfaceColor(f,p).map(v=>{v=Math.max(0,Math.min(1,v));return Math.round(255*(v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)))}),t=faceUV(f,k),key=[...p,...n,...c,...(textured?t:[])].join(',');let index=lookup.get(key);if(index===undefined){index=positions.length/3;lookup.set(key,index);positions.push(...p);normals.push(...n);colors.push(...c,255);uv.push(...t);p.forEach((v,j)=>{min[j]=Math.min(min[j],v);max[j]=Math.max(max[j],v)})}ids.push(index)}for(let i=1;i<ids.length-1;i++)indices.push(ids[0],ids[i],ids[i+1]);}
+ for(let k=0;k<f.points.length;k++){const original=f.points[k],p=[original[0],original[1],-original[2]],n=[ns[k][0],ns[k][1],-ns[k][2]],c=surfaceColor(f,original).map(v=>{v=Math.max(0,Math.min(1,v));return Math.round(255*(v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)))}),t=faceUV(f,k),key=[...p,...n,...c,...(textured?t:[])].join(',');let index=lookup.get(key);if(index===undefined){index=positions.length/3;lookup.set(key,index);positions.push(...p);normals.push(...n);colors.push(...c,255);uv.push(...t);p.forEach((v,j)=>{min[j]=Math.min(min[j],v);max[j]=Math.max(max[j],v)})}ids.push(index)}for(let i=1;i<ids.length-1;i++)indices.push(ids[0],ids[i+1],ids[i]);}
  const attributes={POSITION:accessor(positions,min,max),NORMAL:accessor(normals)},colorIndex=gltf.accessors.length;gltf.accessors.push({bufferView:view(new Uint8Array(colors),34962),componentType:5121,normalized:true,count:positions.length/3,type:'VEC4'});attributes.COLOR_0=colorIndex;
  if(textured){attributes.TEXCOORD_0=accessor(uv,null,null,2);const ts=new Float32Array(positions.length),bs=new Float32Array(positions.length);
  for(let i=0;i<indices.length;i+=3){const [a,b,c]=indices.slice(i,i+3),e1=positions.slice(b*3,b*3+3).map((v,k)=>v-positions[a*3+k]),e2=positions.slice(c*3,c*3+3).map((v,k)=>v-positions[a*3+k]),du1=uv[b*2]-uv[a*2],dv1=uv[b*2+1]-uv[a*2+1],du2=uv[c*2]-uv[a*2],dv2=uv[c*2+1]-uv[a*2+1],det=du1*dv2-dv1*du2;if(Math.abs(det)<1e-10)continue;for(const j of [a,b,c])for(let k=0;k<3;k++){ts[j*3+k]+=(e1[k]*dv2-e2[k]*dv1)/det;bs[j*3+k]+=(e2[k]*du1-e1[k]*du2)/det}}
  const tangents=[];for(let i=0;i<positions.length/3;i++){const n=normals.slice(i*3,i*3+3),t=Array.from(ts.slice(i*3,i*3+3)),bt=bs.slice(i*3,i*3+3),dot=n.reduce((a,v,k)=>a+v*t[k],0);let ortho=norm(add(t,mul(n,-dot)));if(Math.hypot(...ortho)<.5)ortho=norm(cross(n,Math.abs(n[1])<.9?[0,1,0]:[1,0,0]));tangents.push(...ortho,cross(n,ortho).reduce((a,v,k)=>a+v*bt[k],0)<0?-1:1)}attributes.TANGENT=accessor(tangents,null,null,4)}
  const short=positions.length/3<=65535,indexData=short?new Uint16Array(indices):new Uint32Array(indices),indexAccessor=gltf.accessors.length;gltf.accessors.push({bufferView:view(new Uint8Array(indexData.buffer),34963),componentType:short?5123:5125,count:indices.length,type:'SCALAR'});primitives.push({attributes,indices:indexAccessor,mode:4,material:kind});}
  const mesh=gltf.meshes.length,node=gltf.nodes.length;gltf.meshes.push({name,primitives});gltf.nodes.push({name,mesh});gltf.scenes[0].nodes.push(node)}
- const usedMaterials=[...new Set(gltf.meshes.flatMap(m=>m.primitives.map(p=>p.material)))];for(const mesh of gltf.meshes)for(const primitive of mesh.primitives)primitive.material=usedMaterials.indexOf(primitive.material);gltf.materials=usedMaterials.map(i=>gltf.materials[i]);gltf.buffers[0].byteLength=offset;const json=new TextEncoder().encode(JSON.stringify(gltf)),jsonSize=Math.ceil(json.length/4)*4,total=12+8+jsonSize+8+offset,buffer=new ArrayBuffer(total),dv=new DataView(buffer),bytes=new Uint8Array(buffer);dv.setUint32(0,0x46546c67,true);dv.setUint32(4,2,true);dv.setUint32(8,total,true);dv.setUint32(12,jsonSize,true);dv.setUint32(16,0x4e4f534a,true);bytes.fill(32,20,20+jsonSize);bytes.set(json,20);let cursor=20+jsonSize;dv.setUint32(cursor,offset,true);dv.setUint32(cursor+4,0x004e4942,true);cursor+=8;for(const chunk of chunks){bytes.set(chunk,cursor);cursor+=chunk.byteLength}return buffer;
+ const usedMaterials=[...new Set(gltf.meshes.flatMap(m=>m.primitives.map(p=>p.material)))];for(const mesh of gltf.meshes)for(const primitive of mesh.primitives)primitive.material=usedMaterials.indexOf(primitive.material);gltf.materials=usedMaterials.map(i=>gltf.materials[i]);gltf.buffers[0].byteLength=offset;const json=new TextEncoder().encode(JSON.stringify(gltf)),jsonSize=Math.ceil(json.length/4)*4,total=12+8+jsonSize+8+offset;
+ const header=new Uint8Array(20),hd=new DataView(header.buffer);hd.setUint32(0,0x46546c67,true);hd.setUint32(4,2,true);hd.setUint32(8,total,true);hd.setUint32(12,jsonSize,true);hd.setUint32(16,0x4e4f534a,true);
+ const padding=new Uint8Array(jsonSize-json.length).fill(32),binHeader=new Uint8Array(8),bd=new DataView(binHeader.buffer);bd.setUint32(0,offset,true);bd.setUint32(4,0x004e4942,true);
+ return {parts:[header,json,padding,binHeader,...chunks],byteLength:total};
 }
-$('exportGlb').onclick=()=>{const buffer=buildGLB(),blob=new Blob([buffer],{type:'model/gltf-binary'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=currentAssetName().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+seed+'.glb';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('status').textContent='Modelo GLB exportado · '+(buffer.byteLength/1024/1024).toFixed(2)+' MB'};
+// Salva grandes GLBs em partes; evita outra cópia completa do arquivo na RAM.
+function downloadParts(parts,name,mime){const blob=new Blob(parts,{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000)}
+async function saveParts(parts,name,mime){
+ if(typeof window.showSaveFilePicker==='function'){
+  const handle=await window.showSaveFilePicker({suggestedName:name,types:[{description:mime==='model/gltf-binary'?'Modelo GLB':'Projeto Natureza 3D',accept:{[mime]:[name.slice(name.lastIndexOf('.'))]}}]});
+  const writer=await handle.createWritable();try{for(let i=0;i<parts.length;i++){await writer.write(parts[i]);if(i%80===0)await new Promise(requestAnimationFrame)}await writer.close()}catch(e){await writer.abort();throw e}
+ }else downloadParts(parts,name,mime);
+}
+function exportName(){return currentAssetName().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+seed+'.glb'}
+$('exportGlb').onclick=async()=>{
+ const button=$('exportGlb');if(button.disabled)return;button.disabled=true;$('status').textContent='Preparando GLB completo...';
+ try{await new Promise(requestAnimationFrame);const data=buildGLB();$('status').textContent='Salvando '+(data.byteLength/1048576).toFixed(1)+' MB...';await saveParts(data.parts,exportName(),'model/gltf-binary');$('status').textContent='GLB completo salvo · '+(data.byteLength/1048576).toFixed(2)+' MB'}
+ catch(e){$('status').textContent=e.name==='AbortError'?'Salvamento cancelado.':'Erro ao exportar: '+e.message;console.error(e)}finally{button.disabled=false}
+};
+// Projetos usam JSON legível em disco. A abertura também aceita os .n3d
+// antigos comprimidos em gzip; sem confirmação modal do navegador.
+async function saveSceneProject(){
+ if(!sceneObjects.length){$('status').textContent='Adicione objetos antes de salvar o projeto.';return}
+ $('status').textContent='Preparando projeto editável...';
+ await new Promise(requestAnimationFrame);
+ const data={type:'natureza3d-scene',version:1,selected:sceneSelected,sequence:sceneSequence,objects:sceneObjects,view:{yaw,pitch,zoom,panX,panY}};
+ const json=JSON.stringify(data);
+ // Salva o formato JSON comum, que pode ser reaberto em qualquer navegador.
+ // Mantém a extensão .n3d para identificar projetos, sem exigir descompressão.
+ await saveParts([json],'cenario-natureza3d.n3d','application/octet-stream');
+ $('status').textContent='Projeto salvo · '+(new Blob([json]).size/1048576).toFixed(1)+' MB.';
+}
+async function readProjectText(file){
+ const first=new Uint8Array(await file.slice(0,3).arrayBuffer());
+ if(first[0]===31&&first[1]===139){
+  if(typeof DecompressionStream==='undefined')throw Error('Este navegador não suporta o formato compactado antigo. Abra no Chrome atualizado.');
+  try{return await new Response(file.stream().pipeThrough(new DecompressionStream('gzip'))).text()}
+  catch(e){throw Error('Não foi possível descompactar o projeto: '+e.message)}
+ }
+ // Aceita tanto .n3d novo quanto .json exportado anteriormente.
+ return await file.text();
+}
+// GLB é um modelo 3D, e não um projeto N3D. Aceita o GLB local
+// como uma só peça editável, sem confundi-lo com o JSON de projeto.
+async function importSceneGLB(file){
+ const buf=await file.arrayBuffer(),dv=new DataView(buf);
+ if(buf.byteLength<20||dv.getUint32(0,true)!==0x46546c67||dv.getUint32(4,true)!==2)throw Error('GLB inválido ou versão não suportada.');
+ let pos=12,gltf=null,binary=null;
+ while(pos+8<=buf.byteLength){const size=dv.getUint32(pos,true),type=dv.getUint32(pos+4,true);pos+=8;
+  if(pos+size>buf.byteLength)throw Error('Arquivo GLB incompleto.');
+  if(type===0x4e4f534a)gltf=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,pos,size)));
+  if(type===0x004e4942)binary=new Uint8Array(buf,pos,size);
+  pos+=size;
+ }
+ if(!gltf||!binary||!Array.isArray(gltf.meshes)||!gltf.meshes.length)throw Error('GLB sem geometria 3D.');
+ const comps={SCALAR:1,VEC2:2,VEC3:3,VEC4:4};
+ const formats={5121:[1,'getUint8'],5123:[2,'getUint16'],5125:[4,'getUint32'],5126:[4,'getFloat32'],5120:[1,'getInt8'],5122:[2,'getInt16']};
+ function getAccessor(index){if(index===undefined)return null;const a=gltf.accessors?.[index],v=gltf.bufferViews?.[a?.bufferView];
+  if(!a||!v||v.buffer!==0||!formats[a.componentType]||!comps[a.type])throw Error('Atributo GLB não suportado.');
+  const [sz,method]=formats[a.componentType],count=comps[a.type],stride=v.byteStride||sz*count,offset=(v.byteOffset||0)+(a.byteOffset||0),view=new DataView(binary.buffer,binary.byteOffset,binary.byteLength),values=new Array(a.count);
+  for(let i=0;i<a.count;i++){const row=[];for(let j=0;j<count;j++){let n=view[method](offset+i*stride+j*sz,sz>1);if(a.normalized){if(a.componentType===5121)n/=255;else if(a.componentType===5123)n/=65535;else if(a.componentType===5120)n=Math.max(-1,n/127);else if(a.componentType===5122)n=Math.max(-1,n/32767)}row.push(n)}values[i]=row}
+  return values;
+ }
+ const faces=[];
+ const kindFor=(mat)=>{const name=(gltf.materials?.[mat]?.name||'').toLowerCase();return name.includes('água')?4:name.includes('casca')?0:name.includes('folhas e flores')?1:name.includes('rocha')?3:name.includes('madeira')?2:name.includes('superfície orgânica')?5:name.includes('orgânico')?6:name.includes('folhas secas')?7:name.includes('mineral translúcido')?8:name.includes('pétalas')?9:3};
+ const linearToSRGB=x=>x<=.0031308?x*12.92:1.055*Math.pow(x,1/2.4)-.055;
+ for(const mesh of gltf.meshes)for(const primitive of mesh.primitives||[]){
+  if(primitive.mode!==undefined&&primitive.mode!==4)continue;
+  const pts=getAccessor(primitive.attributes?.POSITION),ns=getAccessor(primitive.attributes?.NORMAL),cs=getAccessor(primitive.attributes?.COLOR_0),uvs=getAccessor(primitive.attributes?.TEXCOORD_0),ids=getAccessor(primitive.indices);
+  if(!pts)continue;const order=ids?ids.map(x=>x[0]):pts.map((_,i)=>i),kind=kindFor(primitive.material);
+  for(let i=0;i+2<order.length;i+=3){const faceIds=[order[i],order[i+2],order[i+1]];
+   const points=faceIds.map(k=>[pts[k][0],pts[k][1],-pts[k][2]]);
+   const face={points,color:'#ffffff',shade:1,kind,part:'Modelo GLB'};
+   if(ns)face.normals=faceIds.map(k=>[ns[k][0],ns[k][1],-ns[k][2]]);
+   if(uvs)face.uv=faceIds.map(k=>uvs[k].slice(0,2));
+   if(cs)face.landColors=faceIds.map(k=>cs[k].slice(0,3).map(v=>Math.max(0,Math.min(1,linearToSRGB(v)))));
+   faces.push(face);
+  }
+ }
+ if(!faces.length)throw Error('O GLB não contém triângulos compatíveis.');
+ const item={id:'Peça '+(++sceneSequence),name:file.name.replace(/\.glb$/i,''),category:'imported',faces,x:0,y:0,z:0,rotation:0,scale:100,scaleXYZ:[1,1,1],rotationXYZ:[0,0,0],visible:true};
+ sceneObjects.push(item);sceneSelected=sceneObjects.length-1;
+ enterScene();$('status').textContent='GLB importado como um objeto · '+faces.length.toLocaleString('pt-BR')+' triângulos. Para recuperar peças separadas, abra um projeto .n3d.';
+}
+async function openSceneProject(file){
+ $('status').textContent='Abrindo '+file.name+'...';
+ await new Promise(requestAnimationFrame);
+ const signature=new Uint8Array(await file.slice(0,4).arrayBuffer());
+ if(signature[0]===0x67&&signature[1]===0x6c&&signature[2]===0x54&&signature[3]===0x46)return importSceneGLB(file);
+ let data;
+ try{data=JSON.parse(await readProjectText(file))}
+ catch(e){throw Error('O arquivo não contém um projeto Natureza 3D válido. '+e.message)}
+ if(data.type!=='natureza3d-scene'||!Array.isArray(data.objects))throw Error('Formato de projeto incompatível.');
+ if(data.version!==1)throw Error('Versão do projeto não suportada: '+data.version);
+ // Valide antes de substituir a cena: projetos inválidos não apagam o trabalho.
+ const objects=data.objects;
+ for(let i=0;i<objects.length;i++){
+  const o=objects[i];
+  if(!o||typeof o!=='object'||!Array.isArray(o.faces)||!o.faces.every(f=>f&&Array.isArray(f.points)))throw Error('Geometria inválida no objeto '+(i+1));
+  if(!['trees','rocks','water','grass','shrubs','litter','mountains','terrains','flowers','fungi','wood','tunnels','imported'].includes(o.category))throw Error('Categoria inválida no objeto '+(i+1));
+  if(!Number.isFinite(Number(o.x))||!Number.isFinite(Number(o.y))||!Number.isFinite(Number(o.z)))throw Error('Posição inválida no objeto '+(i+1));
+ }
+ sceneObjects.splice(0,sceneObjects.length,...objects);
+ sceneSequence=Math.max(Number(data.sequence)||0,objects.length);
+ const selected=Number(data.selected);
+ sceneSelected=objects.length?Math.max(0,Math.min(objects.length-1,Number.isFinite(selected)?selected:0)):-1;
+ const v=data.view||{};
+ if(Number.isFinite(v.yaw))yaw=v.yaw;
+ if(Number.isFinite(v.pitch))pitch=v.pitch;
+ if(Number.isFinite(v.zoom))zoom=v.zoom;
+ if(Number.isFinite(v.panX))panX=v.panX;
+ if(Number.isFinite(v.panY))panY=v.panY;
+ enterScene();
+ $('status').textContent='Projeto aberto · '+sceneObjects.length+' objetos.';
+}
+$('sceneSaveProject').onclick=async()=>{try{await saveSceneProject()}catch(e){$('status').textContent=e.name==='AbortError'?'Salvamento cancelado.':'Erro: '+e.message;console.error(e)}};
+$('sceneOpenProject').onclick=()=>$('sceneProjectInput').click();
+$('sceneProjectInput').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{await openSceneProject(file)}catch(err){$('status').textContent='Erro ao abrir projeto: '+err.message;console.error(err)}finally{e.target.value=''}};
 </script></body></html>
