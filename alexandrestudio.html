@@ -1195,7 +1195,7 @@ body:has(#panelObjects:not([hidden])) main > nav #baseGrabUndo {
 <label>Tamanho do pincel <input id="studioClothBrush" type="range" min="4" max="100" value="24"></label>
 <div class="faceButtons"><button id="studioClothWindPaint" type="button">Pintar vento</button></div>
 <div class="faceButtons"><button id="studioClothDeleteWind" type="button">Deletar todo o vento</button><button id="studioClothStop" type="button">Concluir pintura</button></div>
-<small>Pinte onde o vento vai agir. Para animar, escolha um quadro e ajuste a força: 0 = sem vento; maior que 0 = vento ativo. A mudança gera keyframe na timeline do objeto. A prévia só movimenta o tecido durante o Play.</small></div><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="objectJoin" title="Unir os objetos marcados em um objeto, fixando a pose atual">Unir objetos</button><button id="objectJoinUndo" title="Recuperar os objetos originais da união nesta sessão">Desfazer união</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><button id="shapeNew" class="primary">＋ Criar Shape Key</button></div><div id="shapeList"></div><div class="shapeBrushTools"><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option><option value="handL" hidden>Mão esquerda</option><option value="handR" hidden>Mão direita</option></select><div class="faceButtons"><button id="faceMark">Marcar região</button><button id="faceFocus">Enquadrar rosto</button></div><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="0.1" max="200" step="0.1" value="8"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="0.1" max="200" step="0.1" value="5"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para cima ou baixo"></label><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="true">Mostrar FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><p class="muted">Marque cada região em pose neutra. E / D são os lados do personagem. Malhas com mais vértices produzem movimentos mais suaves.</p><div id="faceSliders">
+<small>Pinte onde o vento vai agir. Para animar, escolha um quadro e ajuste a força: 0 = sem vento; maior que 0 = vento ativo. A mudança gera keyframe na timeline do objeto. A prévia só movimenta o tecido durante o Play.</small></div><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="objectJoin" title="Unir os objetos marcados em um objeto, fixando a pose atual">Unir objetos</button><button id="objectJoinUndo" title="Recuperar os objetos originais da união nesta sessão">Desfazer união</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><button id="shapeNew" class="primary">＋ Criar Shape Key</button></div><div id="shapeList"></div><div class="shapeBrushTools"><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option><option value="handL" hidden>Mão esquerda</option><option value="handR" hidden>Mão direita</option></select><div class="faceButtons"><button id="faceMark" title="Clique em volta da região na malha para desenhar um polígono">Desenhar região (caneta)</button><button id="faceFinish" hidden>Fechar polígono</button><button id="faceReset" title="Apaga a região selecionada">Resetar região</button><button id="faceResetAll" title="Apaga todas as regiões do rosto">Resetar todas</button><button id="faceFocus">Enquadrar rosto</button></div><div id="faceLegacySliders" style="display:none"><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="0.1" max="200" step="0.1" value="8"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="0.1" max="200" step="0.1" value="5"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para cima ou baixo"></label></div><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="true">Mostrar FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><p class="muted">Escolha a região e use a caneta com o rosto em pose neutra: clique em volta dela na malha e feche o polígono clicando no primeiro ponto, com duplo clique ou Enter. Backspace desfaz o último ponto e Esc cancela. Para refazer, desenhe de novo; Resetar apaga a região. E / D são os lados do personagem. Malhas com mais vértices produzem movimentos mais suaves.</p><div id="faceSliders">
 <fieldset><legend>Olhos</legend><div id="faceEyesSliders"></div></fieldset>
 <fieldset><legend>Sobrancelhas</legend><div id="faceBrowsSliders"></div></fieldset>
 <fieldset><legend>Boca</legend><label class="faceRange faceMouthModeRow">Abertura da boca<select id="faceMouthMode"><option value="0">Interior preto</option><option value="1">Somente malha / textura original</option></select></label><div id="faceMouthSliders"></div></fieldset>
@@ -49512,6 +49512,8 @@ function createCompactStudioZoom(options){
   var faceRigHidden = true;
   var handMarkersHidden = true;
   var faceMaskVisible = false;
+  var facePen = { active: false, id: "", mesh: null, rest: [], world: [], right: null, up: null, group: new Group() };
+  scene.add(facePen.group);
   var faceShaderBindings = /* @__PURE__ */ new WeakMap();
   function faceDefaults() {
     return Object.fromEntries(FACE_CHANNELS.map(([id]) => [id, 0]));
@@ -49571,6 +49573,8 @@ function createCompactStudioZoom(options){
       uniforms["afFromRegion" + i] = { value: new Matrix3() };
     }
     uniforms.afMouthLeft = { value: 1 };
+    uniforms.afMask = { value: null };
+    for (let i = 0; i < FACE_SURFACE_REGIONS; i++) uniforms["afPoly" + i] = { value: 0 };
     uniforms.afEyeMood = { value: 0 };
     uniforms.afEyeInward = { value: new Vector2(1, -1) };
     uniforms.afNormalStep = { value: 0.0001 };
@@ -49832,6 +49836,85 @@ function createCompactStudioZoom(options){
       return { toWorld, fromWorld: toWorld.clone().invert() };
     });
   }
+
+  const FACE_MASK_TILE = 128, FACE_MASK_SPAN = 1.3;
+  var faceMaskAtlases = /* @__PURE__ */ new WeakMap();
+  var facePolySigCache = /* @__PURE__ */ new WeakMap();
+  function facePolySig(region) {
+    const poly = region?.poly;
+    if (!poly || poly.length < 3) return "";
+    const soft = region.softness ?? 30, cached = facePolySigCache.get(poly);
+    if (cached && cached.soft === soft) return cached.sig;
+    const sig = soft + "|" + poly.map((p) => p[0].toFixed(3) + "," + p[1].toFixed(3)).join(";");
+    facePolySigCache.set(poly, { soft, sig });
+    return sig;
+  }
+  function faceBoxBlur(src, dst, T, r, horizontal) {
+    const w = 2 * r + 1;
+    for (let line = 0; line < T; line++) {
+      const at = (i) => horizontal ? line * T + i : i * T + line;
+      let sum = 0;
+      for (let i = -r; i <= r; i++) if (i >= 0 && i < T) sum += src[at(i)];
+      for (let i = 0; i < T; i++) {
+        dst[at(i)] = sum / w;
+        const add = i + r + 1, rem = i - r;
+        if (add < T) sum += src[at(add)];
+        if (rem >= 0) sum -= src[at(rem)];
+      }
+    }
+  }
+  function rasterFacePolygon(poly, softness, out, base) {
+    const T = FACE_MASK_TILE, canvas = document.createElement("canvas");
+    canvas.width = canvas.height = T;
+    const g = canvas.getContext("2d", { willReadFrequently: true });
+    g.fillStyle = "#fff";
+    g.beginPath();
+    poly.forEach((p, k) => {
+      const x = (p[0] / (2 * FACE_MASK_SPAN) + 0.5) * T, y = (p[1] / (2 * FACE_MASK_SPAN) + 0.5) * T;
+      if (k) g.lineTo(x, y); else g.moveTo(x, y);
+    });
+    g.closePath();
+    g.fill();
+    const rgba = g.getImageData(0, 0, T, T).data;
+    const a = new Float32Array(T * T), b = new Float32Array(T * T);
+    for (let k = 0; k < T * T; k++) a[k] = rgba[k * 4 + 3] / 255;
+    const radius = Math.round(3 + softness * 0.2);
+    for (let pass = 0; pass < 2; pass++) {
+      faceBoxBlur(a, b, T, radius, true);
+      faceBoxBlur(b, a, T, radius, false);
+    }
+    for (let k = 0; k < T * T; k++) {
+      const v = Math.round(Math.min(1, a[k]) * 255), o = base + k * 4;
+      out[o] = out[o + 1] = out[o + 2] = out[o + 3] = v;
+    }
+  }
+  function faceMaskTexture(obj) {
+    const rig = obj.faceRig, T = FACE_MASK_TILE;
+    if (!rig) return null;
+    if (!FACE_REGIONS.slice(0, FACE_SURFACE_REGIONS).some((id) => rig.regions[id]?.poly?.length >= 3)) return null;
+    let atlas = faceMaskAtlases.get(rig);
+    if (!atlas) {
+      const data = new Uint8Array(T * T * FACE_SURFACE_REGIONS * 4), texture = new DataTexture(data, T, T * FACE_SURFACE_REGIONS, RGBAFormat);
+      texture.minFilter = LinearFilter;
+      texture.magFilter = LinearFilter;
+      texture.generateMipmaps = false;
+      texture.needsUpdate = true;
+      atlas = { data, texture, sigs: new Array(FACE_SURFACE_REGIONS).fill("") };
+      faceMaskAtlases.set(rig, atlas);
+    }
+    let dirty = false;
+    for (let i = 0; i < FACE_SURFACE_REGIONS; i++) {
+      const region = rig.regions[FACE_REGIONS[i]], sig = facePolySig(region);
+      if (atlas.sigs[i] === sig) continue;
+      atlas.sigs[i] = sig;
+      dirty = true;
+      const base = i * T * T * 4;
+      atlas.data.fill(0, base, base + T * T * 4);
+      if (sig) rasterFacePolygon(region.poly, region.softness ?? 30, atlas.data, base);
+    }
+    if (dirty) atlas.texture.needsUpdate = true;
+    return atlas.texture;
+  }
   function refreshFaceUniforms(obj, mesh, uniforms, frames) {
     const f = obj.faceRig, v = f.values;
     uniforms.afMaskPreview.value = faceMaskVisible && !faceRigHidden && !exportState && !$("panelFace").hidden ? FACE_REGIONS.indexOf($("faceRegion").value) : -1;
@@ -49869,6 +49952,7 @@ function createCompactStudioZoom(options){
       || moving(1, [v.blinkR, v.upperR, v.lowerR, v.squintR, eyeMood])
       || moving(2, [v.browL, v.browRaiseL]) || moving(3, [v.browR, v.browRaiseR])
       || moving(4, [v.smile, v.smileL, v.smileR, v.width, v.open, v.pucker, v.press, v.jawSide, v.jawForward]);
+    uniforms.afMask.value = faceMaskTexture(obj);
     let normalStep = Infinity;
     for (let i = 0; i < FACE_REGIONS.length; i++) {
       const region = f.regions[FACE_REGIONS[i]], facial = i < FACE_SURFACE_REGIONS;
@@ -49886,6 +49970,7 @@ function createCompactStudioZoom(options){
       }
       for (const [key, field] of [["C", "center"], ["R", "right"], ["U", "up"], ["N", "normal"]]) uniforms["af" + key + i].value.fromArray(!facial && enabled ? region[field] : [0, 0, 0]);
       uniforms["afS" + i].value.fromArray(enabled ? region.radius : [0, 0, 0]);
+      if (facial) uniforms["afPoly" + i].value = enabled && region.poly?.length >= 3 ? 1 : 0;
       const paint = enabled ? faceRegionPaints.get(region) : null;
       uniforms["afPaint" + i].value = paint?.texture || null;
       uniforms["afHasPaint" + i].value = paint ? 1 : 0;
@@ -49930,6 +50015,8 @@ function createCompactStudioZoom(options){
             for (const k of ["UvR", "UvU"]) declarations += "uniform vec2 af" + k + i + ";";
           }
           declarations += "uniform float afMouthLeft;";
+          declarations += "uniform sampler2D afMask;float afPolyAt(float idx,vec2 p){vec2 q=p/" + (2 * FACE_MASK_SPAN).toFixed(1) + "+0.5;if(q.x<0.0||q.x>1.0||q.y<0.0||q.y>1.0)return 0.0;return texture2D(afMask,vec2(q.x,(idx+q.y)/" + FACE_SURFACE_REGIONS + ".0)).r;}";
+          for (let i = 0; i < FACE_SURFACE_REGIONS; i++) declarations += "uniform float afPoly" + i + ";";
           for (let i = 0; i < FACE_SURFACE_REGIONS; i++) declarations += `uniform mat4 afToRegion${i};`;
           let surfaceDeclarations = "uniform bool afFaceMoving;uniform float afNormalStep;uniform float afEyeMood;uniform vec2 afEyeInward;";
           let surface = "vec3 afFaceOffset(vec3 point){vec3 offset=vec3(0.0);";
@@ -50002,8 +50089,10 @@ function createCompactStudioZoom(options){
                 vec2 p=d.xy/${radius}.xy;
                 float r=length(p*${spread});
                 float z=abs(d.z)/${radius}.z;
-                if (r<1.0 && z<1.0) {
-                  float w=(1.0-smoothstep(0.22*(1.0-afSoft${i}),1.0,r))*(1.0-smoothstep(0.44,1.0,z));
+                bool usePoly=afPoly${i}>0.5;
+                float polyW=usePoly?afPolyAt(${i}.0,p):0.0;
+                if ((usePoly?polyW>0.002:r<1.0) && z<1.0) {
+                  float w=(usePoly?polyW:(1.0-smoothstep(0.22*(1.0-afSoft${i}),1.0,r)))*(1.0-smoothstep(0.44,1.0,z));
                   ${movement}
                   offset+=afFromRegion${i}*delta*w;
                 }
@@ -50095,12 +50184,12 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
             const coordinates = i < FACE_SURFACE_REGIONS
               ? `vec3 d=(afToRegion${i}*vec4(afRestPosition,1.0)).xyz;`
               : `vec3 diff=afRestPosition-afC${i};vec3 d=vec3(dot(diff,afR${i}),dot(diff,afU${i}),dot(diff,afN${i}));`;
-            effects += `{if(afS${i}.x>0.0){${coordinates}vec2 p=d.xy/afS${i}.xy;float mask=(1.0-smoothstep(1.0-afSoft${i},1.0,length(p)))*(1.0-smoothstep(0.75,1.0,abs(d.z)/max(afS${i}.z,0.000001)));${action2}if(abs(afMaskPreview-float(${i}))<0.25)diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.55,0.16,0.95),mask*0.55);}}
+            effects += `{if(afS${i}.x>0.0){${coordinates}vec2 p=d.xy/afS${i}.xy;float shape=(1.0-smoothstep(1.0-afSoft${i},1.0,length(p)));${i < FACE_SURFACE_REGIONS ? `if(afPoly${i}>0.5)shape=afPolyAt(${i}.0,p);` : ""}float mask=shape*(1.0-smoothstep(0.75,1.0,abs(d.z)/max(afS${i}.z,0.000001)));${action2}if(abs(afMaskPreview-float(${i}))<0.25)diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.55,0.16,0.95),mask*0.55);}}
 `;
           }
           shader.fragmentShader = shader.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\n" + effects);
         };
-        material.customProgramCacheKey = () => (previousCacheKey?.() || '') + '|alexandre-face-shared-surface-v9';
+        material.customProgramCacheKey = () => (previousCacheKey?.() || '') + '|alexandre-face-shared-surface-v10';
         // Mark this FaceRig material as already wind-patched so the preview
         // loop does not stack new wind shaders onto it on every frame.
         const windUniforms=studioSurfaceWindMaterials?.get?.(original);
@@ -50620,7 +50709,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     }
     $("faceObject").textContent = activeObject?.name || "FaceRig 3D";
     $("expressionObject").textContent = activeObject?.name || "Express\xF5es";
-    for (const id of ["faceMark", "faceFocus", "faceNeutral", "faceKey", "faceSaveExpression", "faceExpressionName"]) $(id).disabled = !activeObject;
+    for (const id of ["faceMark", "faceFocus", "faceNeutral", "faceKey", "faceSaveExpression", "faceExpressionName", "faceReset", "faceResetAll"]) $(id).disabled = !activeObject;
     syncFaceValues();
     syncFaceRegion();
     renderFaceExpressions();
@@ -50633,7 +50722,8 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     }
     for (const [id, region] of Object.entries(activeObject?.faceRig?.regions || {})) {
       const points = [];
-      for (let i = 0; i <= 64; i++) {
+      if (region.guidePath?.length > 2) for (const q of region.guidePath) points.push(new Vector3().fromArray(q));
+      else for (let i = 0; i <= 64; i++) {
         const angle = i / 64 * Math.PI * 2;
         points.push(new Vector3(Math.cos(angle), Math.sin(angle), 0));
       }
@@ -50671,7 +50761,14 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     }
     return point;
   }
+  function faceGuidePolyPoint(mesh, region, index) {
+    const point = new Vector3().fromArray(region.guidePath[Math.min(index, region.guidePath.length - 1)]);
+    const anchor = region.surfaceCenterIndex;
+    if (mesh.isSkinnedMesh && Number.isInteger(anchor) && anchor >= 0 && anchor < mesh.geometry.attributes.position.count) mesh.applyBoneTransform(anchor, point);
+    return point;
+  }
   function updateFaceGuides() {
+    if (facePen.active && !faceMarking) clearFacePen();
     const showFaceGuides = !faceRigHidden && !$("panelFace").hidden;
     const showHandGuides = !handMarkersHidden && !$("panelHand").hidden;
     faceGuides.visible = showFaceGuides || showHandGuides;
@@ -50687,7 +50784,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       const positions = guide.geometry.attributes.position, normal = new Vector3().fromArray(r.normal);
       for (let i = 0; i < positions.count; i++) {
         const slot = Math.round(i / (positions.count - 1) * 24) % 24;
-        const point = faceGuideSurfacePoint(mesh, r, slot, i / (positions.count - 1) * Math.PI * 2, guide.userData.regionId);
+        const point = r.guidePath?.length > 2 ? faceGuidePolyPoint(mesh, r, i) : faceGuideSurfacePoint(mesh, r, slot, i / (positions.count - 1) * Math.PI * 2, guide.userData.regionId);
         point.addScaledVector(normal, r.unit * 1e-3);
         positions.setXYZ(i, point.x, point.y, point.z);
       }
@@ -50699,7 +50796,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
   function syncFaceRegion() {
     refreshFaceGuides();
     const region = activeObject?.faceRig?.regions[$("faceRegion").value];
-    $("faceRegionStatus").textContent = region ? "Regi\xE3o marcada" : "Regi\xE3o n\xE3o marcada";
+    $("faceRegionStatus").textContent = region ? (region.poly?.length ? "Regi\xE3o desenhada (" + region.poly.length + " pontos)" : "Regi\xE3o marcada") : "Regi\xE3o n\xE3o marcada";
     if (region) {
       $("faceRegionWidth").value = region.widthPercent || 20;
       $("faceRegionHeight").value = region.heightPercent || 15;
@@ -50709,6 +50806,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     }
     for (const id of ["faceRegionX", "faceRegionY", "faceRegionWidth", "faceRegionHeight", "faceMaskSoftness"]) $(id).disabled = !region;
     $("faceMark").classList.toggle("active", faceMarking);
+    $("faceFinish").hidden = !facePen.active;
     syncHandRegionUI();
   }
   function syncStudioHandColor(){
@@ -50972,6 +51070,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
   $("faceNeutral").onclick = () => { const preset=faceDefaults();const existing=activeObject?.faceRig?.values||{};for(const key of Object.keys(existing))if(key.startsWith('hand'))preset[key]=existing[key];setExpressionValues(preset); };
   $("faceKey").onclick = () => recordFaceKeyframe(true);
   $("faceRegion").onchange = () => {
+    if (facePen.active) { clearFacePen(); faceMarking = false; }
     const id=$("faceRegion").value;
     if(id.startsWith('hand')&&!activeObject?.faceRig?.regions[id]){$("faceRegionWidth").value=20;$("faceRegionHeight").value=14;}
     syncFaceRegion();
@@ -50983,8 +51082,9 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     stop();
     setMode("orbit");
     faceMarking = !faceMarking;
+    if (!faceMarking && facePen.active) clearFacePen();
     syncFaceRegion();
-    status(faceMarking ? "Clique na região escolhida, com o rosto neutro ou a mão aberta." : "Marca\xE7\xE3o facial encerrada.");
+    status(faceMarking ? ($("faceRegion").value.startsWith("hand") ? "Clique na região escolhida, com o rosto neutro ou a mão aberta." : "Caneta: clique em volta da região (rosto neutro). Feche clicando no primeiro ponto, com duplo clique ou Enter. Backspace desfaz, Esc cancela.") : "Marca\xE7\xE3o facial encerrada.");
   };
   function updateFaceRegionSize() {
     const region = activeObject?.faceRig?.regions[$("faceRegion").value];
@@ -51063,6 +51163,187 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     controls.enableDamping = true;
     recordCameraKeyframe();
   };
+  function redrawFacePen() {
+    for (const child of [...facePen.group.children]) {
+      facePen.group.remove(child);
+      child.geometry.dispose();
+      child.material.dispose();
+    }
+    if (!facePen.world.length) return;
+    const loop = facePen.world.map((p) => p.clone());
+    if (loop.length > 2) loop.push(loop[0].clone());
+    const line = new Line(new BufferGeometry().setFromPoints(loop), new LineBasicMaterial({ color: 16764275, depthTest: false }));
+    const dots = new Points(new BufferGeometry().setFromPoints(facePen.world), new PointsMaterial({ color: 16777215, size: 9, sizeAttenuation: false, depthTest: false }));
+    for (const item of [line, dots]) {
+      item.frustumCulled = false;
+      item.renderOrder = 31;
+      facePen.group.add(item);
+    }
+  }
+  function clearFacePen() {
+    facePen.active = false;
+    facePen.mesh = null;
+    facePen.rest = [];
+    facePen.world = [];
+    redrawFacePen();
+    if ($("faceFinish")) $("faceFinish").hidden = true;
+  }
+  function facePenScreenDistance(world, e) {
+    const rect = renderer.domElement.getBoundingClientRect(), v = world.clone().project(camera);
+    return Math.hypot((v.x + 1) / 2 * rect.width + rect.left - e.clientX, (1 - v.y) / 2 * rect.height + rect.top - e.clientY);
+  }
+  function createFacePolygonRegion(id, mesh, rest, rightIn, upIn) {
+    const obj = activeObject, right = rightIn.clone().normalize(), up = upIn.clone();
+    up.addScaledVector(right, -up.dot(right)).normalize();
+    const normal = new Vector3().crossVectors(right, up).normalize(), origin = rest[0].clone();
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, zSum = 0;
+    const local = rest.map((p) => {
+      const d = p.clone().sub(origin), x = d.dot(right), y = d.dot(up);
+      zSum += d.dot(normal);
+      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      return [x, y];
+    });
+    const mx = (minX + maxX) / 2, my = (minY + maxY) / 2, hw = Math.max((maxX - minX) / 2, 1e-6), hh = Math.max((maxY - minY) / 2, 1e-6);
+    const center = origin.clone().addScaledVector(right, mx).addScaledVector(up, my).addScaledVector(normal, zSum / rest.length);
+    const box = new Box3().setFromObject(model), size = box.getSize(new Vector3()), unit = Math.max(size.x, size.y, size.z) * 0.15 / Math.max(mesh.getWorldScale(new Vector3()).length() / Math.sqrt(3), 1e-6);
+    const poly = local.map(([x, y]) => [+((x - mx) / hw).toFixed(4), +((y - my) / hh).toFixed(4)]);
+    // Contorno desenhado, projetado sobre a superficie da malha (usado so como guia visual).
+    const proxyMaterial = new MeshBasicMaterial({ side: DoubleSide }), proxy = new Mesh(mesh.geometry, proxyMaterial);
+    proxy.updateMatrixWorld(true);
+    const reach = Math.max(hw, hh) * 3, guidePath = [];
+    for (let k = 0; k < rest.length; k++) {
+      const a = rest[k], b = rest[(k + 1) % rest.length];
+      for (let s = 0; s < 6; s++) {
+        const point = a.clone().lerp(b, s / 6);
+        const hit = new Raycaster(point.clone().addScaledVector(normal, reach), normal.clone().negate(), 0, reach * 2).intersectObject(proxy, false)[0];
+        guidePath.push((hit ? hit.point : point).toArray());
+      }
+    }
+    guidePath.push(guidePath[0].slice());
+    proxyMaterial.dispose();
+    const region = {
+      meshId: mesh.uuid, anchor: center.toArray(), offsetX: 0, offsetY: 0,
+      center: center.toArray(), right: right.toArray(), up: up.toArray(), normal: normal.toArray(), unit,
+      widthPercent: hw / unit * 100, heightPercent: hh / unit * 100,
+      radius: [hw, hh, Math.max(hw, hh) * 0.5], poly, guidePath, softness: 30
+    };
+    ensureFaceRig(obj).regions[id] = region;
+    installFaceShaders(obj);
+    fitFaceRegionSurface(obj, region);
+    region.guidePath = guidePath;
+    applyFaceRig(obj);
+    refreshFaceGuides();
+    studioInvalidatePreview();
+  }
+  function finishFacePen() {
+    if (!facePen.active) return;
+    if (facePen.rest.length < 3) {
+      status("A caneta precisa de pelo menos 3 pontos.");
+      return;
+    }
+    const { id, mesh, rest, right, up } = facePen;
+    clearFacePen();
+    createFacePolygonRegion(id, mesh, rest, right, up);
+    faceMarking = false;
+    syncFaceRegion();
+    status("Região desenhada. Para refazer, desenhe de novo; para apagar, use Resetar.");
+  }
+  function resetFaceRegion(id) {
+    const regions = activeObject?.faceRig?.regions, region = regions?.[id];
+    if (!region) return false;
+    faceRegionPaints.get(region)?.texture.dispose();
+    faceRegionPaints.delete(region);
+    delete regions[id];
+    return true;
+  }
+  $("faceFinish").onclick = finishFacePen;
+  $("faceReset").onclick = () => {
+    if (!activeObject) return;
+    clearFacePen();
+    faceMarking = false;
+    const id = $("faceRegion").value;
+    if (id.startsWith("hand")) return;
+    if (resetFaceRegion(id)) {
+      applyFaceRig(activeObject);
+      studioInvalidatePreview();
+      status("Região resetada.");
+    } else status("Essa região ainda não foi desenhada.");
+    syncFaceRegion();
+  };
+  $("faceResetAll").onclick = () => {
+    if (!activeObject) return;
+    clearFacePen();
+    faceMarking = false;
+    let count = 0;
+    for (const id of FACE_REGIONS.slice(0, FACE_SURFACE_REGIONS)) if (resetFaceRegion(id)) count++;
+    applyFaceRig(activeObject);
+    studioInvalidatePreview();
+    status(count ? "Todas as regiões do rosto foram resetadas." : "Nenhuma região desenhada.");
+    syncFaceRegion();
+  };
+  window.addEventListener("keydown", (e) => {
+    if (!facePen.active || !faceMarking) return;
+    const t = e.target;
+    if (t && (t.isContentEditable || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.tagName === "INPUT" && t.type !== "range" && t.type !== "checkbox")) return;
+    if (e.key === "Enter") {
+      e.preventDefault(); e.stopImmediatePropagation();
+      finishFacePen();
+    } else if (e.key === "Escape") {
+      e.preventDefault(); e.stopImmediatePropagation();
+      clearFacePen();
+      faceMarking = false;
+      syncFaceRegion();
+      status("Desenho cancelado.");
+    } else if (e.key === "Backspace" || e.key === "Delete") {
+      e.preventDefault(); e.stopImmediatePropagation();
+      facePen.rest.pop();
+      facePen.world.pop();
+      if (!facePen.world.length) { facePen.active = false; facePen.mesh = null; syncFaceRegion(); }
+      redrawFacePen();
+    }
+  }, true);
+  renderer.domElement.addEventListener("pointerdown", (e) => {
+    const id = $("faceRegion").value;
+    if (!faceMarking || id.startsWith("hand") || $("panelFace").hidden || !activeObject || e.button !== 0) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    // Fecha o polígono ao clicar perto do primeiro ponto ou duplo clique no último.
+    if (facePen.active && facePen.world.length >= 3 && (facePenScreenDistance(facePen.world[0], e) < 10 || facePenScreenDistance(facePen.world[facePen.world.length - 1], e) < 5)) {
+      finishFacePen();
+      return;
+    }
+    setPointerRay(e);
+    model.updateMatrixWorld(true);
+    const hits = ray.intersectObjects(meshes().filter((m) => !m.userData.studioGeneratedHand && true), false);
+    if (!hits.length) {
+      status("Clique sobre a malha em volta da região que quer marcar.");
+      return;
+    }
+    const hit = hits[0], mesh = hit.object, frame = faceRestFrame(mesh, hit);
+    if (!facePen.active) {
+      const inv = mesh.matrixWorld.clone().invert();
+      facePen.active = true;
+      facePen.id = id;
+      facePen.mesh = mesh;
+      facePen.rest = [];
+      facePen.world = [];
+      facePen.right = new Vector3(1, 0, 0).applyQuaternion(camera.quaternion).transformDirection(inv).transformDirection(frame.inverse);
+      facePen.up = new Vector3(0, 1, 0).applyQuaternion(camera.quaternion).transformDirection(inv).transformDirection(frame.inverse);
+      syncFaceRegion();
+    }
+    if (facePen.world.length && facePenScreenDistance(facePen.world[facePen.world.length - 1], e) < 3) return;
+    let restPoint = frame.point.clone();
+    if (facePen.mesh !== mesh) {
+      // Ponto em outra malha: converte para o espaco local da malha do primeiro ponto.
+      mesh.updateWorldMatrix(true, false);
+      restPoint = facePen.mesh.worldToLocal(mesh.localToWorld(restPoint));
+    }
+    facePen.rest.push(restPoint);
+    facePen.world.push(hit.point.clone());
+    redrawFacePen();
+    status("Ponto " + facePen.world.length + ". Feche clicando no primeiro ponto, com duplo clique ou Enter.");
+  }, true);
   renderer.domElement.addEventListener("pointerdown", (e) => {
     const markingHand=$("faceRegion").value.startsWith("hand");
     const markingPanel=markingHand?$("panelHand"):$("panelFace");
