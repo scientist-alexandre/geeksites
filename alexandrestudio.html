@@ -1172,7 +1172,7 @@ body:has(#panelObjects:not([hidden])) main > nav #baseGrabUndo {
 <button id="orbit" title="Navegar pela cena">Navegar</button>
 <button id="toolPose" title="Modo pose" aria-keyshortcuts="Space">Modo pose</button>
 <button id="poseUndo" type="button" title="Desfazer a última alteração de pose (Ctrl+Z)" aria-keyshortcuts="Control+Z Meta+Z" disabled>Desfazer pose</button>
-<button id="frame" title="Enquadrar personagem (F)">Enquadrar</button>
+<button id="frame" title="Foco personagem (F)">Foco</button>
 <button id="baseGrab" title="Grab · corrigir malha">Grab</button>
 <button id="baseGrabUndo" title="Desfazer Grab">Desfazer Grab</button>
 <button id="objectMove" title="Mover objeto no cenário" aria-label="Mover objeto" aria-keyshortcuts="W">Mover</button>
@@ -1195,7 +1195,7 @@ body:has(#panelObjects:not([hidden])) main > nav #baseGrabUndo {
 <label>Tamanho do pincel <input id="studioClothBrush" type="range" min="4" max="100" value="24"></label>
 <div class="faceButtons"><button id="studioClothWindPaint" type="button">Pintar vento</button></div>
 <div class="faceButtons"><button id="studioClothDeleteWind" type="button">Deletar todo o vento</button><button id="studioClothStop" type="button">Concluir pintura</button></div>
-<small>Pinte onde o vento vai agir. Para animar, escolha um quadro e ajuste a força: 0 = sem vento; maior que 0 = vento ativo. A mudança gera keyframe na timeline do objeto. A prévia só movimenta o tecido durante o Play.</small></div><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="objectJoin" title="Unir os objetos marcados em um objeto, fixando a pose atual">Unir objetos</button><button id="objectJoinUndo" title="Recuperar os objetos originais da união nesta sessão">Desfazer união</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><button id="shapeNew" class="primary">＋ Criar Shape Key</button></div><div id="shapeList"></div><div class="shapeBrushTools"><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option><option value="handL" hidden>Mão esquerda</option><option value="handR" hidden>Mão direita</option></select><div class="faceButtons"><button id="faceMark" title="Clique em volta da região na malha para desenhar um polígono">Desenhar região (caneta)</button><button id="faceFinish" hidden>Fechar polígono</button><button id="faceReset" title="Apaga a região selecionada">Resetar região</button><button id="faceResetAll" title="Apaga todas as regiões do rosto">Resetar todas</button><button id="faceFocus">Enquadrar rosto</button></div><div id="faceLegacySliders" style="display:none"><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="0.1" max="200" step="0.1" value="8"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="0.1" max="200" step="0.1" value="5"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para cima ou baixo"></label></div><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="true">Mostrar FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><p class="muted">Escolha a região e use a caneta com o rosto em pose neutra: clique em volta dela na malha e feche o polígono clicando no primeiro ponto, com duplo clique ou Enter. Backspace desfaz o último ponto e Esc cancela. Para refazer, desenhe de novo; Resetar apaga a região. E / D são os lados do personagem. Malhas com mais vértices produzem movimentos mais suaves.</p><div id="faceSliders">
+<small>Pinte onde o vento vai agir. Para animar, escolha um quadro e ajuste a força: 0 = sem vento; maior que 0 = vento ativo. A mudança gera keyframe na timeline do objeto. A prévia só movimenta o tecido durante o Play.</small></div><details id="sceneObjectPanel" open><summary>Objetos <span id="sceneObjectCount">0</span></summary><div class="faceButtons"><button id="folderCreate">Agrupar</button><button id="objectJoin" title="Unir os objetos marcados em um objeto, fixando a pose atual">Unir objetos</button><button id="objectJoinUndo" title="Recuperar os objetos originais da união nesta sessão">Desfazer união</button><button id="folderAdd">Adicionar à pasta</button><button id="folderUngroup">Desagrupar</button></div><div id="sceneObjects"></div></details><div class="faceButtons"><button id="objectGrabToggle" aria-pressed="false">Ativar Grab</button><button id="objectGrabUndo">Desfazer Grab</button><button id="baseGrabSymmetry" aria-pressed="false">Simetria X</button></div><label class="faceRange">Grab<input id="baseGrabRadius" type="range" min="5" max="180" value="60"></label><h3>Suavização</h3><button id="applyAutoSmooth" class="primary">Auto Smooth</button><button id="applyRemesh">Suavizar malha</button><button id="undoRemesh" disabled>Desfazer suavização</button><p id="smoothInfo" class="muted"></p></div></section><section id="panelPoses" role="tabpanel" aria-labelledby="tabPoses" hidden><div class="posePanel"><div class="poseHeading"><span id="poseObject">Poses</span><span id="poseTotal">0</span></div><div class="poseSave"><button id="savePose" class="primary">＋ Salvar pose</button></div><div id="poseList"></div></div></section><section id="panelShapes" role="tabpanel" aria-labelledby="tabShapes" hidden><div class="posePanel"><div class="poseHeading"><span id="shapeObject">Shape Keys</span></div><div class="poseSave"><button id="shapeNew" class="primary">＋ Criar Shape Key</button></div><div id="shapeList"></div><div class="shapeBrushTools"><button id="shapeGrab">Pincel Grab</button><label class="faceRange">Tamanho <input id="shapeRadius" type="range" min="8" max="220" value="65"><output id="shapeRadiusValue">65 px</output></label><button id="shapeUndo">Desfazer pincelada</button></div><p class="muted">Editar forma cria uma correção independente na intensidade atual. Corrigir 50% preserva a forma final de 100%. Arraste com Grab para ajustar esse ponto. Para editar, use intensidade acima de 0%. Botão direito e scroll navegam.</p></div></section><section id="panelExpressions" role="tabpanel" aria-labelledby="tabExpressions" hidden><div class="facePanel"><div class="poseHeading"><span id="expressionObject">Expressões</span></div><div class="poseSave"><input id="faceExpressionName" maxlength="100" placeholder="Nome da expressão" aria-label="Nome da expressão"><button id="faceSaveExpression">Salvar expressão</button></div><div id="faceExpressions"></div></div></section><section id="panelFace" role="tabpanel" aria-labelledby="tabFace" hidden><div class="facePanel"><div class="poseHeading"><span id="faceObject">FaceRig 3D</span></div><div class="faceSection"><select id="faceRegion" aria-label="Região facial"><option value="eyeL">Olho esquerdo</option><option value="eyeR">Olho direito</option><option value="browL">Sobrancelha esquerda</option><option value="browR">Sobrancelha direita</option><option value="mouth">Boca</option><option value="handL" hidden>Mão esquerda</option><option value="handR" hidden>Mão direita</option></select><div class="faceButtons"><button id="faceMark" title="Clique em volta da região na malha para desenhar um polígono">Desenhar região (caneta)</button><button id="faceFinish" hidden>Fechar polígono</button><button id="faceReset" title="Apaga a região selecionada">Resetar região</button><button id="faceResetAll" title="Apaga todas as regiões do rosto">Resetar todas</button><button id="faceFocus">Foco rosto</button></div><div id="faceLegacySliders" style="display:none"><label class="faceRange">Largura <input id="faceRegionWidth" type="range" min="0.1" max="200" step="0.1" value="8"></label><label class="faceRange">Altura <input id="faceRegionHeight" type="range" min="0.1" max="200" step="0.1" value="5"></label><label class="faceRange">Esquerda / direita <input id="faceRegionX" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para esquerda ou direita"></label><label class="faceRange">Cima / baixo <input id="faceRegionY" type="range" min="-100" max="100" value="0" step="0.1" aria-label="Mover região para cima ou baixo"></label></div><label class="faceRange">Suavidade da máscara <input id="faceMaskSoftness" type="range" min="5" max="90" value="30" aria-label="Suavidade da máscara de influência"></label><div class="faceButtons"><button id="faceMaskPreview" aria-pressed="false">Mostrar máscara</button><button id="faceHide" aria-pressed="true">Mostrar FaceRig</button></div><div id="faceRegionStatus" class="muted"></div></div><div class="faceSection"><p class="muted">Escolha a região e use a caneta com o rosto em pose neutra: clique em volta dela na malha e feche o polígono clicando no primeiro ponto, com duplo clique ou Enter. Backspace desfaz o último ponto e Esc cancela. Para refazer, desenhe de novo; Resetar apaga a região. E / D são os lados do personagem. Malhas com mais vértices produzem movimentos mais suaves.</p><div id="faceSliders">
 <fieldset><legend>Olhos</legend><div id="faceEyesSliders"></div></fieldset>
 <fieldset><legend>Sobrancelhas</legend><div id="faceBrowsSliders"></div></fieldset>
 <fieldset><legend>Boca</legend><label class="faceRange faceMouthModeRow">Abertura da boca<select id="faceMouthMode"><option value="0">Interior preto</option><option value="1">Somente malha / textura original</option></select></label><div id="faceMouthSliders"></div></fieldset>
@@ -49574,6 +49574,9 @@ function createCompactStudioZoom(options){
     }
     uniforms.afMouthLeft = { value: 1 };
     uniforms.afMask = { value: null };
+    // Máscara separada: suaviza apenas o deslocamento dos vértices.
+    // A máscara visual e as texturas/UVs do modelo continuam intactas.
+    uniforms.afDeformMask = { value: null };
     for (let i = 0; i < FACE_SURFACE_REGIONS; i++) uniforms["afPoly" + i] = { value: 0 };
     uniforms.afEyeMood = { value: 0 };
     uniforms.afEyeInward = { value: new Vector2(1, -1) };
@@ -49899,7 +49902,15 @@ function createCompactStudioZoom(options){
       texture.magFilter = LinearFilter;
       texture.generateMipmaps = false;
       texture.needsUpdate = true;
-      atlas = { data, texture, sigs: new Array(FACE_SURFACE_REGIONS).fill("") };
+      // Influência geométrica mais espalhada, sem alterar a máscara usada
+      // para as cores/pálpebras nem qualquer textura original do objeto.
+      const deformData = new Uint8Array(data.length);
+      const deformTexture = new DataTexture(deformData, T, T * FACE_SURFACE_REGIONS, RGBAFormat);
+      deformTexture.minFilter = LinearFilter;
+      deformTexture.magFilter = LinearFilter;
+      deformTexture.generateMipmaps = false;
+      deformTexture.needsUpdate = true;
+      atlas = { data, texture, deformData, deformTexture, sigs: new Array(FACE_SURFACE_REGIONS).fill("") };
       faceMaskAtlases.set(rig, atlas);
     }
     let dirty = false;
@@ -49910,9 +49921,27 @@ function createCompactStudioZoom(options){
       dirty = true;
       const base = i * T * T * 4;
       atlas.data.fill(0, base, base + T * T * 4);
-      if (sig) rasterFacePolygon(region.poly, region.softness ?? 30, atlas.data, base);
+      atlas.deformData.fill(0, base, base + T * T * 4);
+      if (sig) {
+        rasterFacePolygon(region.poly, region.softness ?? 30, atlas.data, base);
+        // Filtragem espacial exclusiva do campo de deformação: elimina
+        // transições bruscas na fronteira do polígono (dobras/rugas).
+        const smooth = new Float32Array(T * T), temp = new Float32Array(T * T);
+        for (let k = 0; k < smooth.length; k++) smooth[k] = atlas.data[base + k * 4] / 255;
+        for (let pass = 0; pass < 2; pass++) {
+          faceBoxBlur(smooth, temp, T, 14, true);
+          faceBoxBlur(temp, smooth, T, 14, false);
+        }
+        for (let k = 0; k < smooth.length; k++) {
+          const value = Math.round(MathUtils.clamp(smooth[k], 0, 1) * 255), at = base + k * 4;
+          atlas.deformData[at] = atlas.deformData[at + 1] = atlas.deformData[at + 2] = atlas.deformData[at + 3] = value;
+        }
+      }
     }
-    if (dirty) atlas.texture.needsUpdate = true;
+    if (dirty) {
+      atlas.texture.needsUpdate = true;
+      atlas.deformTexture.needsUpdate = true;
+    }
     return atlas.texture;
   }
   function refreshFaceUniforms(obj, mesh, uniforms, frames) {
@@ -49952,7 +49981,9 @@ function createCompactStudioZoom(options){
       || moving(1, [v.blinkR, v.upperR, v.lowerR, v.squintR, eyeMood])
       || moving(2, [v.browL, v.browRaiseL]) || moving(3, [v.browR, v.browRaiseR])
       || moving(4, [v.smile, v.smileL, v.smileR, v.width, v.open, v.pucker, v.press, v.jawSide, v.jawForward]);
-    uniforms.afMask.value = faceMaskTexture(obj);
+    const faceVisibleMask = faceMaskTexture(obj);
+    uniforms.afMask.value = faceVisibleMask;
+    uniforms.afDeformMask.value = faceVisibleMask ? faceMaskAtlases.get(f)?.deformTexture : null;
     let normalStep = Infinity;
     for (let i = 0; i < FACE_REGIONS.length; i++) {
       const region = f.regions[FACE_REGIONS[i]], facial = i < FACE_SURFACE_REGIONS;
@@ -49987,8 +50018,9 @@ function createCompactStudioZoom(options){
     const hasFace = FACE_REGIONS.slice(0, FACE_SURFACE_REGIONS).some(id => regions[id]);
     const handMeshes = new Set([regions.handL?.meshId, regions.handR?.meshId]);
     obj.root.traverse((mesh) => {
-      if (!mesh.isMesh || mesh.userData.studioGeneratedHand || faceShaderBindings.has(mesh)) return;
+      if (!mesh.isMesh || mesh.userData.studioGeneratedHand) return;
       if (!hasFace && !handMeshes.has(mesh.uuid)) return;
+      if(faceShaderBindings.has(mesh))return;
       const uniforms = faceUniforms();
       uniforms.afMaskPreview = { value: -1 };
       for (let i = 0; i < FACE_REGIONS.length; i++) {
@@ -50015,11 +50047,16 @@ function createCompactStudioZoom(options){
             for (const k of ["UvR", "UvU"]) declarations += "uniform vec2 af" + k + i + ";";
           }
           declarations += "uniform float afMouthLeft;";
-          declarations += "uniform sampler2D afMask;float afPolyAt(float idx,vec2 p){vec2 q=p/" + (2 * FACE_MASK_SPAN).toFixed(1) + "+0.5;if(q.x<0.0||q.x>1.0||q.y<0.0||q.y>1.0)return 0.0;return texture2D(afMask,vec2(q.x,(idx+q.y)/" + FACE_SURFACE_REGIONS + ".0)).r;}";
+          declarations += "uniform sampler2D afMask;uniform sampler2D afDeformMask;float afPolyAt(float idx,vec2 p){vec2 q=p/" + (2 * FACE_MASK_SPAN).toFixed(1) + "+0.5;if(q.x<0.0||q.x>1.0||q.y<0.0||q.y>1.0)return 0.0;return texture2D(afMask,vec2(q.x,(idx+q.y)/" + FACE_SURFACE_REGIONS + ".0)).r;}float afDeformPolyAt(float idx,vec2 p){vec2 q=p/" + (2 * FACE_MASK_SPAN).toFixed(1) + "+0.5;if(q.x<0.0||q.x>1.0||q.y<0.0||q.y>1.0)return 0.0;return texture2D(afDeformMask,vec2(q.x,(idx+q.y)/" + FACE_SURFACE_REGIONS + ".0)).r;}";
           for (let i = 0; i < FACE_SURFACE_REGIONS; i++) declarations += "uniform float afPoly" + i + ";";
           for (let i = 0; i < FACE_SURFACE_REGIONS; i++) declarations += `uniform mat4 afToRegion${i};`;
           let surfaceDeclarations = "uniform bool afFaceMoving;uniform float afNormalStep;uniform float afEyeMood;uniform vec2 afEyeInward;";
-          let surface = "vec3 afFaceOffset(vec3 point){vec3 offset=vec3(0.0);";
+          let surface = `
+            vec3 afFaceOffset(vec3 point){
+              vec3 offset=vec3(0.0);
+              vec3 browOffset=vec3(0.0);
+              float browWeight=0.0;
+          `;
           for (let i = 0; i < FACE_SURFACE_REGIONS; i++) {
             surfaceDeclarations += `uniform mat3 afFromRegion${i};`;
             const radius = `afS${i}`;
@@ -50065,10 +50102,15 @@ function createCompactStudioZoom(options){
             } else if (i < 4) {
               const side = i === 2 ? "x" : "y";
               movement = `
+                // Suavização geométrica sem subdivisão nem alteração de UV:
+                // limita o deslocamento antes da transição, evitando inverter
+                // a ordem dos vértices e criar quinas/dobras sobre a pintura.
                 float tilt=afV3.${side};
-                float lift=afV4.${side}*${radius}.y*0.54;
-                vec2 turned=mat2(cos(tilt),sin(tilt),-sin(tilt),cos(tilt))*d.xy;
-                vec3 delta=vec3(turned-d.xy+vec2(0.0,lift),0.0);
+                float lift=afV4.${side}*${radius}.y*0.40;
+                float requestedShift=d.x*sin(tilt)*0.82+lift;
+                float safeRange=max(${radius}.y*1.35,0.000001);
+                float softShift=requestedShift*inversesqrt(1.0+pow(requestedShift/safeRange,2.0));
+                vec3 delta=vec3(0.0,softShift,0.0);
               `;
             } else {
               movement = `
@@ -50082,24 +50124,45 @@ function createCompactStudioZoom(options){
                 vec3 delta=vec3(dx,dy,dz);
               `;
             }
-            const spread = i < 2 ? "vec2(0.78,0.72)" : i < 4 ? "vec2(0.70,0.54)" : "vec2(0.68,0.53)";
+            const isBrow = i === 2 || i === 3;
+            const spread = i < 2 ? "vec2(0.78,0.72)" : "vec2(0.68,0.53)";
             surface += `
-              if (${radius}.x>0.0) {
+              if (${radius}.x>0.0 && ${radius}.y>0.0) {
                 vec3 d=(afToRegion${i}*vec4(point,1.0)).xyz;
                 vec2 p=d.xy/${radius}.xy;
-                float r=length(p*${spread});
-                float z=abs(d.z)/${radius}.z;
-                bool usePoly=afPoly${i}>0.5;
-                float polyW=usePoly?afPolyAt(${i}.0,p):0.0;
-                if ((usePoly?polyW>0.002:r<1.0) && z<1.0) {
-                  float w=(usePoly?polyW:(1.0-smoothstep(0.22*(1.0-afSoft${i}),1.0,r)))*(1.0-smoothstep(0.44,1.0,z));
-                  ${movement}
-                  offset+=afFromRegion${i}*delta*w;
-                }
+                ${isBrow ? `
+                  // Campo contínuo com patamar central: não dobra a testa
+                  // ao passar da sobrancelha ao olho, inclusive em +/-100.
+                  // Todas as superfícies/traços sobrepostos usam EXATAMENTE
+                  // a mesma influência em coordenadas de mundo; UVs intocados.
+                  float horizontal=1.0-smoothstep(1.08,2.80,abs(p.x));
+                  float lowerBlend=smoothstep(-5.00,-0.65,p.y);
+                  float upperBlend=1.0-smoothstep(0.80,5.10,p.y);
+                  float depth=abs(d.z)/max(${radius}.z,${radius}.y*1.25);
+                  float layerBlend=1.0-smoothstep(1.70,3.20,depth);
+                  float w=horizontal*lowerBlend*upperBlend*layerBlend;
+                  if(w>0.0){
+                    ${movement}
+                    browOffset+=afFromRegion${i}*delta*w;
+                    browWeight+=w;
+                  }
+                ` : `
+                  float r=length(p*${spread});
+                  float z=abs(d.z)/max(${radius}.z,0.000001);
+                  bool usePoly=afPoly${i}>0.5;
+                  float planar=usePoly?afDeformPolyAt(${i}.0,p):(1.0-smoothstep(0.22*(1.0-afSoft${i}),1.0,r));
+                  if(planar>0.001 && z<1.35){
+                    float w=planar*(1.0-smoothstep(0.52,1.35,z));
+                    ${movement}
+                    offset+=afFromRegion${i}*delta*w;
+                  }
+                `}
               }
             `;
           }
-          surface += "return offset;}";
+          // Combinação diferenciável também na junção das duas sobrancelhas:
+          // max(1, peso) formava uma derivada descontínua (quina visível).
+          surface += "return offset+browOffset/sqrt(sqrt(1.0+pow(browWeight,4.0)));}";
           let deformation = "";
           for (let j = FACE_SURFACE_REGIONS; j < FACE_REGIONS.length; j++) {
               deformation+=`{if(afS${j}.x>0.0){
@@ -50151,8 +50214,10 @@ transformed+=(afR${j}*(nx-d.x)+afN${j}*(nz-d.z)+afU${j}*squeeze)*influence*finge
 float u=clamp(${blink}*0.82+${upper}+sq*0.25,0.0,1.0);
 float l=clamp(${blink}*0.18+${lower}+sq*0.35,0.0,1.0);
 float arch=sqrt(max(0.0,1.0-p.x*p.x));
-float upperEdge=arch*(0.86-u*1.72);
-float lowerEdge=arch*(-0.86+l*1.72);
+float hu=0.86-u*1.72;float hl=-0.86+l*1.72;
+float pu=mix(1.0,0.55,smoothstep(0.0,0.5,-hu));float pl=mix(1.0,0.55,smoothstep(0.0,0.5,hl));
+float upperEdge=hu*pow(arch,pu);
+float lowerEdge=hl*pow(arch,pl);
 float cu=smoothstep(upperEdge-0.035,upperEdge+0.035,p.y)*step(0.001,u);
 float cl=(1.0-smoothstep(lowerEdge-0.035,lowerEdge+0.035,p.y))*step(0.001,l);
 // Never shift UV coordinates across face UV islands. That produced white triangles
@@ -50189,7 +50254,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
           }
           shader.fragmentShader = shader.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\n" + effects);
         };
-        material.customProgramCacheKey = () => (previousCacheKey?.() || '') + '|alexandre-face-shared-surface-v10';
+        material.customProgramCacheKey = () => (previousCacheKey?.() || '') + '|alexandre-face-v15-smooth-nonfold-brows';
         // Mark this FaceRig material as already wind-patched so the preview
         // loop does not stack new wind shaders onto it on every frame.
         const windUniforms=studioSurfaceWindMaterials?.get?.(original);

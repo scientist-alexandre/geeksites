@@ -3404,6 +3404,24 @@ function applyPaintCommand(command){
 }
 function replayPaintStrokes(){for(const stroke of paintStrokes)for(const command of stroke)applyPaintCommand(command);}
 
+// Palm rejection only while a pen operates a brush or sculpting tool.
+let drawingPenPointer=null;
+const blockDrawingPalm=e=>{
+ if(e.pointerType!=='touch'||drawingPenPointer===null)return false;
+ e.preventDefault();e.stopImmediatePropagation();return true;
+};
+canvas.addEventListener('pointerdown',e=>{
+ if(blockDrawingPalm(e))return;
+ if(e.pointerType==='pen'&&(e.button===0||(e.button===-1&&(e.buttons&1)))&&
+    ['brush','grab','smooth'].includes($('paintTool').value))drawingPenPointer=e.pointerId;
+},true);
+canvas.addEventListener('pointermove',blockDrawingPalm,true);
+for(const type of ['pointerup','pointercancel','lostpointercapture']){
+ canvas.addEventListener(type,e=>{
+  if(e.pointerType==='pen'&&e.pointerId===drawingPenPointer)drawingPenPointer=null;
+  else blockDrawingPalm(e);
+ },true);
+}
 const orbitDown=canvas.onpointerdown,orbitMove=canvas.onpointermove,orbitUp=canvas.onpointerup;
 canvas.onpointerdown=e=>{
  if(window.clone3DMode&&e.button===0&&!e.shiftKey&&!window.clone3DSource){
@@ -9450,6 +9468,10 @@ self.onmessage=({data:{meshes,operations}})=>{
  const paintTool=document.getElementById('paintTool');
  const paintSize=document.getElementById('paintSize');
  const painter=window.DrawingAssemblyEditor;
+ // Aceita a ponta da caneta mesmo quando o driver informa button=-1 com buttons=1.
+ const toolTipDown=event=>event.pointerType==='pen'
+  ? event.button===0||(event.button===-1&&(event.buttons&1)!==0)
+  : event.isPrimary&&event.button===0;
  document.getElementById('compositionBar').insertBefore(colorTools,document.getElementById('compositionActions'));
  upload.after(exportButton);
  exportButton.title='Baixar a cena em um GLB com os objetos separados';
@@ -9486,6 +9508,7 @@ self.onmessage=({data:{meshes,operations}})=>{
 
  document.getElementById('toolOrbit').click();
  let stroke=null,paintPointer=null,pendingPaint=null,cloneImage=null;
+ let pendingPenPaint=[];
  let renderer,scene,objects,camera,controls,grid,keyLight,fillLight,selected,count=0,frame=0;
  const gridToggle=document.getElementById('compositionGridToggle');
  gridToggle.addEventListener('click',()=>{
@@ -9597,6 +9620,23 @@ self.onmessage=({data:{meshes,operations}})=>{
   editPanButton.addEventListener('lostpointercapture',e=>{
    if(handDrag&&handDrag.id===e.pointerId){handDrag=null;editPanButton.style.cursor='grab';}
   });
+  // Rejeição de toques acidentais da mão durante pinceladas/arraste com caneta.
+  let editingPenPointer=null;
+  const palmContact=event=>{
+   if(event.pointerType!=='touch'||editingPenPointer===null)return false;
+   event.preventDefault();event.stopImmediatePropagation();return true;
+  };
+  canvas.addEventListener('pointerdown',event=>{
+   if(palmContact(event))return;
+   if(event.pointerType==='pen'&&toolTipDown(event))editingPenPointer=event.pointerId;
+  },true);
+  canvas.addEventListener('pointermove',palmContact,true);
+  for(const type of ['pointerup','pointercancel','lostpointercapture']){
+   canvas.addEventListener(type,event=>{
+    if(event.pointerType==='pen'&&event.pointerId===editingPenPointer)editingPenPointer=null;
+    else palmContact(event);
+   },true);
+  }
   canvas.addEventListener('contextmenu',e=>e.preventDefault());
   canvas.addEventListener('wheel',e=>{
    if(controls.enabled)return;
@@ -11635,20 +11675,20 @@ return earcut;})();
   status.textContent=drag.limited?'Recuo limitado pela superfície que está atrás.':'';
  }
 
- function hitGizmo(point,target){
+ function hitGizmo(point,target,pen=false){
   const gizmo=gizmoHandles(target);
   if(!gizmo)return null;
-  if(point.distanceTo(gizmo.center)<=9)return {name:'free',gizmo};
+  if(point.distanceTo(gizmo.center)<=(pen?17:9))return {name:'free',gizmo};
   let best=null;
   for(const handle of gizmo.handles){
    if(handle.anchor){
     const distance=point.distanceTo(handle.anchor);
-    if(distance<=14&&(!best||distance<best.distance))best={...handle,distance,gizmo};
+    if(distance<=(pen?23:14)&&(!best||distance<best.distance))best={...handle,distance,gizmo};
     continue;
    }
    for(let i=1;i<handle.points.length;i++){
     const hit=distanceToHandle(point,handle.points[i-1],handle.points[i]);
-    if(!hit||hit.distance>10||(best&&hit.distance>=best.distance))continue;
+    if(!hit||hit.distance>(pen?18:10)||(best&&hit.distance>=best.distance))continue;
     best={...hit,...handle,gizmo};
    }
   }
@@ -11729,10 +11769,10 @@ return earcut;})();
   ctx.restore();
  }
 
- function beginTransform(point){
+ function beginTransform(point,pen=false){
   const target=transformTarget();
   if(!target)return false;
-  const handle=hitGizmo(point,target);
+  const handle=hitGizmo(point,target,pen);
   if(!handle)return false;
   const matrix=camera.matrixWorld.elements;
   const right=new E.Vector(matrix[0],matrix[1],matrix[2]);
@@ -11908,18 +11948,18 @@ return earcut;})();
 
  function beginSelection(event){
   if(selectionPointer!==null||(!selectionActive()&&!objectGizmoActive)||
-     !event.isPrimary||event.button!==0||event.altKey||event.shiftKey)return;
+     !toolTipDown(event)||event.altKey||event.shiftKey)return;
   if(selectionActive()&&!selectedObject())return;
   const point=scenePoint(event);
   const operation=operationFor(event);
   const plain=operation==='add';
   const target=outlineCut?.worker&&plain&&!selectionPath.length?transformTarget():null;
-  if(target&&hitGizmo(point,target)){
+  if(target&&hitGizmo(point,target,event.pointerType==='pen')){
    event.preventDefault();event.stopImmediatePropagation();
    status.textContent='Recortando pelo contorno…';
    return;
   }
-  const onGizmo=!selectionPath.length&&plain&&beginTransform(point);
+  const onGizmo=!selectionPath.length&&plain&&beginTransform(point,event.pointerType==='pen');
   if(!onGizmo){
    if(!selectionActive())return;
    if(!objectHit(event)){
@@ -11941,7 +11981,7 @@ return earcut;})();
  }
 
  function moveSelection(event){
-  if((!selectionActive()&&!objectGizmoActive)||!event.isPrimary)return;
+  if((!selectionActive()&&!objectGizmoActive)||(!event.isPrimary&&event.pointerType!=='pen'))return;
   const point=scenePoint(event);
   if(transformDrag&&selectionPointer===event.pointerId)applyTransform(point);
   else if(selectionPath.length){
@@ -11949,7 +11989,7 @@ return earcut;})();
    requestRender();
   }else if(!selectionPath.length){
    const target=transformTarget();
-   const hover=target?hitGizmo(point,target)?.name:null;
+   const hover=target?hitGizmo(point,target,event.pointerType==='pen')?.name:null;
    if(selectionActive())canvas.dataset.selecting=hover?'gizmo':'area';
    if(hover!==gizmoHover){gizmoHover=hover;requestRender();}
   }
@@ -12676,7 +12716,7 @@ return earcut;})();
  };
 
  function beginMeshErase(event){
-  if(!erasing()||eraseStroke||!event.isPrimary||event.button!==0||event.shiftKey||event.altKey)return;
+  if(!erasing()||eraseStroke||!toolTipDown(event)||event.shiftKey||event.altKey)return;
   const hit=objectHit(event);
   const root=hit?rootOf(hit.object):selectedObject();
   if(!root)return;
@@ -12756,7 +12796,7 @@ return earcut;})();
  };
 
  function beginPaint(event){
-  if(selectionActive()||!event.isPrimary||event.button!==0||event.shiftKey||paintPointer!==null||stroke)return;
+  if(selectionActive()||!toolTipDown(event)||event.shiftKey||paintPointer!==null||stroke)return;
   if(grab.getAttribute('aria-pressed')==='true'||!['brush','pick'].includes(paintTool.value))return;
   const hit=objectHit(event);
   if(!hit)return;
@@ -12775,6 +12815,7 @@ return earcut;})();
   }
   painter.enter({canvas,renderer,scene,camera,orbit:controls,object,bindSurface:false,rememberPaint:rememberCompositionEdit});
   paintPointer=event.pointerId;
+  pendingPenPaint.length=0;
   controls.enabled=false;
   canvas.setPointerCapture(event.pointerId);
   try{
@@ -12789,25 +12830,35 @@ return earcut;})();
 
  function movePaint(event){
   if(event.pointerId!==paintPointer)return;
-  pendingPaint=event;
+  if(event.pointerType==='pen'){
+   const samples=typeof event.getCoalescedEvents==='function'?event.getCoalescedEvents():[];
+   for(const sample of samples.length?samples:[event]){
+    if(Number.isFinite(sample.clientX)&&Number.isFinite(sample.clientY))
+     pendingPenPaint.push({clientX:sample.clientX,clientY:sample.clientY});
+   }
+   if(pendingPenPaint.length>32)pendingPenPaint.splice(0,pendingPenPaint.length-32);
+  }else pendingPaint=event;
   requestRender();
  }
 
  function flushPaint(){
-  if(!pendingPaint)return;
-  const event=pendingPaint;
+  if(!pendingPaint&&!pendingPenPaint.length)return;
+  const samples=pendingPenPaint.length?pendingPenPaint.splice(0):[pendingPaint];
   pendingPaint=null;
   try{
-   painter.movePaint(event);
+   for(const sample of samples)painter.movePaint(sample);
   }catch(error){
    status.textContent='Falha ao pintar: '+error.message;
-   finishPaint(event);
+   finishPaint(null);
   }
  }
 
  function finishPaint(event){
   if(paintPointer===null||(event&&event.pointerId!==paintPointer))return;
+  if(event?.pointerType==='pen'&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY))
+   pendingPenPaint.push({clientX:event.clientX,clientY:event.clientY});
   flushPaint();
+  pendingPenPaint.length=0;
   if(paintPointer===null)return;
   const pointer=paintPointer;
   paintPointer=null;
@@ -12910,7 +12961,7 @@ return earcut;})();
  }
 
  function beginGrab(event){
-  if(selectionActive()||stroke||!event.isPrimary||event.button!==0||event.shiftKey||
+  if(selectionActive()||stroke||!toolTipDown(event)||event.shiftKey||
      grab.getAttribute('aria-pressed')!=='true')return;
   const root=selectedObject();
   if(!root)return;
