@@ -76,6 +76,7 @@ main{height:calc(100dvh - 54px)!important;width:100%!important;display:block!imp
 #proCloneBtn.proSelected{color:#c6ffcf!important;background:#285a3e!important;border-color:#4ecb7b!important}
 #proCloneSliderBox{position:fixed;z-index:21;right:13px;top:calc(54px + (100dvh - 54px)/2);transform:translateY(-50%);width:63px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:10px;background:#25272bdc;border:1px solid #44484f;border-radius:17px;box-shadow:0 8px 32px #0008;backdrop-filter:blur(16px)}
 body:has(#proLeftDock.proCloneActive) #proCloneSliderBox{display:flex}
+body > :is(#proLeftDock,#proCloneSliderBox){display:none!important}
 #proCloneSize{writing-mode:vertical-lr;direction:rtl;width:7px;height:164px;margin:0;padding:0;background:linear-gradient(to top,#92bff2 0%,#92bff2 var(--range-pct,24%),#50545d var(--range-pct,24%),#50545d 100%);border:0;border-radius:20px;outline-offset:9px;cursor:ns-resize;touch-action:none}
 #proCloneSize::-webkit-slider-runnable-track{width:7px;border-radius:20px;background:transparent}
 #proCloneSize::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;margin-left:-7.5px;border-radius:50%;border:4px solid #e8f0fc;background:#77aff0;box-shadow:0 2px 8px #0009}
@@ -8014,7 +8015,7 @@ window.clearCompositionSourceGLB=()=>{
  if(Nr)km(false);
  et('glbFile').value='';
 };
-window.AssemblyEngine={Scene:Bi,Camera:At,Renderer:Oc,Orbit:Hc,Binding:Je,Mesh:gt,Geometry:zt,Attribute:Ve,LineSegments:ro,LineMaterial:or,RenderTarget:Jn,ShaderMaterial:kn,DoubleSide:kt,Material:vn,Vector:I,Vector2:ge,Raycaster:lr,Box:Ze,Hemisphere:go,Light:ps,Loader:zc,Exporter:Ts,Texture:co,StandardMaterial:hs,BoxGeometry:tr,PhysicalMaterial:hn};
+window.AssemblyEngine={Scene:Bi,Camera:At,Renderer:Oc,Orbit:Hc,Binding:Je,Mesh:gt,Geometry:zt,Attribute:Ve,LineSegments:ro,LineMaterial:or,RenderTarget:Jn,ShaderMaterial:kn,DoubleSide:kt,Material:vn,Vector:I,Vector2:ge,Triangle:Bt,Raycaster:lr,Box:Ze,Hemisphere:go,Light:ps,Loader:zc,Exporter:Ts,Texture:co,StandardMaterial:hs,BoxGeometry:tr,PhysicalMaterial:hn};
 window.syncDrawingClay=()=>{if(Is)Is.overrideMaterial=et('clayPreview').checked?clayMaterial:null;};
 et('clayPreview').onchange=()=>{lastFrame='';Cs=true;window.syncDrawingClay();};
 et('applyDrawingAutoSmooth').onclick=()=>applyDrawingFinish('normals');
@@ -9030,7 +9031,7 @@ body.composition-active>.compactTopbar,body.composition-active>main{display:none
 #compositionBrushSettings{display:flex;gap:clamp(6px,2vw,22px);align-items:center;margin-right:auto;margin-left:clamp(8px,2vw,24px)}
 #compositionBrushSettings label{display:flex;align-items:center;gap:5px;white-space:nowrap}
 #compositionBrushSettings label[hidden]{display:none}
-#compositionBrushSettings input{width:clamp(35px,10vw,125px);margin:0}
+#compositionBrushSettings input[type=range]{width:clamp(35px,10vw,125px);margin:0}
 #compositionTools{display:flex;flex-direction:column;gap:4px;padding:6px;background:#242830;border:0;border-right:1px solid #3d444e}
 #compositionTools>button{margin:0;padding:7px 1px;font:inherit}
 #compositionTools>button[aria-pressed=true]{background:#395674;border-color:#88b0dc}
@@ -9113,7 +9114,8 @@ body.composition-active>.compactTopbar,body.composition-active>main{display:none
   <div id="compositionBrushSettings">
    <label hidden>Raio <input id="compositionBrushSize" type="range" min="8" max="180" value="48" aria-label="Raio do pincel de malha"></label>
    <label hidden>Força <input id="compositionBrushStrength" type="range" min="1" max="100" value="65"></label>
-   <label hidden>Raio <input id="compositionEraseRadius" type="range" min="4" max="96" value="24" aria-label="Raio de Apagar malha"></label>
+   <label hidden>Raio <input id="compositionEraseRadius" type="range" min="4" max="180" value="24" aria-label="Raio de Apagar malha"></label>
+   <label hidden><input id="compositionEraseThrough" type="checkbox" checked> Atravessar malha</label>
    <div id="compositionGizmos" role="group" aria-label="Gizmos de transformação" hidden>
     <button type="button" data-gizmo="move" aria-pressed="true">Mover</button>
     <button type="button" data-gizmo="rotate" aria-pressed="false">Girar</button>
@@ -9130,11 +9132,16 @@ body.composition-active>.compactTopbar,body.composition-active>main{display:none
  </div>
  <div id="compositionLayout">
   <aside id="compositionTools" aria-label="Pincéis">
-   <button type="button" id="compositionNavigate" aria-pressed="true">Navegação</button>
+   <button type="button" id="compositionNavigate" aria-pressed="true" aria-keyshortcuts="Space" title="Navegação (barra de espaço)">Navegação</button>
    <button type="button" id="compositionGrab" aria-pressed="false" title="Pincel de movimento">Agarrar</button>
    <button type="button" id="compositionGrabSymmetry" aria-pressed="false" title="Espelhar Agarrar no eixo X local, pelo centro do objeto" disabled>Simetria X</button>
+   <button type="button" id="compositionDrawBrush" aria-pressed="false" title="Desenhar relevo na malha. Segure Ctrl para rebaixar.">Desenhar</button>
+   <button type="button" id="compositionInflateBrush" aria-pressed="false" title="Inflar a superfície. Segure Ctrl para desinflar.">Inflar</button>
+   <button type="button" id="compositionFlattenBrush" aria-pressed="false" title="Nivelar a região sob o pincel">Planar</button>
+   <button type="button" id="compositionSmoothBrush" aria-pressed="false" title="Smooth: reduzir ondulações e marcas na superfície">Smooth</button>
+   <button type="button" id="compositionSlideRelax" aria-pressed="false" title="Slide Relax: redistribuir vértices na superfície para aliviar o estiramento">Slide Relax</button>
    <button type="button" id="compositionSelect" aria-pressed="false">Extrudel</button>
-   <button type="button" id="compositionEraseMesh" aria-pressed="false" title="Apagar faces visíveis da malha">Apagar malha</button>
+   <button type="button" id="compositionEraseMesh" aria-pressed="false" title="Apagar faces da malha sob o pincel">Apagar malha</button>
    <button type="button" id="compositionCutMesh" aria-pressed="false" title="Desenhe uma linha para dividir o objeto inteiro em duas partes abertas">Cortar</button>
   </aside>
   <div id="compositionStage">
@@ -9405,6 +9412,13 @@ self.onmessage=({data:{meshes,operations}})=>{
  const E=window.AssemblyEngine;
  const grab=document.getElementById('compositionGrab');
  const grabSymmetry=document.getElementById('compositionGrabSymmetry');
+ const smoothBrush=document.getElementById('compositionSmoothBrush');
+ const slideRelax=document.getElementById('compositionSlideRelax');
+ const drawBrush=document.getElementById('compositionDrawBrush');
+ const flattenBrush=document.getElementById('compositionFlattenBrush');
+ const inflateBrush=document.getElementById('compositionInflateBrush');
+ const sculptButtons={grab,draw:drawBrush,inflate:inflateBrush,flatten:flattenBrush,smooth:smoothBrush,relax:slideRelax};
+ let sculptBrush=null;
  const smoothObjectButton=document.getElementById('compositionSmoothObject');
  const navigation=document.getElementById('compositionNavigate');
  const selectionTool=document.getElementById('compositionSelect');
@@ -9412,6 +9426,7 @@ self.onmessage=({data:{meshes,operations}})=>{
  const cutTool=document.getElementById('compositionCutMesh');
  let cutEnabled=false,cutStroke=null;
  const eraseRadius=document.getElementById('compositionEraseRadius');
+ const eraseThrough=document.getElementById('compositionEraseThrough');
  const erasing=()=>eraseTool.getAttribute('aria-pressed')==='true';
  let eraseStroke=null;
  const selectionModes=document.getElementById('compositionSelectionModes');
@@ -9697,11 +9712,11 @@ self.onmessage=({data:{meshes,operations}})=>{
   canvas.addEventListener('pointerdown',beginMeshErase,true);
   canvas.addEventListener('pointerdown',beginSelection,true);
   canvas.addEventListener('pointerdown',beginPaint,true);
-  canvas.addEventListener('pointerdown',beginGrab,true);
-  canvas.addEventListener('pointermove',event=>{moveMeshErase(event);moveSelection(event);movePaint(event);moveGrab(event);});
-  canvas.addEventListener('pointerup',event=>{finishMeshErase(event);finishSelectionGesture(event,false);finishPaint(event);finishGrab(event);});
-  canvas.addEventListener('pointercancel',event=>{finishMeshErase(event,true);finishSelectionGesture(event,true);finishPaint(event);finishGrab(event,true);});
-  canvas.addEventListener('lostpointercapture',event=>{finishMeshErase(event,true);finishSelectionGesture(event,true);finishPaint(event);finishGrab(event);});
+  canvas.addEventListener('pointerdown',beginSculptStroke,true);
+  canvas.addEventListener('pointermove',event=>{moveMeshErase(event);moveSelection(event);movePaint(event);moveSculptStroke(event);});
+  canvas.addEventListener('pointerup',event=>{finishMeshErase(event);finishSelectionGesture(event,false);finishPaint(event);finishSculptStroke(event);});
+  canvas.addEventListener('pointercancel',event=>{finishMeshErase(event,true);finishSelectionGesture(event,true);finishPaint(event);finishSculptStroke(event,true);});
+  canvas.addEventListener('lostpointercapture',event=>{finishMeshErase(event,true);finishSelectionGesture(event,true);finishPaint(event);finishSculptStroke(event);});
   canvas.addEventListener('pointerleave',()=>{
    cursor.hidden=true;gizmoHover=null;polygonCursor=null;
    if(selectionActive())canvas.dataset.selecting='area';
@@ -9711,6 +9726,7 @@ self.onmessage=({data:{meshes,operations}})=>{
    finishMeshCut(null,true);
    finishMeshErase(null,true);
    finishSelectionGesture(null,true);
+   if(stroke?.surfaceMode)finishSculptStroke(null,true);
    resetSelectionPath();
    requestRender();
   });
@@ -12041,7 +12057,7 @@ return earcut;})();
   resetSelectionPath();
   if(active){
    canvas.dataset.selecting='area';
-   setGrabEnabled(false);
+   setSculptBrush(null);
    document.getElementById('toolOrbit').click();
    resetClone();
    if(faceSelection){
@@ -12076,18 +12092,26 @@ return earcut;})();
   const sourceIndex=geometry.index;
   const total=sourceIndex?.count??position.count;
   const chosen=new Set(offsets);
+  const drawStart=geometry.drawRange.start,drawEnd=drawStart+geometry.drawRange.count;
+  let keptBeforeDrawRange=0,keptInDrawRange=0;
   const indices=[];
-  const groups=[];
-  const materialAt=offset=>geometry.groups.find(group=>offset>=group.start&&offset<group.start+group.count)?.materialIndex??0;
-  let lastMaterial=-1;
+  const groups=[],sourceGroups=geometry.groups.slice().sort((a,b)=>a.start-b.start);
+  let groupIndex=0,lastMaterial=null;
   for(let offset=0;offset+2<total;offset+=3){
    if(chosen.has(offset)!==keepSelected)continue;
-   const material=materialAt(offset);
-   if(material!==lastMaterial){groups.push({start:indices.length,count:0,materialIndex:material});lastMaterial=material;}
+   if(offset<drawStart)keptBeforeDrawRange+=3;
+   else if(offset<drawEnd)keptInDrawRange+=3;
+   while(groupIndex<sourceGroups.length&&offset>=sourceGroups[groupIndex].start+sourceGroups[groupIndex].count)groupIndex++;
+   const group=sourceGroups[groupIndex];
+   const material=group&&offset>=group.start?(group.materialIndex??0):sourceGroups.length?null:0;
+   if(material!==null){
+    if(material!==lastMaterial)groups.push({start:indices.length,count:0,materialIndex:material});
+    groups.at(-1).count+=3;
+   }
+   lastMaterial=material;
    indices.push(sourceIndex?sourceIndex.getX(offset):offset,
     sourceIndex?sourceIndex.getX(offset+1):offset+1,
     sourceIndex?sourceIndex.getX(offset+2):offset+2);
-   groups.at(-1).count+=3;
   }
   const result=keepSelected?new E.Geometry():geometry.clone();
   if(keepSelected){
@@ -12108,7 +12132,7 @@ return earcut;})();
   result.setIndex(indices);
   result.clearGroups();
   for(const group of groups)result.addGroup(group.start,group.count,group.materialIndex);
-  result.setDrawRange(0,indices.length);
+  result.setDrawRange(keepSelected?0:keptBeforeDrawRange,keepSelected?indices.length:keptInDrawRange);
   result.computeBoundingBox();
   result.computeBoundingSphere();
   return result;
@@ -12279,7 +12303,7 @@ return earcut;})();
   setCutEnabled(false);
   setMeshEraseEnabled(false);
   setSelectionTool(false);
-  setGrabEnabled(false);
+  setSculptBrush(null);
   document.getElementById('toolOrbit').click();
   resetClone();
   navigation.setAttribute('aria-pressed','true');
@@ -12335,7 +12359,7 @@ return earcut;})();
   navigation.setAttribute('aria-pressed','false');
   if(!selectionActive()){
    objectGizmoActive=true;
-   setGrabEnabled(false);
+   setSculptBrush(null);
    document.getElementById('toolOrbit').click();
    resetClone();
   }
@@ -12634,24 +12658,25 @@ return earcut;})();
  }
 
  function updateBrushDiameter(){
-  const grabbing=grab.getAttribute('aria-pressed')==='true';
-  const diameter=erasing()?2*Number(eraseRadius.value):grabbing?2*Number(brushSize.value):Number(paintSize.value);
+  const sculpting=Boolean(sculptBrush);
+  const diameter=erasing()?2*Number(eraseRadius.value):sculpting?2*Number(brushSize.value):Number(paintSize.value);
   cursor.style.width=cursor.style.height=diameter+'px';
  }
 
- function setGrabEnabled(enabled){
-  finishGrab(null);
-  grab.setAttribute('aria-pressed',String(enabled));
-  grabSymmetry.disabled=!enabled;
-  brushSize.closest('label').hidden=!enabled;
-  strength.closest('label').hidden=!enabled;
+ function setSculptBrush(mode){
+  finishSculptStroke(null);
+  sculptBrush=mode;
+  for(const [name,button] of Object.entries(sculptButtons))button.setAttribute('aria-pressed',String(mode===name));
+  grabSymmetry.disabled=mode!=='grab';
+  brushSize.closest('label').hidden=!mode;
+  strength.closest('label').hidden=!mode;
   updateBrushDiameter();
  }
 
  window.refreshCompositionBrushDiameter=updateBrushDiameter;
  window.previewCompositionPaintSize=()=>{
   if(dialog.hidden)return;
-  if(grab.getAttribute('aria-pressed')==='true'){
+  if(sculptBrush){
    brushSize.value=String(Math.round(Number(paintSize.value)/2));
   }else if(!window.clone3DMode&&(selectionActive()||paintTool.value!=='brush')){
    document.getElementById('proBrushBtn').click();
@@ -12671,12 +12696,12 @@ return earcut;})();
 
  function updateCursor(event){
   const bounds=canvas.getBoundingClientRect();
-  const grabbing=grab.getAttribute('aria-pressed')==='true';
+  const sculpting=Boolean(sculptBrush);
   updateBrushDiameter();
   lastBrushPoint=new E.Vector2(event.clientX-bounds.left,event.clientY-bounds.top);
   cursor.style.left=lastBrushPoint.x+'px';
   cursor.style.top=lastBrushPoint.y+'px';
-  cursor.hidden=event.pointerType==='touch'||(!erasing()&&!grabbing&&paintTool.value!=='brush');
+  cursor.hidden=event.pointerType==='touch'||(!erasing()&&!sculpting&&paintTool.value!=='brush');
  }
 
  function drawEraseStroke(context,points,radius,color){
@@ -12696,10 +12721,155 @@ return earcut;})();
   context.restore();
  }
 
+ function eraseSegmentDistanceSquared(px,py,ax,ay,bx,by){
+  const dx=bx-ax,dy=by-ay,length=dx*dx+dy*dy;
+  const t=length?Math.max(0,Math.min(1,((px-ax)*dx+(py-ay)*dy)/length)):0;
+  return (px-ax-t*dx)**2+(py-ay-t*dy)**2;
+ }
+
+ function eraseStrokeIntersects(points,segment,radiusSquared,hasInterior){
+  const {a,b}=segment;
+  const dx=b.x-a.x,dy=b.y-a.y;
+  let positive=false,negative=false;
+  for(let i=0,j=points.length-1;i<points.length;j=i++){
+   const p=points[j],q=points[i],ex=q.x-p.x,ey=q.y-p.y;
+   const start=ex*(a.y-p.y)-ey*(a.x-p.x),end=ex*(b.y-p.y)-ey*(b.x-p.x);
+   positive||=start>0;
+   negative||=start<0;
+   if(eraseSegmentDistanceSquared(p.x,p.y,a.x,a.y,b.x,b.y)<=radiusSquared||
+      eraseSegmentDistanceSquared(a.x,a.y,p.x,p.y,q.x,q.y)<=radiusSquared||
+      eraseSegmentDistanceSquared(b.x,b.y,p.x,p.y,q.x,q.y)<=radiusSquared)return true;
+   if((start<0&&end>0)||(start>0&&end<0)){
+    const sideP=dx*(p.y-a.y)-dy*(p.x-a.x),sideQ=dx*(q.y-a.y)-dy*(q.x-a.x);
+    if((sideP<0&&sideQ>0)||(sideP>0&&sideQ<0))return true;
+   }
+  }
+  return hasInterior&&(!positive||!negative);
+ }
+
+ function clipEraseFace(positions,ids,width,height){
+  let polygon=ids.map(i=>positions.subarray(i*4,i*4+4));
+  // Recorta no frustum antes de dividir por W, inclusive perto da câmera.
+  for(let axis=0;axis<3;axis++)for(const sign of [-1,1]){
+   const next=[];
+   for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
+    const a=polygon[j],b=polygon[i],da=a[3]+sign*a[axis],db=b[3]+sign*b[axis];
+    if((da<0)!==(db<0)){
+     const t=da/(da-db);
+     next.push(Array.from(a,(value,k)=>value+(b[k]-value)*t));
+    }
+    if(db>=0)next.push(b);
+   }
+   if(next.length<3)return [];
+   polygon=next;
+  }
+  return polygon.filter(point=>point[3]>0).map(point=>({
+   x:(1+point[0]/point[3])*width/2,y:(1-point[1]/point[3])*height/2
+  }));
+ }
+
+ function readFacesThroughBrush(root,points,radius){
+  const width=canvas.clientWidth,height=canvas.clientHeight;
+  if(!width||!height||!points.length)return [];
+  const tile=Math.max(12,radius*2),columns=Math.ceil(width/tile),rows=Math.ceil(height/tile);
+  const cells=Array.from({length:columns*rows},()=>[]);
+  const segments=[];
+  const bounds={left:Infinity,top:Infinity,right:-Infinity,bottom:-Infinity};
+  for(let i=0;i<Math.max(1,points.length-1);i++){
+   const a=points[i],b=points[i+1]||a;
+   const left=Math.max(0,Math.min(a.x,b.x)-radius),right=Math.min(width,Math.max(a.x,b.x)+radius);
+   const top=Math.max(0,Math.min(a.y,b.y)-radius),bottom=Math.min(height,Math.max(a.y,b.y)+radius);
+   if(left>right||top>bottom)continue;
+   const index=segments.length;
+   segments.push({a,b,left,right,top,bottom});
+   bounds.left=Math.min(bounds.left,left);bounds.right=Math.max(bounds.right,right);
+   bounds.top=Math.min(bounds.top,top);bounds.bottom=Math.max(bounds.bottom,bottom);
+   for(let y=Math.floor(top/tile);y<=Math.min(rows-1,Math.floor(bottom/tile));y++){
+    for(let x=Math.floor(left/tile);x<=Math.min(columns-1,Math.floor(right/tile));x++)cells[y*columns+x].push(index);
+   }
+  }
+  if(!segments.length)return [];
+  const tested=new Uint32Array(segments.length),entries=[];
+  const radiusSquared=radius*radius;
+  let stamp=0;
+  camera.updateMatrixWorld();
+  const projection=camera.projectionMatrix.clone().multiply(camera.matrixWorldInverse);
+  root.updateWorldMatrix(true,true);
+  root.traverseVisible(mesh=>{
+   if(!sculptable(mesh))return;
+   const {geometry}=mesh,{position}=geometry.attributes;
+   const index=geometry.index,count=index?.count??position.count,range=geometry.drawRange;
+   const materials=Array.isArray(mesh.material)?mesh.material:null;
+   const groups=materials?geometry.groups:[{start:0,count,materialIndex:0}];
+   const matrix=projection.clone().multiply(mesh.matrixWorld).elements;
+   const positions=new Float64Array(position.count*4),flags=new Uint8Array(position.count);
+   const screen=new Float64Array(position.count*2);
+   for(let i=0;i<position.count;i++){
+    const x=position.getX(i),y=position.getY(i),z=position.getZ(i),k=i*4;
+    for(let j=0;j<4;j++)positions[k+j]=matrix[j]*x+matrix[j+4]*y+matrix[j+8]*z+matrix[j+12];
+    const w=positions[k+3];
+    let mask=0;
+    for(let axis=0;axis<3;axis++){
+     const c=positions[k+axis];
+     if(c< -w)mask|=1<<(2*axis);
+     if(c>w)mask|=2<<(2*axis);
+    }
+    flags[i]=mask;
+    if(!mask&&w>0){
+     screen[i*2]=(1+positions[k]/w)*width/2;
+     screen[i*2+1]=(1-positions[k+1]/w)*height/2;
+    }
+   }
+   const offsets=[],ids=[0,0,0],triangle=[new E.Vector2(),new E.Vector2(),new E.Vector2()];
+   for(const group of groups){
+    const material=materials?materials[group.materialIndex]:mesh.material;
+    if(!material||material.visible===false||material.opacity===0)continue;
+    const start=Math.max(group.start,range.start),end=Math.min(group.start+group.count,range.start+range.count,count);
+    for(let offset=start;offset+2<end;offset+=3){
+     for(let j=0;j<3;j++)ids[j]=index?index.getX(offset+j):offset+j;
+     const af=flags[ids[0]],bf=flags[ids[1]],cf=flags[ids[2]];
+     if(af&bf&cf)continue;
+     let polygon=triangle;
+     if(af|bf|cf)polygon=clipEraseFace(positions,ids,width,height);
+     else for(let j=0;j<3;j++)triangle[j].set(screen[ids[j]*2],screen[ids[j]*2+1]);
+     if(polygon.length<3)continue;
+     let left=Infinity,top=Infinity,right=-Infinity,bottom=-Infinity,area=0;
+     for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
+      const {x,y}=polygon[i];
+      left=Math.min(left,x);right=Math.max(right,x);
+      top=Math.min(top,y);bottom=Math.max(bottom,y);
+      area+=polygon[j].x*y-polygon[j].y*x;
+     }
+     if(right<bounds.left||left>bounds.right||bottom<bounds.top||top>bounds.bottom)continue;
+     // A caixa de um triângulo visto de perfil ainda pode cruzar o traço.
+     // Nesse caso, só os testes de distância às suas arestas contam.
+     const hasInterior=Math.abs(area)>1e-9;
+     stamp++;
+     let hit=false;
+     for(let y=Math.max(0,Math.floor(top/tile));!hit&&y<=Math.min(rows-1,Math.floor(bottom/tile));y++){
+      for(let x=Math.max(0,Math.floor(left/tile));!hit&&x<=Math.min(columns-1,Math.floor(right/tile));x++){
+       for(const id of cells[y*columns+x]){
+        if(tested[id]===stamp)continue;
+        tested[id]=stamp;
+        const segment=segments[id];
+        if(right<segment.left||left>segment.right||bottom<segment.top||top>segment.bottom)continue;
+        if(eraseStrokeIntersects(polygon,segment,radiusSquared,hasInterior)){hit=true;break;}
+       }
+      }
+     }
+     if(hit)offsets.push(offset);
+    }
+   }
+   if(offsets.length)entries.push({mesh,offsets});
+  });
+  return entries;
+ }
+
  function setMeshEraseEnabled(enabled){
   finishMeshErase(null,true);
   eraseTool.setAttribute('aria-pressed',String(enabled));
   eraseRadius.closest('label').hidden=!enabled;
+  eraseThrough.closest('label').hidden=!enabled;
   cursor.hidden=true;
   updateBrushDiameter();
  }
@@ -12711,7 +12881,7 @@ return earcut;})();
    clearSelection();
    setMeshEraseEnabled(true);
    navigation.setAttribute('aria-pressed','false');
-   status.textContent='Passe o pincel sobre a malha. Solte para apagar as faces visíveis.';
+   status.textContent='Passe o pincel sobre a malha e solte para apagar.';
   }else status.textContent='';
  };
 
@@ -12724,7 +12894,8 @@ return earcut;})();
   event.stopImmediatePropagation();
   selectRoot(root);
   canvas.focus({preventScroll:true});
-  eraseStroke={pointer:event.pointerId,root,radius:Number(eraseRadius.value),points:[scenePoint(event)]};
+  eraseStroke={pointer:event.pointerId,root,radius:Number(eraseRadius.value),through:eraseThrough.checked,
+   points:[scenePoint(event)]};
   canvas.setPointerCapture(event.pointerId);
   controls.enabled=false;
   requestRender();
@@ -12732,8 +12903,13 @@ return earcut;})();
 
  function moveMeshErase(event){
   if(!eraseStroke||event.pointerId!==eraseStroke.pointer)return;
-  const point=scenePoint(event);
-  if(point.distanceTo(eraseStroke.points.at(-1))>=2)eraseStroke.points.push(point);
+  const rect=canvas.getBoundingClientRect();
+  const samples=event.getCoalescedEvents?.()||[];
+  for(const sample of [...samples,event]){
+   const point=new E.Vector2(sample.clientX-rect.left,sample.clientY-rect.top);
+   const minimum=event.type==='pointerup'?.1:1;
+   if(point.distanceToSquared(eraseStroke.points.at(-1))>=minimum*minimum)eraseStroke.points.push(point);
+  }
   requestRender();
  }
 
@@ -12746,7 +12922,8 @@ return earcut;})();
   if(canvas.hasPointerCapture(current.pointer))canvas.releasePointerCapture(current.pointer);
   if(!cancelled){
    try{
-    const entries=readFacesInOutline(current.root,current.points,current.radius);
+    const entries=current.through?readFacesThroughBrush(current.root,current.points,current.radius):
+     readFacesInOutline(current.root,current.points,current.radius);
     if(entries.some(entry=>entry.offsets.length))editSelectedFaces('delete',null,entries);
     else status.textContent='O pincel não encontrou faces editáveis.';
    }catch(error){
@@ -12797,7 +12974,7 @@ return earcut;})();
 
  function beginPaint(event){
   if(selectionActive()||!toolTipDown(event)||event.shiftKey||paintPointer!==null||stroke)return;
-  if(grab.getAttribute('aria-pressed')==='true'||!['brush','pick'].includes(paintTool.value))return;
+  if(sculptBrush||!['brush','pick'].includes(paintTool.value))return;
   const hit=objectHit(event);
   if(!hit)return;
   event.preventDefault();
@@ -12879,7 +13056,7 @@ return earcut;})();
   button.addEventListener('click',()=>{
    setMeshEraseEnabled(false);
    setSelectionTool(false);
-   setGrabEnabled(false);
+   setSculptBrush(null);
    navigation.setAttribute('aria-pressed','false');
    status.textContent=window.clone3DMode?(window.hasCompositionCloneSource()?
     'Pinte no destino ou arraste a cruz para trocar a origem.':'Clique no modelo para definir a origem da clonagem.'):'';
@@ -12933,6 +13110,298 @@ return earcut;})();
    !mesh.morphTargetInfluences?.length;
  }
 
+ function weldSculptGeometry(geometry){
+  const {position}=geometry.attributes;
+  let index=geometry.index?.array||null,start=geometry.drawRange.start;
+  const available=index?index.length:position.count,count=Math.min(available-start,geometry.drawRange.count);
+  if(count<3)return null;
+  if(!index&&(start!==0||count!==position.count)){
+   index=new Uint32Array(count);
+   for(let i=0;i<count;i++)index[i]=start+i;
+   start=0;
+  }
+  let positions=position.array;
+  if(position.isInterleavedBufferAttribute||!(positions instanceof Float32Array)||position.normalized||position.itemSize!==3){
+   positions=new Float32Array(position.count*3);
+   for(let i=0;i<position.count;i++){
+    positions[i*3]=position.getX(i);positions[i*3+1]=position.getY(i);positions[i*3+2]=position.getZ(i);
+   }
+  }
+  const topology=lisoWeld(positions,index,start,count,1e-7);
+  return topology.faces.length?topology:null;
+ }
+
+ function prepareSurfaceBrush(mesh){
+  const {geometry}=mesh,{position}=geometry.attributes;
+  const topology=weldSculptGeometry(geometry);
+  if(!topology)return null;
+  const adj=lisoAdjacency(topology);
+  // Agrupa as cópias de um vértice em costuras de UV e de materiais.
+  const offsets=new Uint32Array(topology.nodes+1),copies=new Uint32Array(position.count);
+  for(const node of topology.nodeOf)offsets[node+1]++;
+  for(let i=0;i<topology.nodes;i++)offsets[i+1]+=offsets[i];
+  const cursor=offsets.slice();
+  for(let i=0;i<position.count;i++)copies[cursor[topology.nodeOf[i]]++]=i;
+  return {mesh,geometry,topology,adj,offsets,copies,before:new Map(),culled:mesh.frustumCulled,
+   referenceNormals:lisoNodeNormals(topology,topology.pts),weights:new Float32Array(topology.nodes),
+   trial:new Float32Array(topology.pts.length),next:new Float32Array(topology.pts.length)};
+ }
+
+ function beginSurfaceBrush(event){
+  const hit=objectHit(event);
+  if(!hit?.face||!sculptable(hit.object))return;
+  const entry=prepareSurfaceBrush(hit.object);
+  if(!entry)return;
+  const root=rootOf(hit.object);
+  if(selectedObject()!==root)selectRoot(root);
+  event.stopImmediatePropagation();
+  event.preventDefault();
+  controls.enabled=false;
+  canvas.setPointerCapture(event.pointerId);
+  stroke={id:event.pointerId,root,surfaceMode:sculptBrush,entries:[entry],changed:false,applied:false,
+   x:event.clientX,y:event.clientY,untilNext:Math.max(3,Number(brushSize.value)*.22)};
+  updateCursor(event);
+  applySurfaceDab(hit,event);
+ }
+
+ function moveSurfaceBrush(event){
+  const dx=event.clientX-stroke.x,dy=event.clientY-stroke.y;
+  const distance=Math.hypot(dx,dy);
+  if(distance<stroke.untilNext)return;
+  const spacing=Math.max(3,Number(brushSize.value)*.22);
+  const first=Math.max(stroke.untilNext,distance-spacing*7);
+  let at=first;
+  for(;at<=distance;at+=spacing){
+   const clientX=stroke.x+dx*at/distance,clientY=stroke.y+dy*at/distance;
+   const hit=objectHit({clientX,clientY});
+   if(hit?.face&&sculptable(hit.object)&&rootOf(hit.object)===stroke.root)applySurfaceDab(hit,event);
+  }
+  stroke.x=event.clientX;
+  stroke.y=event.clientY;
+  stroke.untilNext=at-distance;
+ }
+
+ function surfaceBrushFaceNormal(faces,offset,points,output,trial,weights){
+  const ia=faces[offset]*3,ib=faces[offset+1]*3,ic=faces[offset+2]*3;
+  const a=weights?.[faces[offset]]?trial:points;
+  const b=weights?.[faces[offset+1]]?trial:points;
+  const c=weights?.[faces[offset+2]]?trial:points;
+  const ux=b[ib]-a[ia],uy=b[ib+1]-a[ia+1],uz=b[ib+2]-a[ia+2];
+  const vx=c[ic]-a[ia],vy=c[ic+1]-a[ia+1],vz=c[ic+2]-a[ia+2];
+  return output.set(uy*vz-uz*vy,uz*vx-ux*vz,ux*vy-uy*vx);
+ }
+
+ function sculptWorldNormal(normal,inverse,output){
+  const m=inverse.elements,{x,y,z}=normal;
+  return output.set(
+   m[0]*x+m[1]*y+m[2]*z,
+   m[4]*x+m[5]*y+m[6]*z,
+   m[8]*x+m[9]*y+m[10]*z
+  ).normalize();
+ }
+
+ function inflateSurfaceBrush(entry,nodes,radius,invert){
+  const {mesh,topology,adj,referenceNormals,weights,next}=entry;
+  const {pts,faces}=topology;
+  const matrix=mesh.matrixWorld,inverse=matrix.clone().invert();
+  const point=new E.Vector(),normal=new E.Vector(),faceNormal=new E.Vector(),worldNormal=new E.Vector();
+  const distance=radius*(invert?-.14:.14);
+  for(const node of nodes){
+   const k=node*3;
+   normal.set(0,0,0);
+   for(let i=adj.fOff[node];i<adj.fOff[node+1];i++){
+    normal.add(surfaceBrushFaceNormal(faces,adj.fList[i]*3,pts,faceNormal));
+   }
+   if(!normal.lengthSq())normal.fromArray(referenceNormals,k);
+   sculptWorldNormal(normal,inverse,worldNormal);
+   point.fromArray(pts,k).applyMatrix4(matrix)
+    .addScaledVector(worldNormal,distance*weights[node]).applyMatrix4(inverse).toArray(next,k);
+  }
+ }
+
+ function displaceSurfaceBrush(entry,nodes,hit,radius,flatten,invert){
+  const {mesh,topology,referenceNormals,weights,next}=entry;
+  const point=new E.Vector(),normal=new E.Vector(),center=new E.Vector();
+  const matrix=mesh.matrixWorld,inverse=matrix.clone().invert();
+  const direction=new E.Vector(),worldNormal=new E.Vector();
+  let total=0;
+  for(const node of nodes){
+   const k=node*3,weight=weights[node];
+   normal.addScaledVector(point.fromArray(referenceNormals,k),weight);
+   if(flatten){
+    total+=weight;
+    center.addScaledVector(point.fromArray(topology.pts,k).applyMatrix4(matrix).sub(hit.point),weight);
+   }
+  }
+  if(flatten)center.multiplyScalar(1/total).add(hit.point);
+  if(!normal.lengthSq())normal.copy(hit.face.normal);
+  sculptWorldNormal(normal,inverse,worldNormal);
+  const relief=radius*(invert?-.16:.16),limit=radius*.45;
+  for(const node of nodes){
+   const k=node*3;
+   point.fromArray(topology.pts,k).applyMatrix4(matrix);
+   let displacement=relief;
+   if(flatten){
+    // Aproxima cada ponto do plano médio local, dos dois lados.
+    const distance=direction.copy(center).sub(point).dot(worldNormal);
+    displacement=.9*Math.max(-limit,Math.min(limit,distance));
+   }
+   point.addScaledVector(worldNormal,displacement*weights[node]).applyMatrix4(inverse).toArray(next,k);
+  }
+ }
+
+ function applySurfaceDab(hit,event){
+  const radius=brushWorldRadius(hit.point);
+  if(!(radius>0))return;
+  let entry=stroke.entries.find(item=>item.mesh===hit.object);
+  if(!entry){
+   entry=prepareSurfaceBrush(hit.object);
+   if(!entry)return;
+   stroke.entries.push(entry);
+  }
+  const {mesh,geometry,topology,adj,referenceNormals,weights,trial,next}=entry;
+  const {pts,nodeOf,faces}=topology;
+  const queue=new Set([nodeOf[hit.face.a],nodeOf[hit.face.b],nodeOf[hit.face.c]]);
+  const nodes=[],local=new E.Vector(),world=new E.Vector(),normal=new E.Vector();
+  const pressure=event.pointerType==='pen'&&event.pressure>0?event.pressure:1;
+  const force=Number(strength.value)/100*pressure;
+  const mode=stroke.surfaceMode,displace=mode==='draw'||mode==='flatten'||mode==='inflate';
+  for(const node of queue){
+   const k=node*3;
+   const distance=world.fromArray(pts,k).applyMatrix4(mesh.matrixWorld).distanceTo(hit.point);
+   if(distance>=radius||normal.fromArray(referenceNormals,k).dot(hit.face.normal)<.08)continue;
+   for(let edge=adj.nStart[node];edge<adj.nStart[node+1];edge++)queue.add(adj.nList[edge]);
+   if(adj.frozen[node]||(!displace&&adj.boundary[node]))continue;
+   const t=1-distance/radius;
+   weights[node]=t*t*(3-2*t)*force;
+   if(weights[node]>0)nodes.push(node);
+  }
+  if(!nodes.length)return;
+  const mean=new E.Vector();
+  if(mode==='inflate'){
+   inflateSurfaceBrush(entry,nodes,radius,event.ctrlKey);
+  }else if(displace){
+   displaceSurfaceBrush(entry,nodes,hit,radius,mode==='flatten',event.ctrlKey);
+  }else if(mode==='relax'){
+   const triangle=new E.Triangle(),target=new E.Vector(),closest=new E.Vector();
+   for(const node of nodes){
+    const k=node*3,start=adj.sStart[node],end=adj.sStart[node+1];
+    mean.set(0,0,0);
+    for(let j=start;j<end;j++)mean.add(local.fromArray(pts,adj.sList[j]*3));
+    mean.multiplyScalar(1/(end-start)).sub(local.fromArray(pts,k));
+    local.toArray(next,k);
+    // Desliza no plano tangente e reprojeta na superfície imediatamente vizinha.
+    normal.fromArray(referenceNormals,k);
+    mean.addScaledVector(normal,-mean.dot(normal));
+    target.copy(local).addScaledVector(mean,.75*weights[node]);
+    let best=Infinity;
+    for(let j=adj.fOff[node];j<adj.fOff[node+1];j++){
+     const f=adj.fList[j]*3;
+     triangle.a.fromArray(pts,faces[f]*3);
+     triangle.b.fromArray(pts,faces[f+1]*3);
+     triangle.c.fromArray(pts,faces[f+2]*3);
+     triangle.closestPointToPoint(target,closest);
+     const distance=closest.distanceToSquared(target);
+     if(distance<best){best=distance;closest.toArray(next,k);}
+    }
+   }
+  }else{
+   // Dois pares de Taubin amortecem ondulações e compensam a contração.
+   for(let pass=0;pass<4;pass++){
+    const reverse=pass%2===1,factor=reverse?-.60:.58;
+    const input=pass===0?pts:reverse?trial:next,output=reverse?next:trial;
+    for(const node of nodes){
+     const k=node*3,start=adj.sStart[node],end=adj.sStart[node+1];
+     mean.set(0,0,0);
+     for(let j=start;j<end;j++){
+      const near=adj.sList[j];
+      mean.add(local.fromArray(weights[near]?input:pts,near*3));
+     }
+     local.fromArray(input,k);
+     mean.multiplyScalar(1/(end-start)).sub(local);
+     local.addScaledVector(mean,factor*weights[node]).toArray(output,k);
+    }
+   }
+  }
+
+  const affectedFaces=new Set();
+  for(const node of nodes){
+   for(let j=adj.fOff[node];j<adj.fOff[node+1];j++)affectedFaces.add(adj.fList[j]*3);
+  }
+  const from=new E.Vector(),to=new E.Vector();
+  let accepted=false;
+  for(let attempt=0;attempt<5;attempt++){
+   accepted=true;
+   for(const f of affectedFaces){
+    surfaceBrushFaceNormal(faces,f,pts,from);
+    if(!from.lengthSq())continue;
+    surfaceBrushFaceNormal(faces,f,pts,to,next,weights);
+    if(!(from.dot(to)>=from.lengthSq()*.12)){accepted=false;break;}
+   }
+   if(accepted)break;
+   for(const node of nodes){
+    const k=node*3;
+    for(let axis=0;axis<3;axis++)next[k+axis]=(next[k+axis]+pts[k+axis])*.5;
+   }
+  }
+  if(accepted)installSurfaceDab(entry,nodes,affectedFaces);
+  for(const node of nodes)weights[node]=0;
+ }
+
+ function installSurfaceDab(entry,nodes,affectedFaces){
+  const {mesh,geometry,topology,adj,before,weights,next,offsets,copies}=entry;
+  const {pts,faces}=topology,{position,normal,tangent}=geometry.attributes;
+  const value=new E.Vector(),originalNormal=new E.Vector(),newNormal=new E.Vector();
+  const rotation=mesh.quaternion.clone(),affectedNodes=new Set();
+  let maxMove=0;
+  for(const node of nodes){
+   const k=node*3,move=Math.hypot(next[k]-pts[k],next[k+1]-pts[k+1],next[k+2]-pts[k+2]);
+   maxMove=Math.max(maxMove,move);
+  }
+  if(!maxMove)return;
+  for(const f of affectedFaces)for(let i=0;i<3;i++)affectedNodes.add(faces[f+i]);
+  for(const node of affectedNodes){
+   const k=node*3,moved=weights[node]>0;
+   originalNormal.set(0,0,0);newNormal.set(0,0,0);
+   for(let j=adj.fOff[node];j<adj.fOff[node+1];j++){
+    const f=adj.fList[j]*3;
+    originalNormal.add(surfaceBrushFaceNormal(faces,f,pts,value));
+    newNormal.add(surfaceBrushFaceNormal(faces,f,pts,value,next,weights));
+   }
+   originalNormal.normalize();newNormal.normalize();
+   const rotates=(normal||tangent)&&originalNormal.lengthSq()&&newNormal.lengthSq()&&
+    originalNormal.distanceToSquared(newNormal)>1e-14;
+   if(!moved&&!rotates)continue;
+   if(rotates)rotation.setFromUnitVectors(originalNormal,newNormal);
+   for(let at=offsets[node];at<offsets[node+1];at++){
+    const i=copies[at];
+    if(!before.has(i))before.set(i,readBrushVertex(geometry,i));
+    if(moved)position.setXYZ(i,next[k],next[k+1],next[k+2]);
+    if(rotates&&normal){
+     value.fromBufferAttribute(normal,i).applyQuaternion(rotation).normalize();
+     normal.setXYZ(i,value.x,value.y,value.z);
+    }
+    if(rotates&&tangent){
+     value.fromBufferAttribute(tangent,i).applyQuaternion(rotation).normalize();
+     tangent.setXYZ(i,value.x,value.y,value.z);
+    }
+   }
+  }
+  for(const node of nodes){
+   const k=node*3;
+   pts[k]=next[k];pts[k+1]=next[k+1];pts[k+2]=next[k+2];
+  }
+  position.needsUpdate=true;
+  if(normal)normal.needsUpdate=true;
+  if(tangent)tangent.needsUpdate=true;
+  if(geometry.boundingSphere)geometry.boundingSphere.radius+=maxMove;
+  geometry.boundingBox?.expandByScalar(maxMove);
+  geometry.boundsTree?.refit();
+  mesh.frustumCulled=false;
+  stroke.changed=stroke.applied=true;
+  requestRender();
+ }
+
  function grabReflection(root,origin){
   if(grabSymmetry.getAttribute('aria-pressed')!=='true')return null;
   const inverse=root.matrixWorld.clone().invert();
@@ -12960,9 +13429,12 @@ return earcut;})();
   return {weight:t*t*(3-2*t),gradient};
  }
 
- function beginGrab(event){
-  if(selectionActive()||stroke||!toolTipDown(event)||event.shiftKey||
-     grab.getAttribute('aria-pressed')!=='true')return;
+ function beginSculptStroke(event){
+  if(selectionActive()||stroke||paintPointer!==null||!toolTipDown(event)||event.shiftKey||!sculptBrush)return;
+  if(sculptBrush!=='grab'){
+   beginSurfaceBrush(event);
+   return;
+  }
   const root=selectedObject();
   if(!root)return;
   const hit=objectHit(event);
@@ -13007,9 +13479,13 @@ return earcut;})();
   updateCursor(event);
  }
 
- function moveGrab(event){
+ function moveSculptStroke(event){
   updateCursor(event);
   if(!stroke||event.pointerId!==stroke.id)return;
+  if(stroke.surfaceMode){
+   moveSurfaceBrush(event);
+   return;
+  }
   pointerRay(event);
   const ray=raycaster.ray;
   const denominator=stroke.normal.dot(ray.direction);
@@ -13072,14 +13548,16 @@ return earcut;})();
   return vector.addScaledVector(offset,a).addScaledVector(mirrorOffset,b);
  }
 
- function finishGrab(event,cancelled=false){
+ function finishSculptStroke(event,cancelled=false){
   if(!stroke||(event&&event.pointerId!==stroke.id))return;
-  const {entries,id,root,changed,applied}=stroke;
+  const {entries,id,root,changed,applied,surfaceMode}=stroke;
+  // O histórico precisa só dos vértices alterados, sem os buffers temporários.
+  const undoEntries=surfaceMode?entries.map(({mesh,geometry,before})=>({mesh,geometry,before})):entries;
   stroke=null;
   controls.enabled=true;
   if(canvas.hasPointerCapture(id))canvas.releasePointerCapture(id);
   const restore=()=>{
-   for(const {mesh,geometry,before} of entries)restoreBrushVertices(mesh,geometry,before);
+   for(const {mesh,geometry,before} of undoEntries)restoreBrushVertices(mesh,geometry,before);
   };
   for(const {mesh,geometry,culled} of entries){
    mesh.frustumCulled=culled;
@@ -13206,24 +13684,32 @@ return earcut;})();
  };
 
 
- grab.onclick=()=>{
-  setCutEnabled(false);
-  if(grab.getAttribute('aria-pressed')==='true'){
+ function activateSculptBrush(mode){
+  if(sculptBrush===mode){
    navigate();
    return;
   }
+  setCutEnabled(false);
   setMeshEraseEnabled(false);
   setSelectionTool(false);
   document.getElementById('toolOrbit').click();
   resetClone();
   navigation.setAttribute('aria-pressed','false');
-  setGrabEnabled(true);
+  setSculptBrush(mode);
   cursor.hidden=true;
-  status.textContent='';
- };
+  const instructions={
+   draw:'Arraste para criar relevo. Segure Ctrl para rebaixar.',
+   inflate:'Passe o pincel para inflar a malha. Segure Ctrl para desinflar.',
+   flatten:'Passe o pincel sobre a região que deseja nivelar.',
+   smooth:'Passe o Smooth sobre as ondulações.',
+   relax:'Passe o Slide Relax sobre a região esticada.'
+  };
+  status.textContent=instructions[mode]??'';
+ }
+ for(const [mode,button] of Object.entries(sculptButtons))button.onclick=()=>activateSculptBrush(mode);
 
  grabSymmetry.onclick=()=>{
-  finishGrab(null);
+  finishSculptStroke(null);
   const enabled=grabSymmetry.getAttribute('aria-pressed')!=='true';
   grabSymmetry.setAttribute('aria-pressed',String(enabled));
   status.textContent=enabled?'Agarrar com simetria no eixo X local.':'Agarrar com simetria desativada.';
@@ -13292,7 +13778,7 @@ return earcut;})();
  function select(button){
   if(button.disabled)return;
   if(selected!==button){
-   finishGrab(null);
+   finishSculptStroke(null);
    clearSelection();
   }
   selected?.setAttribute('aria-pressed','false');
@@ -13345,7 +13831,7 @@ return earcut;})();
   const object=selectedObject();
   if(deleteObjectButton.disabled||!object)return;
   finishPaint(null);
-  finishGrab(null);
+  finishSculptStroke(null);
   const previous=selected;
   const row=previous.parentElement,index=objects.children.indexOf(object);
   clearSelection();
@@ -13367,7 +13853,7 @@ return earcut;})();
   if(duplicateObjectButton.disabled||!source)return;
   finishSelectionGesture(null,true);
   finishPaint(null);
-  finishGrab(null);
+  finishSculptStroke(null);
   const resources={materials:new Map(),textures:new Map()};
   const geometries=[];
   let copy,row;
@@ -13425,7 +13911,7 @@ return earcut;})();
   finishMeshErase(null,true);
   finishSelectionGesture(null,true);
   finishPaint(null);
-  finishGrab(null);
+  finishSculptStroke(null);
   const previous=selected;
   const resources={materials:new Map(),textures:new Map()};
   let mesh;
@@ -13501,7 +13987,7 @@ return earcut;})();
     finishMeshErase(null,true);
     finishSelectionGesture(null,true);
     finishPaint(null);
-    finishGrab(null);
+    finishSculptStroke(null);
     selected.setAttribute('aria-pressed','false');
     selected=null;
     objectGizmoActive=false;
@@ -13934,14 +14420,14 @@ return earcut;})();
   setCutEnabled(false);
   setMeshEraseEnabled(false);
   setSelectionTool(false);
-  finishGrab(null);
+  finishSculptStroke(null);
   finishPaint(null);
   facePickTarget?.dispose();
   facePickTarget=null;
   cursor.hidden=true;
   resetClone();
   document.getElementById('toolOrbit').click();
-  setGrabEnabled(false);
+  setSculptBrush(null);
   navigation.setAttribute('aria-pressed','true');
   if(!document.getElementById('proColorPanel').hidden)document.getElementById('proColorButton').click();
   dialog.hidden=true;
@@ -13951,8 +14437,19 @@ return earcut;})();
   tab.focus();
  }
  document.getElementById('compositionBack').onclick=closeEditor;
+ document.addEventListener('keydown',event=>{
+  if(dialog.hidden||smoothingObject||event.defaultPrevented||event.isComposing||
+     (event.code!=='Space'&&event.key!==' ')||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||
+     event.target.closest?.('input:not([type=range]),textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
+  event.preventDefault();
+  if(event.repeat)return;
+  finishPaint(null);
+  navigate();
+  status.textContent='';
+  canvas.focus({preventScroll:true});
+ });
  dialog.addEventListener('keydown',event=>{
-  if(event.defaultPrevented)return;
+  if(event.defaultPrevented||smoothingObject)return;
   if(selectionActive()&&!event.target.closest('input,textarea,select,button')&&selectionPath.length){
    if(event.key==='Enter'&&selectionPath.length>=3){
     event.preventDefault();
@@ -13998,7 +14495,7 @@ return earcut;})();
    else navigate();
    return;
   }
-  if(stroke)finishGrab(null,true);
+  if(stroke)finishSculptStroke(null,true);
   else if(!document.getElementById('proColorPanel').hidden)document.getElementById('proColorButton').click();
   else closeEditor();
  });
@@ -14084,7 +14581,7 @@ return earcut;})();
   finishMeshErase(null,true);
   finishSelectionGesture(null,true);
   finishPaint(null);
-  finishGrab(null);
+  finishSculptStroke(null);
  }
 
  function clearPublishedCompositionObjects(roots){
