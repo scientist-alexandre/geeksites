@@ -215,7 +215,7 @@
             <button id="btnExportSequence"
                 class="text-xs bg-purple-700 hover:bg-purple-600 text-white px-3 py-1.5 rounded transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled>
-                <i class="fas fa-video"></i> Exportar Vídeo
+                <i class="fas fa-video"></i> Exportar para Alexandre Estúdio
             </button>
             <button id="btnExportPngSequence"
                 class="text-xs bg-orange-700 hover:bg-orange-600 text-white px-3 py-1.5 rounded transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -511,6 +511,7 @@
         // State
         let sourceType = 'none'; // 'video' or 'image'
         let sourceImage = new Image();
+        let sourceName = '';
         let isPlaying = false;
         let animationFrameId;
 
@@ -577,6 +578,7 @@
             uniform float u_clipWhite;
             uniform float u_despill;
             uniform float u_edgeLuma;
+            uniform float u_alphaGamma;
             uniform float u_shrinkGrow;
             uniform float u_preBlur;
             uniform vec4 u_crop; 
@@ -647,6 +649,7 @@
                 alpha = smoothstep(u_clipBlack, u_clipWhite, alpha);
 
                 vec4 texColor = texture2D(u_image, uv);
+                alpha = pow(alpha, 1.0 / u_alphaGamma) * texColor.a;
                 vec3 rgb = texColor.rgb;
 
                 // 5. Despill Melhorado
@@ -740,6 +743,7 @@
             clipWhite: gl.getUniformLocation(program, "u_clipWhite"),
             despill: gl.getUniformLocation(program, "u_despill"),
             edgeLuma: gl.getUniformLocation(program, "u_edgeLuma"),
+            alphaGamma: gl.getUniformLocation(program, "u_alphaGamma"),
             shrinkGrow: gl.getUniformLocation(program, "u_shrinkGrow"),
             preBlur: gl.getUniformLocation(program, "u_preBlur"),
             crop: gl.getUniformLocation(program, "u_crop"),
@@ -902,6 +906,7 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            sourceName = file.name;
             const url = URL.createObjectURL(file);
             emptyState.classList.add('hidden');
             canvasContainer.classList.remove('hidden');
@@ -911,7 +916,11 @@
             sourceVideo.pause();
             isPlaying = false;
             playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            sourceVideo.src = '';
+            sourceVideo.onerror = null;
+            sourceVideo.removeAttribute('src');
+            sourceVideo.load();
+            btnExportSequence.disabled = btnExportPngSequence.disabled = btnExportImage.disabled = true;
+            playPauseBtn.disabled = restartBtn.disabled = true;
 
             if (file.type.startsWith('image/')) {
                 // Handle Image
@@ -939,9 +948,15 @@
                 };
                 sourceImage.src = url;
 
-            } else if (file.type.startsWith('video/')) {
-                // Handle Video
+            } else {
+                // O navegador identifica o formato pelos dados do vídeo.
                 sourceType = 'video';
+                sourceVideo.onerror = () => {
+                    sourceType = 'none';
+                    canvasContainer.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    alert('Não foi possível abrir o vídeo. Verifique se o formato é compatível com o navegador.');
+                };
                 sourceVideo.src = url;
                 sourceVideo.load();
 
@@ -1104,6 +1119,7 @@
             gl.uniform1f(locs.clipWhite, params.clipWhite);
             gl.uniform1f(locs.despill, params.despillSat);
             gl.uniform1f(locs.edgeLuma, params.edgeLuma);
+            gl.uniform1f(locs.alphaGamma, Math.max(0.1, params.alphaGamma));
             gl.uniform1f(locs.shrinkGrow, params.shrinkGrow);
             gl.uniform1f(locs.preBlur, params.preBlur);
             gl.uniform4f(locs.crop, params.cropLeft, params.cropRight, params.cropTop, params.cropBottom);
@@ -1129,7 +1145,37 @@
 
         let isExporting = false;
 
-        // --- EXPORTACAO RAPIDA WEBM: MediaRecorder gera um WebM reproduzivel ---
+        // O elemento EBML Void sinaliza a máscara dentro do WebM e é ignorado por players comuns.
+        async function markStudioPackedWebM(blob) {
+            const header = new Uint8Array(await blob.slice(0, 12).arrayBuffer());
+            if (header[0] !== 0x1a || header[1] !== 0x45 || header[2] !== 0xdf || header[3] !== 0xa3) {
+                throw new Error('O gravador não retornou um WebM válido.');
+            }
+
+            let sizeWidth = 1;
+            let bit = 0x80;
+            while (bit && !(header[4] & bit)) {
+                bit >>= 1;
+                sizeWidth++;
+            }
+            let size = header[4] & (bit - 1);
+            for (let i = 1; i < sizeWidth && bit; i++) size = size * 256 + header[4 + i];
+            const payload = 4 + sizeWidth;
+            if (!bit || !size || size > 1024 || payload + size >= blob.size) {
+                throw new Error('Cabeçalho WebM inválido.');
+            }
+
+            const signature = new TextEncoder().encode('AlexandreStudio:PackedAlpha:1');
+            const marker = new Uint8Array([0xec, 0x80 | signature.length, ...signature]);
+            const total = size + marker.length;
+            const sizeBytes = total < 127 ? [0x80 | total] : [0x40 | (total >> 8), total & 0xff];
+            return new Blob([
+                header.slice(0, 4), new Uint8Array(sizeBytes), blob.slice(payload, payload + size),
+                marker, blob.slice(payload + size)
+            ], { type: 'video/webm' });
+        }
+
+        // Exportação em tempo real para o Alexandre Estúdio.
         let abortFastExport = null;
         btnExportSequence.addEventListener('click', async () => {
             if (isExporting || sourceType !== 'video') return;
@@ -1167,7 +1213,7 @@
             isExporting = true;
             exportOverlay.classList.remove('hidden');
             exportOverlay.classList.add('flex');
-            title.textContent = 'Exportando WebM com transparência (rápido)...';
+            title.textContent = 'Exportando para Alexandre Estúdio...';
             progressBar.style.width = '0%';
             progressText.textContent = '0%';
             sourceVideo.pause();
@@ -1194,7 +1240,7 @@
                 packedCanvas = document.createElement('canvas');
                 packedCanvas.width = outputCanvas.width * 2;
                 packedCanvas.height = outputCanvas.height;
-                packedCtx = packedCanvas.getContext('2d', { alpha: false, desynchronized: true });
+                packedCtx = packedCanvas.getContext('2d', { alpha: false });
                 if (!packedCtx) throw new Error('Canvas para máscara indisponível.');
                 function packFrame() {
                     currentView = 'rgb';
@@ -1272,12 +1318,12 @@
                 progressText.textContent = 'Finalizando WebM...';
                 await recorded;
                 if (!cancelled && captureCount > 0 && chunks.length) {
-                    const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
-                    if (blob.size < 1000) throw new Error('O vídeo exportado ficou vazio.');
+                    const blob = await markStudioPackedWebM(new Blob(chunks));
+                    if (cancelled) return;
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'chromakey-alpha.webm';
+                    a.download = (sourceName.replace(/\.[^.]+$/, '') || 'Vídeo') + '.webm';
                     document.body.appendChild(a);
                     a.click();
                     a.remove();

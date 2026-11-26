@@ -1256,12 +1256,12 @@ main>nav button::before,main>nav button::after{display:none!important;content:no
 <button id="deleteSceneObject" title="Excluir objeto selecionado da cena">Excluir objeto</button>
 <button id="viewportGridToggle" title="Mostrar ou esconder grade do viewport 3D" aria-label="Mostrar piso do viewport 3D" aria-pressed="false">Piso 3D</button>
 <button id="autoKey" class="autoBadge active" aria-pressed="true" title="Ativar ou desativar gravação automática">● AUTOKEY</button>
-</nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="error"></div><div class="hint" id="hint">Arraste para olhar ao redor · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelSequences" role="tabpanel" aria-labelledby="tabSequences" hidden><div class="sequencePanel"><h3 id="sequenceHeading">Vídeo</h3><button id="sequenceImport" class="primary">＋ Importar vídeo (WebM/MP4)</button><input id="sequenceFiles" type="file" accept="video/webm,video/mp4,.webm,.mp4" multiple hidden><label>Vídeo na cena<select id="sequenceSelect" aria-label="Vídeo na cena"></select></label><div id="sequenceControls" hidden><button id="sequenceVideoBackground" type="button" aria-pressed="false" title="Preencher a área do vídeo, com recorte central se necessário">Usar como fundo do vídeo</button><div class="sequenceButtons"><button id="sequencePlay">▶ Play</button><button id="sequencePause">Ⅱ Pausar</button><button id="sequenceRestart">↺ Início</button></div><label><input id="sequenceLoop" type="checkbox"> Loop</label><label><input id="sequenceVisible" type="checkbox"> Visível na cena</label><label title="O plano do vídeo acompanha a rotação da câmera, sem mudar sua posição nem escala"><input id="sequenceFaceCamera" type="checkbox"> Sempre de frente para a câmera</label><div class="sequenceButtons"><button id="sequenceKeyPlay">◆ Play no frame</button><button id="sequenceKeyPause">◆ Pause no frame</button></div><button id="sequenceOpenTrack">Abrir timeline do objeto</button><label id="sequenceFpsLabel">Velocidade (FPS)<input id="sequenceFps" type="number" min="1" max="120" step="1" value="24" aria-label="Velocidade da sequência em FPS"></label><label>Posição / início <output id="sequenceTime">0.00 s</output><input id="sequenceSeek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Posição do vídeo"></label><div class="sequenceButtons"><button id="sequenceMove">Mover</button><button id="sequenceRotate">Girar</button><button id="sequenceScale">Escalar</button></div><button id="sequenceChooseFollowers" title="Escolher objetos que acompanham posição, rotação e escala desta sequência">Escolher objetos para seguir…</button><div id="sequenceFollowersInfo" class="muted"></div><div id="studioMorphPanel" class="studioMorphPanel"><h3>Cinema Morph</h3><label>Transição orgânica <output id="studioMorphSoftOut">35%</output><input id="studioMorphSoft" type="range" min="1" max="100" value="35"></label><label>Distorção da transformação <output id="studioMorphWarpOut">30%</output><input id="studioMorphWarp" type="range" min="0" max="100" value="30"></label><label>Brilho da transformação <output id="studioMorphGlowOut">35%</output><input id="studioMorphGlow" type="range" min="0" max="100" value="35"></label><div class="cinemaMorphExtra"><div class="cinemaMorphEyebrow">CINEMA MORPH</div><label>Tipo de transição<select id="studioMorphType" aria-label="Tipo de transição"><option value="organic">Orgânica · dissolução fluida</option><option value="symbiote">Simbionte · raízes vivas</option><option value="plasma">Plasma · energia elétrica</option><option value="crystal">Cristalização · fragmentos</option><option value="digital">Digital · blocos de dados</option><option value="smoke">Fumaça · névoa turbulenta</option><option value="creature">Criatura · expansão muscular</option><option value="skin">Metamorfo · troca de pele</option><option value="liquid">Metal líquido · superfície fluida</option><option value="ash">Cinzas · desintegração</option><option value="ribbon">Membranas · faixas orgânicas</option></select></label><label>Cor da metamorfose<input id="studioMorphColor" type="color" value="#14eda8"></label><label>Direção da metamorfose<output id="studioMorphDirectionOut" hidden>Cima → baixo</output><select id="studioMorphDirection" aria-label="Direção da metamorfose"><option value="1">De baixo para cima</option><option value="0" selected>De cima para baixo</option></select></label><label>Detalhamento fractal <output id="studioMorphDetailOut">65%</output><input id="studioMorphDetail" type="range" min="0" max="100" value="65"></label><label>Energia da borda <output id="studioMorphEnergyOut">100%</output><input id="studioMorphEnergy" type="range" min="10" max="200" value="100"></label><label>Deformação 3D <output id="studioMorphDisplaceOut">55%</output><input id="studioMorphDisplace" type="range" min="0" max="100" value="55"></label><label>Curva de transformação<select id="studioMorphEase"><option value="linear">Linear · constante</option><option value="smooth">Suave · entrada e saída</option><option value="cinematic">Cinemática · aceleração progressiva</option><option value="accelerate">Acelerar</option><option value="decelerate">Desacelerar</option></select></label><label>Pausa dramática <output id="studioMorphHoldOut">0%</output><input id="studioMorphHold" type="range" min="0" max="40" value="0"></label><label>Acabamento molhado / metálico <output id="studioMorphCoatOut">0%</output><input id="studioMorphCoat" type="range" min="0" max="100" value="0"></label></div><section class="studioMorphSchedule"><h3>Transformações</h3><div id="studioMorphList"></div>
+</nav><div id="viewport"><div class="viewlabel"><b id="mode">Navegação</b> &nbsp; / &nbsp; <span id="filename">Cena vazia</span></div><div id="viewGizmo"><svg id="viewAxes" viewBox="0 0 140 140" role="group" aria-label="Selecionar vista 3D"></svg></div><div id="error"></div><div class="hint" id="hint">Arraste para olhar ao redor · Botão direito para deslocar · Scroll para aproximar</div></div><aside aria-label="Painel de ferramentas"><div id="inspectorTarget"><span id="inspectorContext">Objetos</span><label for="inspectorObject">Objeto em edição</label><select id="inspectorObject" aria-label="Objeto em edição"></select></div><section id="panelSequences" role="tabpanel" aria-labelledby="tabSequences" hidden><div class="sequencePanel"><h3 id="sequenceHeading">Vídeo</h3><button id="sequenceImport" class="primary">＋ Importar vídeo</button><input id="sequenceFiles" type="file" accept="video/*,.webm,.mp4,.mov,.m4v,.ogv,.mkv,.avi" multiple hidden><label>Vídeo na cena<select id="sequenceSelect" aria-label="Vídeo na cena"></select></label><div id="sequenceControls" hidden><label id="sequenceFormatLabel" hidden>Formato do vídeo<select id="sequenceFormat"><option value="normal">Vídeo comum</option><option value="packed">Chromakey (cor + máscara)</option></select></label><button id="sequenceVideoBackground" type="button" aria-pressed="false" title="Preencher a área do vídeo, com recorte central se necessário">Usar como fundo do vídeo</button><div class="sequenceButtons"><button id="sequencePlay">▶ Play</button><button id="sequencePause">Ⅱ Pausar</button><button id="sequenceRestart">↺ Início</button></div><label><input id="sequenceLoop" type="checkbox"> Loop</label><label><input id="sequenceVisible" type="checkbox"> Visível na cena</label><label title="O plano do vídeo acompanha a rotação da câmera, sem mudar sua posição nem escala"><input id="sequenceFaceCamera" type="checkbox"> Sempre de frente para a câmera</label><div class="sequenceButtons"><button id="sequenceKeyPlay">◆ Play no frame</button><button id="sequenceKeyPause">◆ Pause no frame</button></div><button id="sequenceOpenTrack">Abrir timeline do objeto</button><label id="sequenceFpsLabel">Velocidade (FPS)<input id="sequenceFps" type="number" min="1" max="120" step="1" value="24" aria-label="Velocidade da sequência em FPS"></label><label>Posição / início <output id="sequenceTime">0.00 s</output><input id="sequenceSeek" type="range" min="0" max="1" step="0.01" value="0" aria-label="Posição do vídeo"></label><div class="sequenceButtons"><button id="sequenceMove">Mover</button><button id="sequenceRotate">Girar</button><button id="sequenceScale">Escalar</button></div><button id="sequenceChooseFollowers" title="Escolher objetos que acompanham posição, rotação e escala desta sequência">Escolher objetos para seguir…</button><div id="sequenceFollowersInfo" class="muted"></div><div id="studioMorphPanel" class="studioMorphPanel"><h3>Cinema Morph</h3><label>Transição orgânica <output id="studioMorphSoftOut">35%</output><input id="studioMorphSoft" type="range" min="1" max="100" value="35"></label><label>Distorção da transformação <output id="studioMorphWarpOut">30%</output><input id="studioMorphWarp" type="range" min="0" max="100" value="30"></label><label>Brilho da transformação <output id="studioMorphGlowOut">35%</output><input id="studioMorphGlow" type="range" min="0" max="100" value="35"></label><div class="cinemaMorphExtra"><div class="cinemaMorphEyebrow">CINEMA MORPH</div><label>Tipo de transição<select id="studioMorphType" aria-label="Tipo de transição"><option value="organic">Orgânica · dissolução fluida</option><option value="symbiote">Simbionte · raízes vivas</option><option value="plasma">Plasma · energia elétrica</option><option value="crystal">Cristalização · fragmentos</option><option value="digital">Digital · blocos de dados</option><option value="smoke">Fumaça · névoa turbulenta</option><option value="creature">Criatura · expansão muscular</option><option value="skin">Metamorfo · troca de pele</option><option value="liquid">Metal líquido · superfície fluida</option><option value="ash">Cinzas · desintegração</option><option value="ribbon">Membranas · faixas orgânicas</option></select></label><label>Cor da metamorfose<input id="studioMorphColor" type="color" value="#14eda8"></label><label>Direção da metamorfose<output id="studioMorphDirectionOut" hidden>Cima → baixo</output><select id="studioMorphDirection" aria-label="Direção da metamorfose"><option value="1">De baixo para cima</option><option value="0" selected>De cima para baixo</option></select></label><label>Detalhamento fractal <output id="studioMorphDetailOut">65%</output><input id="studioMorphDetail" type="range" min="0" max="100" value="65"></label><label>Energia da borda <output id="studioMorphEnergyOut">100%</output><input id="studioMorphEnergy" type="range" min="10" max="200" value="100"></label><label>Deformação 3D <output id="studioMorphDisplaceOut">55%</output><input id="studioMorphDisplace" type="range" min="0" max="100" value="55"></label><label>Curva de transformação<select id="studioMorphEase"><option value="linear">Linear · constante</option><option value="smooth">Suave · entrada e saída</option><option value="cinematic">Cinemática · aceleração progressiva</option><option value="accelerate">Acelerar</option><option value="decelerate">Desacelerar</option></select></label><label>Pausa dramática <output id="studioMorphHoldOut">0%</output><input id="studioMorphHold" type="range" min="0" max="40" value="0"></label><label>Acabamento molhado / metálico <output id="studioMorphCoatOut">0%</output><input id="studioMorphCoat" type="range" min="0" max="100" value="0"></label></div><section class="studioMorphSchedule"><h3>Transformações</h3><div id="studioMorphList"></div>
 <div class="faceButtons"><button id="studioMorphNew" type="button">＋ Nova transformação</button></div>
 <div class="studioMorphEditor"><label>Origem<select id="studioMorphSource" aria-label="Objeto de origem da metamorfose"></select></label><label>Destino<select id="studioMorphTarget"><option value="">Escolha o destino</option></select></label><div class="studioMorphPair"><label>Frame inicial<input id="studioMorphStart" type="number" min="1" max="100000" step="1" value="24"></label><label>Frame final<input id="studioMorphEnd" type="number" min="2" max="100000" step="1" value="72"></label></div>
 <div class="faceButtons"><button id="studioMorphSave" type="button" class="primary">Adicionar transformação</button></div>
 <div class="faceButtons studioMorphPreview"><button id="studioMorphPreviewStart" type="button">Ver início</button><button id="studioMorphPreviewMiddle" type="button">Ver meio</button><button id="studioMorphPreviewEnd" type="button">Ver fim</button></div>
-</div></section></div><button id="sequenceDelete">Excluir vídeo</button><p class="muted" id="sequenceInfo"></p></div><p class="muted">Importe arquivos WebM ou MP4 diretamente como planos animados em 3D. Play e Pausar controlam a prévia. Use ◆ Play / Pause no frame para programar a reprodução na timeline e na exportação.</p></div></section><section id="panelMorph" role="tabpanel" aria-labelledby="tabMorph" hidden><div class="sequencePanel" id="studioMorphMount"></div></section><section id="panelPhysics" role="tabpanel" aria-labelledby="tabPhysics" hidden>
+</div></section></div><button id="sequenceDelete">Excluir vídeo</button><p class="muted" id="sequenceInfo"></p></div><p class="muted">Importe vídeos compatíveis com seu navegador como planos animados em 3D. O formato das exportações do Chromakey é reconhecido mesmo se você renomear o arquivo. Play e Pausar controlam a prévia. Use ◆ Play / Pause no frame para programar a reprodução na timeline e na exportação.</p></div></section><section id="panelMorph" role="tabpanel" aria-labelledby="tabMorph" hidden><div class="sequencePanel" id="studioMorphMount"></div></section><section id="panelPhysics" role="tabpanel" aria-labelledby="tabPhysics" hidden>
 <div class="objectSettings"><h3>Física dos ossos</h3>
 <p class="muted">Ligar ou desligar grava uma chave no quadro atual. A física roda no Play e na exportação.</p>
 <p class="muted">Clique para selecionar. Shift + clique alterna um osso. Shift + arraste seleciona por área.</p>
@@ -49035,7 +49035,7 @@ void main() {
   function waitSequenceEvent(video,event,trigger){
     return new Promise((resolve,reject)=>{
       const done=()=>{clearTimeout(timer);video.removeEventListener(event,done);video.removeEventListener('error',fail);resolve()};
-      const fail=()=>{clearTimeout(timer);video.removeEventListener(event,done);video.removeEventListener('error',fail);reject(new Error('Não foi possível decodificar o vídeo. Tente MP4 (H.264) ou WebM.'))};
+      const fail=()=>{clearTimeout(timer);video.removeEventListener(event,done);video.removeEventListener('error',fail);reject(new Error('Não foi possível decodificar o vídeo neste navegador. Se precisar converter, use MP4 (H.264) ou WebM.'))};
       const timer=setTimeout(fail,15000);video.addEventListener(event,done,{once:true});video.addEventListener('error',fail,{once:true});
       try{trigger()}catch(error){fail()}
     });
@@ -49126,12 +49126,106 @@ void main() {
     }catch(error){disposeSequenceRuntime(root);throw error}
   }
 
+  function studioVideoDataUrl(dataUrl){
+    const start=dataUrl.indexOf(',');
+    if(start<0)return dataUrl;
+    const bytes=atob(dataUrl.slice(start+1,start+1+24));
+    let type;
+    if(bytes.startsWith('\x1a\x45\xdf\xa3'))type='video/webm';
+    else if(bytes.slice(4,8)==='ftyp')type='video/mp4';
+    else if(bytes.startsWith('OggS'))type='video/ogg';
+    if(!type||dataUrl.slice(0,start)==='data:'+type+';base64')return dataUrl;
+    return 'data:'+type+';base64'+dataUrl.slice(start);
+  }
+
+  function studioWebMHeader(dataUrl){
+    const start=dataUrl?.indexOf(',')??-1;
+    if(start<0)return '';
+    try{
+      const bytes=atob(dataUrl.slice(start+1,start+1+1536));
+      return bytes.startsWith('\x1a\x45\xdf\xa3')?bytes:'';
+    }catch{return ''}
+  }
+
+  function studioLegacyVideoHasMatte(video){
+    // Exportações antigas não têm a marca. Procura uma máscara cinza
+    // ao lado de uma metade esquerda colorida no mesmo quadro.
+    if(video.videoWidth%2||video.videoWidth<4)return false;
+    const size=80,half=video.videoWidth/2,canvas=document.createElement('canvas');
+    canvas.width=size*2;canvas.height=size;
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    if(!ctx)return false;
+    ctx.drawImage(video,0,0,half,video.videoHeight,0,0,size,size);
+    ctx.drawImage(video,half,0,half,video.videoHeight,size,0,size,size);
+    const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+    let colored=0,maskColor=0,dark=0,light=0;
+    for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+      if(x<2||x>=size-2)continue;
+      const rgb=(y*canvas.width+x)*4,matte=rgb+size*4;
+      if(Math.max(pixels[rgb],pixels[rgb+1],pixels[rgb+2])-Math.min(pixels[rgb],pixels[rgb+1],pixels[rgb+2])>22)colored++;
+      const high=Math.max(pixels[matte],pixels[matte+1],pixels[matte+2]);
+      const low=Math.min(pixels[matte],pixels[matte+1],pixels[matte+2]);
+      if(high-low>10)maskColor++;
+      if(high<24)dark++;
+      if(low>185)light++;
+    }
+    const count=size*(size-4);
+    return colored>count*.03&&maskColor<count*.008&&dark>count*.08&&light>count*.002&&(dark+light)>count*.65;
+  }
+
+  function studioPackedVideoSample(uv){
+    return `
+      float halfTexel=0.5/float(textureSize(map,0).x);
+      vec2 studioRGBUV=vec2(clamp(${uv}.x*0.5,halfTexel,0.5-halfTexel),${uv}.y);
+      vec4 sampledDiffuseColor=texture2D(map,studioRGBUV);
+      float studioMask=texture2D(map,studioRGBUV+vec2(0.5,0.0)).r;
+      sampledDiffuseColor.a=clamp((studioMask-0.015)/0.97,0.0,1.0);
+    `;
+  }
+
+  function studioSetVideoFormat(config,video,mesh,resize){
+    const material=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;
+    material.userData.studioPackedAlpha=config.packedAlpha;
+    material.onBeforeCompile=Material.prototype.onBeforeCompile;
+    material.customProgramCacheKey=Material.prototype.customProgramCacheKey;
+    material.depthWrite=!config.packedAlpha;
+    if(config.packedAlpha){
+      material.onBeforeCompile=shader=>{
+        shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>', `
+          #ifdef USE_MAP
+            ${studioPackedVideoSample('vMapUv')}
+            #ifdef DECODE_VIDEO_TEXTURE
+              sampledDiffuseColor=sRGBTransferEOTF(sampledDiffuseColor);
+            #endif
+            diffuseColor*=sampledDiffuseColor;
+          #endif
+        `);
+      };
+      material.customProgramCacheKey=()=> 'alexandre-studio-packed-alpha-2';
+    }
+    material.needsUpdate=true;
+    config.width=video.videoWidth/(config.packedAlpha?2:1);config.height=video.videoHeight;
+    if(resize){
+      const width=mesh.geometry.parameters?.width||4;
+      mesh.geometry.dispose();
+      mesh.geometry=new PlaneGeometry(width,width*config.height/config.width);
+    }
+  }
+
   async function ensureSequenceRuntime(root,sourceUrl){
     if(studioSequenceRuntimes.has(root))return studioSequenceRuntimes.get(root);
     if(root.userData.studioSequence.kind==='images')return ensureImageSequenceRuntime(root);
     const config=root.userData.studioSequence,video=document.createElement('video');
     video.muted=true;video.playsInline=true;video.preload='auto';video.loop=false;
-    try{await waitSequenceEvent(video,'loadeddata',()=>{video.src=sourceUrl||config.dataUrl;video.load()})}catch(error){video.removeAttribute('src');video.load();throw error}
+    try{await waitSequenceEvent(video,'loadeddata',()=>{video.src=sourceUrl||studioVideoDataUrl(config.dataUrl);video.load()})}catch(error){video.removeAttribute('src');video.load();throw error}
+    const previousPacked=config.packedAlpha;
+    if(!config.packedAlphaResolved){
+      const header=studioWebMHeader(config.dataUrl);
+      const signature='AlexandreStudio:PackedAlpha:1';
+      const marker=String.fromCharCode(0xec,0x80|signature.length)+signature;
+      config.packedAlpha=previousPacked===true||!!(header&&(header.includes(marker)||studioLegacyVideoHasMatte(video)));
+      config.packedAlphaResolved=true;
+    }
     if(!Number.isFinite(video.duration)){
       await waitSequenceEvent(video,'seeked',()=>{video.currentTime=1e10});
       if(video.currentTime>.0001||video.seeking)await waitSequenceEvent(video,'seeked',()=>{video.currentTime=0});
@@ -49147,28 +49241,10 @@ void main() {
     const texture=new VideoTexture(video);texture.colorSpace=SRGBColorSpace;texture.generateMipmaps=false;texture.minFilter=texture.magFilter=LinearFilter;texture.needsUpdate=true;
     const material=Array.isArray(mesh.material)?mesh.material[0]:mesh.material;
     material.map=texture;material.transparent=true;material.side=DoubleSide;material.toneMapped=false;
-    material.userData.studioPackedAlpha=!!config.packedAlpha;
-    // WebM chromakey-alpha: esquerda=RGB; direita=mascara de opacidade.
-    // Reconstrói o alpha no shader, sem gerar milhares de imagens em memória.
-    if(config.packedAlpha){
-      material.onBeforeCompile=shader=>{
-        shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>', `
-          #ifdef USE_MAP
-            vec2 studioUV = vMapUv;
-            vec4 studioRGB = texture2D(map, vec2(studioUV.x * 0.5, studioUV.y));
-            float studioMask = texture2D(map, vec2(0.5 + studioUV.x * 0.5, studioUV.y)).r;
-            float studioAlpha = smoothstep(0.015, 0.985, studioMask);
-            diffuseColor *= vec4(studioRGB.rgb, studioAlpha);
-          #endif
-        `);
-      };
-      material.customProgramCacheKey=()=> 'alexandre-studio-packed-alpha-1';
-      material.depthWrite=false;
-    }
-    material.needsUpdate=true;
+    studioSetVideoFormat(config,video,mesh,previousPacked!==config.packedAlpha);
     const runtime={root,video,texture,objectUrl:sourceUrl||null,lastFrame:-1,playPending:false};
     studioSequenceRuntimes.set(root,runtime);
-    config.duration=video.duration;config.width=video.videoWidth;config.height=video.videoHeight;
+    config.duration=video.duration;
     if(config.time>0)await seekSequence(runtime,Math.min(config.time,Math.max(0,video.duration-.001)));
     video.addEventListener('ended',()=>{if(!config.loop){config.playing=false;config.time=video.currentTime;syncSequenceUI()}});
     video.addEventListener('seeked',()=>{texture.needsUpdate=true;vfxLastDraw=0});
@@ -49204,13 +49280,12 @@ void main() {
   // sem transformar em sequência de imagens nem recodificá-lo.
   async function importSequences(files){
     if(exportState||studioSaving)return;
-    const videos=files.filter(file=>/\.(webm|mp4)$/i.test(file.name));
-    if(!videos.length){$('sequenceFiles').value='';return status('Selecione um vídeo WebM ou MP4.');}
+    if(!files.length)return;
     pauseTimeline();commitCameraEdit();finishDrag(false);saveActiveObject();
     const importButton=$('sequenceImport');importButton.disabled=true;
     let added=0,failed=[];
     try{
-      for(const file of videos){
+      for(const file of files){
         let root;
         try{
           status('Importando vídeo: '+file.name);
@@ -49223,9 +49298,8 @@ void main() {
           root=new Group();root.name=file.name;root.position.copy(controls.target);
           const mesh=new Mesh(new PlaneGeometry(4,2.25),new MeshBasicMaterial({color:0xffffff,side:DoubleSide,transparent:true,toneMapped:false}));
           mesh.userData.studioSequenceSurface=true;mesh.castShadow=false;mesh.receiveShadow=false;root.add(mesh);
-          root.userData.studioSequence={kind:'video',name:file.name,dataUrl,meshId:mesh.uuid,packedAlpha:/^chromakey-alpha/i.test(file.name),loop:true,playing:false,time:0};
-          const runtime=await ensureSequenceRuntime(root);
-          mesh.geometry.dispose();mesh.geometry=new PlaneGeometry(4,4*runtime.video.videoHeight/(runtime.root.userData.studioSequence.packedAlpha?runtime.video.videoWidth/2:runtime.video.videoWidth));
+          root.userData.studioSequence={kind:'video',name:file.name,dataUrl,meshId:mesh.uuid,loop:true,playing:false,time:0};
+          await ensureSequenceRuntime(root);
           root.quaternion.identity();scene.add(root);root.updateMatrixWorld(true);
           const object={id:root.uuid,name:file.name,root,bones:[],rest:new Map(),clips:[],mixer:new AnimationMixer(root),bound:false,selected:null,customRig:null,poseLibrary:[],keyframes:new Map()};
           objects.push(object);object.keyframes.set(1,{pose:capturePose(object)});
@@ -49722,9 +49796,7 @@ void main() {
           offset*=nearFront*phase*(cinema2dWarp*.038+cinema2dDisplace*.030);
           vec2 sampleUV=clamp(cuv+offset,0.001,0.999);
           ${packedAlpha ? `
-            vec4 sampledDiffuseColor=texture2D(map,vec2(sampleUV.x*.5,sampleUV.y));
-            float videoAlpha=texture2D(map,vec2(.5+sampleUV.x*.5,sampleUV.y)).r;
-            sampledDiffuseColor.a*=smoothstep(.015,.985,videoAlpha);
+            ${studioPackedVideoSample('sampleUV')}
           ` : `
             vec4 sampledDiffuseColor=texture2D(map,sampleUV);
           `}
@@ -50202,6 +50274,9 @@ void main() {
     syncStudioVideoBackgroundButton(backgroundButton,!!c.videoBackground);
     $('sequenceLoop').checked=!!c.loop;$('sequenceVisible').checked=object.root.visible!==false;$('sequenceFaceCamera').checked=!!c.faceCamera;
     $('sequenceFaceCamera').closest('label').hidden=c.kind!=='video';
+    $('sequenceFormatLabel').hidden=c.kind!=='video';
+    $('sequenceFormat').value=c.packedAlpha?'packed':'normal';
+    $('sequenceFormat').disabled=!r||(r.video.videoWidth%2!==0);
     const previewPlaying=r&&(!r.video.paused||r.playPending);$('sequencePlay').disabled=!!previewPlaying;$('sequencePause').disabled=!previewPlaying;
     $('sequenceFpsLabel').hidden=c.kind!=='images';if(document.activeElement!==$('sequenceFps'))$('sequenceFps').value=c.fps||24;
     $('sequenceSeek').step=c.kind==='images'?String(1/(c.fps||24)):'0.01';
@@ -50248,6 +50323,21 @@ void main() {
   $('sequenceImport').onclick=()=>$('sequenceFiles').click();
   $('sequenceFiles').onchange=e=>importSequences([...e.target.files]);
   $('sequenceSelect').onchange=e=>{if(e.target.value)selectObject(e.target.value,true);syncSequenceUI()};
+  $('sequenceFormat').onchange=event=>{
+    const object=sequenceObject(),config=object?.root.userData.studioSequence;
+    const runtime=object&&studioSequenceRuntimes.get(object.root);
+    if(config?.kind!=='video'||!runtime||exportState||studioSaving){syncSequenceUI();return}
+    const mesh=studioMorphSourceMesh(object.root);
+    const packed=event.target.value==='packed';
+    if(!mesh||config.packedAlpha===packed||(packed&&runtime.video.videoWidth%2)){syncSequenceUI();return}
+    studioMorphRestore(object.root);
+    config.packedAlpha=packed;
+    config.packedAlphaResolved=true;
+    studioSetVideoFormat(config,runtime.video,mesh,true);
+    updateStudioMorphs(currentFrame);
+    vfxLastDraw=0;
+    syncSequenceUI();
+  };
   $('sequenceVideoBackground').onclick=()=>{
     const object=sequenceObject(),config=object?.root.userData.studioSequence;
     if(config?.kind!=='images'||!studioSequenceRuntimes.get(object.root)||exportState||studioSaving)return;
