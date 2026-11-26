@@ -28,20 +28,21 @@
 .scatter-advanced{margin:12px 0;color:#b7bdc8}
 .scatter-advanced summary{cursor:pointer}
 #scatterPanel .quiet-note{min-height:1.2em}
-</style></head><body><nav id="generatorTabs" role="tablist" aria-label="Geradores de ambiente"></nav><main><aside id="controls" aria-label="Controles do modelo"><div class="panel-top"><span id="panelTitle">Árvores</span><button id="generate" class="icon-button" title="Gerar nova variação" aria-label="Gerar nova variação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"/></svg></button></div><div class="library-entry" id="treeLibraryEntry"><button class="species-toggle" id="speciesToggle" aria-expanded="false" aria-controls="speciesMenu"><span><small>Biblioteca</small><b id="chosen">Ipê-amarelo</b></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div><nav id="treeConfigTabs" class="tabs" aria-label="Configurações" role="tablist"><button id="tab-model" data-tab="model" role="tab" aria-selected="true" aria-controls="pane-model">Modelo</button><button id="tab-structure" data-tab="structure" role="tab" aria-selected="false" aria-controls="pane-structure">Estrutura</button><button id="tab-appearance" data-tab="appearance" role="tab" aria-selected="false" aria-controls="pane-appearance">Aparência</button></nav><div class="panel-scroll"><div class="section" id="meshQuality"><h2>Detalhamento</h2><label for="quality">Resolução da malha</label><select id="quality"><option value="1">Econômico</option><option value="1.6" selected>Realista · equilibrado</option><option value="2.4">Ultra · mais geometria</option></select></div><div id="treePanels"><div id="pane-model" role="tabpanel" aria-labelledby="tab-model"><div class="section"><h2>Composição</h2><label for="mode">Componentes</label><select id="mode"><option value="full">Árvore completa</option><option value="bare">Árvore sem folhagem</option><option value="log">Tronco caído</option></select><label class="check"><input id="dead" type="checkbox">Madeira morta</label><label class="check"><input id="rootsEnabled" type="checkbox" checked>Raízes expostas</label></div><div class="section"><h2>Crescimento</h2><label for="height">Altura<output id="heightVal"></output></label><input id="height" type="range" min="65" max="140" value="100"><label for="depth">Ramificação<output id="depthVal"></output></label><input id="depth" type="range" min="3" max="6" value="5"><label for="spread">Abertura<output id="spreadVal"></output></label><input id="spread" type="range" min="25" max="95" value="65"><label for="foliage">Folhagem<output id="foliageVal"></output></label><input id="foliage" type="range" min="0" max="140" value="90"></div><div class="section"><h2>Variação</h2><label for="seedInput">Semente</label><input class="seed-input" id="seedInput" type="number" min="1" max="999999" value="7341"></div></div><div id="pane-structure" role="tabpanel" aria-labelledby="tab-structure" hidden><div class="section"><h2>Madeira</h2><label for="thickness">Espessura<output id="thicknessVal"></output></label><input id="thickness" type="range" min="40" max="250" value="100"><label for="twist">Torção<output id="twistVal"></output></label><input id="twist" type="range" min="0" max="150" value="25"><label for="barkRelief">Relevo da casca<output id="barkReliefVal"></output></label><input id="barkRelief" type="range" min="0" max="100" value="55"></div><div class="section"><h2>Raízes</h2><label for="rootCount">Quantidade<output id="rootCountVal"></output></label><input id="rootCount" type="range" min="3" max="18" value="8"><label for="rootLength">Alcance<output id="rootLengthVal"></output></label><input id="rootLength" type="range" min="30" max="220" value="100"><label for="rootLift">Arqueamento<output id="rootLiftVal"></output></label><input id="rootLift" type="range" min="0" max="140" value="25"></div></div><div id="pane-appearance" role="tabpanel" aria-labelledby="tab-appearance" hidden><div class="section"><h2>Superfície</h2><div class="color-row"><label for="leaf">Folhagem</label><input type="color" id="leaf" value="#dfc34b"></div><div class="color-row"><label for="bark">Madeira</label><input type="color" id="bark" value="#756049"></div></div></div></div><div id="assetPanel" hidden><div class="section"><h2>Modelo</h2><label for="assetPreset">Variação</label><select id="assetPreset"></select></div><div class="section"><h2>Geometria</h2><label for="assetAmount">Quantidade<output id="assetAmountVal"></output></label><input type="range" id="assetAmount" min="1" max="260" value="1"><label for="assetSize">Escala<output id="assetSizeVal"></output></label><input type="range" id="assetSize" min="5" max="240" value="100"><label for="assetArea">Área de distribuição<output id="assetAreaVal"></output></label><input type="range" id="assetArea" min="40" max="1000" value="280"><label for="assetVertical">Altura / proporção<output id="assetVerticalVal"></output></label><input type="range" id="assetVertical" min="20" max="240" value="100"><label for="assetDetail">Irregularidade<output id="assetDetailVal"></output></label><input type="range" id="assetDetail" min="0" max="100" value="55"></div><div class="section"><h2>Variação</h2><label for="assetSeed">Semente</label><input id="assetSeed" type="number" value="7341" min="1" max="999999"></div><div id="landformOptions" class="section" hidden><h2>Formação do relevo</h2><p class="quiet-note">Relevo procedural com erosão, sedimentos e materiais por altitude e inclinação. A semente reproduz a mesma paisagem.</p>
+#scatterMarkers{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:18;cursor:inherit}
+</style></head><body><nav id="generatorTabs" role="tablist" aria-label="Geradores de ambiente"></nav><main><aside id="controls" aria-label="Controles do modelo"><div class="panel-top"><span id="panelTitle">Árvores</span><button id="generate" class="icon-button" title="Gerar nova variação" aria-label="Gerar nova variação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"/></svg></button></div><div class="library-entry" id="treeLibraryEntry"><button class="species-toggle" id="speciesToggle" aria-expanded="false" aria-controls="speciesMenu"><span><small>Biblioteca</small><b id="chosen">Ipê-amarelo</b></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div><nav id="treeConfigTabs" class="tabs" aria-label="Configurações" role="tablist"><button id="tab-model" data-tab="model" role="tab" aria-selected="true" aria-controls="pane-model">Modelo</button><button id="tab-structure" data-tab="structure" role="tab" aria-selected="false" aria-controls="pane-structure">Estrutura</button><button id="tab-appearance" data-tab="appearance" role="tab" aria-selected="false" aria-controls="pane-appearance">Aparência</button></nav><div class="panel-scroll"><div class="section" id="meshQuality"><h2>Detalhamento</h2><label for="quality">Resolução da malha</label><select id="quality"><option value="1">Econômico</option><option value="1.6" selected>Realista · equilibrado</option><option value="2.4">Ultra · mais geometria</option></select></div><div id="treePanels"><div id="pane-model" role="tabpanel" aria-labelledby="tab-model"><div class="section"><h2>Composição</h2><label for="mode">Componentes</label><select id="mode"><option value="full">Árvore completa</option><option value="bare">Árvore sem folhagem</option><option value="log">Tronco caído</option></select><label class="check"><input id="dead" type="checkbox">Madeira morta</label><label class="check"><input id="rootsEnabled" type="checkbox" checked>Raízes expostas</label></div><div class="section"><h2>Crescimento</h2><label for="height">Altura<output id="heightVal"></output></label><input id="height" type="range" min="65" max="140" value="100"><label for="depth">Ramificação<output id="depthVal"></output></label><input id="depth" type="range" min="3" max="6" value="5"><label for="spread">Abertura<output id="spreadVal"></output></label><input id="spread" type="range" min="25" max="95" value="65"><label for="foliage">Folhagem<output id="foliageVal"></output></label><input id="foliage" type="range" min="0" max="140" value="90"></div><div class="section"><h2>Variação</h2><label for="seedInput">Semente</label><input class="seed-input" id="seedInput" type="number" min="1" max="999999" value="7341"></div></div><div id="pane-structure" role="tabpanel" aria-labelledby="tab-structure" hidden><div class="section"><h2>Madeira</h2><label for="thickness">Espessura<output id="thicknessVal"></output></label><input id="thickness" type="range" min="40" max="250" value="100"><label for="twist">Torção<output id="twistVal"></output></label><input id="twist" type="range" min="0" max="150" value="25"><label for="barkRelief">Relevo da casca<output id="barkReliefVal"></output></label><input id="barkRelief" type="range" min="0" max="100" value="55"></div><div class="section"><h2>Raízes</h2><label for="rootCount">Quantidade<output id="rootCountVal"></output></label><input id="rootCount" type="range" min="3" max="18" value="8"><label for="rootLength">Alcance<output id="rootLengthVal"></output></label><input id="rootLength" type="range" min="30" max="220" value="100"><label for="rootLift">Arqueamento<output id="rootLiftVal"></output></label><input id="rootLift" type="range" min="0" max="140" value="25"></div></div><div id="pane-appearance" role="tabpanel" aria-labelledby="tab-appearance" hidden><div class="section"><h2>Superfície</h2><div class="color-row"><label for="leaf">Folhagem</label><input type="color" id="leaf" value="#dfc34b"></div><div class="color-row"><label for="bark">Madeira</label><input type="color" id="bark" value="#756049"></div></div></div></div><div id="assetPanel" hidden><div class="section"><h2>Modelo</h2><label for="assetPreset">Variação</label><select id="assetPreset"></select></div><div class="section"><h2>Geometria</h2><label for="assetAmount">Quantidade<output id="assetAmountVal"></output></label><input type="range" id="assetAmount" min="1" max="260" value="1"><label for="assetSize">Escala<output id="assetSizeVal"></output></label><input type="range" id="assetSize" min="5" max="240" value="100"><label for="assetArea">Área de distribuição<output id="assetAreaVal"></output></label><input type="range" id="assetArea" min="40" max="1000" value="280"><div id="assetTerrainDepthField" hidden><label for="assetTerrainDepth">Profundidade do terreno <output id="assetTerrainDepthValue"></output></label><input type="range" id="assetTerrainDepth" min=".4" max="100" step=".1" value="5.1"></div><label for="assetVertical">Altura / proporção<output id="assetVerticalVal"></output></label><input type="range" id="assetVertical" min="20" max="240" value="100"><label for="assetDetail">Irregularidade<output id="assetDetailVal"></output></label><input type="range" id="assetDetail" min="0" max="100" value="55"></div><div class="section"><h2>Variação</h2><label for="assetSeed">Semente</label><input id="assetSeed" type="number" value="7341" min="1" max="999999"></div><div id="landformOptions" class="section" hidden><h2>Formação do relevo</h2><p class="quiet-note">Relevo procedural com erosão, sedimentos e materiais por altitude e inclinação. A semente reproduz a mesma paisagem.</p>
 <label for="landErosion">Erosão<output id="landErosionVal"></output></label><input id="landErosion" type="range" min="0" max="100" value="45">
 <label for="landSediment">Sedimentação<output id="landSedimentVal"></output></label><input id="landSediment" type="range" min="0" max="100" value="40">
 <label for="landStrata">Camadas geológicas<output id="landStrataVal"></output></label><input id="landStrata" type="range" min="0" max="100" value="35">
 <label for="landSnow">Cobertura de neve<output id="landSnowVal"></output></label><input id="landSnow" type="range" min="0" max="100" value="0">
 <label class="check" hidden><input id="landWater" type="checkbox">Adicionar água nas áreas baixas</label>
 <label for="landWaterLevel" hidden>Nível da água<output id="landWaterLevelVal"></output></label><input id="landWaterLevel" hidden type="range" min="0" max="65" value="22">
-<p class="quiet-note">Use a qualidade Ultra para mais geometria. Montanhas isoladas e terrenos sem água.</p></div><div id="tunnelBendOptions" class="section" hidden><h2>Curvatura 360°</h2><p class="quiet-note">Tubo fechado em toda a circunferência, com as duas extremidades abertas e sem plano inferior.</p><label for="tunnelLength">Comprimento do túnel<output id="tunnelLengthVal">100%</output></label><input id="tunnelLength" type="range" min="25" max="500" step="5" value="100"><label for="tunnelCurve">Curvar túnel<output id="tunnelCurveVal">0°</output></label><input id="tunnelCurve" type="range" min="-170" max="170" step="1" value="0"><label for="tunnelDirection">Direção da curva<output id="tunnelDirectionVal">0°</output></label><input id="tunnelDirection" type="range" min="-180" max="180" step="1" value="0"><p class="quiet-note">Curvatura positiva ou negativa; direção 0° = esquerda/direita, ±90° = cima/baixo. A geometria curvada também é exportada.</p></div><div id="waterOptions" class="section" hidden><h2>Superfície</h2><label for="lakeDepth">Profundidade da água<output id="lakeDepthVal">100%</output></label><input type="range" id="lakeDepth" min="15" max="300" value="100"><label for="lakeBank">Largura das beiradas<output id="lakeBankVal">50%</output></label><input type="range" id="lakeBank" min="10" max="150" value="50"><p class="quiet-note" id="lakeNote">Beiradas naturais para todas as águas, com profundidade ajustável e sem terreno quadrado.</p><label for="assetWaves">Ondulação<output id="assetWavesVal"></output></label><input type="range" id="assetWaves" min="0" max="100" value="45"><p id="waterNote" class="quiet-note">Água em movimento na prévia. O GLB exporta a superfície estática.</p></div><div class="section"><h2>Material</h2><div class="color-row"><label for="assetColor">Cor principal</label><input type="color" id="assetColor" value="#888888"></div></div></div><div id="scenePanel" hidden>
+<p class="quiet-note">Use a qualidade Ultra para mais geometria. Montanhas isoladas e terrenos sem água.</p></div><div id="tunnelBendOptions" class="section" hidden><h2>Curvatura 360°</h2><p class="quiet-note">Tubo fechado em toda a circunferência, com as duas extremidades abertas e sem plano inferior.</p><label for="tunnelLength">Comprimento do túnel<output id="tunnelLengthVal">100%</output></label><input id="tunnelLength" type="range" min="25" max="500" step="5" value="100"><label for="tunnelCurve">Curvar túnel<output id="tunnelCurveVal">0°</output></label><input id="tunnelCurve" type="range" min="-170" max="170" step="1" value="0"><label for="tunnelDirection">Direção da curva<output id="tunnelDirectionVal">0°</output></label><input id="tunnelDirection" type="range" min="-180" max="180" step="1" value="0"><p class="quiet-note">Curvatura positiva ou negativa; direção 0° = esquerda/direita, ±90° = cima/baixo. A geometria curvada também é exportada.</p></div><div id="waterOptions" class="section" hidden><h2>Superfície</h2><div id="channelCurveField" hidden><label for="channelCurve">Curvatura do curso<output id="channelCurveVal">Reto</output></label><input type="range" id="channelCurve" min="-100" max="100" value="0"></div><label for="lakeDepth">Profundidade da água<output id="lakeDepthVal">100%</output></label><input type="range" id="lakeDepth" min="15" max="300" value="100"><label for="lakeBank">Largura das beiradas<output id="lakeBankVal">50%</output></label><input type="range" id="lakeBank" min="10" max="150" value="50"><p class="quiet-note" id="lakeNote">Beiradas naturais para todas as águas, com profundidade ajustável e sem terreno quadrado.</p><label for="assetWaves">Ondulação<output id="assetWavesVal"></output></label><input type="range" id="assetWaves" min="0" max="100" value="45"><p id="waterNote" class="quiet-note">Água em movimento na prévia. O GLB exporta a superfície estática.</p></div><div class="section"><h2>Material</h2><div class="color-row"><label for="assetColor">Cor principal</label><input type="color" id="assetColor" value="#888888"></div></div></div><div id="scenePanel" hidden>
 <div class="section"><label class="check"><input id="sceneLight" type="checkbox" checked>Prévia leve</label></div>
 <div class="section"><h2>Montagem do cenário completo</h2><p class="quiet-note">Escolha e configure um modelo na aba correspondente e clique em <b>Adicionar ao cenário</b>, ao lado de Exportar GLB. Sobreponha as bordas de terrenos e águas para encaixá-los. Paredões, montanhas e rochas assentam no relevo quando encostam nele. Cada peça continua editável.</p></div>
-<div class="section"><h2>Objetos do cenário <output id="sceneCount">0</output></h2><div id="sceneList"></div><div class="scene-actions"><button id="sceneDuplicate">Duplicar</button><button id="sceneRemove">Excluir</button></div><details class="finish-group" id="scatterPanel" open hidden>
+<div class="section"><h2>Objetos do cenário <output id="sceneCount">0</output></h2><div id="sceneList"></div><div class="scene-actions"><button id="sceneDuplicate">Duplicar</button><button id="sceneRemove">Excluir</button></div><button class="scene-add" id="sceneCourseAttach" hidden>Encaixar no topo da cachoeira</button><details class="finish-group" id="scatterPanel" open hidden>
  <summary>Distribuição do objeto</summary>
  <label for="scatterCount">Quantidade <output id="scatterCountValue">0</output></label>
- <input type="range" id="scatterCount" min="0" max="500" value="0">
+ <input type="range" id="scatterCount" min="0" max="100" value="0">
  <label for="scatterTarget">Superfície de apoio</label><select id="scatterTarget"></select>
  <label for="scatterMethod">Padrão</label>
  <select id="scatterMethod"><option value="poisson">Espaçamento mínimo</option><option value="random">Aleatório</option><option value="patch">Em manchas</option><option value="grid">Grade com variação</option></select>
@@ -74,10 +75,10 @@
 </div>
 <div id="sceneTransform" class="section" hidden><h2>Gizmos de transformação</h2>
 <div class="scene-actions" id="gizmoModes" role="group" aria-label="Ferramentas do objeto"><button type="button" data-gizmo-mode="move" aria-pressed="true">Mover (G)</button><button type="button" data-gizmo-mode="rotate" aria-pressed="false">Girar (R)</button><button type="button" data-gizmo-mode="scale" aria-pressed="false">Escalar (S)</button></div>
-<label for="sceneSizeSlider">Tamanho do objeto <output id="sceneSizeValue">100%</output></label><input id="sceneSizeSlider" type="range" min="5" max="500" value="100" step="5"><p class="quiet-note">O controle de tamanho aumenta ou diminui o objeto inteiro, mantendo suas proporções.</p>
+<label for="sceneSizeSlider"><span id="sceneSizeLabel">Escala da peça</span> <output id="sceneSizeValue">100%</output></label><input id="sceneSizeSlider" type="range" min="5" max="500" value="100" step="5"><div id="sceneTerrainDepthField" hidden><label for="sceneTerrainDepth">Profundidade do terreno <output id="sceneTerrainDepthValue"></output></label><input type="range" id="sceneTerrainDepth" min=".4" max="100" step=".1" value="5.1"></div><div id="sceneTerrainBaseField" hidden><label for="sceneTerrainBase">Espessura da base <output id="sceneTerrainBaseValue"></output></label><input id="sceneTerrainBase" type="range" min="0" max="800" step="1"></div><p class="quiet-note">Largura × altura × profundidade <output id="sceneObjectDimensions"></output></p>
 <p class="quiet-note">Arraste os eixos coloridos no objeto: vermelho X, verde Y, azul Z. Na escala, segure <b>Shift</b> para aumentar ou diminuir tudo uniformemente. Arraste fora das alças para orbitar a câmera.</p>
 <button class="scene-add" id="sceneCliffAttach" hidden>Encaixar na cachoeira</button><button class="scene-add" id="sceneZero">Centralizar objeto</button></div>
-<div class="section"><h2>Arquivos do cenário</h2><button class="scene-add" id="sceneSaveProject">Salvar projeto editável no disco</button><button class="scene-add" id="sceneOpenProject">Abrir projeto ou GLB</button><input id="sceneProjectInput" type="file" accept=".n3d,.json,.gz,.glb" hidden><p class="quiet-note">O projeto guarda as peças, posições e malhas compartilhadas. No Chrome e no Edge você escolhe a pasta antes de o arquivo ser preparado.</p><button class="scene-add" id="sceneClear">Limpar cenário</button><p class="quiet-note">O botão Exportar GLB salva o cenário em um arquivo GLB. Relevo e água ficam reunidos. As cópias de um mesmo modelo reutilizam a mesma malha.</p></div></div><div id="finishingPanel"><details class="finish-group" open><summary>Superfície</summary><label for="surfaceDetail">Micro-relevo<output id="surfaceDetailVal"></output></label><input id="surfaceDetail" type="range" min="0" max="100" value="70"><label for="surfaceRoughness">Rugosidade<output id="surfaceRoughnessVal"></output></label><input id="surfaceRoughness" type="range" min="5" max="100" value="82"><label for="surfaceVariation">Variação tonal<output id="surfaceVariationVal"></output></label><input id="surfaceVariation" type="range" min="0" max="100" value="35"><label for="surfaceWeather">Desgaste<output id="surfaceWeatherVal"></output></label><input id="surfaceWeather" type="range" min="0" max="100" value="25"></details><details class="finish-group" open><summary>Iluminação</summary><label for="environment">Ambiente</label><select id="environment"><option value="0">Natural</option><option value="1">Entardecer</option><option value="2">Lua / terror</option><option value="3">Estúdio neutro</option></select><label for="lightIntensity">Intensidade<output id="lightIntensityVal"></output></label><input id="lightIntensity" type="range" min="10" max="240" value="100"><label for="lightAzimuth">Direção<output id="lightAzimuthVal"></output></label><input id="lightAzimuth" type="range" min="-180" max="180" value="-35"><label for="lightElevation">Elevação<output id="lightElevationVal"></output></label><input id="lightElevation" type="range" min="5" max="85" value="45"><label for="lightAmbient">Luz ambiente<output id="lightAmbientVal"></output></label><input id="lightAmbient" type="range" min="5" max="100" value="38"></details></div></div><div class="panel-footer"><div class="export-row"><button id="exportGlb" class="export-primary">Exportar GLB <span>↗</span></button><button id="addCurrentToScene" class="export-secondary" type="button">+ Adicionar ao cenário</button><button id="download" hidden aria-hidden="true" tabindex="-1">PNG</button></div><div id="status" role="status"></div></div></aside><section class="viewport" aria-label="Visualização 3D"><svg id="scatterOverlay" aria-hidden="true" hidden><polyline></polyline></svg><canvas id="scene" aria-label="Modelo 3D. Arraste para orbitar. Use Shift ou o botão direito ao arrastar para deslocar a vista. Role para ajustar o zoom." tabindex="0"></canvas><svg id="sceneGizmo" aria-label="Manipulador 3D" style="position:absolute;inset:0;width:100%;height:100%;z-index:3;overflow:visible;pointer-events:none" hidden></svg><div id="viewGizmo" class="view-gizmo" role="group" aria-label="Vistas da câmera">
+<div class="section"><h2>Arquivos do cenário</h2><label class="check"><input type="checkbox" id="sceneGlbInstances" checked>Agrupar cópias iguais no GLB</label><button class="scene-add" id="sceneSaveProject">Salvar projeto editável no disco</button><button class="scene-add" id="sceneOpenProject">Abrir projeto ou GLB</button><input id="sceneProjectInput" type="file" accept=".n3d,.json,.gz,.glb" hidden><p class="quiet-note">O projeto guarda as peças, posições e malhas compartilhadas. No Chrome e no Edge você escolhe a pasta antes de o arquivo ser preparado.</p><button class="scene-add" id="sceneClear">Limpar cenário</button><p class="quiet-note">O botão Exportar GLB salva o cenário em um arquivo GLB. O agrupamento mantém uma malha e um objeto por modelo repetido. Desmarque para usar leitores de GLB sem suporte a instâncias.</p></div></div><div id="finishingPanel"><details class="finish-group" open><summary>Superfície</summary><label for="surfaceDetail">Micro-relevo<output id="surfaceDetailVal"></output></label><input id="surfaceDetail" type="range" min="0" max="100" value="70"><label for="surfaceRoughness">Rugosidade<output id="surfaceRoughnessVal"></output></label><input id="surfaceRoughness" type="range" min="5" max="100" value="82"><label for="surfaceVariation">Variação tonal<output id="surfaceVariationVal"></output></label><input id="surfaceVariation" type="range" min="0" max="100" value="35"><label for="surfaceWeather">Desgaste<output id="surfaceWeatherVal"></output></label><input id="surfaceWeather" type="range" min="0" max="100" value="25"></details><details class="finish-group" open><summary>Iluminação</summary><label for="environment">Ambiente</label><select id="environment"><option value="0">Natural</option><option value="1">Entardecer</option><option value="2">Lua / terror</option><option value="3">Estúdio neutro</option></select><label for="lightIntensity">Intensidade<output id="lightIntensityVal"></output></label><input id="lightIntensity" type="range" min="10" max="240" value="100"><label for="lightAzimuth">Direção<output id="lightAzimuthVal"></output></label><input id="lightAzimuth" type="range" min="-180" max="180" value="-35"><label for="lightElevation">Elevação<output id="lightElevationVal"></output></label><input id="lightElevation" type="range" min="5" max="85" value="45"><label for="lightAmbient">Luz ambiente<output id="lightAmbientVal"></output></label><input id="lightAmbient" type="range" min="5" max="100" value="38"></details></div></div><div class="panel-footer"><div class="export-row"><button id="exportGlb" class="export-primary">Exportar GLB <span>↗</span></button><button id="addCurrentToScene" class="export-secondary" type="button">+ Adicionar ao cenário</button><button id="download" hidden aria-hidden="true" tabindex="-1">PNG</button></div><div id="status" role="status"></div></div></aside><section class="viewport" aria-label="Visualização 3D"><canvas id="scatterMarkers" aria-hidden="true"></canvas><svg id="scatterOverlay" aria-hidden="true" hidden><polyline></polyline></svg><canvas id="scene" aria-label="Modelo 3D. Arraste para orbitar. Use Shift ou o botão direito ao arrastar para deslocar a vista. Role para ajustar o zoom." tabindex="0"></canvas><svg id="sceneGizmo" aria-label="Manipulador 3D" style="position:absolute;inset:0;width:100%;height:100%;z-index:3;overflow:visible;pointer-events:none" hidden></svg><div id="viewGizmo" class="view-gizmo" role="group" aria-label="Vistas da câmera">
  <svg id="viewCompass" viewBox="0 0 74 64" aria-hidden="true">
   <line x1="37" y1="33" stroke="#f16b67"/><line x1="37" y1="33" stroke="#79d88a"/><line x1="37" y1="33" stroke="#6ba6ff"/>
   <circle cx="37" cy="33" r="2" fill="#dce4ee"/>
@@ -102,7 +103,7 @@ const canvas=$('scene'),gl=canvas.getContext('webgl',{antialias:true,preserveDra
 if(!gl)throw new Error('Seu navegador precisa de WebGL para exibir a árvore.');
 function shader(type,source){const sh=gl.createShader(type);gl.shaderSource(sh,source);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh}
 gl.getExtension('OES_standard_derivatives');const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,`attribute vec3 position,normal,color;attribute float kind,objectIndex;attribute vec2 uv;attribute vec4 placedPosition,placedRotation;uniform float placedMode;
-uniform mat4 placedMatrix;uniform mat3 placedNormal;uniform float editObject;uniform mat4 editMatrix;uniform float yaw,pitch,aspect,zoom,orthographic;uniform vec3 center;uniform float fit;uniform float time,relief;uniform vec2 pan;varying vec3 N,C,P;varying float K;varying vec2 UV;varying vec3 shadowCoord;uniform vec3 shadowRight,shadowUp,shadowForward;
+uniform mat4 placedMatrix;uniform mat3 placedNormal;uniform float editObject,editCompanion;uniform mat4 editMatrix;uniform float yaw,pitch,aspect,zoom,orthographic;uniform vec3 center;uniform float fit;uniform float time,relief;uniform vec2 pan;varying vec3 N,C,P;varying float K;varying vec2 UV;varying vec3 shadowCoord;uniform vec3 shadowRight,shadowUp,shadowForward;
 vec3 turnPlaced(vec3 point){
  vec3 t=2.*cross(placedRotation.xyz,point);
  return point+placedRotation.w*t+cross(placedRotation.xyz,t);
@@ -112,7 +113,7 @@ if(placedMode>.5&&placedMode<1.5){
  pos=turnPlaced(pos)*placedPosition.w+placedPosition.xyz;normalEdited=turnPlaced(normal);
 }else if(placedMode>1.5){
  pos=(placedMatrix*vec4(pos,1.)).xyz;normalEdited=normalize(placedNormal*normalEdited);
-}else if(editObject>=0.&&abs(objectIndex-editObject)<.5){pos=(editMatrix*vec4(position,1.)).xyz;normalEdited=normalize(mat3(editMatrix)*normal);}P=pos;N=normalEdited;C=color;K=kind;vec3 rendered=pos;if(kind>3.5&&kind<4.05&&abs(normalEdited.y)<.4)rendered.y+=sin(pos.x*7.+pos.z*4.+time*.9)*.012*relief;vec3 local=(rendered-center)*fit;shadowCoord=vec3(dot(local,shadowRight)/8.+.5,dot(local,shadowUp)/8.+.5,dot(local,shadowForward)/12.+.5);float cy=cos(yaw),sy=sin(yaw),cp=cos(pitch),sp=sin(pitch);vec3 p=vec3(local.x*cy+local.z*sy,local.y,-local.x*sy+local.z*cy);p.yz=mat2(cp,sp,-sp,cp)*p.yz;float z=9.0+p.z;float scale=2.65*zoom;float w=orthographic>.5?9.:z;float depth=orthographic>.5?p.z*.45:z*.999-.2;gl_Position=vec4(p.x*scale/aspect+pan.x*w,p.y*scale+pan.y*w,depth,w);}`));
+}else if(editObject>=0.&&(abs(objectIndex-editObject)<.5||abs(objectIndex-editCompanion)<.5)){pos=(editMatrix*vec4(position,1.)).xyz;normalEdited=normalize(mat3(editMatrix)*normal);}P=pos;N=normalEdited;C=color;K=kind;vec3 rendered=pos;if(kind>3.5&&kind<4.05&&abs(normalEdited.y)<.4)rendered.y+=sin(pos.x*7.+pos.z*4.+time*.9)*.012*relief;vec3 local=(rendered-center)*fit;shadowCoord=vec3(dot(local,shadowRight)/8.+.5,dot(local,shadowUp)/8.+.5,dot(local,shadowForward)/12.+.5);float cy=cos(yaw),sy=sin(yaw),cp=cos(pitch),sp=sin(pitch);vec3 p=vec3(local.x*cy+local.z*sy,local.y,-local.x*sy+local.z*cy);p.yz=mat2(cp,sp,-sp,cp)*p.yz;float z=9.0+p.z;float scale=2.65*zoom;float w=orthographic>.5?9.:z;float depth=orthographic>.5?p.z*.45:z*(33./31.)-64./31.;gl_Position=vec4(p.x*scale/aspect+pan.x*w,p.y*scale+pan.y*w,depth,w);}`));
 gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`#extension GL_OES_standard_derivatives : enable
 precision highp float;
 uniform sampler2D barkMap,barkNormal,shadowMap;
@@ -253,7 +254,10 @@ function crown(c,r,color){let saved=random;random=rng(seed+9157*(++leafSerial));
 const categories=[['trees','Árvores'],['rocks','Rochas e cascalho'],['water','Água'],['grass','Gramas'],['shrubs','Arbustos'],['litter','Folhas secas'],['mountains','Montanhas'],['terrains','Terrenos'],['cliffs','Paredões'],['flowers','Flores e samambaias'],['fungi','Fungos'],['wood','Madeira'],['tunnels','Túneis'],['scenes','Cenários']];
 const assetCatalog={
  rocks:[['Boulder de granito','boulder','#858681',1,1.6],['Rocha basáltica','boulder','#454b4b',1,1.8],['Arenito erodido','sandstone','#ab8a62',1,1.7],['Rocha com musgo','mossrock','#79836a',3,1.1],['Pedras de rio','pebble','#8c8d82',12,.35],['Cascalho fino','gravel','#92918a',95,.10],['Cascalho de basalto','gravel','#575d61',85,.13],['Seixos arredondados','pebble','#a6a094',30,.22],['Paredão rochoso','cliff','#76716b',1,2],['Conjunto de rochas','boulder','#797f7c',7,.8],['Estalagmites','stalagmite','#8d8980',12,.4],['Cristais minerais','crystal','#7babb5',7,.45]],
- water:[['Lago','lake','#347d88',1,1],['Lagoa','pond','#527e69',1,1],['Rio sinuoso','river','#428692',1,1],['Riacho','stream','#5e9aa1',1,1],['Cachoeira','waterfall','#72b4c1',1,1],['Corredeira','rapids','#6f9fa5',1,1],['Piscina natural','pool','#3f9caa',1,1],['Poça de água','puddle','#627e81',1,1]],
+ water:[['Lago','lake','#347d88',1,1],['Lagoa','pond','#527e69',1,1],['Rio sinuoso','river','#428692',1,1],['Riacho','stream','#5e9aa1',1,1],['Cachoeira','waterfall','#72b4c1',1,1],['Corredeira','rapids','#6f9fa5',1,1],['Piscina natural','pool','#3f9caa',1,1],['Poça de água','puddle','#627e81',1,1],
+  ['Riacho de floresta','forestStream','#547f73',1,1],['Riacho raso de cascalho','gravelStream','#659e9b',1,1],
+  ['Riacho de nascente','springStream','#438d83',1,.92],['Corredeira rochosa','rockyRapids','#69969b',1,1],
+  ['Corredeira em degraus','stepRapids','#5893a1',1,1],['Corredeira larga','broadRapids','#689fae',1,1]],
  grass:[['Grama baixa','lawn','#64814b',220,.25],['Grama alta','tall','#6e8545',110,.75],['Capim seco','drygrass','#b6a16a',110,.65],['Tufos de capim','tufts','#7c9554',34,.5],['Juncos','reeds','#77935c',40,1.4],['Taboas','cattails','#6f8850',25,1.4],['Capim de brejo','marshgrass','#567b4c',90,.8],['Capim-pluma','pampas','#c4b393',18,1.2]],
  shrubs:[['Arbusto arredondado','bush','#4e7848',1,1],['Arbusto florido','flowerbush','#9479a5',1,1],['Cerca viva','hedge','#527445',5,.8],['Moita irregular','scrub','#70844c',3,.8],['Arbusto espinhoso','thornbush','#5f6850',1,1],['Arbusto seco','deadbush','#80715b',1,1],['Samambaia arbustiva','fernshrub','#52824d',3,.7],['Arbusto de folhas vermelhas','bush','#995749',1,.8]],
  litter:[['Folhas de outono','dryleaves','#a57a41',110,.14],['Folhas marrons','dryleaves','#826344',110,.14],['Folhas vermelhas','dryleaves','#a7543c',90,.14],['Monte de folhas','leafpile','#9d7948',220,.13],['Agulhas de pinheiro','needles','#8f7b4d',180,.13],['Gravetos espalhados','twigs','#7d6c54',45,.22],['Pinhas','cones','#795e3c',12,.18],['Bolotas','acorns','#95754b',30,.10]],
@@ -278,9 +282,14 @@ const assetCatalog={
  tunnels:[['Caverna natural','cave','#777369',1,1],['Túnel de mina','mine','#806a50',1,1],['Túnel de concreto','concrete','#949592',1,1],['Túnel de tijolos','brick','#985d4b',1,1],['Túnel ferroviário','rail','#737575',1,1],['Túnel rodoviário','road','#888a85',1,1],['Túnel de metrô','metro','#777d83',1,1],['Galeria de esgoto','sewer','#69776e',1,1],['Caverna de gelo','ice','#8cc6dc',1,1],['Túnel vulcânico','lava','#554741',1,1],['Passagem abandonada','abandoned','#66645c',1,1],['Túnel futurista','scifi','#657c91',1,1]],
  wood:[['Tronco caído','log','#786149',1,1],['Tronco queimado','charlog','#3e3c34',1,1],['Galho seco','branch','#88755d',3,.7],['Galho retorcido','driftwood','#a8987f',2,.8],['Galhos espalhados','branches','#7c6b55',15,.35],['Pedaços de casca','barkchips','#7a6348',50,.17]]
 };
-const categoryStates={};let activeCategory='trees',assetPreset=null,waterClock=0,waterPresent=false;
+const categoryStates={};
+function saveAssetState(){
+ if(!assetCatalog[activeCategory]||!assetPreset)return;
+ categoryStates[activeCategory]={index:assetCatalog[activeCategory].indexOf(assetPreset),values:assetControlIds.map(k=>$(k).value),color:$('assetColor').value,water:$('landWater').checked,terrainDepthRatio};
+}
+let activeCategory='trees',assetPreset=null,waterClock=0,waterPresent=false;
 const assetDefaults={amount:1,size:100,area:280,vertical:100,detail:55,waves:45};
-const assetControlIds=['lakeDepth','lakeBank','assetAmount','assetSize','assetArea','assetVertical','assetDetail','assetWaves','landErosion','landSediment','landStrata','landSnow','landWaterLevel'];
+const assetControlIds=['lakeDepth','lakeBank','channelCurve','assetAmount','assetSize','assetArea','assetVertical','assetDetail','assetWaves','landErosion','landSediment','landStrata','landSnow','landWaterLevel'];
 function environmentTriangle(a,b,c,color,kind=3,name='Objeto',shade=1){let n=norm(cross(b.map((x,i)=>x-a[i]),c.map((x,i)=>x-a[i])));if(Math.hypot(...n)<.5)return;faces.push({points:[a,b,c],normals:[n,n,n],color,kind,part:name,shade})}
 function smoothTriangle(a,b,c,na,nb,nc,color,kind,name,shade=1){faces.push({points:[a,b,c],normals:[na,nb,nc],color,kind,part:name,shade})}
 function emitPatch(grid,color,kind,name,shade=1){let rows=grid.length-1,cols=grid[0].length-1,normals=[];for(let j=0;j<=rows;j++){let ns=[];for(let i=0;i<=cols;i++){let du=grid[j][Math.min(i+1,cols)].map((x,k)=>x-grid[j][Math.max(0,i-1)][k]),dv=grid[Math.min(j+1,rows)][i].map((x,k)=>x-grid[Math.max(0,j-1)][i][k]),n=norm(cross(dv,du));ns.push(Math.hypot(...n)>.5?n:[0,1,0])}normals.push(ns)}for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const corners=[[j,i],[j+1,i],[j+1,i+1],[j,i+1]];for(const tri of [[0,1,2],[0,2,3]]){let indices=tri.map(k=>corners[k]),ps=indices.map(([r,c])=>grid[r][c]);if(Math.hypot(...cross(ps[1].map((x,k)=>x-ps[0][k]),ps[2].map((x,k)=>x-ps[0][k])))<1e-10)continue;faces.push({points:ps,normals:indices.map(([r,c])=>normals[r][c]),uv:indices.map(([r,c])=>[c/cols,r/rows]),color,kind,part:name,shade})}}}
@@ -318,14 +327,15 @@ function mushroom(base,size,color,type,name='Cogumelos'){let h=size*(type==='tal
 function gridSurface(rows,cols,sample,color,kind,name){rows=Math.max(8,Math.round(rows*meshDetail()));cols=Math.max(8,Math.round(cols*meshDetail()));let grid=[],ns=[];for(let j=0;j<=rows;j++){let row=[];for(let i=0;i<=cols;i++)row.push(sample(i/cols,j/rows));grid.push(row)}for(let j=0;j<=rows;j++){let row=[];for(let i=0;i<=cols;i++){let dx=grid[j][Math.min(cols,i+1)].map((x,k)=>x-grid[j][Math.max(0,i-1)][k]),dz=grid[Math.min(rows,j+1)][i].map((x,k)=>x-grid[Math.max(0,j-1)][i][k]),n=norm(cross(dz,dx));row.push(Math.hypot(...n)>.5?n:[0,1,0])}ns.push(row)}for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){let a=grid[j][i],b=grid[j+1][i],c=grid[j+1][i+1],d=grid[j][i+1];if(Math.hypot(...cross(b.map((x,k)=>x-a[k]),c.map((x,k)=>x-a[k])))>1e-10)smoothTriangle(a,b,c,ns[j][i],ns[j+1][i],ns[j+1][i+1],color,kind,name);if(Math.hypot(...cross(c.map((x,k)=>x-a[k]),d.map((x,k)=>x-a[k])))>1e-10)smoothTriangle(a,c,d,ns[j][i],ns[j+1][i+1],ns[j][i+1],color,kind,name)}}
 // Heightfields use seeded domain-warped noise, drainage erosion and talus relaxation.
 function updateLandLabels(){
- const land=['mountains','terrains'].includes(activeCategory),cliff=activeCategory==='cliffs',waterfall=activeCategory==='water'&&assetPreset?.[1]==='waterfall';
+ const land=['mountains','terrains'].includes(activeCategory),cliff=activeCategory==='cliffs',waterfall=activeCategory==='water'&&assetPreset?.[1]==='waterfall',channel=activeCategory==='water'&&Object.hasOwn(waterChannelProfiles,assetPreset?.[1]);
  document.querySelector('label[for="assetVertical"]').firstChild.textContent=waterfall?'Altura da queda':cliff?'Altura do paredão':'Altura / proporção';
- for(const [id,text]of Object.entries({assetAmount:cliff?'Formações':land?(activeCategory==='terrains'?'Formações / frequência':'Picos / formações'):'Quantidade',assetSize:waterfall?'Largura da água':cliff?'Escala da rocha':land?'Amplitude do relevo':'Escala',assetArea:waterfall?'Comprimento do riacho superior':cliff?'Comprimento do paredão':land?'Extensão do terreno':'Área de distribuição',assetDetail:waterfall?'Irregularidade da rocha':land?'Rugosidade do relevo':'Irregularidade'})){
+ for(const [id,text]of Object.entries({assetAmount:cliff?'Formações':land?(activeCategory==='terrains'?'Formações / frequência':'Picos / formações'):'Quantidade',assetSize:waterfall||channel?'Largura da água':cliff?'Escala da rocha':land?'Amplitude do relevo':'Escala',assetArea:waterfall?'Comprimento do riacho superior':channel?'Comprimento do trecho':cliff?'Comprimento do paredão':activeCategory==='terrains'?'Largura do terreno':land?'Extensão do terreno':'Área de distribuição',assetDetail:waterfall?'Irregularidade da rocha':land?'Rugosidade do relevo':'Irregularidade'})){
   const label=document.querySelector('label[for="'+id+'"]');label.firstChild.textContent=text;
  }
 }
 function generateLandform(type,color,amount,size,width,vertical,rough,name){
- const terrain=activeCategory==='terrains',n=Math.round(128*meshDetail()),stride=n+1,total=stride*stride;
+ const terrain=activeCategory==='terrains',depth=terrain?meterLimit(width*terrainDepthRatio):width;
+ const n=Math.round(128*meshDetail()),stride=n+1,total=stride*stride;
  const h=new Float32Array(total),deposit=new Float32Array(total),flow=new Float32Array(total);
  const erosion=+$('landErosion').value/100,sediment=+$('landSediment').value/100,strata=+$('landStrata').value/100,snow=+$('landSnow').value/100;
  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),smooth=(a,b,v)=>{let t=clamp((v-a)/(b-a));return t*t*(3-2*t)};
@@ -390,16 +400,19 @@ function generateLandform(type,color,amount,size,width,vertical,rough,name){
   }
  }
  // Thermal weathering softens unstable slopes and leaves scree below cliffs.
- const delta=new Float32Array(total),talus=width/n*(type==='dunes'?.45:.85);
+ const delta=new Float32Array(total),talus=Math.min(width,depth)/n*(type==='dunes'?.45:.85);
  for(let pass=0;pass<Math.round(erosion*10);pass++){delta.fill(0);for(let j=1;j<n;j++)for(let i=1;i<n;i++){const a=j*stride+i;for(const d of [1,stride]){const diff=h[a]-h[a+d],move=Math.max(0,Math.abs(diff)-talus)*.16;delta[a]-=Math.sign(diff)*move;delta[a+d]+=Math.sign(diff)*move}}for(let k=0;k<total;k++)h[k]+=delta[k]}
- let maxH=0;for(const y of h)maxH=Math.max(maxH,y);const bottom=-Math.max(.12,width*.025),step=width/n;
+ let maxH=0,lowest=Infinity;
+ for(const y of h){maxH=Math.max(maxH,y);lowest=Math.min(lowest,y)}
+ const bottom=lowest-Math.max(.025,Math.min(.30,Math.min(width,depth)*.009));
+ const step=width/n,stepZ=depth/n;
  const points=Array(total),normals=Array(total),colors=Array(total),base=rgb(color);
  const arid=['dunes','canyon','badlands','desert','mesa','chapada','rockdesert'].includes(type),volcanic=['volcano','caldera','basalt','lavafield'].includes(type);
  function mix(a,b,t){return a.map((v,k)=>v+(b[k]-v)*clamp(t))}
  for(let j=0;j<=n;j++)for(let i=0;i<=n;i++){
-  const k=j*stride+i,x=(i/n-.5)*width,z=(j/n-.5)*width,y=h[k];points[k]=[x,y,z];
+  const k=j*stride+i,x=(i/n-.5)*width,z=(j/n-.5)*depth,y=h[k];points[k]=[x,y,z];
   const dx=(h[j*stride+Math.min(n,i+1)]-h[j*stride+Math.max(0,i-1)])/(step*(i===0||i===n?1:2));
-  const dz=(h[Math.min(n,j+1)*stride+i]-h[Math.max(0,j-1)*stride+i])/(step*(j===0||j===n?1:2));normals[k]=norm([-dx,1,-dz]);
+  const dz=(h[Math.min(n,j+1)*stride+i]-h[Math.max(0,j-1)*stride+i])/(stepZ*(j===0||j===n?1:2));normals[k]=norm([-dx,1,-dz]);
   const slope=1-normals[k][1],height=y/Math.max(.001,maxH),grain=ns(x*4,z*4),band=Math.sin(y*32+ns(x*.5,z*.5)*3)*strata*.08;
   let c=base.map(v=>clamp(v*(.91+grain*.16+band)));
   if(!arid&&!volcanic){c=mix(c,[.29,.36,.22],(1-smooth(.13,.45,slope))*(1-smooth(.32,.78,height))*.5);c=mix(c,[.48,.48,.43],smooth(.18,.55,slope)*.5)}
@@ -424,7 +437,7 @@ function generateLandform(type,color,amount,size,width,vertical,rough,name){
  if(terrain){
  const boundary=[];for(let i=0;i<n;i++)boundary.push(i);for(let j=0;j<n;j++)boundary.push(j*stride+n);for(let i=n;i>0;i--)boundary.push(n*stride+i);for(let j=n;j>0;j--)boundary.push(j*stride);
  for(let i=0;i<boundary.length;i++){const a=points[boundary[i]],b=points[boundary[(i+1)%boundary.length]],aa=[a[0],bottom,a[2]],bb=[b[0],bottom,b[2]];environmentTriangle(a,b,bb,color,3,'Subsolo',.7);environmentTriangle(a,bb,aa,color,3,'Subsolo',.7)}
- const w=width/2;environmentTriangle([-w,bottom,-w],[w,bottom,-w],[w,bottom,w],color,3,'Subsolo',.6);environmentTriangle([-w,bottom,-w],[w,bottom,w],[-w,bottom,w],color,3,'Subsolo',.6);
+ const w=width/2,d=depth/2;environmentTriangle([-w,bottom,-d],[w,bottom,-d],[w,bottom,d],color,3,'Subsolo',.6);environmentTriangle([-w,bottom,-d],[w,bottom,d],[-w,bottom,d],color,3,'Subsolo',.6);
  }
  if(false && $('landWater').checked){const level=maxH*+$('landWaterLevel').value/100;
   // Clip each water triangle against its sampled shoreline, including partial cells.
@@ -433,7 +446,7 @@ function generateLandform(type,color,amount,size,width,vertical,rough,name){
  }
 }
 
-function finishEnvironment(){
+function finishEnvironment(keepSceneFrame=false){
  if(['mountains','terrains'].includes(activeCategory))for(const f of faces)if(f.part!=='Subsolo')f.uv=f.points.map(p=>[p[0]*2.2,p[2]*2.2]);
  const min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];
  let triangles=0;
@@ -443,16 +456,36 @@ function finishEnvironment(){
   for(const p of f.points)for(let i=0;i<3;i++){min[i]=Math.min(min[i],p[i]);max[i]=Math.max(max[i],p[i])}
  }
  if(activeCategory==='scenes')includeSharedSceneBounds(min,max);
- if(Number.isFinite(min[0])){
-  modelCenter=min.map((v,i)=>(v+max[i])*.5);
-  modelScale=4.7/Math.max(max[1]-min[1],max[0]-min[0],max[2]-min[2],1);
- }else{modelCenter=[0,0,0];modelScale=1}
+ if(!keepSceneFrame)applySceneFrame(min,max);
  if(activeCategory==='scenes'){
   const preview=sceneBatches.reduce((n,b)=>n+b.mesh.count*(b.regular.length+b.individual.length)/3,triangles);
   $('status').textContent=sceneObjects.length?preview.toLocaleString('pt-BR')+' triângulos na prévia · '+sceneBatches.length+' malhas de objetos':'Cena vazia';
  }else $('status').textContent=triangles.toLocaleString('pt-BR')+' triângulos · '+parts.size+(parts.size===1?' objeto':' objetos');
  faces.sort((a,b)=>(a.kind===4?1:0)-(b.kind===4?1:0));
  upload();draw();
+}
+function applySceneFrame(min,max){
+ if(Number.isFinite(min[0])){
+  modelCenter=min.map((v,i)=>(v+max[i])*.5);
+  const cx=Math.cos(yaw),sx=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+  const aspect=W>0&&H>0?W/H:1.4,orthographic=Object.hasOwn(axisViews,cameraView),margin=.82;
+  let limit=Infinity;
+  for(let i=0;i<8;i++){
+   const [x,y,z]=modelCenter.map((c,j)=>((i&(1<<j)?max:min)[j]-c));
+   const u=x*cx+z*sx,rear=z*cx-x*sx,v=y*cp-rear*sp,depth=y*sp+rear*cp;
+   const offset=orthographic?0:margin*depth;
+   const pressure=Math.max(Math.abs(u)*2.65/aspect-offset,Math.abs(v)*2.65-offset);
+   if(pressure>0)limit=Math.min(limit,9*margin/pressure);
+   if(!orthographic&&depth<0)limit=Math.min(limit,7.8/-depth);
+  }
+  modelScale=Math.min(limit,6.4/Math.max(max[1]-min[1],max[0]-min[0],max[2]-min[2],.1));
+ }else{modelCenter=[0,0,0];modelScale=1}
+ shadowDirty=true;
+}
+function fitCurrentScene(){
+ const {min,max}=landscapeBounds(faces);
+ if(activeCategory==='scenes')includeSharedSceneBounds(min,max);
+ applySceneFrame(min,max);
 }
 function generate(){if(activeCategory==='scenes')return sceneRefresh();if(activeCategory==='trees')return generateTree();return generateEnvironment()}
 function tunnelBox(a,b,color,name){const [x,y,z]=a,[X,Y,Z]=b,v=[[x,y,z],[X,y,z],[X,Y,z],[x,Y,z],[x,y,Z],[X,y,Z],[X,Y,Z],[x,Y,Z]];for(const q of [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]]){environmentTriangle(v[q[0]],v[q[1]],v[q[2]],color,3,name);environmentTriangle(v[q[0]],v[q[2]],v[q[3]],color,3,name)}}
@@ -642,45 +675,80 @@ function generateLakeBasin(type,color,length,width,vertical,rough,flow,name,cent
   }
  }
 }
-// River and stream banks follow the same winding centerline as the water.
-// Each bank has underwater shallows, an exposed sloping shoreline and an outer lip.
-function generateWaterChannel(type,color,length,width,vertical,rough,flow,name){
- const segments=Math.max(56,Math.round(84*meshDetail())),across=Math.max(8,Math.round(12*meshDetail()));
- const depth=(+$('lakeDepth').value/100)*vertical*.95;
- const margin=(+$('lakeBank').value/100)*Math.max(.22,width*.54);
- const halfWidth=width*.5,riverLength=length*2;
- const rapids=type==='rapids';
- const center=v=>Math.sin(v*6.3)*length*.14;
- const level=(u,v)=>flow(u,v)+(rapids?(1-v)*vertical*.5:0);
- const edge=(v,side)=>halfWidth*(1+.075*Math.sin(v*19+side*1.8+seed*.002)+rough*.025*Math.sin(v*48+side*3));
- const point=(v,x,h)=>[center(v)+x,h,(v-.5)*riverLength];
- // Stream surface is divided into shallow side bands and deeper center.
+const waterBankStrips=6;
+const waterChannelProfiles={
+ river:{width:1,banks:1,depth:1,shape:.8,flow:.70,ground:'#667a55'},
+ stream:{width:.45,banks:.8,depth:.45,shape:.6,flow:.45,ground:'#667a55'},
+ forestStream:{width:.46,banks:1.5,depth:.60,shape:1.2,flow:.35,stones:5,ground:'#536648'},
+ gravelStream:{width:.73,banks:1.30,depth:.31,shape:1.3,flow:.50,stones:9,ground:'#93826d'},
+ springStream:{width:.30,banks:.75,depth:.50,shape:.5,flow:.23,ground:'#587c5e'},
+ rapids:{width:.84,banks:.75,depth:.48,shape:1.1,flow:1.0,drop:.43,stones:10,ground:'#746e61'},
+ rockyRapids:{width:.60,banks:1.15,depth:.38,shape:1.5,flow:1.32,drop:.68,stones:15,ground:'#625d51'},
+ stepRapids:{width:.92,banks:.88,depth:.44,shape:.7,flow:1.08,drop:.87,steps:true,stones:8,ground:'#7e7160'},
+ broadRapids:{width:1.27,banks:.90,depth:.29,shape:1.45,flow:1.15,drop:.27,stones:12,ground:'#818477'}
+};
+function updateWaterCurveLabel(){
+ const curve=+$('channelCurve').value, label=curve===0?'Reto':(curve<0?'Esquerda ':'Direita ')+Math.abs(curve)+'%';
+ $('channelCurveVal').textContent=label;
+ $('channelCurve').setAttribute('aria-valuetext',label);
+}
+function generateWaterChannel(profile,color,length,width,vertical,rough,flow){
+ const detail=meshDetail(),segments=Math.max(32,Math.round(50*detail)),across=Math.max(6,Math.round(10*detail/2)*2);
+ const depth=(+$('lakeDepth').value/100)*vertical*profile.depth;
+ const margin=(+$('lakeBank').value/100)*Math.max(.22,width*.54)*profile.banks;
+ const half=width*.5,bend=+$('channelCurve').value/100,phase=seed*.002,base=.008;
+ const center=v=>bend*length*.52*Math.sin(Math.PI*v)**2;
+ const endFade=v=>shoreEase(0,.12,v)*(1-shoreEase(.82,1,v));
+ const drop=v=>profile.steps?1-(shoreEase(.12,.22,v)+shoreEase(.39,.49,v)+shoreEase(.65,.78,v))/3:1-v;
+ const level=v=>base+(profile.drop||0)*vertical*drop(v);
+ const edge=(v,side)=>half*(1+endFade(v)*profile.shape*(.10*Math.sin(v*17+side*1.8+phase)+rough*.052*Math.sin(v*41+side*3)));
+ const point=(v,x,y)=>[center(v)+x,y,(v*2-1)*length];
+ const tint=(v,t)=>{
+  const stream=waterTint(Math.abs(t),'#245469',color,'#85b1a6');
+  if(!profile.drop)return stream;
+  const crest=.5+.5*Math.sin(v*105+t*4+phase), threads=.5+.5*Math.sin(t*20+v*13+phase);
+  return landscapeMix(stream,[.87,.94,.93],endFade(v)*shoreEase(.55,1,crest*threads)*.67);
+ };
+ const water=(v,t)=>point(v,t*edge(v,Math.sign(t)||1),level(v)+flow(t,v)*profile.flow*endFade(v)*(1-t*t));
+ const bottom=(v,t)=>point(v,t*edge(v,Math.sign(t)||1),level(v)-depth*(.025+.975*(1-t*t)));
+ const rise=.10+margin*.52;
+ const bank=(v,side,t)=>{
+  const offset=side*(edge(v,side)+margin*t);
+  const relief=(Math.sin(v*26+side*2)*.057+Math.sin(v*8+side)*.038)*endFade(v)*profile.shape*t;
+  return point(v,offset,level(v)-depth*.025+rise*t**1.35+relief);
+ };
+ const start=faces.length;
  for(let j=0;j<segments;j++)for(let i=0;i<across;i++){
-  let v0=j/segments,v1=(j+1)/segments,t0=i/across*2-1,t1=(i+1)/across*2-1;
-  const water=(v,t)=>point(v,t*edge(v,Math.sign(t)||1),level(t,v)+.008);
-  let a=water(v0,t0),b=water(v1,t0),c=water(v0,t1),d=water(v1,t1);
-  const c0=waterTint(Math.abs(t0),'#245469',color,'#75ada9'),c1=waterTint(Math.abs(t1),'#245469',color,'#75ada9');
-  waterSurfaceTriangle(a,b,d,color,[c0,c0,c1]);waterSurfaceTriangle(a,d,c,color,[c0,c1,c1]);
-  // Deep riverbed directly below the water, not a separate ground plane.
-  const bottom=(v,t)=>point(v,t*edge(v,Math.sign(t)||1),level(t,v)-depth*Math.pow(Math.max(0,1-t*t),.88)-.022);
-  a=bottom(v0,t0);b=bottom(v1,t0);c=bottom(v0,t1);d=bottom(v1,t1);
-  environmentTriangle(a,d,b,'#6b786b',3,'Fundo do rio');environmentTriangle(a,c,d,'#6b786b',3,'Fundo do rio');
+  const v0=j/segments,v1=(j+1)/segments,t0=i/across*2-1,t1=(i+1)/across*2-1;
+  const a=water(v0,t0),b=water(v1,t0),c=water(v0,t1),d=water(v1,t1);
+  const c0=tint(v0,t0),c1=tint(v0,t1),c2=tint(v1,t0),c3=tint(v1,t1);
+  waterSurfaceTriangle(a,b,d,color,[c0,c2,c3]);waterSurfaceTriangle(a,d,c,color,[c0,c3,c1]);
+  const p=bottom(v0,t0),q=bottom(v1,t0),r=bottom(v0,t1),s=bottom(v1,t1);
+  environmentTriangle(p,q,s,'#6b786b',3,'Fundo do rio');environmentTriangle(p,s,r,'#6b786b',3,'Fundo do rio');
  }
- const strips=Math.max(4,Math.round(6*meshDetail()));
+ const strips=waterBankStrips;
  for(const side of [-1,1])for(let j=0;j<segments;j++)for(let i=0;i<strips;i++){
-  let v0=j/segments,v1=(j+1)/segments,t0=i/strips,t1=(i+1)/strips;
-  const bank=(v,t)=>{
-   let e=edge(v,side),offset=side*(e+margin*t),h=level(side,v)+.006+Math.pow(t,1.35)*(.2+margin*.52)+rough*.035*Math.sin(v*31+side*2)*t;
-   return point(v,offset,h);
+  const v0=j/segments,v1=(j+1)/segments,t0=i/strips,t1=(i+1)/strips;
+  const a=bank(v0,side,t0),b=bank(v1,side,t0),c=bank(v0,side,t1),d=bank(v1,side,t1);
+  const tone=i===0?'#9c9177':i<3?'#82765f':profile.ground;
+  const emit=(p,q,r,sp,sq,sr)=>{
+   environmentTriangle(p,q,r,tone,3,'Beirada do rio');
+   faces.at(-1).shoreT=[sp,sq,sr];
   };
-  let a=bank(v0,t0),b=bank(v1,t0),c=bank(v0,t1),d=bank(v1,t1);
-  let tone=t0<.22?'#a69b79':t0<.62?'#867c62':'#667a55';
-  environmentTriangle(a,b,d,tone,3,'Beirada do rio');faces.at(-1).shoreT=[t0,t0,t1];
-  environmentTriangle(a,d,c,tone,3,'Beirada do rio');faces.at(-1).shoreT=[t0,t1,t1];
+  if(side===1){emit(a,b,d,t0,t0,t1);emit(a,d,c,t0,t1,t1)}
+  else {emit(a,d,b,t0,t1,t0);emit(a,c,d,t0,t1,t1)}
  }
+ for(let i=0;i<(profile.stones||0);i++){
+  const v=.14+(i+random())/profile.stones*.64,side=i%2?1:-1;
+  const lateral=side*(profile.drop?.32+random()*.59:.93+random()*.31);
+  const radius=Math.max(.018,Math.min(half*.4,.13))*(.58+random()*.42);
+  const y=Math.abs(lateral)>1?bank(v,side,Math.min(1,(Math.abs(lateral)-1)*half/margin))[1]:level(v);
+  stone(point(v,lateral*edge(v,side),y-radius*.38),[radius,radius*.79,radius*1.26],'#77766b',.64,'Pedras do curso de água');
+ }
+ faces[start].courseOutlet={center:point(1,0,base),half,depth,margin,rise};
 }
 function isLowerWaterSurface(face){
- return face.kind===4&&(face.waterRole?face.waterRole==='pool':!face.part.endsWith('Queda de água'));
+ return face.kind===4&&!face._upperCourse&&(face.waterRole?face.waterRole==='pool':!face.part.endsWith('Queda de água'));
 }
 function hasIntegratedWaterfall(obj){
  return obj.faces.some(f=>f.waterRole==='approach');
@@ -690,14 +758,15 @@ function generateIntegratedWaterfall(color,width,length,vertical,rough,waves){
  const size=Math.max(.4,width),reach=Math.max(.6,length),bedDepth=Math.min(.29,.06+size*.065);
  const bankWidth=(+$('lakeBank').value/100)*size*.40+size*.30;
  const riverSteps=Math.max(22,Math.round(37*detail)),fallSteps=Math.max(18,Math.round(32*detail));
- const channelSteps=Math.max(8,Math.round(14*detail/2)*2),bankSteps=Math.max(5,Math.round(8*detail));
+ const channelSteps=Math.max(8,Math.round(14*detail/2)*2),bankSteps=waterBankStrips;
  const ripple=waves*.023,waterColor=rgb(color),wet=rgb('#566159'),stoneColor=rgb('#716b60'),earth=rgb('#6f7852');
  const zAt=t=>size*(.22*(1-Math.exp(-t*7))+.26*t+.045*t*t);
  const drop=t=>t*t*(1+.17*(1-t));
  const bottomY=.005,impact=zAt(1);
  const jitter=(a,b,c)=>(noiseValue(phase+a,b,c)-.5)*2;
  const blend=landscapeMix;
- const xAt=s=>size*(.16*Math.sin((1-s)*3.9)+.068*Math.sin((1-s)*8.5))*Math.sin((1-s)*Math.PI/2);
+ const streamX=s=>size*(.16*Math.sin((1-s)*3.9)+.068*Math.sin((1-s)*8.5))*Math.sin((1-s)*Math.PI/2);
+ const xAt=s=>streamX(s*shoreEase(0,.16,s));
  const halfAt=s=>size*(.34+.08*(1-s)+.048*Math.sin((1-s)*5.9))*(.21+.79*shoreEase(0,.22,s));
  const levelAt=s=>height+(1-s)*Math.min(.36,.08+reach*.026);
  const poolCenter=impact+size*.76;
@@ -750,7 +819,7 @@ function generateIntegratedWaterfall(color,width,length,vertical,rough,waves){
    const x=c+sign*(half+margin*t);
    const raised=(.14+size*.13+(hump*.22+fine*.10)*rough+.10*shoreEase(.57,1,s))*shoreEase(0,.66,t);
    const rim=y-bedDepth*.025+raised+t*t*(.045+fine*.025);
-   const zRim=z+size*.19*(1-shoreEase(0,.32,s))*t*t;
+   const zRim=z+size*.15*shoreEase(0,.14,s)*(1-shoreEase(.14,.38,s))*t*t;
    (sign<0?left:right).push(rockPoint(x,rim,zRim,.28+.63*shoreEase(.10,.78,t),.65*(1-t)));
   }
   streamWater.push(waterRow);
@@ -826,8 +895,13 @@ function generateIntegratedWaterfall(color,width,length,vertical,rough,waves){
  for(let i=0;i<rim.length;i++)emit([underside,rim[i],rim[(i+1)%rim.length]],rockPart,3);
  cliffFaceNormals(faces.slice(rockStart),.20);
 
+ const inletFace=faces.length;
  for(let j=0;j<riverSteps;j++)for(let i=0;i<channelSteps;i++)
   quad(streamWater[j][i],streamWater[j+1][i],streamWater[j+1][i+1],streamWater[j][i+1],'Riacho superior',4,'approach');
+ const center=[xAt(0),levelAt(0),-reach];
+ const left=tail.slice(0,bankSteps+1).reverse(),right=tail.slice(-bankSteps-1);
+ faces[inletFace].fallInlet={center,half:halfAt(0),depth:bedDepth,inlet:true,color,
+  banks:[left,right].map(row=>row.map(({p})=>[p[0]-center[0],p[1]-center[1]]))};
  const fall=[streamWater.at(-1)];
  for(let j=1;j<=fallSteps;j++){
   const t=j/fallSteps,d=drop(t),y=bottomY+(height-bottomY)*(1-d),z=zAt(t),row=[];
@@ -861,11 +935,14 @@ function generateIntegratedWaterfall(color,width,length,vertical,rough,waves){
  }
 }
 
-function generateEnvironment(){random=rng(seed);faces=[];const p=assetPreset||assetCatalog[activeCategory][0],type=p[1],color=$('assetColor').value,amount=+$('assetAmount').value,size=+$('assetSize').value/100,area=+$('assetArea').value/100,vertical=+$('assetVertical').value/100,rough=+$('assetDetail').value/100,waves=+$('assetWaves').value/100*(.4+Number($('surfaceDetail').value)/100*1.3);part=p[0];
+function generateEnvironment(){random=rng(seed);faces=[];const p=assetPreset||assetCatalog[activeCategory][0],type=p[1],color=$('assetColor').value,amount=+$('assetAmount').value,size=+$('assetSize').value/100,area=+$('assetArea').value/(activeCategory==='terrains'?1:100),vertical=+$('assetVertical').value/100,rough=+$('assetDetail').value/100,waves=+$('assetWaves').value/100*(.4+Number($('surfaceDetail').value)/100*1.3);part=p[0];
  if(activeCategory==='tunnels'){buildTunnels(type,color,amount,size,area,vertical,rough)}
  else if(activeCategory==='rocks'){for(let i=0;i<amount;i++){let c=amount===1?[0,0,0]:scatterPoint(area),s=size*(.65+random()*.6),sy=s*(type==='pebble'?.45:type==='cliff'?1.8:type==='stalagmite'?3:1)*vertical;if(type==='crystal'){let n=6,r=s*.4,h=s*2.8*vertical,tip=add(c,[s*.15,h,0]);for(let j=0;j<n;j++){let a=j/n*Math.PI*2,b=(j+1)/n*Math.PI*2,pa=add(c,[Math.cos(a)*r,0,Math.sin(a)*r]),pb=add(c,[Math.cos(b)*r,0,Math.sin(b)*r]),qa=add(pa,[0,h*.7,0]),qb=add(pb,[0,h*.7,0]);environmentTriangle(pa,pb,qa,color,8,p[0]);environmentTriangle(pb,qb,qa,color,8,p[0]);environmentTriangle(qa,qb,tip,color,8,p[0])}}else{stone(add(c,[0,sy*.65,0]),[s,sy,s*(.6+random()*.3)],color,rough,p[0],type==='pebble'||type==='gravel');if(type==='mossrock')for(let j=0;j<8;j++)stone(add(c,[(random()-.5)*s,sy*(1+random()*.4),(random()-.5)*s]),[s*.25,s*.1,s*.23],'#667d45',.8,'Musgo',true)}}}
  else if(activeCategory==='water'){let length=area,width=size*2.5,amplitude=waves*.05,flow=(u,v)=>Math.sin(u*24+v*9)*amplitude+Math.sin(v*37-u*7)*amplitude*.35;if(type==='waterfall'){generateIntegratedWaterfall(color,width,length,vertical,rough,waves)}
- else if(['river','stream','rapids'].includes(type)){let w=width*(type==='stream'?.45:1);generateWaterChannel(type,color,length,w,vertical,rough,flow,p[0]);if(type==='rapids')for(let i=0;i<18;i++){let v=random(),x=Math.sin(v*6.3)*length*.14+(random()-.5)*w;stone([x,(1-v)*vertical*.5,(v-.5)*length*2],[.15,.12,.19],'#767d78',.5,'Pedras da corredeira')}}
+else if(Object.hasOwn(waterChannelProfiles,type)){
+  const profile=waterChannelProfiles[type];
+  generateWaterChannel(profile,color,length,width*profile.width,vertical,rough,flow);
+ }
  else if(['lake','pond','pool','puddle'].includes(type)){generateLakeBasin(type,color,length,width,vertical,rough,flow,p[0])}
  else{let n=Math.round(96*meshDetail()),rings=Math.round(36*meshDetail()),points=[];for(let j=0;j<=rings;j++){let row=[];for(let i=0;i<=n;i++){let a=i/n*Math.PI*2,r=j/rings,edge=1+.05*Math.sin(a*5)+.035*Math.cos(a*9);row.push([Math.cos(a)*length*.5*r*edge,flow(Math.cos(a)*r,Math.sin(a)*r),Math.sin(a)*width*.5*r*edge])}points.push(row)}for(let j=0;j<rings;j++)for(let i=0;i<n;i++){environmentTriangle(points[j][i],points[j+1][i+1],points[j+1][i],color,4,p[0]);if(j>0)environmentTriangle(points[j][i],points[j][i+1],points[j+1][i+1],color,4,p[0])}}
  }
@@ -877,15 +954,38 @@ function generateEnvironment(){random=rng(seed);faces=[];const p=assetPreset||as
  else if(activeCategory==='flowers'){for(let i=0;i<amount;i++){let b=scatterPoint(area),h=size*vertical*(.7+random()*.5);if(type==='fern')frond(b,h,color,p[0]);else if(type==='lilypads'){leafAt(b,h*1.7,h*.75,random()*6.28,color,p[0],.015);if(random()>.6)flower(b,.12,'#e1b6c8','wildflowers','Flores aquáticas')}else if(type==='sprouts'){stem(b,add(b,[0,h,0]),.004,'#60864c',p[0]);for(let j=0;j<4;j++)leafAt(add(b,[0,h*(.4+j*.2),0]),h*.5,h*.14,j*2.4,color,p[0],h*.1)}else if(type==='rose'||type==='rosebud')rose(b,h,color,type,p[0]);else flower(b,h,color,type,p[0])}}
  else if(activeCategory==='fungi'){if(type==='lichen'){stone([0,size*.35,0],[size,size*.4,size*.75],'#858b82',rough,'Rocha',true);for(let i=0;i<140;i++){let a=random()*6.28,r=Math.sqrt(random())*size*.8;leafAt([Math.cos(a)*r,size*.72+random()*.035,Math.sin(a)*r],size*.09,size*.035,random()*6.28,color,'Líquens',.01)}}else for(let i=0;i<amount;i++){let b=scatterPoint(area);if(type==='shelf'){b[1]=i*size*.15;mushroom(b,size,color,'mushroom',p[0])}else mushroom(b,size*(.65+random()*.5)*vertical,color,type,p[0])}}
  else if(activeCategory==='wood'){for(let i=0;i<amount;i++){let c=amount===1?[0,0,0]:scatterPoint(area),a=random()*6.28,len=size*(type==='log'||type==='charlog'?3.4:1.5),r=size*(type==='log'||type==='charlog'?.24:.05),tip=add(c,[Math.cos(a)*len,.1*vertical,Math.sin(a)*len]);part=p[0];if(type==='barkchips'){let start=faces.length;leafAt(c,size,size*.3,a,color,p[0],size*.15);for(let k=start;k<faces.length;k++)faces[k].kind=0;continue}cylinder(add(c,[0,r,0]),add(tip,[0,r,0]),r,r*.68,color,true,true);if(type==='branch'||type==='driftwood'||type==='branches')for(let j=1;j<4;j++){let q=add(c,mul(tip.map((x,k)=>x-c[k]),j/4));cylinder(q,add(q,[Math.cos(a+j)*len*.35,.1,Math.sin(a+j)*len*.35]),r*.45,.003,color,true,true)}}}
- if(activeCategory==='litter')for(const f of faces)if(f.kind===1)f.kind=7;for(let i=0;i<assetControlIds.length;i++)$(assetControlIds[i]+'Val').textContent=$(assetControlIds[i]).value+(assetControlIds[i]==='assetAmount'?'':'%');finishEnvironment()}
+ if(activeCategory==='terrains'){
+  const depth=meterLimit(+$('assetArea').value*terrainDepthRatio);
+  $('assetTerrainDepth').value=depth;
+  showTerrainMeters('assetTerrainDepth',depth);
+ }
+ if(activeCategory==='litter')for(const f of faces)if(f.kind===1)f.kind=7;for(const id of assetControlIds){
+  if(id==='channelCurve'){updateWaterCurveLabel();continue}
+  const value=$(id).value;
+  $(id+'Val').textContent=id==='assetArea'&&activeCategory==='terrains'?sceneMeters.format(+value)+' m':value+(id==='assetAmount'?'':'%');
+ }finishEnvironment()}
 function currentAssetName(){return activeCategory==='scenes'?'Cenario-completo':activeCategory==='trees'?current.name:assetPreset?.[0]||'Elemento'}
-function applyAssetPreset(index=0){assetPreset=assetCatalog[activeCategory][index];const p=assetPreset;$('assetAmount').max=p[1]==='fern'?40:activeCategory==='grass'||activeCategory==='litter'?260:activeCategory==='rocks'?180:activeCategory==='shrubs'?20:activeCategory==='tunnels'?5:['mountains','terrains','cliffs'].includes(activeCategory)?8:activeCategory==='water'?1:activeCategory==='fungi'?60:activeCategory==='flowers'?120:60;$('assetSeed').value=seed;for(const [id,val]of Object.entries({lakeDepth:100,lakeBank:50,assetAmount:p[3],assetSize:p[4]*100,assetArea:['mountains','terrains'].includes(activeCategory)?850:activeCategory==='cliffs'?520:activeCategory==='water'?450:activeCategory==='tunnels'?450:280,assetVertical:100,assetDetail:55,assetWaves:45,landErosion:45,landSediment:40,landStrata:['mesa','escarpment','chapada','canyon','terraces'].includes(p[1])?70:25,landSnow:['snowpeak','alpine','glacial','highlands'].includes(p[1])?55:0,landWaterLevel:p[1]==='floodplain'?55:22}))$(id).value=val;$('assetColor').value=p[2];$('assetAmount').disabled=activeCategory==='water';$('assetDetail').disabled=p[1]!=='waterfall'&&!['rocks','mountains','terrains','cliffs','shrubs','tunnels'].includes(activeCategory);$('landformOptions').hidden=!['mountains','terrains'].includes(activeCategory);$('landWater').checked=false;$('landWaterLevel').disabled=!$('landWater').checked;updateLandLabels();$('tunnelBendOptions').hidden=activeCategory!=='tunnels';$('waterOptions').hidden=activeCategory!=='water';$('waterNote').hidden=activeCategory!=='water';$('lakeDepth').parentElement.hidden=false;$('lakeDepth').hidden=$('lakeBank').hidden=$('lakeNote').hidden=activeCategory!=='water';document.querySelector('label[for=lakeDepth]').hidden=document.querySelector('label[for=lakeBank]').hidden=$('lakeDepth').hidden;$('assetWaves').disabled=activeCategory!=='water';
+function applyAssetPreset(index=0){assetPreset=assetCatalog[activeCategory][index];const p=assetPreset;
+ const terrain=activeCategory==='terrains',areaControl=$('assetArea');
+ areaControl.min=terrain ? .4:40;areaControl.max=terrain?maxTerrainMeters:1000;areaControl.step=terrain ? .1:1;
+ if(terrain)terrainDepthRatio=.60;
+ $('assetTerrainDepthField').hidden=!terrain;$('assetAmount').max=p[1]==='fern'?40:activeCategory==='grass'||activeCategory==='litter'?260:activeCategory==='rocks'?180:activeCategory==='shrubs'?20:activeCategory==='tunnels'?5:['mountains','terrains','cliffs'].includes(activeCategory)?8:activeCategory==='water'?1:activeCategory==='fungi'?60:activeCategory==='flowers'?120:60;$('assetSeed').value=seed;for(const [id,val]of Object.entries({lakeDepth:100,lakeBank:50,channelCurve:p[1]==='river'?55:0,assetAmount:p[3],assetSize:p[4]*100,assetArea:terrain?8.5:activeCategory==='mountains'?850:activeCategory==='cliffs'?520:activeCategory==='water'?450:activeCategory==='tunnels'?450:280,assetVertical:100,assetDetail:55,assetWaves:45,landErosion:45,landSediment:40,landStrata:['mesa','escarpment','chapada','canyon','terraces'].includes(p[1])?70:25,landSnow:['snowpeak','alpine','glacial','highlands'].includes(p[1])?55:0,landWaterLevel:p[1]==='floodplain'?55:22}))$(id).value=val;$('assetColor').value=p[2];$('assetAmount').disabled=activeCategory==='water';$('assetDetail').disabled=!['waterfall',...Object.keys(waterChannelProfiles)].includes(p[1])&&!['rocks','mountains','terrains','cliffs','shrubs','tunnels'].includes(activeCategory);$('landformOptions').hidden=!['mountains','terrains'].includes(activeCategory);$('landWater').checked=false;$('landWaterLevel').disabled=!$('landWater').checked;updateLandLabels();$('tunnelBendOptions').hidden=activeCategory!=='tunnels';$('waterOptions').hidden=activeCategory!=='water';$('waterNote').hidden=activeCategory!=='water';$('lakeDepth').parentElement.hidden=false;$('lakeDepth').hidden=$('lakeBank').hidden=$('lakeNote').hidden=activeCategory!=='water';document.querySelector('label[for=lakeDepth]').hidden=document.querySelector('label[for=lakeBank]').hidden=$('lakeDepth').hidden;$('assetWaves').disabled=activeCategory!=='water';
  const waterfall=activeCategory==='water'&&p[1]==='waterfall';
- $('lakeNote').textContent=waterfall?'O riacho superior, as laterais e o poço acompanham a mesma queda.':'Beiradas naturais para todas as águas, com profundidade ajustável e sem terreno quadrado.';
+ const channel=activeCategory==='water'&&Object.hasOwn(waterChannelProfiles,p[1]);
+ $('channelCurveField').hidden=!channel;
+ $('lakeNote').textContent=waterfall?'O riacho superior, as laterais e o poço acompanham a mesma queda.':channel?'Adicione o trecho ao cenário para encaixá-lo no topo de uma cachoeira.':'Beiradas naturais para todas as águas, com profundidade ajustável e sem terreno quadrado.';
  if(waterfall){yaw=2.61;pitch=-.66;cameraView=''}
  generate()}
-function switchCategory(id){if(id==='scenes'){enterScene();return}if(activeCategory==='scenes')activeCategory='trees';$('scenePanel').hidden=true;$('meshQuality').hidden=false;$('finishingPanel').hidden=false;clearTimeout(regenerationTimer);saveFinishState(activeCategory);if(assetCatalog[activeCategory]&&assetPreset)categoryStates[activeCategory]={index:assetCatalog[activeCategory].indexOf(assetPreset),values:assetControlIds.map(k=>$(k).value),color:$('assetColor').value,water:$('landWater').checked};activeCategory=id;restoreFinishState(id);closeMenu();for(const b of document.querySelectorAll('[data-generator]'))b.setAttribute('aria-selected',String(b.dataset.generator===id));$('panelTitle').textContent=categories.find(c=>c[0]===id)[1];$('treeLibraryEntry').hidden=id!=='trees';$('treeConfigTabs').hidden=id!=='trees';$('treePanels').hidden=id!=='trees';$('assetPanel').hidden=id==='trees';$('tunnelBendOptions').hidden=id!=='tunnels';$('exportGlb').disabled=false;$('addCurrentToScene').hidden=false;if(id==='trees'){generate()}else{let select=$('assetPreset');select.replaceChildren();assetCatalog[id].forEach((p,i)=>{let o=document.createElement('option');o.value=i;o.textContent=p[0];select.append(o)});const saved=categoryStates[id];applyAssetPreset(saved?.index||0);if(saved){select.value=saved.index;assetControlIds.forEach((k,i)=>$(k).value=saved.values[i]);$('assetColor').value=saved.color;$('landWater').checked=false;$('landWaterLevel').disabled=!saved.water;generate()}}cameraView='';zoom=1;panX=panY=0;if(id==='cliffs')yaw=2.62;pitch=id==='trees'?.12:['water','litter','grass','terrains'].includes(id)?-.65:id==='cliffs'?-.28:-.25;resize()}
-function setupEnvironment(){for(const id of ['tunnelCurve','tunnelDirection','tunnelLength'])$(id).addEventListener('input',()=>{$(id+'Val').textContent=$(id).value+(id==='tunnelLength'?'%':'°');clearTimeout(regenerationTimer);regenerationTimer=setTimeout(generate,90)});const nav=$('generatorTabs');for(const [id,name]of categories){let b=document.createElement('button');b.textContent=name;b.dataset.generator=id;b.setAttribute('aria-label',name);b.setAttribute('role','tab');b.setAttribute('aria-selected',String(id==='trees'));b.onclick=()=>switchCategory(id);b.onkeydown=e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();let index=categories.findIndex(c=>c[0]===id),next=(index+(e.key==='ArrowRight'?1:-1)+categories.length)%categories.length;switchCategory(categories[next][0]);nav.children[next].focus()}};nav.append(b)}$('landWater').onchange=()=>{$('landWaterLevel').disabled=!$('landWater').checked;generate()};$('assetPreset').onchange=()=>applyAssetPreset(+$('assetPreset').value);$('assetSeed').onchange=()=>{seed=Math.max(1,Math.min(999999,Math.floor(Number($('assetSeed').value)||7341)));$('seedInput').value=$('assetSeed').value=seed;generate()};for(const id of [...assetControlIds,'assetColor'])$(id).oninput=()=>{clearTimeout(regenerationTimer);regenerationTimer=setTimeout(generate,130)}}
+function switchCategory(id){flushSceneSize();if(id==='scenes'){enterScene();return}if(activeCategory==='scenes')activeCategory='trees';$('scenePanel').hidden=true;$('meshQuality').hidden=false;$('finishingPanel').hidden=false;clearTimeout(regenerationTimer);saveFinishState(activeCategory);saveAssetState();activeCategory=id;restoreFinishState(id);closeMenu();for(const b of document.querySelectorAll('[data-generator]'))b.setAttribute('aria-selected',String(b.dataset.generator===id));$('panelTitle').textContent=categories.find(c=>c[0]===id)[1];$('treeLibraryEntry').hidden=id!=='trees';$('treeConfigTabs').hidden=id!=='trees';$('treePanels').hidden=id!=='trees';$('assetPanel').hidden=id==='trees';$('tunnelBendOptions').hidden=id!=='tunnels';$('exportGlb').disabled=false;$('addCurrentToScene').hidden=false;if(id==='trees'){generate()}else{let select=$('assetPreset');select.replaceChildren();assetCatalog[id].forEach((p,i)=>{let o=document.createElement('option');o.value=i;o.textContent=p[0];select.append(o)});const saved=categoryStates[id];applyAssetPreset(saved?.index||0);if(saved){select.value=saved.index;assetControlIds.forEach((k,i)=>$(k).value=saved.values[i]);$('assetColor').value=saved.color;if(id==='terrains')terrainDepthRatio=saved.terrainDepthRatio??.60;$('landWater').checked=false;$('landWaterLevel').disabled=!saved.water;generate()}}cameraView='';zoom=1;panX=panY=0;if(id==='cliffs')yaw=2.62;pitch=id==='trees'?.12:['water','litter','grass','terrains'].includes(id)?-.65:id==='cliffs'?-.28:-.25;resize()}
+function setupEnvironment(){for(const id of ['tunnelCurve','tunnelDirection','tunnelLength'])$(id).addEventListener('input',()=>{$(id+'Val').textContent=$(id).value+(id==='tunnelLength'?'%':'°');clearTimeout(regenerationTimer);regenerationTimer=setTimeout(generate,90)});const nav=$('generatorTabs');for(const [id,name]of categories){let b=document.createElement('button');b.textContent=name;b.dataset.generator=id;b.setAttribute('aria-label',name);b.setAttribute('role','tab');b.setAttribute('aria-selected',String(id==='trees'));b.onclick=()=>switchCategory(id);b.onkeydown=e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();let index=categories.findIndex(c=>c[0]===id),next=(index+(e.key==='ArrowRight'?1:-1)+categories.length)%categories.length;switchCategory(categories[next][0]);nav.children[next].focus()}};nav.append(b)}$('landWater').onchange=()=>{$('landWaterLevel').disabled=!$('landWater').checked;generate()};$('assetPreset').onchange=()=>applyAssetPreset(+$('assetPreset').value);$('assetSeed').onchange=()=>{seed=Math.max(1,Math.min(999999,Math.floor(Number($('assetSeed').value)||7341)));$('seedInput').value=$('assetSeed').value=seed;generate()};for(const id of [...assetControlIds,'assetColor'])$(id).oninput=()=>{
+ if(id==='channelCurve')updateWaterCurveLabel();
+ if(id==='assetArea'&&activeCategory==='terrains'){
+  const width=+$('assetArea').value,depth=meterLimit(width*terrainDepthRatio);
+  $('assetAreaVal').textContent=sceneMeters.format(width)+' m';
+  $('assetTerrainDepth').value=depth;showTerrainMeters('assetTerrainDepth',depth);
+ }
+ clearTimeout(regenerationTimer);regenerationTimer=setTimeout(generate,130)
+}}
 const numericControls=['height','depth','spread','foliage','thickness','twist','rootCount','rootLength','rootLift','barkRelief'];
 function generateTree(){random=rng(seed);faces=[];leafSerial=0;part='Tronco';const ht=+$('height').value/100,depth=+$('depth').value,spread=+$('spread').value/100,mode=$('mode').value,dead=$('dead').checked,fol=mode==='full'&&!dead?+$('foliage').value/100:0,bark=$('bark').value,leaf=$('leaf').value,thick=+$('thickness').value/100,twist=+$('twist').value/100,rootReach=+$('rootLength').value/100,lift=+$('rootLift').value/100,roots=$('rootsEnabled').checked;
 function branch(a,dir,len,r,level){let bend=twist*(1-level/(depth+1)),b=add(a,add(mul(dir,len),[Math.sin(a[1]*2+a[2])*bend*.23,0,Math.cos(a[1]*2+a[0])*bend*.23]));cylinder(a,b,r,r*(dead&&level===0?.08:.64),bark,dead&&level===0);if(level<=0){if(fol>0)crown(b,(.26+random()*.22)*fol,leaf);return}let n=level===depth?3:2;for(let i=0;i<n;i++){let angle=random()*Math.PI*2+i*2.4,h=spread*(.65+random()*.45),up=current.type==='acacia'?.12:current.type==='haunted'?(.1+random()*.65):.38+random()*.35,d=norm(add(mul(dir,current.type==='acacia'?.3:.55),[Math.cos(angle)*h,up,Math.sin(angle)*h]));let next=len*(.63+random()*.12);if(dead&&random()<.15&&level<depth-1){let tip=add(b,mul(d,next*.35));cylinder(b,tip,r*.58,.01,bark,true)}else branch(b,d,next,r*.61,level-1)}if(current.type==='banyan'&&roots&&level===2&&random()>.55){const old=part;part='Raízes';let dest=[b[0]+.1,0,b[2]+.1];tube([b,add(mul(b,.75),[.05,0,.05]),add(mul(b,.35),[.12,0,.12]),dest],.025*thick,.045*thick,bark);part=old}}
@@ -904,11 +1004,13 @@ $('seedLabel').textContent='SEMENTE '+seed;$('status').textContent=Math.round(fa
 function shade(hex,k){return '#'+hex.slice(1).match(/../g).map(s=>Math.min(255,Math.round(parseInt(s,16)*k)).toString(16).padStart(2,'0')).join('')}
 function transform(p){let x=p[0]*Math.cos(yaw)+p[2]*Math.sin(yaw),z=-p[0]*Math.sin(yaw)+p[2]*Math.cos(yaw),y=p[1]-2.3;return[x,y*Math.cos(pitch)-z*Math.sin(pitch),y*Math.sin(pitch)+z*Math.cos(pitch)]}
 function project(p){let scale=Math.min(W/7,H/6.7)*zoom*9/(9+p[2]);return[W/2+p[0]*scale,H*.50-p[1]*scale]}
-function draw(){updateShadow();gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);for(const [key,value]of Object.entries({yaw,pitch,zoom,aspect:W/H,orthographic:axisViews[cameraView]?1:0}))gl.uniform1f(uniform(key),value);gl.uniform3fv(uniform('center'),modelCenter);gl.uniform1f(uniform('fit'),modelScale);if(scenePreview&&activeCategory==='scenes'&&sceneSelected>=0){const obj=sceneObjects[sceneSelected],old=sceneFullPoses?.get(obj?.id);if(obj&&old){gl.uniform1f(uniform('editObject'),sceneSelected);gl.uniformMatrix4fv(uniform('editMatrix'),false,scenePreviewMatrix(old,scenePose(obj)))}else gl.uniform1f(uniform('editObject'),-100)}else gl.uniform1f(uniform('editObject'),-100);gl.uniform2f(uniform('pan'),panX,panY);gl.uniform1f(uniform('environment'),+$('environment').value);gl.uniform1f(uniform('time'),waterClock);let az=+$('lightAzimuth').value*Math.PI/180,el=+$('lightElevation').value*Math.PI/180;gl.uniform3fv(uniform('lightDirection'),[Math.sin(az)*Math.cos(el),Math.sin(el),-Math.cos(az)*Math.cos(el)]);gl.uniform3fv(uniform('eye'),add(modelCenter,mul([Math.sin(yaw)*Math.cos(pitch),-Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch)],9/modelScale)));for(const [key,value]of Object.entries({relief:+$('surfaceDetail').value/100,roughness:+$('surfaceRoughness').value/100,keyIntensity:+$('lightIntensity').value/100,ambientStrength:+$('lightAmbient').value/100,enhanced:activeCategory==='scenes'&&sceneLight?0:1}))gl.uniform1f(uniform(key),value);if(activeCategory==='scenes'&&sceneBatches.length){
+function draw(){updateShadow();gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);for(const [key,value]of Object.entries({yaw,pitch,zoom,aspect:W/H,orthographic:axisViews[cameraView]?1:0}))gl.uniform1f(uniform(key),value);gl.uniform3fv(uniform('center'),modelCenter);gl.uniform1f(uniform('fit'),modelScale);
+ gl.uniform1f(uniform('editCompanion'),gizmoDrag?.moved&&gizmoDrag.companion?sceneObjects.indexOf(gizmoDrag.companion):-100);
+ if(scenePreview&&activeCategory==='scenes'&&sceneSelected>=0){const obj=sceneObjects[sceneSelected],old=sceneFullPoses?.get(obj?.id);if(obj&&old){gl.uniform1f(uniform('editObject'),sceneSelected);gl.uniformMatrix4fv(uniform('editMatrix'),false,scenePreviewMatrix(old,scenePose(obj)))}else gl.uniform1f(uniform('editObject'),-100)}else gl.uniform1f(uniform('editObject'),-100);gl.uniform2f(uniform('pan'),panX,panY);gl.uniform1f(uniform('environment'),+$('environment').value);gl.uniform1f(uniform('time'),waterClock);let az=+$('lightAzimuth').value*Math.PI/180,el=+$('lightElevation').value*Math.PI/180;gl.uniform3fv(uniform('lightDirection'),[Math.sin(az)*Math.cos(el),Math.sin(el),-Math.cos(az)*Math.cos(el)]);gl.uniform3fv(uniform('eye'),add(modelCenter,mul([Math.sin(yaw)*Math.cos(pitch),-Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch)],9/modelScale)));for(const [key,value]of Object.entries({relief:+$('surfaceDetail').value/100,roughness:+$('surfaceRoughness').value/100,keyIntensity:+$('lightIntensity').value/100,ambientStrength:+$('lightAmbient').value/100,enhanced:activeCategory==='scenes'&&sceneLight?0:1}))gl.uniform1f(uniform(key),value);if(activeCategory==='scenes'&&sceneBatches.length){
  gl.drawArrays(gl.TRIANGLES,0,sceneSolidVertexCount);drawSceneBatches();
  if(vertexCount>sceneSolidVertexCount)gl.drawArrays(gl.TRIANGLES,sceneSolidVertexCount,vertexCount-sceneSolidVertexCount);
  }else gl.drawArrays(gl.TRIANGLES,0,vertexCount);
- sceneDrawGizmo();scatterOverlay();updateViewCompass()}
+ sceneDrawGizmo();scatterOverlay();drawScatterMarkers();updateViewCompass()}
 let renderDpr=1.5;
 function resize(){let box=canvas.parentElement.getBoundingClientRect();W=box.width;H=box.height;let d=Math.min(devicePixelRatio,renderDpr,activeCategory==='scenes'&&sceneLight?1:1.5);const w=Math.round(W*d),h=Math.round(H*d);if(canvas.width!==w)canvas.width=w;if(canvas.height!==h)canvas.height=h;draw()}new ResizeObserver(resize).observe(canvas.parentElement);
 const menu=$('speciesMenu');
@@ -956,6 +1058,9 @@ function selectCameraView(name){
  const view=axisViews[name]||perspectiveView;
  yaw=view.yaw;pitch=view.pitch;cameraView=name;
  setAutoRotation(false);
+ if(largeTerrainInView()){
+  zoom=1;panX=panY=0;fitCurrentScene();
+ }
  draw();
 }
 for(const button of viewButtons)button.onclick=()=>selectCameraView(button.dataset.cameraView);
@@ -967,6 +1072,7 @@ $('rotate').onclick=()=>{
 $('reset').onclick=()=>{
  yaw=.5;pitch=activeCategory==='trees'?.12:-.35;
  cameraView='';zoom=1;panX=panY=0;
+ if(activeCategory==='scenes'||activeCategory==='terrains')fitCurrentScene();
  draw();
 };
 function orbitCamera(dx,dy){
@@ -996,13 +1102,13 @@ canvas.onpointerup=canvas.onpointercancel=canvas.onlostpointercapture=e=>{
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('wheel',e=>{
  e.preventDefault();
- zoom=Math.max(.45,Math.min(5,zoom*Math.exp(-e.deltaY*.001)));
+ zoom=Math.max(.45,Math.min(sceneZoomLimit(),zoom*Math.exp(-e.deltaY*.001)));
  draw();
 },{passive:false});
 const orbitKeys={ArrowLeft:[-14,0],ArrowRight:[14,0],ArrowUp:[0,-16],ArrowDown:[0,16]};
 canvas.onkeydown=e=>{
  if(orbitKeys[e.key])orbitCamera(...orbitKeys[e.key]);
- else if(e.key==='+')zoom=Math.min(5,zoom*1.1);
+ else if(e.key==='+')zoom=Math.min(sceneZoomLimit(),zoom*1.1);
  else if(e.key==='-')zoom=Math.max(.45,zoom/1.1);
  else return;
  e.preventDefault();
@@ -1027,29 +1133,76 @@ function sceneProject(p){
 function gizmoElement(tag,attributes){const el=document.createElementNS(gizmoNS,tag);for(const [k,v] of Object.entries(attributes))el.setAttribute(k,String(v));gizmoSvg.appendChild(el);return el}
 const objectAxes=[[1,0,0],[0,1,0],[0,0,1]];
 const objectAxisColors=['#f16b67','#79d88a','#6ba6ff'];
-const objectAxisFallback=[[.9,.30],[0,-1],[-.85,.45]];
 const ringSteps=72;
+const gizmoRingBasis=[
+ [[0,1,0],[0,0,1]],[[1,0,0],[0,0,-1]],[[1,0,0],[0,1,0]]
+];
+function gizmoCameraVector([x,y,z]){
+ const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),rear=-x*sy+z*cy;
+ return [x*cy+z*sy,y*cp-rear*sp,y*sp+rear*cp];
+}
 function objectGizmoLayout(obj){
  const pose=scenePose(obj),center=[pose.x,pose.y,pose.z],projected=sceneProject(center);
- const origin=[Math.max(58,Math.min(W-58,projected[0])),Math.max(58,Math.min(H-58,projected[1]))];
- const radius=Math.max(.7,Math.min(5,2.5/Math.max(.0001,modelScale)))/3;
- const axes=objectAxes.map(axis=>sceneOrient(pose,axis));
+ const origin=[Math.max(64,Math.min(W-64,projected[0])),Math.max(64,Math.min(H-64,projected[1]))];
+ const eye=gizmoCameraVector(center.map((v,i)=>(v-modelCenter[i])*modelScale));
+ const orthographic=Boolean(axisViews[cameraView]),depth=orthographic?9:Math.max(1.25,9+eye[2]);
+ const pixels=H*2.65*zoom*.5,worldPerPixel=depth/Math.max(.000001,pixels*modelScale);
+ const radius=56*worldPerPixel,axes=objectAxes.map(axis=>sceneOrient(pose,axis));
  const projectLocal=local=>{
   const [x,y]=sceneProject(add(center,sceneOrient(pose,mul(local,radius))));
   return [origin[0]+x-projected[0],origin[1]+y-projected[1]];
  };
- const tips=objectAxes.map((axis,i)=>{
-  const tip=projectLocal(axis),delta=tip.map((v,j)=>v-origin[j]);
-  return Math.hypot(...delta)<12?add(origin,mul(objectAxisFallback[i],32)):tip;
+ const handles=objectAxes.map((axis,i)=>{
+  const near=projectLocal(mul(axis,.1)),delta=near.map((v,j)=>v-origin[j]),length=Math.hypot(...delta);
+  if(length<.35){
+   const recedes=gizmoCameraVector(axes[i])[2]>0;
+   return {depth:true,tip:origin,dir:[0,recedes?1:-1],worldPerPixel};
+  }
+  const dir=mul(delta,1/length);
+  return {depth:false,tip:add(origin,mul(dir,Math.max(27,Math.min(72,length*10)))),
+   dir,worldPerPixel:Math.min(worldPerPixel*4,radius*.1/length)};
  });
- return {pose,origin,radius,axes,tips,projectLocal};
+ for(let i=0;i<handles.length;i++)for(let j=i+1;j<handles.length;j++){
+  const a=handles[i],b=handles[j];
+  if(a.depth||b.depth||a.dir[0]*b.dir[0]+a.dir[1]*b.dir[1]<.98)continue;
+  if(Math.hypot(a.tip[0]-b.tip[0],a.tip[1]-b.tip[1])>22)continue;
+  a.tip=add(origin,mul(a.dir,34));b.tip=add(origin,mul(b.dir,62));
+ }
+ return {pose,center,origin,projected,radius,axes,handles,projectLocal,eye,orthographic,depth,pixels};
+}
+function gizmoRingPoint(axis,angle){
+ const [a,b]=gizmoRingBasis[axis];
+ return add(mul(a,Math.cos(angle)),mul(b,Math.sin(angle)));
 }
 function objectGizmoRing(layout,axis){
- return Array.from({length:ringSteps},(_,index)=>{
-  const angle=index/ringSteps*2*Math.PI,c=Math.cos(angle),s=Math.sin(angle);
-  const point=axis===0?[0,c,s]:axis===1?[c,0,-s]:[c,s,0];
-  return layout.projectLocal(point);
- });
+ return Array.from({length:ringSteps},(_,i)=>layout.projectLocal(gizmoRingPoint(axis,i/ringSteps*Math.PI*2)));
+}
+function gizmoPointerAngle(layout,axis,x,y){
+ const {origin,depth,eye,pixels,radius,pose,orthographic}=layout;
+ const u=(x-origin[0])/pixels+eye[0]/depth,v=(origin[1]-y)/pixels+eye[1]/depth;
+ const [a,b]=gizmoRingBasis[axis].map(unit=>gizmoCameraVector(sceneOrient(pose,mul(unit,radius*modelScale))));
+ const az=orthographic?0:a[2],bz=orthographic?0:b[2];
+ const ax=a[0]-u*az,bx=b[0]-u*bz,ay=a[1]-v*az,by=b[1]-v*bz,det=ax*by-ay*bx;
+ if(Math.abs(det)<(56*depth/pixels)**2*.08)return null;
+ const dx=u*depth-eye[0],dy=v*depth-eye[1];
+ const cos=(dx*by-dy*bx)/det,sin=(ax*dy-ay*dx)/det;
+ return Math.hypot(cos,sin)>.08?Math.atan2(sin,cos):null;
+}
+function gizmoRingTangent(layout,axis,x,y){
+ const ring=objectGizmoRing(layout,axis);
+ let chosen=null;
+ for(let i=0;i<ringSteps;i++){
+  const a=ring[i],b=ring[(i+1)%ringSteps],tangent=b.map((v,j)=>v-a[j]),length=Math.hypot(...tangent);
+  if(length<.35)continue;
+  const dir=mul(tangent,1/length);
+  const fraction=Math.max(0,Math.min(1,((x-a[0])*dir[0]+(y-a[1])*dir[1])/length));
+  const distance=Math.hypot(x-a[0]-tangent[0]*fraction,y-a[1]-tangent[1]*fraction);
+  const point=gizmoRingPoint(axis,(i+fraction)/ringSteps*Math.PI*2);
+  const z=gizmoCameraVector(sceneOrient(layout.pose,point))[2];
+  if(!chosen||distance<chosen.distance-.65||distance<=chosen.distance+.65&&z<chosen.z)
+   chosen={distance,z,dir,degreesPerPixel:Math.min(2.2,360/ringSteps/length)};
+ }
+ return chosen;
 }
 let gizmoKey='';
 function sceneDrawGizmo(){
@@ -1067,15 +1220,23 @@ function sceneDrawGizmo(){
   const color=objectAxisColors[axis];
   if(gizmoMode==='rotate'){
    const ring=objectGizmoRing(layout,axis),points=[...ring,ring[0]].map(p=>p.join(',')).join(' ');
-   gizmoElement('polyline',{points,fill:'none',stroke:color,'stroke-width':2,opacity:.9});
+   gizmoElement('polyline',{points,fill:'none',stroke:color,'stroke-width':2,opacity:.9,'pointer-events':'none'});
    bind(gizmoElement('polyline',{points,class:'gizmo-hit'}),axis);
    const label=ring.reduce((a,b)=>b[1]<a[1]?b:a);
    gizmoElement('text',{x:label[0]+6,y:label[1]-4,fill:color,class:'gizmo-marker'}).textContent='XYZ'[axis];
    return;
   }
-  const [tx,ty]=layout.tips[axis],line={x1:x,y1:y,x2:tx,y2:ty,'stroke-linecap':'round'};
-  gizmoElement('line',{...line,stroke:'#151c24','stroke-width':4.5});
-  gizmoElement('line',{...line,stroke:color,'stroke-width':2.5});
+  const handle=layout.handles[axis], [tx,ty]=handle.tip;
+  if(handle.depth){
+   const marker=gizmoElement('circle',{cx:x,cy:y,r:8,fill:'#222830',stroke:color,'stroke-width':2.5,class:'gizmo-handle'});
+   bind(marker,axis);
+   const label=gizmoElement('text',{x:x+10,y:y+15,fill:color,class:'gizmo-marker'});
+   label.textContent='XYZ'[axis];
+   return;
+  }
+  const line={x1:x,y1:y,x2:tx,y2:ty,'stroke-linecap':'round'};
+  gizmoElement('line',{...line,stroke:'#151c24','stroke-width':4.5,'pointer-events':'none'});
+  gizmoElement('line',{...line,stroke:color,'stroke-width':2.5,'pointer-events':'none'});
   bind(gizmoElement('line',{...line,class:'gizmo-hit'}),axis);
   if(gizmoMode==='scale'){
    bind(gizmoElement('rect',{x:tx-5,y:ty-5,width:10,height:10,rx:1,fill:color,stroke:'#20252e',class:'gizmo-handle'}),axis);
@@ -1086,27 +1247,27 @@ function sceneDrawGizmo(){
   }
   gizmoElement('text',{x:tx+7,y:ty-7,fill:color,class:'gizmo-marker'}).textContent='XYZ'[axis];
  });
- gizmoElement('circle',{cx:x,cy:y,r:5.5,fill:'#e5eaf1',stroke:'#30353c','stroke-width':1.5});
+ gizmoElement('circle',{cx:x,cy:y,r:4,fill:'#e5eaf1',stroke:'#30353c','stroke-width':1.5,'pointer-events':'none'});
 }
 function gizmoStart(e){
  if(gizmoDrag||e.button!==0||activeCategory!=='scenes'||sceneSelected<0)return;
  e.preventDefault();e.stopPropagation();
  setAutoRotation(false);
- const axis=Number(e.currentTarget.dataset.axis),obj=sceneObjects[sceneSelected],layout=objectGizmoLayout(obj);
- const {pose,axes,tips,origin,radius}=layout,mode=gizmoMode;
- let direction=tips[axis].map((v,i)=>v-origin[i]),scale=radius/Math.hypot(...direction);
+ const axis=Number(e.currentTarget.dataset.axis),obj=sceneObjects[sceneSelected],mode=gizmoMode;
+ flushSceneSize();
+ const layout=objectGizmoLayout(obj),handle=layout.handles[axis],rect=canvas.getBoundingClientRect();
+ let angle=null,tangent=null;
  if(mode==='rotate'){
-  const rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;
-  const ring=objectGizmoRing(layout,axis),distance=p=>Math.hypot(p[0]-x,p[1]-y);
-  const index=ring.reduce((best,p,i)=>distance(p)<distance(ring[best])?i:best,0);
-  const before=ring[(index+ringSteps-2)%ringSteps],after=ring[(index+2)%ringSteps];
-  direction=after.map((v,i)=>v-before[i]);
-  if(Math.hypot(...direction)<1)direction=tips[axis].map((v,i)=>v-origin[i]);
-  scale=Math.min(2,4*360/ringSteps/Math.hypot(...direction));
+  const x=e.clientX-rect.left,y=e.clientY-rect.top;
+  angle=gizmoPointerAngle(layout,axis,x,y);
+  if(angle===null)tangent=gizmoRingTangent(layout,axis,x,y);
+  if(angle===null&&!tangent)return;
  }
- const length=Math.hypot(...direction);
- gizmoDrag={pointerId:e.pointerId,axis,mode,object:obj,pose,start:[e.clientX,e.clientY],
-  startPosition:[obj.x,obj.y,obj.z],dir:mul(direction,1/length),scale,worldAxis:axes[axis]};
+ const waterfall=mode==='scale'?null:sceneCourseTarget(obj);
+ const companion=mode==='scale'?null:waterfall||sceneObjects.find(course=>sceneShowsOriginal(course)&&sceneCourseTarget(course)===obj);
+ gizmoDrag={pointerId:e.pointerId,axis,mode,object:obj,pose:layout.pose,layout,handle,rect,waterfall,companion,
+  waterfallPose:waterfall&&scenePose(waterfall),
+  start:[e.clientX,e.clientY],startPosition:[obj.x,obj.y,obj.z],worldAxis:layout.axes[axis],angle,tangent,turn:0};
  window.addEventListener('pointermove',gizmoMove,true);
  window.addEventListener('pointerup',gizmoEnd,true);
  window.addEventListener('pointercancel',gizmoEnd,true);
@@ -1124,16 +1285,36 @@ function gizmoMove(e){
  const d=gizmoDrag;
  if(d?.pointerId!==e.pointerId)return;
  e.preventDefault();e.stopPropagation();
- const dx=e.clientX-d.start[0],dy=e.clientY-d.start[1],amount=(dx*d.dir[0]+dy*d.dir[1])*d.scale,o=d.object;
- if(!dx&&!dy)return;
- delete o.waterfallId;
+ const dx=e.clientX-d.start[0],dy=e.clientY-d.start[1],o=d.object;
+ if(!dx&&!dy&&!d.moved)return;
+ const pixels=dx*d.handle.dir[0]+dy*d.handle.dir[1];
  if(d.mode==='move'){
-  [o.x,o.y,o.z]=add(d.startPosition,mul(d.worldAxis,amount));
+  [o.x,o.y,o.z]=add(d.startPosition,mul(d.worldAxis,pixels*d.handle.worldPerPixel));
  }else if(d.mode==='scale'){
-  const start=d.pose.scale,clamp=v=>Math.max(.025,Math.min(40,v));
-  const value=clamp(start[d.axis]*(1+amount/1.5));
-  o.scaleXYZ=e.shiftKey?start.map(v=>clamp(v*value/start[d.axis])):start.map((v,i)=>i===d.axis?value:v);
- }else rotateOnObjectAxis(o,d.pose,d.axis,amount);
+  const start=d.pose.scale,terrain=isTerrainSizeObject(o);
+  const clamp=(v,axis)=>Math.max(terrain ? .00001:.025,Math.min(axis===1||!terrain?40:maxTerrainMeters/terrainLocalSpan(o,axis),v));
+  const value=clamp(start[d.axis]*Math.exp(pixels/85),d.axis);
+  o.scaleXYZ=e.shiftKey?start.map((v,i)=>clamp(v*value/start[d.axis],i)):start.map((v,i)=>i===d.axis?value:v);
+ }else{
+  let amount;
+  if(d.tangent)amount=(dx*d.tangent.dir[0]+dy*d.tangent.dir[1])*d.tangent.degreesPerPixel;
+  else{
+   const angle=gizmoPointerAngle(d.layout,d.axis,e.clientX-d.rect.left,e.clientY-d.rect.top);
+   if(angle===null)return;
+   const delta=angle-d.angle;
+   d.turn+=Math.atan2(Math.sin(delta),Math.cos(delta));d.angle=angle;
+   amount=d.turn*180/Math.PI;
+  }
+  rotateOnObjectAxis(o,d.pose,d.axis,amount);
+ }
+ if(d.waterfall){
+  // A transformação do curso conectado move o conjunto com o mesmo pivô.
+  const {waterfall,waterfallPose:target}=d;
+  const shown=scenePreviewPosition([target.x,target.y,target.z],d.pose,scenePose(o));
+  waterfall.x=shown[0];waterfall.y=shown[1]-(waterfall._waterLift||0);waterfall.z=shown[2];
+  waterfall.rotation=o.rotation;waterfall.rotationXYZ=(o.rotationXYZ||[0,0,0]).slice();
+ }
+ d.moved=true;delete o.waterfallId;
  sceneRefresh(true);
 }
 function gizmoEnd(e){
@@ -1141,8 +1322,11 @@ function gizmoEnd(e){
  window.removeEventListener('pointermove',gizmoMove,true);
  window.removeEventListener('pointerup',gizmoEnd,true);
  window.removeEventListener('pointercancel',gizmoEnd,true);
+ const {object,mode,moved}=gizmoDrag;
  gizmoDrag=null;
- sceneCommitTransform();sceneRenderList();
+ if(!moved)return;
+ if(mode==='scale'&&isTerrainSizeObject(object))fitTerrainPreview();
+ sceneCommitTransform(object);sceneRenderList();
 }
 function setGizmoMode(mode){gizmoMode=mode;for(const b of document.querySelectorAll('[data-gizmo-mode]'))b.setAttribute('aria-pressed',String(b.dataset.gizmoMode===mode));sceneDrawGizmo()}
 
@@ -1594,21 +1778,42 @@ function sceneWaterAboveTerrain(ranges){
  const water=ranges.filter(entry=>entry.obj.category==='water');
  const ground=ranges.filter(entry=>entry.obj.category==='terrains');
  for(const {obj} of water)obj._waterLift=0;
- if(!ground.length||!water.length)return;
+ if(!ground.length||!water.length){sceneFitWaterCourses();return}
 
- const cell=.22,cellIndex=value=>Math.floor(value/cell),key=(x,z)=>x+','+z;
+ const cell=.22,key=(x,z)=>x+','+z;
  const pointKey=p=>Math.round(p[0]*1e6)+','+Math.round(p[2]*1e6);
- const at=(grid,x,z)=>grid.get(key(cellIndex(x),cellIndex(z)))||[];
  const bounds=(a,b,c=b)=>({
   minX:Math.min(a[0],b[0],c[0]),maxX:Math.max(a[0],b[0],c[0]),
   minZ:Math.min(a[2],b[2],c[2]),maxZ:Math.max(a[2],b[2],c[2])
  });
+ // Cada triângulo entra numa grade proporcional ao seu tamanho em XZ.
  function insert(grid,item){
-  for(let x=cellIndex(item.minX);x<=cellIndex(item.maxX);x++)for(let z=cellIndex(item.minZ);z<=cellIndex(item.maxZ);z++){
+  const span=Math.max(item.maxX-item.minX,item.maxZ-item.minZ);
+  const level=Math.max(0,Math.ceil(Math.log2(span/(cell*3))));
+  if(!grid.has(level))grid.set(level,{size:cell*2**level,cells:new Map(),items:[],
+   minX:Infinity,minZ:Infinity,maxX:-Infinity,maxZ:-Infinity});
+  const layer=grid.get(level),index=v=>Math.floor(v/layer.size);
+  layer.items.push(item);
+  layer.minX=Math.min(layer.minX,item.minX);layer.maxX=Math.max(layer.maxX,item.maxX);
+  layer.minZ=Math.min(layer.minZ,item.minZ);layer.maxZ=Math.max(layer.maxZ,item.maxZ);
+  for(let x=index(item.minX);x<=index(item.maxX);x++)for(let z=index(item.minZ);z<=index(item.maxZ);z++){
    const k=key(x,z);
-   if(!grid.has(k))grid.set(k,[]);
-   grid.get(k).push(item);
+   if(!layer.cells.has(k))layer.cells.set(k,[]);
+   layer.cells.get(k).push(item);
   }
+ }
+ function at(grid,x,z){
+  if(grid.size===1){
+   const layer=grid.values().next().value;
+   return layer.cells.get(key(Math.floor(x/layer.size),Math.floor(z/layer.size)))||[];
+  }
+  const found=[];
+  for(const layer of grid.values()){
+   if(x<layer.minX||x>layer.maxX||z<layer.minZ||z>layer.maxZ)continue;
+   const records=layer.cells.get(key(Math.floor(x/layer.size),Math.floor(z/layer.size)));
+   if(records)for(const record of records)found.push(record);
+  }
+  return found;
  }
  function projected(f,minSlope){
   if(f.points.length!==3)return null;
@@ -1634,7 +1839,7 @@ function sceneWaterAboveTerrain(ranges){
   const t=projected(f,.25);
   if(t){insert(groundGrid,t);groundFaces.add(f)}
  }
- if(!groundFaces.size)return;
+ if(!groundFaces.size){sceneFitWaterCourses();return}
 
  function groundAt(x,z){
   const k=pointKey([x,0,z]);
@@ -1652,7 +1857,19 @@ function sceneWaterAboveTerrain(ranges){
  const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
  const interpolate=(values,w)=>values[0].map((v,i)=>w[0]*v+w[1]*values[1][i]+w[2]*values[2][i]);
  const cutGrid=new Map(),edgeGrid=new Map(),bedGrid=new Map();
+ function addCut(f,edges){
+  const t=projected(f,0);
+  if(!t)return;
+  insert(cutGrid,t);
+  for(let i=0;i<3;i++){
+   const a=f.points[i],b=f.points[(i+1)%3],ka=pointKey(a),kb=pointKey(b);
+   const k=ka<kb?ka+'|'+kb:kb+'|'+ka;
+   if(edges.has(k))edges.delete(k);
+   else edges.set(k,bounds(a,b));
+  }
+ }
  for(const {obj,start,end} of water){
+  if(sceneCourseTarget(obj))continue;
   const surface=[],bank=[];
   let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity,waterY=-Infinity;
   let bankLow=Infinity,bankHigh=-Infinity;
@@ -1696,19 +1913,8 @@ function sceneWaterAboveTerrain(ranges){
 
   if(fittedRock.length)cliffFaceNormals(fittedRock,.24);
   const waterHeights=new Map(),edges=new Map();
-  function addCut(f){
-   const t=projected(f,0);
-   if(!t)return;
-   insert(cutGrid,t);
-   for(let i=0;i<3;i++){
-    const a=f.points[i],b=f.points[(i+1)%3],ka=pointKey(a),kb=pointKey(b);
-    const k=ka<kb?ka+'|'+kb:kb+'|'+ka;
-    if(edges.has(k))edges.delete(k);
-    else edges.set(k,bounds(a,b));
-   }
-  }
   for(const f of surface){
-   addCut(f);
+   addCut(f,edges);
    for(const p of f.points)waterHeights.set(pointKey(p),p[1]);
   }
   const bankNormals=new Map(),vertices=new Map(),bankRange=Math.max(1e-4,bankHigh-bankLow);
@@ -1747,12 +1953,29 @@ function sceneWaterAboveTerrain(ranges){
    }
    for(const v of data)bankNormals.set(v.k,add(bankNormals.get(v.k)||[0,0,0],n));
    f.normals=data.map(v=>v);
-   if(cutAt>0&&Math.max(...distances)<=cutAt+1e-7)addCut(f);
+   if(cutAt>0&&Math.max(...distances)<=cutAt+1e-7)addCut(f,edges);
   }
   for(const f of bank)f.normals=f.normals.map(v=>{
    const n=norm(bankNormals.get(v.k));
    return v.normal?norm(mix(n,v.normal,v.blend)):n;
   });
+  for(const edge of edges.values())insert(edgeGrid,edge);
+ }
+ // O nível do poço já foi calculado. Agora o trecho superior pode encostar no
+ // relevo sem receber outro deslocamento e sem soltar a ligação com a queda.
+ sceneFitWaterCourses(groundAt);
+ for(const {obj,start,end} of water){
+  const linked=sceneCourseTarget(obj),integrated=sceneWaterPort(obj)?.inlet;
+  if(!linked&&!integrated)continue;
+  const edges=new Map();
+  for(let i=start;i<end;i++){
+   const f=faces[i],bank=linked&&f.shoreT?.length===3;
+   const surface=linked?f.kind===4:f.waterRole==='approach';
+   if(!surface&&!bank)continue;
+   const [a,b,c]=f.points,mid=a.map((v,k)=>(v+b[k]+c[k])/3);
+   if(![a,b,c,mid].some(p=>(groundAt(p[0],p[2])?.height??-Infinity)>p[1]+.003))continue;
+   addCut(f,edges);
+  }
   for(const edge of edges.values())insert(edgeGrid,edge);
  }
  if(!cutGrid.size)return;
@@ -1773,10 +1996,16 @@ function sceneWaterAboveTerrain(ranges){
   return y>(Number.isFinite(bed)?Math.min(bed,top):top)-.004;
  };
  function nearEdge(box){
-  for(let x=cellIndex(box.minX);x<=cellIndex(box.maxX);x++)for(let z=cellIndex(box.minZ);z<=cellIndex(box.maxZ);z++){
-   for(const e of edgeGrid.get(key(x,z))||[]){
-    if(e.minX<=box.maxX&&e.maxX>=box.minX&&e.minZ<=box.maxZ&&e.maxZ>=box.minZ)return true;
+  const overlaps=e=>e.minX<=box.maxX&&e.maxX>=box.minX&&e.minZ<=box.maxZ&&e.maxZ>=box.minZ;
+  for(const layer of edgeGrid.values()){
+   if(!overlaps(layer))continue;
+   const x0=Math.floor(Math.max(box.minX,layer.minX)/layer.size),x1=Math.floor(Math.min(box.maxX,layer.maxX)/layer.size);
+   const z0=Math.floor(Math.max(box.minZ,layer.minZ)/layer.size),z1=Math.floor(Math.min(box.maxZ,layer.maxZ)/layer.size);
+   if((x1-x0+1)*(z1-z0+1)>layer.cells.size){
+    if(layer.items.some(overlaps))return true;
+    continue;
    }
+   for(let x=x0;x<=x1;x++)for(let z=z0;z<=z1;z++)if(layer.cells.get(key(x,z))?.some(overlaps))return true;
   }
   return false;
  }
@@ -1804,7 +2033,7 @@ function sceneWaterAboveTerrain(ranges){
     ...(a.normal?{normals:v.map(x=>norm(x.normal))}:{})});
   }
   function trim(a,b,c,depth){
-   if(!side&&!nearEdge(bounds(a.p,b.p,c.p))){
+   if(!nearEdge(bounds(a.p,b.p,c.p))&&(!side||a.in===b.in&&b.in===c.in)){
     if(!a.in)emit(a,b,c);
     return;
    }
@@ -1830,7 +2059,9 @@ function sceneWaterAboveTerrain(ranges){
    for(let i=1;i+1<poly.length;i++)emit(poly[0],poly[i],poly[i+1]);
   }
   const v=f.points.map((p,i)=>vertex(p,f.uv?.[i],f.landColors?.[i],f.normals?.[i]));
-  trim(v[0],v[1],v[2],2);
+  const box=bounds(a,b,c),span=Math.max(box.maxX-box.minX,box.maxZ-box.minZ);
+  const adaptive=boundary?Math.min(11,Math.max(2,Math.ceil(Math.log2(span/.48)))):2;
+  trim(v[0],v[1],v[2],adaptive);
  }
  faces=output;
 }
@@ -1911,16 +2142,120 @@ function sceneQuaternion(pose){
  const x=Math.sin(a),y=Math.sin(b),z=Math.sin(c),u=Math.cos(a),v=Math.cos(b),w=Math.cos(c);
  return [v*w*x+y*z*u,y*w*u+v*z*x,v*z*u-y*w*x,v*w*u-y*z*x];
 }
+const maxTerrainMeters=100,scenePreviewTriangleBudget=420000,terrainBaseProfiles=new WeakMap();
+let terrainDepthRatio=.60;
+const meterLimit=value=>Math.max(.4,Math.min(maxTerrainMeters,value));
+function isTerrainSizeObject(obj){return obj?.category==='terrains'||obj?.terrainWidthMode===true}
+function sceneObjectBounds(obj){
+ if(!sceneGeometryBounds.has(obj.faces))sceneGeometryBounds.set(obj.faces,landscapeBounds(obj.faces));
+ return sceneGeometryBounds.get(obj.faces);
+}
+function includeObjectBounds(obj,min,max){
+ if(!obj.faces.length)return;
+ const bounds=sceneObjectBounds(obj),pose=scenePose(obj);
+ const bottom=Number.isFinite(obj.terrainBaseThickness)?terrainAdjustedBottom(obj,terrainBaseProfile(obj)):null;
+ for(let i=0;i<8;i++){
+  const local=pose.scale.map((s,j)=>((i&(1<<j))?bounds.max[j]:j===1?(bottom??bounds.min[j]):bounds.min[j])*s);
+  const p=add(sceneOrient(pose,local),[pose.x,pose.y,pose.z]);
+  for(let j=0;j<3;j++){min[j]=Math.min(min[j],p[j]);max[j]=Math.max(max[j],p[j])}
+ }
+}
+function fitTerrainPreview(){
+ const min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];
+ for(const obj of sceneObjects)if(sceneShowsOriginal(obj))includeObjectBounds(obj,min,max);
+ for(const obj of scatterCopies)includeObjectBounds(obj,min,max);
+ zoom=1;panX=panY=0;applySceneFrame(min,max);
+}
+function terrainLocalSpan(obj,axis=0){
+ const {min,max}=sceneObjectBounds(obj);
+ return Math.max(.00001,max[axis]-min[axis]);
+}
+function terrainBaseProfile(obj){
+ if(!terrainBaseProfiles.has(obj.faces)){
+  let top=Infinity,bottom=Infinity;
+  for(const f of obj.faces)for(const p of f.points){
+   if(f.part==='Subsolo')bottom=Math.min(bottom,p[1]);
+   else top=Math.min(top,p[1]);
+  }
+  terrainBaseProfiles.set(obj.faces,Number.isFinite(top)&&Number.isFinite(bottom)&&top>=bottom?{top,bottom}:null);
+ }
+ return terrainBaseProfiles.get(obj.faces);
+}
+function terrainAdjustedBottom(obj,profile){
+ return Number.isFinite(obj.terrainBaseThickness)&&profile?
+  profile.top-obj.terrainBaseThickness/Math.max(.00001,Math.abs(objectScale(obj)[1])):null;
+}
+function largeTerrainInView(){
+ if(activeCategory==='terrains')return +$('assetArea').value>100;
+ return activeCategory==='scenes'&&sceneObjects.some(o=>sceneShowsOriginal(o)&&isTerrainSizeObject(o)&&
+  terrainLocalSpan(o)*Math.abs(objectScale(o)[0])>100);
+}
+function sceneZoomLimit(){
+ return activeCategory==='scenes'||activeCategory==='terrains'?Math.min(1500,Math.max(5,.16/modelScale)):5;
+}
+function densityPreviewGeometry(list,limit){
+ if(list.length<=limit)return list;
+ const {min,max}=landscapeBounds(list),extent=max.map((v,i)=>Math.max(.00001,v-min[i]));
+ const order=Math.max(3,Math.floor(Math.cbrt(limit)*1.1)),cells=new Map();
+ // Guarda faces representativas por região da malha original, incluindo tronco e copa.
+ for(let i=0;i<list.length;i++){
+  const f=list[i],a=f.points[0],b=f.points[1],c=f.points[2],kind=f.kind||0;
+  const x=Math.floor(((a[0]+b[0]+c[0])/3-min[0])/extent[0]*order);
+  const y=Math.floor(((a[1]+b[1]+c[1])/3-min[1])/extent[1]*order);
+  const z=Math.floor(((a[2]+b[2]+c[2])/3-min[2])/extent[2]*order);
+  const key=(((kind*(order+1)+x)*(order+1)+y)*(order+1)+z);
+  const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],ex=c[0]-a[0],ey=c[1]-a[1],ez=c[2]-a[2];
+  const area=(dy*ez-dz*ey)**2+(dz*ex-dx*ez)**2+(dx*ey-dy*ex)**2;
+  const representative=cells.get(key);
+  if(!representative||representative.area<area)cells.set(key,{i,area});
+ }
+ const region=[...cells.values()].map(r=>r.i).sort((a,b)=>a-b);
+ const indices=region.length>limit?Array.from({length:limit},(_,i)=>region[Math.floor(i*region.length/limit)]):region;
+ if(indices.length<limit){
+  const included=new Set(indices),step=Math.max(1,Math.floor(list.length/(limit-indices.length)));
+  for(let i=Math.floor(step/2);i<list.length&&indices.length<limit;i+=step)if(!included.has(i))indices.push(i);
+ }
+ return indices.sort((a,b)=>a-b).map(i=>list[i]);
+}
+let sceneMarkerKey='',scatterMarkerRevision=0;
+function drawScatterMarkers(){
+ const overlay=$('scatterMarkers'),width=Math.round(W),height=Math.round(H);
+ if(overlay.width!==width)overlay.width=width;
+ if(overlay.height!==height)overlay.height=height;
+ const visible=activeCategory==='scenes'&&sceneLight&&scatterCopies.length;
+ const key=visible?[width,height,modelCenter,modelScale,yaw,pitch,zoom,panX,panY,cameraView,scatterMarkerRevision].join('|'):'';
+ if(key===sceneMarkerKey)return;
+ sceneMarkerKey=key;
+ const ctx=overlay.getContext('2d');
+ ctx.clearRect(0,0,width,height);
+ if(!visible||!width||!height)return;
+ const pixels=height*2.65*zoom*modelScale/18;
+ ctx.beginPath();
+ for(const obj of scatterCopies){
+  const box=sceneObjectBounds(obj),scale=objectScale(obj);
+  if(Math.max(...scale.map((s,i)=>Math.abs(s)*(box.max[i]-box.min[i])))*pixels>=3.5)continue;
+  const [x,y]=sceneProject([obj.x,obj.y,obj.z]);
+  if(x<0||x>width||y<0||y>height)continue;
+  ctx.moveTo(x+1.45,y);ctx.arc(x,y,1.45,0,Math.PI*2);
+ }
+ ctx.fillStyle='#d8e196';ctx.fill();
+}
+
 function scenePreviewFaces(geometry,category,copies){
- if(!sceneLight||!['trees','grass','shrubs','flowers','litter'].includes(category))return geometry;
- const target=category==='trees'?Math.max(9000,Math.floor(45000/Math.sqrt(copies))):Math.max(2400,Math.floor(16000/Math.sqrt(copies)));
- let detail=0;
- for(const f of geometry)if(f.kind===1||f.kind===7||f.kind===9)detail++;
- const step=Math.max(1,Math.ceil(detail/target));
- if(step===1)return geometry;
- let index=0;
- // Mantém ramos, troncos, hastes e faixas consecutivas de folhas originais.
- return geometry.filter(f=>!(f.kind===1||f.kind===7||f.kind===9)||Math.floor(index++/4)%step===0);
+ if(!sceneLight)return geometry;
+ let preview=geometry;
+ if(['trees','grass','shrubs','flowers','litter'].includes(category)){
+  const target=category==='trees'?Math.max(9000,Math.floor(45000/Math.sqrt(copies))):Math.max(2400,Math.floor(16000/Math.sqrt(copies)));
+  let detail=0;
+  for(const f of geometry)if(f.kind===1||f.kind===7||f.kind===9)detail++;
+  const step=Math.max(1,Math.ceil(detail/target));
+  if(step>1){
+   let index=0;
+   preview=geometry.filter(f=>!(f.kind===1||f.kind===7||f.kind===9)||Math.floor(index++/4)%step===0);
+  }
+ }
+ const budget=Math.max(70,Math.floor(scenePreviewTriangleBudget*.70/copies));
+ return copies>1?densityPreviewGeometry(preview,budget):preview;
 }
 function sceneReleaseBatches(){
  for(const batch of sceneBatches)if(batch.buffer)gl.deleteBuffer(batch.buffer);
@@ -1938,20 +2273,17 @@ function sceneMakeBatches(){
   gl.deleteBuffer(mesh.buffer);sceneMeshBuffers.delete(geometry);
  }
  for(const [geometry,objects] of groups){
-  const detailKey=[sceneLight,objects[0].category,Math.floor(Math.sqrt(objects.length))].join('|');
+  const copies=objects.length===1?1:Math.ceil(objects.length/8)*8;
+  const detailKey=[sceneLight,objects[0].category,copies].join('|');
   let mesh=sceneMeshBuffers.get(geometry);
   if(!mesh||mesh.detailKey!==detailKey){
    if(mesh)gl.deleteBuffer(mesh.buffer);
-   const buffer=gl.createBuffer(),preview=scenePreviewFaces(geometry,objects[0].category,objects.length);
+   const buffer=gl.createBuffer(),preview=scenePreviewFaces(geometry,objects[0].category,copies);
    mesh={detailKey,buffer,count:packFaces(preview,buffer)};
    sceneMeshBuffers.set(geometry,mesh);
   }
   const regular=[],individual=[];
-  const generated=objects.filter(o=>o._scatterSource).length;
-  const previewStep=sceneLight?Math.max(1,Math.ceil(mesh.count/3*generated/420000)):1;
-  let at=0;
   for(const obj of objects){
-   if(obj._scatterSource&&at++%previewStep)continue;
    const scale=objectScale(obj);
    (sceneInstanceExtension&&Math.max(...scale)-Math.min(...scale)<1e-7?regular:individual).push(obj);
   }
@@ -1972,16 +2304,7 @@ function sceneInstanceData(obj){
  return [pose.x,pose.y,pose.z,pose.scale[0],...sceneQuaternion(pose)];
 }
 function includeSharedSceneBounds(min,max){
- for(const obj of sharedScenePlacements()){
-  if(!obj.faces.length)continue;
-  if(!sceneGeometryBounds.has(obj.faces))sceneGeometryBounds.set(obj.faces,landscapeBounds(obj.faces));
-  const bounds=sceneGeometryBounds.get(obj.faces),pose=scenePose(obj);
-  for(let i=0;i<8;i++){
-   const local=pose.scale.map((s,j)=>((i&(1<<j))?bounds.max[j]:bounds.min[j])*s);
-   const p=add(sceneOrient(pose,local),[pose.x,pose.y,pose.z]);
-   for(let j=0;j<3;j++){min[j]=Math.min(min[j],p[j]);max[j]=Math.max(max[j],p[j])}
-  }
- }
+ for(const obj of sharedScenePlacements())includeObjectBounds(obj,min,max);
 }
 function drawSceneBatches(){
  const [position,rotation]=sceneInstanceLocations,extension=sceneInstanceExtension;
@@ -2028,9 +2351,8 @@ function drawSceneBatches(){
 function requestSceneFrame(){
  if(!previewFrame)previewFrame=requestAnimationFrame(()=>{previewFrame=0;draw()});
 }
-function sceneCommitTransform(){
- const obj=sceneObjects[sceneSelected];
- if(!obj||!sceneUsesSharedMesh(obj)){sceneRefresh();return}
+function sceneCommitTransform(obj=sceneObjects[sceneSelected]){
+ if(!obj||!sceneUsesSharedMesh(obj)){sceneRefresh(false,!isTerrainSizeObject(obj));return}
  scenePreview=false;
  if(obj.scatter)sceneGenerateScatter();
  sceneMakeBatches();updateScatterStatus();
@@ -2076,7 +2398,7 @@ function scatterConfig(obj){
  const value=obj.scatter,defaults=scatterDefaults(obj);
  return {target:typeof value.target==='string'?value.target:defaults.target,
   method:scatterModes.includes(value.method)?value.method:defaults.method,
-  count:Math.round(scatterClamp(value.count,0,500,defaults.count)),
+  count:Math.round(scatterClamp(value.count,0,100,defaults.count)),
   radius:scatterClamp(value.radius,.1,5000,defaults.radius),spacing:scatterClamp(value.spacing,0,5000,defaults.spacing),
   cx:scatterClamp(value.cx,-10000,10000,defaults.cx),cz:scatterClamp(value.cz,-10000,10000,defaults.cz),
   scale:scatterClamp(value.scale,0,80,defaults.scale),yaw:scatterClamp(value.yaw,0,360,defaults.yaw),
@@ -2180,7 +2502,7 @@ function scatterPlacements(obj,config,area){
  return copies;
 }
 function sceneGenerateScatter(){
- clearTimeout(scatterTimer);scatterTimer=0;scatterCopies=[];scatterCounts=new Map();
+ clearTimeout(scatterTimer);scatterTimer=0;scatterCopies=[];scatterCounts=new Map();scatterMarkerRevision++;
  for(const obj of sceneObjects){
   if(!obj.visible||!obj.scatter||!obj.faces.length)continue;
   const config=scatterConfig(obj);
@@ -2313,8 +2635,216 @@ function setupSceneScatter(){
  $('scatterPanel').ontoggle=()=>{if(activeCategory==='scenes')requestSceneFrame()};
 }
 
-function sceneRefresh(preview=false){
- if(!preview)scatterVisibilityDirty=false;
+const waterPorts=new WeakMap();
+function sceneWaterPort(obj){
+ if(obj?.category!=='water')return;
+ if(waterPorts.has(obj.faces))return waterPorts.get(obj.faces);
+ const first=obj.faces.find(f=>f.courseOutlet||f.fallInlet);
+ let port=first?.courseOutlet||first?.fallInlet;
+ if(!port&&hasIntegratedWaterfall(obj)){
+  // Projetos existentes já têm a malha do riacho superior.
+  const approach=obj.faces.filter(f=>f.waterRole==='approach').flatMap(f=>f.points);
+  const z=approach.reduce((min,p)=>Math.min(min,p[2]),Infinity);
+  const row=approach.filter(p=>Math.abs(p[2]-z)<1e-8);
+  const xs=row.map(p=>p[0]),min=Math.min(...xs),max=Math.max(...xs);
+  if(max>min)port={center:[(min+max)/2,row[0][1],z],half:(max-min)/2,inlet:true,color:obj.faces.find(f=>f.waterRole==='approach').color};
+ }
+ waterPorts.set(obj.faces,port);
+ return port;
+}
+function sceneCourseTarget(obj){
+ return obj.channelFallId&&sceneObjects.find(o=>o.id===obj.channelFallId&&o.visible&&sceneWaterPort(o)?.inlet);
+}
+function sceneCoursePair(selected){
+ const port=sceneWaterPort(selected);
+ if(!port||!selected.visible)return;
+ const linked=port.inlet?sceneObjects.find(o=>o.channelFallId===selected.id):
+  sceneObjects.find(o=>o.id===selected.channelFallId);
+ if(linked)return port.inlet?{course:linked,fall:selected,linked:true}:{course:selected,fall:linked,linked:true};
+ const choices=sceneObjects.filter(o=>{
+  const other=sceneWaterPort(o);
+  if(!o.visible||o===selected||!other||Boolean(other.inlet)===Boolean(port.inlet))return false;
+  return port.inlet?!o.channelFallId:!sceneObjects.some(course=>course.channelFallId===o.id);
+ });
+ const end=sceneCourseWorld(scenePose(selected),port.center);
+ let nearest,distance=Infinity;
+ for(const obj of choices){
+  const point=sceneCourseWorld(scenePose(obj),sceneWaterPort(obj).center);
+  const dist=Math.hypot(...point.map((v,i)=>v-end[i]));
+  if(dist<distance){nearest=obj;distance=dist}
+ }
+ if(nearest)return port.inlet?{course:nearest,fall:selected}:{course:selected,fall:nearest};
+}
+function sceneCourseWorld(pose,local){
+ return add(sceneOrient(pose,local.map((v,i)=>v*pose.scale[i])),[pose.x,pose.y,pose.z]);
+}
+const waterfallBankSeams=new WeakMap();
+function waterfallBankSeam(fall,inlet){
+ if(!inlet.banks)return;
+ if(waterfallBankSeams.has(fall.faces))return waterfallBankSeams.get(fall.faces);
+ const key=p=>p.map(v=>Math.round(v*1e6)).join(',');
+ const samples=new Map();
+ const banks=inlet.banks.map(row=>row.map(([x,y])=>{
+  const p=add(inlet.center,[x,y,0]),seam={normal:[0,0,0],uv:[p[0]*1.36,p[2]*1.36]};
+  samples.set(key(p),seam);
+  return seam;
+ }));
+ // Usa apenas a superfície das margens. A tampa traseira cria uma quina
+ // quando a cachoeira está isolada, mas não deve sombrear a emenda.
+ for(const f of fall.faces){
+  if(f.part!=='Terreno do riacho superior')continue;
+  const [a,b,c]=f.points,n=cross(b.map((v,i)=>v-a[i]),c.map((v,i)=>v-a[i]));
+  for(const [i,p] of f.points.entries()){
+   if(Math.abs(p[2]-inlet.center[2])>1e-6)continue;
+   const seam=samples.get(key(p));
+   if(!seam)continue;
+   seam.color=f.landColors?.[i]||rgb(f.color);
+   seam.normal=add(seam.normal,n);
+  }
+ }
+ const seam={banks,samples,key};
+ waterfallBankSeams.set(fall.faces,seam);
+ return seam;
+}
+function sceneFitWaterCourses(groundAt){
+ const transforms=new Map(),fallBanks=new Map();
+ for(const [index,course] of sceneObjects.entries()){
+  const fall=course.visible&&sceneCourseTarget(course);
+  if(!fall)continue;
+  const outlet=sceneWaterPort(course),inlet=sceneWaterPort(fall);
+  if(!outlet||outlet.inlet)continue;
+  const old=scenePose(course),target=scenePose(fall);
+  const next={...old,x:0,y:0,z:0,rotation:target.rotation,angles:target.angles};
+  const delta=add(sceneCourseWorld(target,inlet.center),mul(sceneCourseWorld(next,outlet.center),-1));
+  [next.x,next.y,next.z]=delta;
+  [course.x,course.y,course.z]=delta;
+  course.rotation=next.rotation;course.rotationXYZ=next.angles.slice();
+  const ratioX=target.scale[0]/next.scale[0],ratioY=target.scale[1]/next.scale[1];
+  const widthFactor=inlet.half*ratioX/outlet.half;
+  const seam=waterfallBankSeam(fall,inlet);
+  let banks;
+  if(seam){
+   const normal=n=>norm(sceneOrient(target,n.map((v,i)=>v/target.scale[i])));
+   const mapped=new Map();
+   for(const [key,vertex] of seam.samples)if(vertex.color)mapped.set(key,{...vertex,normal:normal(vertex.normal)});
+   banks=seam.banks.map(row=>row.map(vertex=>({...vertex,normal:normal(vertex.normal)})));
+   fallBanks.set(sceneObjects.indexOf(fall),{
+    sample:p=>{
+     const origin=[target.x,target.y,target.z];
+     const local=sceneOrient(target,p.map((v,i)=>v-origin[i]),true).map((v,i)=>v/target.scale[i]);
+     return Math.abs(local[2]-inlet.center[2])<1e-6?mapped.get(seam.key(local)):undefined;
+    }
+   });
+  }
+  const reach=Math.min(outlet.center[2]*1.1,Math.max(outlet.center[2]*.42,outlet.half*1.5));
+  const origin=[old.x,old.y,old.z];
+  const toLocal=p=>sceneOrient(old,p.map((v,i)=>v-origin[i]),true).map((v,i)=>v/old.scale[i]);
+  const blendAt=z=>shoreEase(outlet.center[2]-reach,outlet.center[2],z);
+  const point=(local,t)=>{
+   const dx=local[0]-outlet.center[0],dy=local[1]-outlet.center[1];
+   if(t>0){
+    const side=dx<0?0:1,bank=inlet.banks?.[side];
+    let toX=dx*widthFactor,toY=dy;
+    if(bank&&Math.abs(dx)>outlet.half+1e-9){
+     const u=Math.min(1,(Math.abs(dx)-outlet.half)/outlet.margin);
+     const row=u*(bank.length-1),i=Math.min(bank.length-2,Math.floor(row)),f=row-i;
+     const rim=bank[i].map((v,j)=>v+(bank[i+1][j]-v)*f);
+     toX=rim[0]*ratioX;
+     toY=dy+rim[1]*ratioY-(-outlet.depth*.025+outlet.rise*u**1.35);
+    }else if(inlet.depth&&dy<0)toY=dy*inlet.depth*ratioY/outlet.depth;
+    local[0]+=(toX-dx)*t;local[1]+=(toY-dy)*t;
+   }
+   return sceneCourseWorld(next,local);
+  };
+  transforms.set(index,{point,old,next,toLocal,blendAt,outlet,banks,feet:new Map(),inletColor:inlet.color&&rgb(inlet.color)});
+ }
+ if(!transforms.size)return;
+ const supports=[];
+ for(const f of faces){
+  const fit=transforms.get(f._sceneIndex);
+  if(!fit){
+   const seam=fallBanks.get(f._sceneIndex);
+   if(seam&&f.part.endsWith(' · Terreno do riacho superior')){
+    const vertices=f.points.map(seam.sample);
+    if(vertices.some(Boolean)){
+     f.normals=f.normals.map((n,i)=>vertices[i]?.normal||n);
+     f.uv=f.points.map((_,i)=>vertices[i]?.uv||faceUV(f,i));
+    }
+   }
+   continue;
+  }
+  const {point,old,next,toLocal,blendAt,outlet,inletColor,banks,feet}=fit;
+  const local=f.points.map(toLocal),blend=local.map(p=>blendAt(p[2]));
+  if(inletColor&&f.kind===4&&f.landColors&&blend.some(t=>t>0)){
+   f.landColors=f.landColors.map((tone,i)=>{
+    const edge=Math.min(1,Math.abs(local[i][0]-outlet.center[0])/outlet.half);
+    const tint=landscapeMix(inletColor,[.533,.714,.710],edge*.42);
+    return landscapeMix(tone,tint,blend[i]);
+   });
+  }
+  f.points=local.map((p,i)=>point(p,blend[i]));
+  f._upperCourse=true;
+  const bank=f.shoreT?.length===3;
+  let bankVertices;
+  if(bank&&banks&&blend.some(t=>t>0)){
+   bankVertices=local.map((p,i)=>{
+    const row=banks[p[0]<outlet.center[0]?0:1],position=f.shoreT[i]*(row.length-1);
+    const j=Math.min(row.length-2,Math.floor(position)),t=position-j;
+    const a=row[j],b=row[j+1];
+    if(!a.color||!b.color)return;
+    return {color:landscapeMix(a.color,b.color,t),normal:norm(landscapeMix(a.normal,b.normal,t)),
+     uv:landscapeMix(a.uv,b.uv,t)};
+   });
+   const tone=rgb(f.color);
+   f.landColors=f.points.map((_,i)=>bankVertices[i]?landscapeMix(tone,bankVertices[i].color,blend[i]):tone);
+   f.uv=f.points.map((_,i)=>bankVertices[i]?landscapeMix(faceUV(f,i),bankVertices[i].uv,blend[i]):faceUV(f,i));
+  }
+  if(bank&&groundAt){
+   const offsets=f.points.map((p,i)=>{
+    const shore=f.shoreT[i],weight=shoreEase(.05,1,shore)*(1-blend[i]);
+    const sample=weight&&groundAt(p[0],p[2]);
+    return sample?Math.max(0,sample.height+.002-p[1])*weight:0;
+   });
+   f.points=f.points.map((p,i)=>offsets[i]?[p[0],p[1]+offsets[i],p[2]]:p);
+   for(let i=0;i<3;i++){
+    const j=(i+1)%3;
+    if(f.shoreT[i]!==1||f.shoreT[j]!==1)continue;
+    const base=k=>{
+     const p=f.points[k],fade=1-blend[k],key=p.map(v=>Math.round(v*1e6)).join(',');
+     if(feet.has(key))return feet.get(key);
+     const under=groundAt(p[0],p[2]);
+     if(!under||p[1]-under.height<.025){feet.set(key,p);return p}
+     const side=Math.sign(local[k][0]-outlet.center[0]),direction=sceneOrient(next,[side,0,0]);
+     const run=Math.min((p[1]-under.height)*.85,outlet.half*next.scale[0]*3)*fade;
+     let x=p[0]+direction[0]*run,z=p[2]+direction[2]*run,sample=groundAt(x,z);
+     if(!sample){x=p[0];z=p[2];sample=under}
+     const foot=[x,Math.min(p[1],sample.height-.012),z];
+     feet.set(key,foot);
+     return foot;
+    };
+    const a=f.points[i],b=f.points[j],c=base(j),d=base(i);
+    // Faces externas ligam a borda elevada ao apoio e afinam na emenda da cachoeira.
+    for(const points of [[b,a,d],[b,d,c]]){
+     const [u,v,w]=points,n=norm(cross(v.map((value,k)=>value-u[k]),w.map((value,k)=>value-u[k])));
+     if(Math.hypot(...n)<.5)continue;
+     const green=rgb('#6f7852'),rock=rgb('#716b60');
+     supports.push({points,normals:[n,n,n],landColors:points.map(p=>p===a?(f.landColors?.[i]||rock):p===b?(f.landColors?.[j]||rock):green),
+      color:'#716b60',shade:1,kind:3,part:f.part.replace('Beirada do rio','Apoio do curso de água'),_sceneIndex:f._sceneIndex,_upperCourse:true});
+    }
+   }
+  }
+  if(bank||blend.some(t=>t>0)){
+   const [a,b,c]=f.points,n=norm(cross(b.map((v,i)=>v-a[i]),c.map((v,i)=>v-a[i])));
+   f.normals=f.points.map((_,i)=>bankVertices?.[i]?norm(landscapeMix(n,bankVertices[i].normal,blend[i])):n);
+  }else if(f.normals)f.normals=f.normals.map(n=>sceneOrient(next,sceneOrient(old,n,true)));
+ }
+ for(const f of supports)faces.push(f);
+}
+
+function sceneRefresh(preview=false,keepFrame=false){
+ if(!preview){
+  scatterVisibilityDirty=false;clearTimeout(sceneSliderIdle);sceneSizePending=null;
+ }
  if(preview){
   // GPU-only preview: the already uploaded complete mesh stays untouched.
   // No geometry allocation, surface recoloring, terrain cutting or buffer upload per pointer event.
@@ -2329,7 +2859,15 @@ function sceneRefresh(preview=false){
  const ranges=[];
  for(const [sceneIndex,obj] of sceneObjects.entries()){if(!sceneShowsOriginal(obj)||sceneUsesSharedMesh(obj))continue;const faceStart=faces.length;const a=obj.rotation*Math.PI/180,c=Math.cos(a),sn=Math.sin(a),scale=objectScale(obj),ang=obj.rotationXYZ||[0,0,0],cx=Math.cos(ang[0]*Math.PI/180),sx=Math.sin(ang[0]*Math.PI/180),cz=Math.cos(ang[2]*Math.PI/180),sz=Math.sin(ang[2]*Math.PI/180);
   const orient=q=>{let [x,y,z]=q;[y,z]=[y*cx-z*sx,y*sx+z*cx];[x,y]=[x*cz-y*sz,x*sz+y*cz];return [x*c+z*sn,y,-x*sn+z*c]};
-  for(const f of obj.faces){const transform=p=>{let q=orient(p.map((v,i)=>v*scale[i]));return [q[0]+obj.x,q[1]+obj.y,q[2]+obj.z]};const normal=n=>norm(orient(n.map((v,i)=>v/scale[i])));
+  const base=Number.isFinite(obj.terrainBaseThickness)?terrainBaseProfile(obj):null;
+  const bottom=terrainAdjustedBottom(obj,base);
+  for(const f of obj.faces){
+   const subsoil=bottom!==null&&f.part==='Subsolo';
+   const transform=p=>{
+    const y=subsoil&&Math.abs(p[1]-base.bottom)<1e-7?bottom:p[1];
+    const q=orient([p[0]*scale[0],y*scale[1],p[2]*scale[2]]);
+    return [q[0]+obj.x,q[1]+obj.y,q[2]+obj.z];
+   };const normal=n=>norm(orient(n.map((v,i)=>v/scale[i])));
    faces.push({...f,_sceneIndex:sceneIndex,part:obj.id+' · '+(f.part||obj.name),points:f.points.map(transform),...(f.normals?{normals:f.normals.map(normal)}:{})});
   }
   ranges.push({obj,start:faceStart,end:faces.length});
@@ -2340,28 +2878,33 @@ function sceneRefresh(preview=false){
  sceneJoinWater();
  faces=faces.filter(f=>!f._joinHidden);
  scatterCollectSurfaces();sceneGenerateScatter();sceneMakeBatches();
- finishEnvironment();scatterSync();
+ finishEnvironment(keepFrame);scatterSync();updateSceneDimensions();
  // Referência íntegra: o preview usa a mesma topologia e recortes da cena real.
  sceneFullFaces=null;sceneFullPoses=new Map(sceneObjects.filter(o=>o.visible).map(o=>[o.id,scenePose(o)]));
  $('exportGlb').disabled=!sceneObjects.some(o=>o.visible);
  $('sceneCount').textContent=sceneObjects.length;sceneDrawGizmo();
 }
-function sceneRenderList(){const list=$('sceneList');list.replaceChildren();sceneObjects.forEach((o,i)=>{let row=document.createElement('div');row.className='scene-row';let check=document.createElement('input');check.type='checkbox';check.checked=o.visible;check.title='Exibir ou ocultar';check.onchange=()=>{o.visible=check.checked;sceneRefresh()};let btn=document.createElement('button');btn.textContent=(i+1)+'. '+o.name;btn.className=i===sceneSelected?'active':'';btn.setAttribute('aria-pressed',String(i===sceneSelected));btn.onclick=()=>{sceneSelected=i;sceneRenderList()};row.append(check,btn);list.append(row)});
- let o=sceneObjects[sceneSelected];$('sceneTransform').hidden=!o;if(o){const vals=objectScale(o);const scalar=Math.round(Math.cbrt(vals[0]*vals[1]*vals[2])*100);$('sceneSizeSlider').value=Math.max(5,Math.min(500,scalar));$('sceneSizeValue').textContent=scalar+'%'}$('sceneDuplicate').disabled=$('sceneRemove').disabled=!o;
+function sceneRenderList(){const list=$('sceneList');list.replaceChildren();sceneObjects.forEach((o,i)=>{let row=document.createElement('div');row.className='scene-row';let check=document.createElement('input');check.type='checkbox';check.checked=o.visible;check.title='Exibir ou ocultar';check.onchange=()=>{o.visible=check.checked;sceneRefresh()};let btn=document.createElement('button');btn.textContent=(i+1)+'. '+o.name;btn.className=i===sceneSelected?'active':'';btn.setAttribute('aria-pressed',String(i===sceneSelected));btn.onclick=()=>{flushSceneSize();sceneSelected=i;sceneRenderList()};row.append(check,btn);list.append(row)});
+ let o=sceneObjects[sceneSelected];$('sceneTransform').hidden=!o;if(o)syncSceneSizeControl(o);$('sceneDuplicate').disabled=$('sceneRemove').disabled=!o;
  const attach=$('sceneCliffAttach'),linked=o?.waterfallId&&sceneObjects.some(w=>w.id===o.waterfallId);
  attach.hidden=o?.category!=='cliffs';
  attach.disabled=!linked&&!(o&&o.category==='cliffs'&&findWaterfall(o));
  attach.textContent=linked?'Soltar da cachoeira':'Encaixar na cachoeira';
- scatterSync();sceneDrawGizmo();
+ const courseButton=$('sceneCourseAttach'),pair=sceneCoursePair(o);
+ courseButton.hidden=!sceneWaterPort(o);
+ courseButton.disabled=!pair;
+ courseButton.textContent=pair?.linked?'Soltar do topo da cachoeira':'Encaixar no topo da cachoeira';
+ scatterSync();updateSceneDimensions();sceneDrawGizmo();
  $('sceneCount').textContent=sceneObjects.length;
 }
-function enterScene(view){setAutoRotation(false);clearTimeout(regenerationTimer);if(activeCategory!=='scenes')saveFinishState(activeCategory);activeCategory='scenes';closeMenu();for(const b of document.querySelectorAll('[data-generator]'))b.setAttribute('aria-selected',String(b.dataset.generator==='scenes'));$('panelTitle').textContent='Cenários';$('treeLibraryEntry').hidden=true;$('treeConfigTabs').hidden=true;$('treePanels').hidden=true;$('assetPanel').hidden=true;$('meshQuality').hidden=true;$('finishingPanel').hidden=false;$('scenePanel').hidden=false;$('addCurrentToScene').hidden=true;cameraView=Object.hasOwn(axisViews,view?.cameraView)||view?.cameraView==='perspective'?view.cameraView:'';
+function enterScene(view){setAutoRotation(false);clearTimeout(regenerationTimer);if(activeCategory!=='scenes'){saveAssetState();saveFinishState(activeCategory)}activeCategory='scenes';closeMenu();for(const b of document.querySelectorAll('[data-generator]'))b.setAttribute('aria-selected',String(b.dataset.generator==='scenes'));$('panelTitle').textContent='Cenários';$('treeLibraryEntry').hidden=true;$('treeConfigTabs').hidden=true;$('treePanels').hidden=true;$('assetPanel').hidden=true;$('meshQuality').hidden=true;$('finishingPanel').hidden=false;$('scenePanel').hidden=false;$('addCurrentToScene').hidden=true;cameraView=Object.hasOwn(axisViews,view?.cameraView)||view?.cameraView==='perspective'?view.cameraView:'';
  if(Number.isFinite(view?.yaw))yaw=view.yaw;
  pitch=Number.isFinite(view?.pitch)?view.pitch:-.48;
  zoom=Number.isFinite(view?.zoom)?view.zoom:1;
  panX=Number.isFinite(view?.panX)?view.panX:0;
  panY=Number.isFinite(view?.panY)?view.panY:0;
  if(typeof view?.light==='boolean')sceneLight=view.light;
+ if(typeof view?.glbInstances==='boolean')$('sceneGlbInstances').checked=view.glbInstances;
  $('sceneLight').checked=sceneLight;
  sceneRenderList();sceneRefresh();resize()}
 function sceneAddCurrent(){
@@ -2392,11 +2935,75 @@ function sceneAddCurrent(){
   if(cliff)cliff.waterfallId=obj.id;
  }
  sceneObjects.push(obj);
+ const pair=sceneCoursePair(obj);
+ if(pair&&!pair.linked)pair.course.channelFallId=pair.fall.id;
  sceneSelected=sceneObjects.length-1;
  enterScene();
- $('status').textContent=label+' adicionado · '+sceneObjects.length+' objeto(s) no cenário';
+ $('status').textContent=pair?label+' adicionado · curso encaixado no topo da cachoeira':label+' adicionado · '+sceneObjects.length+' objeto(s) no cenário';
 }
-let sceneSliderActive=false,sceneSliderIdle=0;
+const sceneMeters=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:2});
+function showTerrainMeters(id,value){
+ const text=sceneMeters.format(value)+' m';
+ $(id+'Value').textContent=text;$(id).setAttribute('aria-valuetext',text);
+}
+let sceneSizePending=null,sceneSliderIdle=0;
+function syncSceneSizeControl(obj){
+ const terrain=isTerrainSizeObject(obj),input=$('sceneSizeSlider'),scale=objectScale(obj);
+ const value=terrain?terrainLocalSpan(obj)*Math.abs(scale[0]):Math.cbrt(scale[0]*scale[1]*scale[2])*100;
+ $('sceneSizeLabel').textContent=terrain?'Largura do terreno':'Escala da peça';
+ $('sceneTerrainDepthField').hidden=!terrain;
+ input.min=terrain ? .4:5;input.max=terrain?maxTerrainMeters:500;input.step=terrain ? .1:5;
+ input.value=value;
+ $('sceneSizeValue').textContent=sceneMeters.format(terrain?value:Math.round(value))+(terrain?' m':'%');
+ const base=terrain&&obj.category==='terrains'?terrainBaseProfile(obj):null;
+ $('sceneTerrainBaseField').hidden=!base;
+ if(terrain){
+  const depth=terrainLocalSpan(obj,2)*Math.abs(scale[2]);
+  $('sceneTerrainDepth').value=depth;
+  showTerrainMeters('sceneTerrainDepth',depth);
+  if(base){
+   const meters=obj.terrainBaseThickness??((base.top-base.bottom)*Math.abs(scale[1]));
+   $('sceneTerrainBase').value=Math.round(Math.log10(Math.max(.01,meters)/.01)*200);
+   showTerrainMeters('sceneTerrainBase',meters);
+  }
+ }
+}
+function resizeSelectedSceneObject(value,axis=0){
+ const obj=sceneObjects[sceneSelected];
+ if(!obj||!Number.isFinite(value))return;
+ if(sceneSizePending&&sceneSizePending!==obj)flushSceneSize();
+ delete obj.waterfallId;
+ const scale=objectScale(obj);
+ if(isTerrainSizeObject(obj)){
+  const next=meterLimit(value)/terrainLocalSpan(obj,axis);
+  if(axis===2)obj.scaleXYZ=[scale[0],scale[1],next];
+  else{
+   const depth=terrainLocalSpan(obj,2)*Math.abs(scale[2])*next/Math.max(.000001,Math.abs(scale[0]));
+   obj.scaleXYZ=[next,scale[1],meterLimit(depth)/terrainLocalSpan(obj,2)];
+  }
+  fitTerrainPreview();
+ }else{
+  const previous=Math.cbrt(scale[0]*scale[1]*scale[2])||1,ratio=value/100/previous;
+  obj.scaleXYZ=scale.map(v=>Math.max(.025,Math.min(40,v*ratio)));
+ }
+ syncSceneSizeControl(obj);updateSceneDimensions();
+ sceneSizePending=obj;sceneRefresh(true);
+ clearTimeout(sceneSliderIdle);sceneSliderIdle=setTimeout(flushSceneSize,220);
+}
+function updateSceneDimensions(){
+ const obj=sceneObjects[sceneSelected],output=$('sceneObjectDimensions');
+ if(!obj?.faces.length){output.textContent='';return}
+ if(!sceneGeometryBounds.has(obj.faces))sceneGeometryBounds.set(obj.faces,landscapeBounds(obj.faces));
+ const {min,max}=sceneGeometryBounds.get(obj.faces),scale=objectScale(obj);
+ const bottom=Number.isFinite(obj.terrainBaseThickness)?terrainAdjustedBottom(obj,terrainBaseProfile(obj)):null;
+ output.textContent=max.map((v,i)=>sceneMeters.format((v-(i===1?(bottom??min[i]):min[i]))*Math.abs(scale[i]))).join(' × ')+' m';
+}
+function flushSceneSize(){
+ const obj=sceneSizePending;
+ if(!obj)return;
+ clearTimeout(sceneSliderIdle);sceneSizePending=null;
+ if(activeCategory==='scenes'&&sceneObjects.includes(obj))sceneCommitTransform(obj);
+}
 function setupScene(){$('addCurrentToScene').onclick=sceneAddCurrent;
  $('sceneLight').onchange=()=>{sceneLight=$('sceneLight').checked;sceneMakeBatches();finishEnvironment();resize()};
  $('sceneCliffAttach').onclick=()=>{
@@ -2409,13 +3016,46 @@ function setupScene(){$('addCurrentToScene').onclick=sceneAddCurrent;
    cliff.waterfallId=waterfall.id;
   }
   sceneRefresh();sceneRenderList();
- };$('sceneSizeSlider').addEventListener('input',e=>{const o=sceneObjects[sceneSelected];if(!o)return;delete o.waterfallId;const next=Number(e.target.value)/100,prev=Math.cbrt(objectScale(o).reduce((a,b)=>a*b,1))||1,ratio=next/prev;o.scaleXYZ=objectScale(o).map(v=>Math.max(.025,Math.min(40,v*ratio)));$('sceneSizeValue').textContent=e.target.value+'%';sceneSliderActive=true;sceneRefresh(true);clearTimeout(sceneSliderIdle);sceneSliderIdle=setTimeout(()=>{sceneSliderActive=false;sceneCommitTransform()},220)});
+ };
+ $('sceneCourseAttach').onclick=()=>{
+  const pair=sceneCoursePair(sceneObjects[sceneSelected]);
+  if(!pair)return;
+  if(pair.linked)delete pair.course.channelFallId;
+  else pair.course.channelFallId=pair.fall.id;
+  sceneRefresh(false,true);sceneRenderList();
+  $('status').textContent=pair.linked?'Curso de água solto.':'Curso de água encaixado no topo da cachoeira.';
+ };
+ $('sceneSizeSlider').addEventListener('input',event=>resizeSelectedSceneObject(event.target.valueAsNumber));
+ $('sceneSizeSlider').addEventListener('change',flushSceneSize);
+ $('sceneTerrainDepth').addEventListener('input',event=>resizeSelectedSceneObject(event.target.valueAsNumber,2));
+ $('sceneTerrainDepth').addEventListener('change',flushSceneSize);
+ $('sceneTerrainBase').addEventListener('input',event=>{
+  const obj=sceneObjects[sceneSelected];
+  if(obj?.category!=='terrains'||!terrainBaseProfile(obj))return;
+  if(sceneSizePending&&sceneSizePending!==obj)flushSceneSize();
+  const value=Math.round(Math.min(maxTerrainMeters,.01*10**(event.target.valueAsNumber/200))*100)/100;
+  obj.terrainBaseThickness=value;
+  showTerrainMeters('sceneTerrainBase',value);updateSceneDimensions();
+  sceneSizePending=obj;clearTimeout(sceneSliderIdle);sceneSliderIdle=setTimeout(flushSceneSize,180);
+ });
+ $('sceneTerrainBase').addEventListener('change',flushSceneSize);
+ $('assetTerrainDepth').addEventListener('input',event=>{
+  if(activeCategory!=='terrains')return;
+  const depth=event.target.valueAsNumber;
+  terrainDepthRatio=depth/+$('assetArea').value;
+  showTerrainMeters('assetTerrainDepth',depth);
+  clearTimeout(regenerationTimer);regenerationTimer=setTimeout(generate,130);
+ });
+ $('assetTerrainDepth').addEventListener('change',()=>{
+  if(activeCategory!=='terrains')return;
+  clearTimeout(regenerationTimer);generate();
+ });
  for(const b of document.querySelectorAll('[data-gizmo-mode]'))b.onclick=()=>setGizmoMode(b.dataset.gizmoMode);
  document.addEventListener('keydown',e=>{if(activeCategory!=='scenes'||e.target.matches('input,textarea,select')||e.ctrlKey||e.altKey)return;const mode={g:'move',r:'rotate',s:'scale'}[e.key.toLowerCase()];if(mode){e.preventDefault();setGizmoMode(mode)}});
- $('sceneDuplicate').onclick=()=>{let o=sceneObjects[sceneSelected];if(!o)return;sceneObjects.push({...o,waterfallId:undefined,scatter:undefined,id:'Peça '+(++sceneSequence),scaleXYZ:objectScale(o).slice(),rotationXYZ:(o.rotationXYZ||[0,0,0]).slice(),x:o.x+1,z:o.z+1});sceneSelected=sceneObjects.length-1;sceneRenderList();sceneRefresh()};
- $('sceneRemove').onclick=()=>{if(sceneSelected<0)return;const [removed]=sceneObjects.splice(sceneSelected,1);for(const obj of sceneObjects)if(obj.waterfallId===removed.id)delete obj.waterfallId;sceneSelected=Math.min(sceneSelected,sceneObjects.length-1);sceneRenderList();sceneRefresh()};
+ $('sceneDuplicate').onclick=()=>{let o=sceneObjects[sceneSelected];if(!o)return;sceneObjects.push({...o,waterfallId:undefined,channelFallId:undefined,scatter:undefined,id:'Peça '+(++sceneSequence),scaleXYZ:objectScale(o).slice(),rotationXYZ:(o.rotationXYZ||[0,0,0]).slice(),x:o.x+1,z:o.z+1});sceneSelected=sceneObjects.length-1;sceneRenderList();sceneRefresh()};
+ $('sceneRemove').onclick=()=>{if(sceneSelected<0)return;const [removed]=sceneObjects.splice(sceneSelected,1);for(const obj of sceneObjects){if(obj.waterfallId===removed.id)delete obj.waterfallId;if(obj.channelFallId===removed.id)delete obj.channelFallId}sceneSelected=Math.min(sceneSelected,sceneObjects.length-1);sceneRenderList();sceneRefresh()};
  $('sceneClear').onclick=()=>{sceneObjects.length=0;sceneSelected=-1;sceneRenderList();sceneRefresh();$('status').textContent='Cenário limpo.'};
- $('sceneZero').onclick=()=>{let o=sceneObjects[sceneSelected];if(!o)return;delete o.waterfallId;o.x=o.y=o.z=0;sceneRenderList();sceneCommitTransform()};
+ $('sceneZero').onclick=()=>{let o=sceneObjects[sceneSelected];if(!o)return;const anchor=sceneCourseTarget(o)||o;delete o.waterfallId;anchor.x=anchor.y=anchor.z=0;sceneRenderList();sceneCommitTransform()};
 }
 setupEnvironment();setupFinishing();setupScene();setupSceneScatter();choosePreset(species[0],false);resize();resumeAnimation();
 
@@ -2456,7 +3096,7 @@ function projectRecords(){
   objects.push({...record,mesh:meshIds.get(geometry)});
  }
  return {meshes,objects,meta:{type:'natureza3d-scene',version:2,selected:sceneSelected,sequence:sceneSequence,
-  view:{yaw,pitch,zoom,panX,panY,cameraView,light:sceneLight}}};
+  view:{yaw,pitch,zoom,panX,panY,cameraView,light:sceneLight,glbInstances:$('sceneGlbInstances').checked}}};
 }
 async function* projectChunks(snapshot){
  const {objects,meshes,meta}=snapshot;
@@ -2617,8 +3257,9 @@ async function openSceneProject(file){
 
 const encodedMaps=new WeakMap(),glbFaceBatch=14000;
 
+const glbInstanceExtension='EXT_mesh_gpu_instancing';
 function glbPlan(){
- const meshes=[],nodes=[],roots=[],byGeometry=new Map();
+ const meshes=[],nodes=[],roots=[],instances=[],byGeometry=new Map();
  const addRoot=node=>{roots.push(nodes.length);nodes.push(node)};
  const addMesh=(name,geometry)=>{
   const materials=new Map();
@@ -2635,14 +3276,32 @@ function glbPlan(){
  if(activeCategory==='scenes'){
   if(faces.length){
    const name='Relevo e água',mesh=addMesh(name,faces);
-   if(mesh>=0)addRoot({name,mesh});
+   if(mesh>=0){
+    const source=sceneObjects[faces[0]._sceneIndex];
+    const terrain=isTerrainSizeObject(source)&&faces.every(f=>sceneObjects[f._sceneIndex]===source);
+    addRoot({name,mesh,...(terrain?{extras:{terrainWidthMode:true}}:{})});
+   }
   }
-  const distributions=new Map();
-  for(const obj of sharedScenePlacements()){
+  const placements=sharedScenePlacements(),grouped=new Map(),distributions=new Map();
+  if($('sceneGlbInstances').checked){
+   for(const obj of placements){
+    if(!grouped.has(obj.faces))grouped.set(obj.faces,[]);
+    grouped.get(obj.faces).push(obj);
+   }
+  }
+  for(const obj of placements){
    if(!obj.faces.length)continue;
    if(!byGeometry.has(obj.faces))byGeometry.set(obj.faces,addMesh(obj.name,obj.faces));
    const mesh=byGeometry.get(obj.faces);
    if(mesh<0)continue;
+   const group=grouped.get(obj.faces);
+   if(group?.length>1){
+    if(obj===group[0]){
+     instances.push({node:nodes.length,objects:group});
+     addRoot({name:obj.name+' · '+group.length+' instâncias',mesh});
+    }
+    continue;
+   }
    const node={name:obj.id+' · '+obj.name,mesh,matrix:matrixForScene(scenePose(obj),true)};
    if(!obj._scatterSource){addRoot(node);continue}
    if(!distributions.has(obj._scatterSource)){
@@ -2653,6 +3312,9 @@ function glbPlan(){
    distributions.get(obj._scatterSource).push(nodes.length);
    nodes.push(node);
   }
+ }else if(activeCategory==='terrains'){
+  const name=currentAssetName(),mesh=addMesh(name,faces);
+  if(mesh>=0)addRoot({name,mesh,extras:{terrainWidthMode:true}});
  }else{
   const parts=new Map();
   for(const f of faces){
@@ -2665,7 +3327,7 @@ function glbPlan(){
    if(mesh>=0)addRoot({name,mesh});
   }
  }
- return {meshes,nodes,roots};
+ return {meshes,nodes,roots,instances};
 }
 function glbHeader(gltf,capacity,binarySize){
  const json=diskEncoder.encode(JSON.stringify(gltf)),size=capacity||Math.ceil(json.byteLength/4)*4;
@@ -2722,7 +3384,8 @@ function packGLBPrimitive(list,start,end,kind,variation,weather){
   tex:tex?.subarray(0,count*2),indices:indices.subarray(0,index)};
 }
 async function writeGLB(sink=null){
- if(activeCategory==='scenes'&&scenePreview)sceneRefresh();
+ flushSceneSize();
+ if(activeCategory==='scenes'&&scenePreview)sceneRefresh(false,true);
  if(activeCategory==='scenes'&&scatterTimer)flushScatterSliders();
  const plan=glbPlan();
  if(!plan.nodes.length)throw Error('O cenário não tem geometria visível.');
@@ -2730,7 +3393,7 @@ async function writeGLB(sink=null){
  gltf.nodes=plan.nodes;gltf.scenes[0].nodes=plan.roots;
  const sections=plan.meshes.reduce((total,mesh)=>total+[...mesh.materials.values()].reduce((n,list)=>n+Math.ceil(list.length/glbFaceBatch),0),0);
  // Reserva a área do JSON, grava BIN em blocos e volta para preencher o cabeçalho ao final.
- const reserve=sink?4*Math.ceil((32768+diskEncoder.encode(JSON.stringify(plan.nodes)).length+sections*2400)/4):0;
+ const reserve=sink?4*Math.ceil((32768+diskEncoder.encode(JSON.stringify(plan.nodes)).length+sections*2400+plan.instances.length*1400)/4):0;
  if(sink)await sink.write(new Uint8Array(28+reserve));
  const chunks=[],padding=new Uint8Array(3);
  let offset=0;
@@ -2753,6 +3416,23 @@ async function writeGLB(sink=null){
   const index=gltf.accessors.length;
   gltf.accessors.push({bufferView,componentType,count:array.length/size,type,...extra});
   return index;
+ }
+ if(plan.instances.length){
+  gltf.extensionsUsed=[glbInstanceExtension];gltf.extensionsRequired=[glbInstanceExtension];
+  for(const {node,objects} of plan.instances){
+   const count=objects.length;
+   const positions=new Float32Array(count*3),rotations=new Float32Array(count*4),scales=new Float32Array(count*3);
+   for(const [i,obj] of objects.entries()){
+    const pose=scenePose(obj),[x,y,z,w]=sceneQuaternion(pose);
+    positions.set([pose.x,pose.y,-pose.z],i*3);rotations.set([-x,-y,z,w],i*4);scales.set(pose.scale,i*3);
+   }
+   const attributes={
+    TRANSLATION:await accessor(positions,5126,3,'VEC3',34962),
+    ROTATION:await accessor(rotations,5126,4,'VEC4',34962),
+    SCALE:await accessor(scales,5126,3,'VEC3',34962)
+   };
+   gltf.nodes[node].extensions={[glbInstanceExtension]:{attributes}};
+  }
  }
  const kinds=[...new Set(plan.meshes.flatMap(mesh=>[...mesh.materials.keys()]))],textureIds=new Map();
  const rough=+$('surfaceRoughness').value/82,relief=+$('surfaceDetail').value/100;
@@ -2825,7 +3505,7 @@ $('exportGlb').onclick=saveGLB;
 const glbIdentity=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
 function glbLocalMatrix(node){
  if(node.matrix?.length===16)return node.matrix;
- const q=node.rotation||[0,0,0,1],axis=q.slice(0,3),scale=node.scale||[1,1,1],center=node.translation||[0,0,0];
+ const q=norm(node.rotation||[0,0,0,1]),axis=q.slice(0,3),scale=node.scale||[1,1,1],center=node.translation||[0,0,0];
  const columns=[[1,0,0],[0,1,0],[0,0,1]].map((basis,i)=>{
   const t=mul(cross(axis,basis),2),vector=add(add(basis,mul(t,q[3])),cross(axis,t));
   return [...mul(vector,scale[i]),0];
@@ -2857,23 +3537,37 @@ function glbFlattenTransform(geometry,{columns,translate,det}){
   ...(f.normals&&det?{normals:winding.map(i=>norm(mul(transform(f.normals[i],bases),Math.sign(det))))}:{normals:undefined}),
   ...(f.uv?{uv:winding.map(i=>f.uv[i])}:{}),...(f.landColors?{landColors:winding.map(i=>f.landColors[i])}:{})}));
 }
-function glbImportedPieces(gltf,library,file){
- const items=[],nodes=gltf.nodes||[],children=new Set(nodes.flatMap(node=>node.children||[]));
+function glbImportedPieces(gltf,library,file,getAccessor){
+ const items=[],opaque=new Map(),nodes=gltf.nodes||[],children=new Set(nodes.flatMap(node=>node.children||[]));
  const roots=gltf.scenes?.[gltf.scene||0]?.nodes||nodes.map((_,i)=>i).filter(i=>!children.has(i));
- function push(mesh,matrix,name){
+ function push(mesh,matrix,name,extras){
   const geometry=library[mesh];
   if(!geometry?.length)return;
   const pose=glbScenePose(matrix),direct=!pose.columns,faces=direct?geometry:glbFlattenTransform(geometry,pose);
-  const sharedMesh=direct&&!geometry.some(f=>f.kind===4||f.kind===8);
+  if(!opaque.has(mesh))opaque.set(mesh,!geometry.some(f=>f.kind===4||f.kind===8));
+  const sharedMesh=direct&&opaque.get(mesh);
   items.push({id:'Peça '+(++sceneSequence),name:name||gltf.meshes[mesh]?.name||file.name.replace(/\.glb$/i,''),
-   category:'imported',faces,sharedMesh,x:0,y:0,z:0,rotation:0,scale:100,scaleXYZ:[1,1,1],rotationXYZ:[0,0,0],
+   category:'imported',faces,sharedMesh,terrainWidthMode:extras?.terrainWidthMode===true,x:0,y:0,z:0,rotation:0,scale:100,scaleXYZ:[1,1,1],rotationXYZ:[0,0,0],
    visible:true,...(direct?pose:{})});
  }
  function visit(index,parent,stack){
   if(stack.has(index)||!nodes[index])return;
   const node=nodes[index],matrix=glbWorldMatrix(parent,glbLocalMatrix(node));
   stack.add(index);
-  if(node.mesh!==undefined)push(node.mesh,matrix,node.name);
+  if(node.mesh!==undefined){
+   const batch=node.extensions?.[glbInstanceExtension]?.attributes;
+   if(!batch)push(node.mesh,matrix,node.name,node.extras);
+   else{
+    const positions=getAccessor(batch.TRANSLATION),rotations=getAccessor(batch.ROTATION),scales=getAccessor(batch.SCALE);
+    const count=(positions||rotations||scales)?.length??gltf.accessors?.[Object.values(batch)[0]]?.count;
+    if(!Number.isInteger(count)||count<1||[positions,rotations,scales].some(values=>values&&values.length!==count))
+     throw Error('Instâncias inválidas no GLB.');
+    for(let i=0;i<count;i++){
+     const local=glbLocalMatrix({translation:positions?.[i],rotation:rotations?.[i],scale:scales?.[i]});
+     push(node.mesh,glbWorldMatrix(matrix,local),node.name,node.extras);
+    }
+   }
+  }
   for(const child of node.children||[])visit(child,matrix,stack);
   stack.delete(index);
  }
@@ -2921,10 +3615,13 @@ async function importSceneGLB(file){
  }
  await ioPause();
  }
- const items=glbImportedPieces(gltf,library,file);
+ const items=glbImportedPieces(gltf,library,file,getAccessor);
  if(!items.length)throw Error('O GLB não contém triângulos compatíveis.');
+ const keepFrame=activeCategory==='scenes'&&sceneObjects.some(o=>o.visible);
+ flushSceneSize();
  sceneObjects.push(...items);sceneSelected=sceneObjects.length-1;
- enterScene();$('status').textContent='GLB aberto · '+items.length+' peças · '+new Set(items.map(o=>o.faces)).size+' malhas.';
+ if(keepFrame){sceneRefresh(false,true);sceneRenderList()}else enterScene();
+ $('status').textContent='GLB aberto · '+items.length+' peças · '+new Set(items.map(o=>o.faces)).size+' malhas.';
 }
 $('sceneSaveProject').onclick=async()=>{try{await saveSceneProject()}catch(e){$('status').textContent=e.name==='AbortError'?'Salvamento cancelado.':'Erro: '+e.message;console.error(e)}};
 $('sceneOpenProject').onclick=()=>$('sceneProjectInput').click();
