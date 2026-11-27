@@ -286,7 +286,7 @@ main>nav button::before,main>nav button::after{display:none!important;content:no
 #panelPath .pathMotion{border-top:1px solid #414654;margin-top:16px;padding-top:12px}
 #panelPath .pathMotion h3{margin:0 0 8px}
 #panelPath .pathSpeed{margin:12px 0 0}
-#pathSpeed{display:block;width:100%;margin:0;accent-color:#a892ec}
+#pathProgress{display:block;width:100%;margin:0;accent-color:#a892ec}
 #panelPath .pathSpeedEnds{display:flex;justify-content:space-between;gap:6px;font-size:11px;margin-top:2px}
 #panelPath .pathTravel{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin:12px 0 0}
 #panelPath .pathTravel label{margin:0}
@@ -1332,28 +1332,25 @@ main>nav button::before,main>nav button::after{display:none!important;content:no
     <div class="pathMotion">
       <h3>Movimento</h3>
       <p id="pathActor" class="muted" role="status"></p>
+      <label for="pathActorSelect">Objeto para vincular</label>
+      <select id="pathActorSelect"><option value="">Selecione um objeto…</option></select>
       <div class="pathActions">
         <button id="pathBind" type="button" disabled>Vincular objeto</button>
         <button id="pathUnbind" type="button" disabled>Desvincular</button>
       </div>
       <button id="pathThirdPersonCamera" type="button" aria-pressed="false" disabled>Câmera em terceira pessoa</button>
-      <div class="pathSpeed">
-        <label for="pathSpeed">Velocidade</label>
-        <input id="pathSpeed" type="range" min="0" max="1000" step="1" disabled>
-        <div class="pathSpeedEnds muted" aria-hidden="true"><span>Mais lento</span><span>Mais rápido</span></div>
-      </div>
       <label style="display:flex;align-items:center;gap:8px;margin:10px 0;cursor:pointer">
         <input id="pathLoop" type="checkbox" disabled style="accent-color:#a892ec">
         Loop contínuo (fechado: voltas / aberto: ida e volta)
       </label>
-      <div class="pathTravel">
-        <label for="pathTravelFrames">Percorrer em (quadros)</label>
-        <input id="pathTravelFrames" type="number" min="2" max="100000" step="1" disabled
-          title="Menos quadros deixam o objeto mais rápido. Em branco, usa a duração da timeline.">
-      </div>
       <div class="pathActions">
         <button id="pathResume" type="button" disabled>Caminhar</button>
         <button id="pathPause" type="button" disabled>Parar</button>
+      </div>
+      <div class="pathSpeed">
+        <label for="pathProgress">Posição no caminho (%)</label>
+        <input id="pathProgress" type="range" min="0" max="100" step="1" value="0" disabled>
+        <button id="pathProgressKey" type="button" disabled>Gravar posição</button>
       </div>
       <p id="pathTiming" class="muted"></p>
     </div>
@@ -4584,11 +4581,12 @@ varying vec2 vTextureCoord;
                 const layerTime = Math.max(0, isLivePreview?particleSceneTime:particleSceneTime - particleLayerStart(layer));
                 // Every component shares a clock. A change to one component's life
                 // must not shift the flash, shockwave and smoke into different cycles.
-                const burstComponents=layer.components?.length?layer.components:[layer];
+                const components=layer.presetKey==='lumos'?particlePresets.lumos.components:layer.components;
+                const burstComponents=components?.length?components:[layer];
                 const burstPeriod=Math.max(0.05,...burstComponents.filter(component=>component.burst || layer.burst).map(component=>Math.max(component.cycle || layer.cycle || 5,(component.startDelay || 0)+(component.emissionWindow ?? .12)+(component.life ?? layer.life)*1.35)));
                 const burstTime=layer.actionOwner || (!isLivePreview && hasParticleTimeline)?layerTime:layerTime % burstPeriod;
-                const configs = layer.components?.length
-                    ? layer.components.map(component => ({
+                const configs = components?.length
+                    ? components.map(component => ({
                         ...particlePresetDefaults, ...layer, ...component,
                         x: layer.x + (component.offsetX || 0), y: layer.y + (component.offsetY || 0),
                         components: undefined, active: true,
@@ -4606,7 +4604,7 @@ varying vec2 vTextureCoord;
                     }];
 
                 const componentBaseTotal = configs.reduce((sum, config) => sum + Math.max(1, config.count), 0);
-                const componentScale = layer.components?.length ? Math.max(.01, layer.count / componentBaseTotal) : 1;
+                const componentScale = components?.length&&layer.presetKey!=='lumos' ? Math.max(.01, layer.count / componentBaseTotal) : 1;
                 configs.forEach(config => {
                     config.shape=resolveParticleShape(config.shape,layer.presetKey||'',config.blend);
                     config._colorStart=hexToRgb(config.colorStart);config._colorEnd=hexToRgb(config.colorEnd);
@@ -5238,10 +5236,9 @@ varying vec2 vTextureCoord;
 
         // Feitiços procedurais. O centro é definido pelos controles X/Y da camada.
         Object.assign(particlePresets, {
-            lumos: {...particlePresets.stars, count:23, emitter:'point', width:.02, height:.02, seed:601, components:[
-                {count:1, sizeStart:94, sizeEnd:94, sizeVar:0, speed:0, alpha:.48, pulse:.28, fadeIn:0, fadeOut:0, colorStart:'#84caff', colorEnd:'#84caff'},
-                {count:2, sizeStart:28, sizeEnd:28, sizeVar:0, speed:0, alpha:1, pulse:.18, fadeIn:0, fadeOut:0, colorStart:'#ffffff', colorEnd:'#e1f6ff'},
-                {count:20, emitter:'ring', width:.035, height:.045, speed:9, life:1.9, sizeStart:6, sizeEnd:2, colorStart:'#ffffff', colorEnd:'#8fc7ff'}
+            lumos: {...particlePresets.stars, count:2, emitter:'point', width:0, height:0, seed:601, components:[
+                {count:1, shape:'soft', sizeStart:94, sizeEnd:94, sizeVar:0, speed:0, gravityX:0, gravityY:0, turbulence:0, radial:0, orbit:0, stretch:1, alpha:.52, pulse:0, fadeIn:0, fadeOut:0, colorStart:'#5bb9ff', colorEnd:'#5bb9ff',blend:'add'},
+                {count:1, shape:'sphere', sizeStart:28, sizeEnd:28, sizeVar:0, speed:0, gravityX:0, gravityY:0, turbulence:0, radial:0, orbit:0, stretch:1, alpha:1, pulse:0, fadeIn:0, fadeOut:0, colorStart:'#e7faff', colorEnd:'#e7faff',blend:'add'}
             ]},
             expelliarmus: {...particlePresets.light, count:108, x:.27, angle:0, spread:12, speed:580, seed:610, components:[
                 {count:36, burst:true, cycle:2.4, emissionWindow:.16, life:.48, spread:3, sizeStart:17, sizeEnd:8, stretch:11, colorStart:'#fff2df', colorEnd:'#ff1616'},
@@ -5400,6 +5397,7 @@ varying vec2 vTextureCoord;
             const root = settings.particles;
             const p = getSelectedParticleLayer();
             document.getElementById('toggle-particles').checked = p.active !== false;
+            document.getElementById('particle-effect-size').max=p.presetKey==='lumos'?10:5;
             particleInputs.forEach(([id, prop, decimals]) => {
                 const input = document.getElementById(id);
                 if (!input) return;
@@ -7521,6 +7519,7 @@ function syncPlacementUI(){
  const volume=panel.querySelector('#vfx-volume-controls');volume.hidden=!(movable&&['particle','fire'].includes(subject.kind));
  if(movable){const state=bridge.placement?.(subject);panel.querySelector('#vfx-volume-shape').value=state?.volumeShape||'auto';const depth=panel.querySelector('#vfx-volume-depth');if(root.activeElement!==depth)depth.value=state?.volumeDepth??.3;panel.querySelector('#vfx-volume-depth-value').value=depth.value;}
 
+ panel.querySelector('#vfx-placement-key').disabled=!movable;
  panel.querySelector('#as-vfx-follow').disabled=!objectMode||!subject||subject.internal;
  const follow=panel.querySelector('#vfx-follow-object');
  follow.disabled=!placementState?.canFollowObject;
@@ -7590,7 +7589,7 @@ function mountPlacementUI(){
   showVfxSettings({kind,index:kind==='particles'?selectedParticleLayerIndex:undefined});
  };
  const panel=realDocument.createElement('details');panel.id='vfx-placement';panel.hidden=true;
- panel.innerHTML='<summary>Posição e vínculo</summary><div class="vfx-placement-fields"><div class="studio-vfx-gizmos" role="group" aria-label="Gizmos de VFX"><button id="vfx-move" type="button" title="Mover efeito" aria-label="Mover efeito">✥</button><button id="vfx-rotate" type="button" title="Girar efeito" aria-label="Girar efeito">↻</button><button id="vfx-scale" type="button" title="Escalar efeito" aria-label="Escalar efeito">⤢</button></div><div class="vfx-actions vfx-links"><button id="as-vfx-follow" type="button">Vincular osso</button><button id="vfx-follow-object" type="button" role="switch" aria-checked="false"><span class="vfx-switch-track" aria-hidden="true"></span>Seguir objeto</button></div><div id="vfx-volume-controls"><label for="vfx-volume-shape">Forma do volume 3D</label><select id="vfx-volume-shape"><option value="auto">Automática</option><option value="sphere">Esfera</option><option value="box">Caixa</option><option value="cylinder">Cilindro</option><option value="cone">Cone</option><option value="ring">Anel com espessura</option></select><label for="vfx-volume-depth" style="margin-top:7px">Profundidade do volume <output id="vfx-volume-depth-value">0.3</output></label><input id="vfx-volume-depth" type="range" min="0.01" max="10" step="0.01" value="0.3"></div><select id="vfx-reference" aria-label="Referência do movimento" title="Referência do movimento"></select></div>';
+ panel.innerHTML='<summary>Posição e vínculo</summary><div class="vfx-placement-fields"><div class="studio-vfx-gizmos" role="group" aria-label="Gizmos de VFX"><button id="vfx-move" type="button" title="Mover efeito" aria-label="Mover efeito">✥</button><button id="vfx-rotate" type="button" title="Girar efeito" aria-label="Girar efeito">↻</button><button id="vfx-scale" type="button" title="Escalar efeito" aria-label="Escalar efeito">⤢</button></div><div class="vfx-actions vfx-links"><button id="as-vfx-follow" type="button">Vincular osso</button><button id="vfx-follow-object" type="button" role="switch" aria-checked="false"><span class="vfx-switch-track" aria-hidden="true"></span>Seguir objeto</button></div><div id="vfx-volume-controls"><label for="vfx-volume-shape">Forma do volume 3D</label><select id="vfx-volume-shape"><option value="auto">Automática</option><option value="sphere">Esfera</option><option value="box">Caixa</option><option value="cylinder">Cilindro</option><option value="cone">Cone</option><option value="ring">Anel com espessura</option></select><label for="vfx-volume-depth" style="margin-top:7px">Profundidade do volume <output id="vfx-volume-depth-value">0.3</output></label><input id="vfx-volume-depth" type="range" min="0.01" max="10" step="0.01" value="0.3"></div><select id="vfx-reference" aria-label="Referência do movimento" title="Referência do movimento"></select><button id="vfx-placement-key" type="button">Gravar transformação</button></div>';
  const back=realDocument.createElement('button');
  back.type='button';back.id='vfx-catalog-back';back.textContent='‹ Efeitos';
  back.onclick=()=>{
@@ -7604,6 +7603,7 @@ function mountPlacementUI(){
  vfxGizmoRow.querySelector('#vfx-move').onclick=()=>bridge.selectPlacement?.(effectFollowSubject(),true,'translate');
  vfxGizmoRow.querySelector('#vfx-rotate').onclick=()=>bridge.selectPlacement?.(effectFollowSubject(),true,'rotate');
  vfxGizmoRow.querySelector('#vfx-scale').onclick=()=>bridge.selectPlacement?.(effectFollowSubject(),true,'scale');
+ panel.querySelector('#vfx-placement-key').onclick=()=>bridge.keyPlacement?.(effectFollowSubject());
  panel.querySelector('#vfx-volume-shape').onchange=e=>{const subject=effectFollowSubject();if(subject){bridge.placement?.(subject,{volumeShape:e.target.value});syncPlacementUI()}};
  panel.querySelector('#vfx-volume-depth').oninput=e=>{
   const subject=effectFollowSubject(),value=e.target.valueAsNumber;
@@ -7980,7 +7980,7 @@ function stateFromTimelineChannels(base,channels){
  return state;
 }
 
-const api={root,particleAtlas:getParticleAtlas,particleTextureNames,resolveParticleShape,timelineChannels,neutralTimelineGroup,changedTimelineGroups,legacyTimelineGroups,timelineRecordedGroups,selectedTimelineGroups,stateFromTimelineChannels,inheritPostEffects,followSubject:effectFollowSubject,syncFollowUI:syncEffectFollowUI,registerEffect,commitPaint:()=>changed(),defaults:()=>({version:1,enabled:true,config:{...clone(defaults),extensions:Object.fromEntries([...extensionRegistry].map(([id,e])=>[id,{enabled:false,...clone(e.defaults||{})}]))},mask:null}),capture:renderState,setState,prepare,render,active:hasEffects,paint,paintStroke,createWindStrokeMask,captureWindStrokeMask,updateLampPosition:(id,position)=>{const item=settings.lights.find(lamp=>lamp.id===id);if(item){item.lampPosition=position.slice();changed();syncLampUI();}},setWorldWindStrokes:strokes=>{settings.windWorldStrokes=clone(strokes);loadedVfxState=null;},windBrush:()=>({size:Number(document.getElementById('wind-brush-size').value),erase:document.getElementById('wind-brush-mode').value==='erase'}),windEditing:()=>!!document.getElementById('toggle-wind-edit').checked,dispose(){windBrushBatch?.destroy({children:true});app?.destroy(true,{children:true,texture:true,baseTexture:true});host.replaceChildren()},catalog:()=>cards.map(c=>c.querySelector('h3')?.textContent.trim()),interpolate:interpolateParticleSnapshot};global.AlexandreStudioVFX.instances.push(api);for(const extension of global.AlexandreStudioVFX.extensions)api.registerEffect(extension);return api;
+const api={root,particleAtlas:getParticleAtlas,particleTextureNames,resolveParticleShape,lumosComponents:()=>particlePresets.lumos.components,timelineChannels,neutralTimelineGroup,changedTimelineGroups,legacyTimelineGroups,timelineRecordedGroups,selectedTimelineGroups,stateFromTimelineChannels,inheritPostEffects,followSubject:effectFollowSubject,syncFollowUI:syncEffectFollowUI,registerEffect,commitPaint:()=>changed(),defaults:()=>({version:1,enabled:true,config:{...clone(defaults),extensions:Object.fromEntries([...extensionRegistry].map(([id,e])=>[id,{enabled:false,...clone(e.defaults||{})}]))},mask:null}),capture:renderState,setState,prepare,render,active:hasEffects,paint,paintStroke,createWindStrokeMask,captureWindStrokeMask,updateLampPosition:(id,position)=>{const item=settings.lights.find(lamp=>lamp.id===id);if(item){item.lampPosition=position.slice();changed();syncLampUI();}},setWorldWindStrokes:strokes=>{settings.windWorldStrokes=clone(strokes);loadedVfxState=null;},windBrush:()=>({size:Number(document.getElementById('wind-brush-size').value),erase:document.getElementById('wind-brush-mode').value==='erase'}),windEditing:()=>!!document.getElementById('toggle-wind-edit').checked,dispose(){windBrushBatch?.destroy({children:true});app?.destroy(true,{children:true,texture:true,baseTexture:true});host.replaceChildren()},catalog:()=>cards.map(c=>c.querySelector('h3')?.textContent.trim()),interpolate:interpolateParticleSnapshot};global.AlexandreStudioVFX.instances.push(api);for(const extension of global.AlexandreStudioVFX.extensions)api.registerEffect(extension);return api;
 }};
 })(window);
 
@@ -50510,7 +50510,7 @@ void main() {
     if(!object)return;
     const c=object.root.userData.studioSequence,r=studioSequenceRuntimes?.get(object.root);
     const backgroundButton=$('sequenceVideoBackground');
-    backgroundButton.hidden=c.kind!=='images';
+    backgroundButton.hidden=false;
     backgroundButton.disabled=!r;
     syncStudioVideoBackgroundButton(backgroundButton,!!c.videoBackground);
     $('sequenceLoop').checked=!!c.loop;$('sequenceVisible').checked=object.root.visible!==false;$('sequenceFaceCamera').checked=!!c.faceCamera;
@@ -50521,29 +50521,75 @@ void main() {
     const previewPlaying=r&&(!r.video.paused||r.playPending);$('sequencePlay').disabled=!!previewPlaying;$('sequencePause').disabled=!previewPlaying;
     $('sequenceFpsLabel').hidden=c.kind!=='images';if(document.activeElement!==$('sequenceFps'))$('sequenceFps').value=c.fps||24;
     $('sequenceSeek').step=c.kind==='images'?String(1/(c.fps||24)):'0.01';
-    $('sequenceSeek').max=String(Math.max(0,(c.duration||1)-(c.kind==='images'?1/(c.fps||24):.001)));$('sequenceSeek').value=String(r?.video.currentTime||c.time||0);
-    $('sequenceTime').textContent=(r?.video.currentTime||c.time||0).toFixed(2)+' / '+(c.duration||0).toFixed(2)+' s';
+    $('sequenceSeek').max=String(Math.max(0,(c.duration||1)-(c.kind==='images'?1/(c.fps||24):.001)));
+    syncSequenceTimeReadout(c,r);
     $('sequenceInfo').textContent=(c.width||0)+' × '+(c.height||0)+(c.kind==='images'?' · '+c.frames.length+' imagens · '+c.fps+' FPS':c.sourceImageCount?' · WebM de '+c.sourceImageCount+' imagens · '+c.sourceFps+' FPS':'')+' · '+object.name;
+  }
+  function syncSequenceTimeReadout(config,runtime){
+    const time=runtime?.video.currentTime??config.time??0;
+    const seek=$('sequenceSeek'),label=$('sequenceTime');
+    if(!seek.matches(':active'))seek.value=String(time);
+    label.textContent=time.toFixed(2)+' / '+(config.duration||0).toFixed(2)+' s';
+  }
+  function studioVideoFrameDrift(video,desired,loop){
+    const drift=desired-video.currentTime;
+    return loop&&Number.isFinite(video.duration)&&video.duration>0
+      ?MathUtils.euclideanModulo(drift+video.duration/2,video.duration)-video.duration/2
+      :drift;
+  }
+  function studioAlignPlaybackVideos(frame){
+    const time=(frame-1)/24,now=performance.now();
+    for(const runtime of studioSequenceRuntimes.values()){
+      if(runtime.kind==='images'||!studioTreeVisible(runtime.root))continue;
+      const video=runtime.video;
+      if(video.seeking||video.readyState<2||!Number.isFinite(video.duration))continue;
+      const state=sequencePlaybackAt(runtime.root,time);
+      const desired=sequenceTimeAt({...state,playing:false},video,0);
+      const jump=runtime.lastFrame!==frame-1;
+      const drift=studioVideoFrameDrift(video,desired,state.loop&&!jump);
+      if(Math.abs(drift)<=(jump?.012:2/24)||(!jump&&now-(runtime.lastDriftSeek??-Infinity)<250))continue;
+      // The decoder completes the seek independently of the timeline tick.
+      video.currentTime=desired;
+      runtime.lastDriftSeek=now;
+    }
   }
   function syncSequencePlayback(time,exporting=false,reversing=false){
     if(!studioSequenceRuntimes)return;
     for(const [root,r]of studioSequenceRuntimes){
       const c=root.userData.studioSequence,v=r.video;
       if(exporting||reversing||document.hidden||!studioTreeVisible(root)){v.pause();continue}
-      const changed=r.lastFrame!==currentFrame;r.lastFrame=currentFrame;
+      const previousFrame=r.lastFrame;
+      const changed=previousFrame!==currentFrame;
+      r.lastFrame=currentFrame;
       const object=objects.find(o=>o.root===root),keyed=!!getSequenceTrack(object)?.keyframes.size;
       if(changed||timelinePlaying)r.previewOverride=false;
       const state=sequencePlaybackAt(root,time);v.loop=!!state.loop;
-      if(timelinePlaying||changed){
+      const shouldPlay=keyed&&!r.previewOverride?timelinePlaying&&state.playing:c.playing;
+      if(r.kind!=='images'){
+        const desired=sequenceTimeAt({...state,playing:false},v,0);
+        const drift=studioVideoFrameDrift(v,desired,state.loop);
+        const rate=timelinePlaying&&shouldPlay?MathUtils.clamp(studioVideoPlaybackRate+drift*3,.25,1.25):1;
+        if(Math.abs(v.playbackRate-rate)>.04)v.playbackRate=rate;
+      }
+      if((timelinePlaying&&r.kind==='images')||(!timelinePlaying&&changed)){
         const desired=sequenceTimeAt({...state,playing:false},v,0);
         // During playback, repeated seeks on every timeline frame starve the
         // video decoder, especially when VFX renders several passes.
         // Seek precisely when scrubbing; while playing, let the decoder run.
-        const drift=Math.abs(v.currentTime-desired);
-        const tolerance=timelinePlaying&&state.playing ? (r.kind==='images' ? 0.20 : 0.65) : 0.025;
-        if(!v.seeking&&drift>tolerance)v.currentTime=desired;
+        const now=performance.now();
+        const playingForward=timelinePlaying&&shouldPlay;
+        const jump=previousFrame<0||currentFrame!==previousFrame+1||r.lastDesiredTime==null||
+          Math.abs(desired-r.lastDesiredTime)>.15||r.lastTimelinePlaying!==shouldPlay;
+        const tolerance=playingForward&&!jump?(r.kind==='images'?.20:.30):.025;
+        const elapsed=Math.abs(v.currentTime-desired);
+        const drift=playingForward&&!jump&&v.loop&&v.duration>0?Math.min(elapsed,Math.abs(v.duration-elapsed)):elapsed;
+        if(!v.seeking&&drift>tolerance&&(!playingForward||jump||now-(r.lastDriftSeek??-Infinity)>1000)){
+          v.currentTime=desired;
+          r.lastDriftSeek=now;
+        }
+        r.lastDesiredTime=desired;
+        r.lastTimelinePlaying=shouldPlay;
       }
-      const shouldPlay=keyed&&!r.previewOverride?timelinePlaying&&state.playing:c.playing;
       const ended=!v.loop&&v.currentTime>=v.duration-.001;
       if(r.kind==='images')requestImageSequenceFrame(r,v.currentTime);
       if(ended&&r.kind==='images'&&!keyed){c.playing=false;c.time=Math.max(0,v.duration-1/(c.fps||24));v.pause()}
@@ -50553,7 +50599,7 @@ void main() {
       }else if(!v.paused)v.pause();
     }
     const now=performance.now(),object=sequenceObject(),r=object&&studioSequenceRuntimes.get(object.root);
-    if(r&&!$('panelSequences').hidden&&now-studioSequenceUiAt>150){studioSequenceUiAt=now;syncSequenceUI()}
+    if(r&&!$('panelSequences').hidden&&now-studioSequenceUiAt>150){studioSequenceUiAt=now;syncSequenceTimeReadout(object.root.userData.studioSequence,r)}
   }
   async function prepareSequenceFrame(time){
     updateStudioMorphs(time*24+1);
@@ -50581,11 +50627,12 @@ void main() {
   };
   $('sequenceVideoBackground').onclick=()=>{
     const object=sequenceObject(),config=object?.root.userData.studioSequence;
-    if(config?.kind!=='images'||!studioSequenceRuntimes.get(object.root)||exportState||studioSaving)return;
+    if(!config||!studioSequenceRuntimes.get(object.root)||exportState||studioSaving)return;
     imageSetEdit(false);
     const enabled=toggleStudioVideoBackground(config);
     syncSequenceUI();
-    status(enabled?'Sequência definida como fundo do vídeo.':'Sequência restaurada como plano na cena.');
+    const media=config.kind==='video'?'Vídeo':'Sequência';
+    status(media+(enabled?' como fundo da cena.':' de volta ao plano na cena.'));
   };
   $('sequencePlay').onclick=()=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence,r=studioSequenceRuntimes.get(o.root);if(r.video.ended){r.video.currentTime=0;c.time=0}c.playing=true;r.previewOverride=true;syncSequencePlayback((currentFrame-1)/24);syncSequenceUI()};
   $('sequencePause').onclick=()=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence,r=studioSequenceRuntimes.get(o.root);c.playing=false;c.time=r.video.currentTime;r.previewOverride=true;r.video.pause();syncSequenceUI()};
@@ -50613,7 +50660,24 @@ void main() {
   $('sequenceKeyPause').onclick=()=>recordSequenceKey(false);
   $('sequenceOpenTrack').onclick=()=>{const o=sequenceObject();if(o)selectObject('__sequence__'+o.id,true)};
   $('sequenceVisible').onchange=()=>{if(sequenceObject())$('objectVisibility').click();syncSequenceUI()};
-  $('sequenceSeek').oninput=e=>{const o=sequenceObject();if(!o||exportState||studioSaving)return;const c=o.root.userData.studioSequence,r=studioSequenceRuntimes.get(o.root);c.playing=false;c.time=Number(e.target.value);r.video.pause();r.video.currentTime=Math.min(c.time,Math.max(0,r.video.duration-.001));vfxLastDraw=0;syncSequenceUI()};
+  $('sequenceSeek').oninput=event=>{
+    const object=sequenceObject(),runtime=object&&studioSequenceRuntimes.get(object.root);
+    if(!runtime||exportState||studioSaving)return;
+    const config=object.root.userData.studioSequence;
+    const time=MathUtils.clamp(Number(event.target.value)||0,0,Math.max(0,runtime.video.duration-.001));
+    if(timelinePlaying)pauseTimeline();
+    runtime.video.pause();
+    config.playing=false;
+    config.time=time;
+    setTimelineFrame(1+Math.round(time*24));
+    runtime.lastFrame=currentFrame;
+    runtime.previewOverride=true;
+    runtime.video.currentTime=time;
+    if(runtime.kind==='images')requestImageSequenceFrame(runtime,time);
+    vfxLastDraw=0;
+    studioInvalidatePreview(false);
+    syncSequenceUI();
+  };
   for(const [id,tool]of [['sequenceMove','objectMove'],['sequenceRotate','objectRotate'],['sequenceScale','objectScale']])$(id).onclick=()=>{if(sequenceObject())$(tool).click()};
   $('sequenceDelete').onclick=()=>{if(sequenceObject())$('deleteSceneObject').click();syncSequenceUI()};
   document.addEventListener('visibilitychange',()=>{if(document.hidden)for(const r of studioSequenceRuntimes.values())r.video.pause()});
@@ -50909,10 +50973,28 @@ function createCompactStudioZoom(options){
     const right=frames[index]??frames.at(-1);
     return [right<=frame||index===0?right:frames[index-1],right];
   }
-  function animationBlend(t) {
+  function studioHermite(a,b,inSlope,outSlope,t){
+    const delta=b-a,remaining=1-t;
+    return a+t*(t*(3-2*t)*delta+remaining*(remaining*inSlope-t*outSlope));
+  }
+  function animationBlend(t,enter=.85,exit=.85) {
     if (animationInterpolation === "constant") return t >= 1 ? 1 : 0;
-    if (animationInterpolation === "smooth") return t * t * (3 - 2 * t);
+    if (animationInterpolation === "smooth") return studioHermite(0,1,enter,exit,t);
     return t;
+  }
+  function studioMonotoneTangent(before,after,beforeSpan,afterSpan){
+    if(!before||!after||Math.sign(before)!==Math.sign(after))return 0;
+    const a=2*afterSpan+beforeSpan,b=afterSpan+2*beforeSpan;
+    return (a+b)/(a/before+b/after);
+  }
+  function studioSmoothVector(out,a,b,previous,next,beforeSpan,span,afterSpan,progress){
+    for(let axis=0;axis<3;axis++){
+      const start=a.getComponent(axis),end=b.getComponent(axis);
+      const secant=(end-start)/span;
+      const m0=previous?studioMonotoneTangent((start-previous.getComponent(axis))/beforeSpan,secant,beforeSpan,span):0;
+      const m1=next?studioMonotoneTangent(secant,(next.getComponent(axis)-end)/afterSpan,span,afterSpan):0;
+      out.setComponent(axis,studioHermite(start,end,m0*span,m1*span,progress));
+    }
   }
   var studioOrbitAngle=null,studioOrbitLastAngle=null,studioOrbitAngleTarget='';
   function trackStudioOrbitAngle(){
@@ -50992,7 +51074,14 @@ function createCompactStudioZoom(options){
       // and start the next without either segment overwriting the other.
       const automaticShot=studioAutomaticOrbitBetween(left,right);
       const automaticOrbit=!!automaticShot;
-      if(!automaticOrbit)t = animationBlend(t);
+      const progress=t;
+      const smooth=animationInterpolation==='smooth'&&left!==right&&!automaticOrbit;
+      const previousFrame=smooth?frames[studioFirstFrameAtOrAfter(frames,left)-1]:undefined;
+      const nextFrame=smooth?frames[studioFirstFrameAtOrAfter(frames,right)+1]:undefined;
+      const previous=!a.cut&&!a.automaticOrbit360?cameraTrack.keyframes.get(previousFrame)?.camera:null;
+      const next=cameraTrack.keyframes.get(nextFrame)?.camera;
+      const following=next&&!next.cut&&!next.automaticOrbit360?next:null;
+      if(!automaticOrbit)t=animationBlend(progress,previous?1:0,following?1:0);
       const damping = controls.enableDamping;
       controls.enableDamping = false;
       controls.update();
@@ -51034,7 +51123,8 @@ function createCompactStudioZoom(options){
         orientation.setFromRotationMatrix(new Matrix4().lookAt(camera.position,controls.target,a.up.clone().lerp(b.up,t).normalize()));
         studioOrbitAngle=theta;studioOrbitLastAngle=Math.atan2(Math.sin(theta),Math.cos(theta));studioOrbitAngleTarget=orbitId;
       }else{
-        camera.position.lerpVectors(a.position, b.position, t);
+        if(smooth)studioSmoothVector(camera.position,a.position,b.position,previous?.position,following?.position,left-previousFrame,right-left,nextFrame-right,progress);
+        else camera.position.lerpVectors(a.position,b.position,t);
         controls.target.copy(camera.position).add(new Vector3(0, 0, -distance).applyQuaternion(orientation));
       }
       if(automaticUp)camera.up.copy(automaticUp);else camera.up.lerpVectors(a.up, b.up, t).normalize();
@@ -53743,13 +53833,21 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     }
     sampleObjectVisibility(obj, visibilityFrame, frames);
     const progress=left===right?0:MathUtils.clamp((frame2-left)/(right-left),0,1);
-    const t=animationBlend(progress);
+    const smooth=animationInterpolation==='smooth'&&left!==right;
+    const beforeIndex=smooth?studioFirstFrameAtOrAfter(frames,left):-1;
+    const afterIndex=smooth?studioFirstFrameAtOrAfter(frames,right):-1;
+    const previousFrame=frames[beforeIndex-1],nextFrame=afterIndex>=0?frames[afterIndex+1]:undefined;
+    const previous=smooth&&frames[beforeIndex]===left?obj.keyframes.get(previousFrame)?.pose:null;
+    const next=smooth?obj.keyframes.get(nextFrame)?.pose:null;
+    const t=animationBlend(progress,previous?1:0,next?1:0);
     let floorRotation = null;
     // Interpolate final keyframe orientations; mouse adjustment paths are not animation.
     // Ignore legacy path/followPath samples so existing projects also play smoothly.
     for (const [id, va] of a.pose) {
       const vb = b.pose.get(id) || va, node = va.node;
-      node.position.lerpVectors(va.p, vb.p, t);
+      const prior=previous?.get(id),following=next?.get(id);
+      if(smooth&&b.pose.has(id))studioSmoothVector(node.position,va.p,vb.p,prior?.p,following?.p,left-previousFrame,right-left,nextFrame-right,progress);
+      else node.position.lerpVectors(va.p,vb.p,t);
       const motion=left!==right?vb.motion:null;
       if(left===right)node.quaternion.copy(va.q);
       else if(motion){
@@ -53770,7 +53868,9 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
         if(motion)studioApplyMotion(node.quaternion,motion,progress,node.parent);
         else studioApplyTurns(node.quaternion,left===right?null:incomingTurns,progress,node.parent);
       }else studioApplyObjectTurns(obj,node,left===right?null:incomingTurns,progress,'base',motion);
-      node.quaternion.normalize();node.scale.lerpVectors(va.s, vb.s, t);
+      node.quaternion.normalize();
+      if(smooth&&b.pose.has(id))studioSmoothVector(node.scale,va.s,vb.s,prior?.s,following?.s,left-previousFrame,right-left,nextFrame-right,progress);
+      else node.scale.lerpVectors(va.s,vb.s,t);
       if(pivot)node.position.copy(centerA.lerp(centerB,t).sub(pivot.multiply(node.scale).applyQuaternion(node.quaternion)));
       if(node===obj.root&&(Number.isFinite(node.userData.studioPathHeight)||Number.isFinite(va.pathHeight)||Number.isFinite(vb.pathHeight)))
         node.userData.studioPathHeight=MathUtils.lerp(va.pathHeight??0,vb.pathHeight??0,t);
@@ -53902,6 +54002,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
   // O callback WebGL so desenha a tela parada; durante o Play este motor
   // controla a pose, renderizacao e avancos sem depender da taxa do monitor.
   let studioPlaybackTimer=0, studioPlaybackNextFrame=1, studioPlaybackGeneration=0;
+  let studioVideoPlaybackRate=1,studioPlaybackPreviousTick=0,studioVideoPreviewQualityAt=0;
   async function studioPlaybackTick(){
     studioPlaybackTimer=0;
     if(!timelinePlaying || exportState || studioSaving)return;
@@ -53910,6 +54011,11 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     // enqueueing GPU work while the previous frame is still being drawn.
     if(studioPreviewGpuBusy()){studioPlaybackTimer=setTimeout(studioPlaybackTick,8);return;}
     const generation=studioPlaybackGeneration, begin=performance.now();
+    if(studioPlaybackPreviousTick){
+      const speed=MathUtils.clamp((1000/24)/Math.max(1,begin-studioPlaybackPreviousTick),.25,1);
+      studioVideoPlaybackRate+=.28*(speed-studioVideoPlaybackRate);
+    }
+    studioPlaybackPreviousTick=begin;
     try{
       const length=Math.max(1,Math.round(endFrame));
       const outputFrame=MathUtils.clamp(studioPlaybackNextFrame,1,length);
@@ -53924,6 +54030,8 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       if(seekMedia&&studioSequenceRuntimes.size){
         await prepareSequenceFrame((frame-1)/24);
         if(generation!==studioPlaybackGeneration||!timelinePlaying)return;
+      }else{
+        studioAlignPlaybackVideos(frame);
       }
       updateTimelineHead();
       const head=24+(frame-1)*pixelsPerFrame;
@@ -53942,6 +54050,12 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       studioPreviewDirty=false;
       studioPreviewShadowDirty=false;
       const studioPlaybackDrawMs=studioPreviewAt-begin;
+      if(studioVideoPlaybackRate<.82&&studioPreviewPixelLimit>480&&begin-studioVideoPreviewQualityAt>800&&
+          [...studioSequenceRuntimes.values()].some(runtime=>runtime.texture?.isVideoTexture&&!runtime.video.paused&&studioTreeVisible(runtime.root))){
+        studioVideoPreviewQualityAt=begin;
+        studioPreviewPixelLimit=Math.max(480,studioPreviewPixelLimit-120);
+        resizeViewport();
+      }
       // Never downscale to 320 / 128 px. Keep native VFX + FaceRig
       // synchronized, adjusting only the drawing resolution when requested.
       if(studioPlaybackDrawMs>200 && !studioFastPlayback){
@@ -54003,7 +54117,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
   function studioEvaluateTimelineFrame(frame, morph=true) {
     sampleTimeline(frame, false);
     const links=studioVideoFollowStates(frame);
-    if(links.size)updateBoneFollowers(frame,links);
+    updateBoneFollowers(frame,links);
     studioApplyKeyboardPositions(frame,links,true);
     if(morph) updateStudioMorphs(frame);
     studioInvalidatePreview();
@@ -54174,7 +54288,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
         title+=' · '+maskLabel;label+=' · '+maskLabel;
       }
       if(timelineVFX)title=track.name+' · Frame '+f+' · Arraste para mover';
-      if(timelinePath)label=title=`${key.paused?'Parar':'Caminhar'} · Quadro ${f}`;
+      if(timelinePath)label=title=`${Number.isFinite(key.progress)?'Posição · '+Math.round(key.progress*100)+'%':key.paused?'Parar':'Caminhar'} · Quadro ${f}`;
       const signature=[title,label,follow,followOff,physicsLabel].join('\n');
       if(studioTimelineMarkerLabels.get(el)!==signature){
         el.title=title;el.setAttribute('aria-label',label);
@@ -54545,6 +54659,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     timelinePlaying = true;
     syncStudioLoopUI();
     studioPlaybackNextFrame=timelineFraction;
+    studioVideoPlaybackRate=1;studioPlaybackPreviousTick=0;studioVideoPreviewQualityAt=performance.now();
     // Nas cenas com vídeo + vários objetos animados, priorizar a pose facial
     // desde o primeiro frame. O render completo permanece na exportação.
     const heavyScene=renderer.info.render.triangles>250000 ||
@@ -59007,6 +59122,7 @@ void main(){
   }
   function studioVfxNode(binding) {
     if(!binding)return null;
+    if(binding.cameraLocal)return camera;
     return binding.boneId?followBoneNode(binding):objects.find(o=>o.id===binding.ownerId)?.root||null;
   }
   function studioVfxWorld(binding) {
@@ -59040,16 +59156,29 @@ void main(){
     studioVfxLayerFollows[studioVfxFollowKey(bank,subject.key)]=binding;
     return binding;
   }
+  function studioCameraVfxPlaceable(subject){
+    return !subject.internal&&['particle','light','ballisticWake'].includes(subject.kind);
+  }
   function studioVfxPlacement(subject,edit) {
     const bank=studioVfxTargetId||'__scene__',owner=objects.find(o=>o.id===bank);
     let binding=studioVfxBinding(subject.key,bank);
-    const freeScene=bank==='__free__'||(bank==='__scene__'&&subject.kind==='ballisticWake');
+    const freeScene=bank==='__free__'||(bank==='__scene__'&&studioCameraVfxPlaceable(subject));
     if(edit&&(owner||freeScene)){
       studioInvalidatePreview();
       const world=binding?studioVfxWorld(binding):owner?owner.root.getWorldPosition(new Vector3()):new Vector3((subject.x??.5)*2-1,1-(subject.y??.5)*2,controls.target.clone().project(camera).z).unproject(camera);
       const ownerId=freeScene?'':edit.ownerId??binding?.ownerId??owner.id,boneId=freeScene?'':edit.boneId??binding?.boneId??'';
       const old=binding;
+      if(bank==='__scene__'&&subject.kind==='light'&&!old){
+        const lamp=vfxState.config.lights.find(item=>'light:'+item.id===subject.key);
+        if(lamp)studioLampBinding(lamp,bank);
+        return studioVfxPlacement(subject);
+      }
       binding=studioCreateVfxBinding(subject,bank,ownerId,boneId,world);
+      if(bank==='__scene__'&&subject.kind==='particle'){
+        binding.cameraLocal=true;
+        binding.position3D=camera.worldToLocal(world.clone()).toArray();
+        binding.rotation3D=[0,0,0,1];
+      }
       if(edit.position)binding.position3D=edit.position.slice();
       binding.scale3D=old?.scale3D?.slice();if(old?.rotation3D)binding.rotation3D=old.rotation3D.slice();if(old?.billboard!==undefined)binding.billboard=old.billboard;
       binding.referenceSize=old?.referenceSize||binding.referenceSize;
@@ -59125,7 +59254,8 @@ void main(){
     function resolve(object) {
       if(complete.has(object)||pending.has(object))return;
       pending.add(object);
-      const link=links.get(object.id),binding=object.followBone;
+      const binding=object.followBone,videoLink=links.get(object.id);
+      const link=binding&&!videoLink?.event.enabled?null:videoLink;
       if(link){
         if(link.event.enabled)resolve(link.owner);
         if(!link.event.enabled||complete.has(link.owner))studioVideoApplyFollower(link);
@@ -59178,6 +59308,17 @@ void main(){
     vfxState={...vfxState,placements:{...vfxState.placements,[key]:studioVfxTransform(binding)}};
     return 'placement:'+key;
   }
+  function recordStudioVfxPlacement(subject){
+    if(!subject||exportState||studioSaving||!studioVfxPlacement(subject).objectMode)return;
+    pauseTimeline();
+    const bank=studioVfxTargetId||'__scene__';
+    if(!studioVfxBinding(subject.key,bank)?.position3D)studioVfxPlacement(subject,{});
+    const binding=studioVfxBinding(subject.key,bank);
+    if(!binding)return;
+    const group=subject.kind==='light'?subject.key:studioCaptureVfxPlacement(subject,binding);
+    recordStudioVfx(true,[group]);
+    status('Transformação do VFX gravada no quadro '+Math.round(currentFrame)+'.');
+  }
   function finishVfxPlacementDrag(){
     if(!vfxMoveGizmo||vfxMoveFinishing)return;
     vfxMoveFinishing=true;
@@ -59206,7 +59347,7 @@ void main(){
     if(!subject||subject.internal){clearVfxPlacement();return}
     if(vfxMoveGizmo.dragging||vfxMoveStart)finishVfxPlacementDrag();
     const bank=studioVfxTargetId||"__scene__";
-    if(bank==="__scene__"&&subject.kind!=="ballisticWake"){clearVfxPlacement();return;}
+    if(bank==="__scene__"&&!studioCameraVfxPlaceable(subject)){clearVfxPlacement();return;}
     if(!studioVfxBinding(subject.key,bank)?.position3D)studioVfxPlacement(subject,{});
     if(focus)setMode("orbit");
     vfxMoveSubject={...subject,bankId:bank};
@@ -59297,18 +59438,6 @@ void main(){
     }
     followPinView.updateMatrixWorld(true);
   }
-  function currentFollowSubject() {
-    if (!$("panelVFX").hidden) {
-      const effect = vfxApi?.followSubject();
-      if (!effect) return null;
-      vfxState = vfxApi.capture();
-      stashStudioVfxBank();
-      return { type: "vfx", ...effect, bankId: studioVfxTargetId || "__scene__" };
-    }
-    if (timelineSky) return null;
-    return activeObject ? { type: "object", object: activeObject } : null;
-  }
-
   function attachFollowPin(subject,owner,bone) {
     if(!subject||!owner||!bone)return false;
     if(subject.type==='object'){
@@ -59358,6 +59487,7 @@ void main(){
     if (followPinPending) endFollowPin();
     if (!subject) return status("Selecione um objeto ou efeito VFX.");
     if (subject.internal) return status("Este efeito \xE9 interno e acompanha a malha do personagem.");
+    clearVfxPlacement();
     commitCameraEdit();
     finishDrag(false);
     stop();
@@ -59378,31 +59508,43 @@ void main(){
     $("followBones").classList.add("active");
     $("followBones").setAttribute("aria-pressed", "true");
     renderer.domElement.style.cursor = "crosshair";
-    status("Clique no osso que " + (subject.name || "o objeto") + " deve seguir. Esc cancela.");
+    studioInvalidatePreview(false);
+    status("Clique no osso que " + (subject.object?.name || subject.name || "o objeto") + " deve seguir. Esc cancela.");
   }
-  $("followBones").title = "Seguir ossos: no painel VFX, vincula o efeito selecionado; fora dele, vincula o objeto. Alt+clique solta.";
+  $("followBones").title = "Vincular o objeto selecionado a um osso. Alt+clique solta.";
   $("followBones").onclick = (e) => {
     if (followPinPending) {
       endFollowPin();
       status("V\xEDnculo cancelado.");
       return;
     }
-    const subject = currentFollowSubject();
+    const subject=activeObject?{type:"object",object:activeObject}:null;
     if (e.altKey) return removeFollowSubject(subject);
     beginFollowPin(subject);
   };
-  vp.addEventListener("pointerdown", (e) => {
+  window.addEventListener("pointerdown", (e) => {
     if (!followPinPending || e.button !== 0 || e.target !== renderer.domElement) return;
     e.preventDefault();
     e.stopImmediatePropagation();
     refreshFollowPins();
-    setPointerRay(e);
-    const hit = ray.intersectObjects(followPinView.children, false)[0];
+    const rect=renderer.domElement.getBoundingClientRect();
+    camera.updateMatrixWorld(true);
+    const projection=new Vector3();
+    let hit=null,distance=16;
+    for(const pin of followPinView.children){
+      projection.copy(pin.position).project(camera);
+      if(Math.abs(projection.z)>1)continue;
+      const x=rect.left+(projection.x+1)*rect.width/2;
+      const y=rect.top+(1-projection.y)*rect.height/2;
+      const gap=Math.hypot(e.clientX-x,e.clientY-y);
+      if(gap<distance){distance=gap;hit=pin;}
+    }
     if (!hit) return status("Clique em um dos ossos destacados.");
-    const { owner, bone } = hit.object.userData;
+    const {owner,bone}=hit.userData;
     if (!attachFollowPin(followPinPending, owner, bone)) return status("Este v\xEDnculo criaria um ciclo. Escolha outro osso.");
     endFollowPin();
     vfxLastDraw = 0;
+    studioInvalidatePreview(false);
     status("Vinculado a " + (bone.name || "osso") + ".");
   }, true);
   document.addEventListener("keydown", (e) => {
@@ -59696,6 +59838,14 @@ void main(){
     const owner=objects.find(o=>o.id===bank);
     camera.updateMatrixWorld(true);owner?.root.updateWorldMatrix(true,false);
     let world;
+    if(bank==='__scene__'){
+      const local=new Vector3().fromArray(item.lampPosition||[0,0,-5]);
+      const binding=studioCreateVfxBinding({key,kind:'light',x:.5,y:.5},bank,'','',camera.localToWorld(local.clone()));
+      binding.cameraLocal=true;
+      binding.position3D=local.toArray();
+      binding.rotation3D=[0,0,0,1];
+      return binding;
+    }
     if(item.lampPosition){world=new Vector3().fromArray(item.lampPosition);if(owner)owner.root.localToWorld(world);}
     else{
       const center=owner?new Box3().setFromObject(owner.root).getCenter(new Vector3()):controls.target;
@@ -59706,7 +59856,11 @@ void main(){
   function studioLampPosition(item,position){
     const bank=studioVfxTargetId||'__scene__';
     if(position)item.lampPosition=position.slice();
-    if(bank==='__scene__'){if(position)item.lampPosition=position.slice();return (item.lampPosition||[0,0,-5]).slice();}
+    if(bank==='__scene__'){
+      const binding=studioVfxBinding('light:'+item.id,bank);
+      if(position&&binding)binding.position3D=position.slice();
+      return (binding?.position3D||item.lampPosition||[0,0,-5]).slice();
+    }
     const binding=studioLampBinding(item,bank);
     if(position){binding.position3D=position.slice();studioInvalidatePreview();}
     return binding.position3D.slice();
@@ -59727,7 +59881,9 @@ void main(){
         lamp.power=MathUtils.clamp(Number(item.lampPower??500)||0,0,500);lamp.decay=2;
         lamp.distance=Math.max(0,Number(item.lampRange)||0);
         if(bank==='__scene__'){
-          camera.updateMatrixWorld(true);lamp.position.fromArray(item.lampPosition||[0,0,-5]).applyMatrix4(camera.matrixWorld);
+          const binding=studioVfxBinding('light:'+item.id,bank);
+          if(binding?.cameraLocal)lamp.position.copy(studioVfxWorld(studioLampBinding(item,bank)));
+          else{camera.updateMatrixWorld(true);lamp.position.fromArray(item.lampPosition||[0,0,-5]).applyMatrix4(camera.matrixWorld);}
         }else lamp.position.copy(studioVfxWorld(studioLampBinding(item,bank)));
         lamp.castShadow=item.lampShadow!==false&&lamp.power>0;
         if(lamp.castShadow)studioShadowResolution(lamp,exporting);
@@ -60108,7 +60264,9 @@ void main(){
     if(bankId==='__sky__')return {base,layers};
     const sceneBank=bankId==='__scene__';
     const particles=c.particles?.layers?.length ? c.particles.layers : [c.particles];
-    if(sceneBank&&!particles.some(item=>item?.active!==false&&item?.presetKey==='cryingTears'))return {base,layers};
+    const cameraSpatial=item=>item&&sceneBank&&studioVfxBinding('particle:'+item.id,bankId)?.cameraLocal&&
+      !['shatterGlass','crumple','burnImage','aura'].includes(item.presetKey);
+    if(sceneBank&&!particles.some(item=>item?.active!==false&&(item?.presetKey==='cryingTears'||cameraSpatial(item))))return {base,layers};
     if(!sceneBank&&studioRipple3DEnabled(c))c.rippleActive=false;
     const target=objects.find(o=>o.id===bankId);
     if(studioSurfaceWindEnabled(target)||(bankId==='__free__'&&c.windWorldStrokes?.length))c.windActive=false;
@@ -60144,7 +60302,7 @@ void main(){
       const meshInternal=new Set(['shatterGlass','crumple','burnImage','aura']);
       const kept=[];
       for(const item of list){
-        if(item.presetKey==='cryingTears'){
+        if(item.presetKey==='cryingTears'||cameraSpatial(item)){
           if(item.active!==false)emit('particle',item);
         }else if(sceneBank||meshInternal.has(item.presetKey)||!target&&bankId!=='__free__'&&!studioVfxBinding('particle:'+item.id,bankId)){
           kept.push(item);
@@ -60271,6 +60429,7 @@ void main(){
       return [{count:180,shape:'soft',emitter:'sphere',width:.18*size,height:.18*size,angle:studioVfxVolumeNumber(l.angle,-90),spread:Math.max(8,studioVfxVolumeNumber(l.spread,.5)*100),speed:250*size,speedVar:.4,life:1.4,sizeStart:22*size,sizeEnd:65*size,alpha:studioVfxVolumeNumber(l.opacity,1)*.2,fadeIn:.03,fadeOut:.65,colorStart:l.color||'#ffffff',colorEnd:l.color||'#ffffff',blend:'add',stretch:1.5,seed:80}];
     }
     const p=c.particles;
+    if(p.presetKey==='lumos')return vfxApi.lumosComponents().map(item=>({...p,...item,emitter:'point',width:0,height:0,components:undefined,layers:undefined}));
     if(!p.components?.length)return [p];
     const total=p.components.reduce((sum,item)=>sum+Math.max(0,studioVfxVolumeNumber(item.count,0)),0)||1;
     const ratio=Math.max(0,studioVfxVolumeNumber(p.count,total))/total;
@@ -60373,7 +60532,7 @@ void main(){
     const textured=(['leaf','smoke','flame','streak','snowflake','codeGlyph','bubble'].includes(resolvedShape)||
       (resolvedShape==='shard'&&component.presetKey==='suspendedTime')||
       (resolvedShape==='ring'&&component.presetKey==='protego')||
-      (resolvedShape==='soft'&&['orbitalRing','vortex','galaxy','stars','snow','blizzard','dust','fireflies','underwater','deepTide','sunlitMotes','bioSpores','coastalFoam'].includes(component.presetKey)))&&!['explosion','nuclear','muzzle'].includes(component.presetKey);
+      (resolvedShape==='soft'&&['orbitalRing','vortex','galaxy','stars','snow','blizzard','dust','fireflies','underwater','deepTide','sunlitMotes','bioSpores','coastalFoam','lumos'].includes(component.presetKey)))&&!['explosion','nuclear','muzzle'].includes(component.presetKey);
     const orbitInPlane=['orbitalRing','vortex','galaxy','suspendedTime','starJump'].includes(component.presetKey);
     let source;
     if(textured)source=new PlaneGeometry(2,2);
@@ -60397,6 +60556,7 @@ void main(){
         x=Math.cos(a)*ring;y=Math.sin(tube)*.12;z=Math.sin(a)*ring;
         if(orbitInPlane){const depth=y;y=z;z=depth;}
       }
+      if(component.presetKey==='lumos')x=y=z=0;
       if(component.presetKey==='digitalRain'&&emitter==='box')x=(Math.floor((x+.5)*27)+.5)/27-.5;
       spawn.set([x,y,z],i*3);random.set([rand(),rand(),rand(),rand()],i*4);
     }
@@ -61697,15 +61857,19 @@ void main(){
     return {scale,ratio:scale/secondScale,blend:max===1?0:.5+.5*Math.cos(2*Math.PI*progress)};
   }
   function studioActiveImageBackdrop(){
+    const videoBackground=objects.find(o=>{
+      const config=o.root.userData.studioSequence;
+      return config?.kind==='video'&&config.videoBackground&&studioTreeVisible(o.root);
+    });
     const zoomPlane=studioZoomPlane();
     const zoomSource=studioZoomImageTexture||imagePlaneMesh(zoomPlane)?.material.map;
-    const zoomBackground=!!zoomSource;
-    const direct=zoomBackground?zoomSource:studioScrollBackgroundTexture;
-    const object=zoomBackground?zoomPlane:direct?null:objects.find(o=>o.root.userData.studioImagePlane?.videoBackground||o.root.userData.studioSequence?.videoBackground);
+    const zoomBackground=!videoBackground&&!!zoomSource;
+    const direct=videoBackground?null:zoomBackground?zoomSource:studioScrollBackgroundTexture;
+    const object=videoBackground||(zoomBackground?zoomPlane:direct?null:objects.find(o=>o.root.userData.studioImagePlane?.videoBackground||o.root.userData.studioSequence?.videoBackground));
     const root=object?.root;
     // A background texture bypasses the Morph shader. Use its real scene plane during the transition.
     if(studioMorphMaterials.has(root))return null;
-    const runtime=root?.userData.studioSequence?.kind==='images'?studioSequenceRuntimes.get(root):null;
+    const runtime=root?.userData.studioSequence?studioSequenceRuntimes.get(root):null;
     const mesh=object&&!runtime?imagePlaneMesh(object):null;
     const source=direct||(runtime&&studioTreeVisible(root)?runtime.texture:mesh&&studioTreeVisible(mesh)?mesh.material.map:null);
     return source?{object,root,runtime,zoomBackground,source}:null;
@@ -61716,20 +61880,28 @@ void main(){
       studioVideoBackgroundTexture?.dispose();
       studioVideoBackgroundSource=source;
       studioVideoBackgroundVersion=-1;
-      studioVideoBackgroundTexture=source?.clone()||null;
+      if(source?.isVideoTexture){
+        const texture=new Texture().copy(source);
+        texture.isVideoTexture=true;
+        texture.update=()=>source.update();
+        studioVideoBackgroundTexture=texture;
+      }else studioVideoBackgroundTexture=source?.clone()||null;
     }
     const texture=studioVideoBackgroundTexture;
     const image=source?.image;
     if(!texture||!image)return null;
     texture.userData.studioWindBankId=object?.id||'__scene__';
     if(studioVideoBackgroundVersion!==source.version){
-      texture.needsUpdate=true;
+      // The decoded video frame already updated the shared Three.js Source.
+      if(source.isVideoTexture)texture.version++;
+      else texture.needsUpdate=true;
       studioVideoBackgroundVersion=source.version;
     }
-    const imageWidth=image.naturalWidth||image.width,imageHeight=image.naturalHeight||image.height;
+    const packedVideo=source.isVideoTexture&&root?.userData.studioSequence?.packedAlpha;
+    const imageWidth=image.videoWidth||image.naturalWidth||image.width,imageHeight=image.videoHeight||image.naturalHeight||image.height;
     if(!imageWidth||!imageHeight)return null;
     const frame=renderer.domElement;
-    const [x,y]=studioVideoBackgroundCrop(runtime?.frameAspect||imageWidth/imageHeight,frame.width/Math.max(1,frame.height));
+    const [x,y]=studioVideoBackgroundCrop(runtime?.frameAspect||(packedVideo?imageWidth/2:imageWidth)/imageHeight,frame.width/Math.max(1,frame.height));
     const planeBank=object?.root.userData.studioImagePlane?object.id:null;
     const zoomBank=zoomBackground?'__scene__':planeBank;
     const zoomConfig=zoomBank?studioBackgroundVfxConfig(zoomBank):null;
@@ -61743,7 +61915,7 @@ void main(){
     const scrollConfig=zoomBackground?null:studioBackgroundScrollConfig(scrollBank);
     const scrollPreview=!zoomBackground&&previewTarget===scrollBank;
     const scrollSpeed=Number(scrollConfig?.scrollSpeed||(scrollPreview&&studioBackgroundVfxConfig(scrollBank)?.scrollSpeed))||0;
-    const wrapS=scrollConfig||scrollPreview?RepeatWrapping:ClampToEdgeWrapping;
+    const wrapS=!packedVideo&&(scrollConfig||scrollPreview)?RepeatWrapping:ClampToEdgeWrapping;
     if(texture.wrapS!==wrapS){
       texture.wrapS=wrapS;
       texture.needsUpdate=true;
@@ -61753,11 +61925,11 @@ void main(){
     const scale=zoom?.scale??1;
     const width=x/scale,height=y/scale;
     const left=(1-width)/2-travel*x;
-    const offsetX=wrapS===RepeatWrapping?MathUtils.euclideanModulo(left,1):left;
+    const offsetX=packedVideo?MathUtils.clamp(left,0,1-width):wrapS===RepeatWrapping?MathUtils.euclideanModulo(left,1):left;
     if(zoom)texture.userData.studioZoomBlend={...zoom,centerX:offsetX+width/2};
     else if(texture.userData.studioZoomBlend)delete texture.userData.studioZoomBlend;
-    texture.repeat.set(width,height);
-    texture.offset.set(offsetX,(1-height)/2);
+    texture.repeat.set(packedVideo?width/2:width,height);
+    texture.offset.set(packedVideo?offsetX/2:offsetX,(1-height)/2);
     texture.center.set(0,0);
     texture.rotation=0;
     texture.matrixAutoUpdate=true;
@@ -61797,7 +61969,7 @@ void main(){
     const simulated=exporting||timelinePlaying?studioApplyBonePhysics(currentFrame,exporting?'export':'play'):[];
     const updatedPins=simulated.length&&objects.some(follower=>{
       const binding=follower.followBone;
-      return binding&&!videoLinks.has(follower.id)&&simulated.some(({object})=>
+      return binding&&!videoLinks.get(follower.id)?.event.enabled&&simulated.some(({object})=>
         binding.ownerId===object.id&&binding.boneId!==object.root.uuid);
     });
     const poseGesture=!exporting&&!timelinePlaying?studioPosePreviewGesture():null;
@@ -62253,19 +62425,8 @@ SOFTWARE.
     }
   }
   function studioDrawSceneVfxPasses(passes,clockTime,exporting,backdrop){
-    // Em maquinas lentas, nao renderizar varios passes VFX por quadro no Play.
-    // A cena continua animada; ao pausar e ao exportar os efeitos voltam completos.
-    const hasImageMotion=passes.some(({state,target,backdrop})=>
-      backdrop||(state.config?.scrollActive!==false&&state.config?.scrollSpeed)||(target&&imagePlaneMesh(target)&&state.config?.zoomActive));
     const imageMask=backdrop?.root?.userData.studioImagePlane;
-    const hasMask=!!imageMask?.occlusionPolygons?.length;
-    const maskActive=hasMask&&studioImageMaskEnabled(imageMask,currentFrame);
-    const cameraFinishing=passes.some(pass=>pass.id==='__scene__'&&!pass.backdrop&&pass.baseActive);
-    if(!exporting && timelinePlaying && studioFastPlayback && !hasImageMotion && !maskActive && !(hasMask&&cameraFinishing)){
-      vfxComposite.hidden=true;
-      renderer.render(scene,camera);
-      return renderer.domElement;
-    }
+    const maskActive=!!imageMask?.occlusionPolygons?.length&&studioImageMaskEnabled(imageMask,currentFrame);
     // Native volumes are drawn once with scene depth; no texture/composite pass needed.
     if(!passes.some(pass=>pass.baseActive||pass.layers.some(layer=>!layer.native))){vfxComposite.hidden=true;renderer.render(scene,camera);return drawStudioImageOcclusion(renderer.domElement,backdrop,exporting);}
     const helpers=[rigView,faceGuides,objectGizmoHelper,vfxMoveHelper,followPinView,pathOverlay].map(node=>[node,node.visible]);
@@ -62328,7 +62489,9 @@ SOFTWARE.
       if(separateSpatial)compositeStudioSpatialVfx(ctx,width,height);
       if(maskActive)drawStudioImageOcclusion(vfxComposite,backdrop,exporting,maskedBackground);
       // Camera finishing sees the complete sum, including the occlusion and all emitters.
-      for(const pass of passes.filter(p=>!p.target&&!p.sky&&!p.backdrop&&p.baseActive)){
+      const finishing=passes.filter(p=>!p.target&&!p.sky&&!p.backdrop&&p.baseActive);
+      finishing.sort((a,b)=>Number(a.id==='__scene__')-Number(b.id==='__scene__'));
+      for(const pass of finishing){
         studioVfxRenderTarget=pass.id;vfxApi.setState(pass.state,false);
         captureStudioVfxInput(vfxComposite,exporting);
         const pixels=vfxApi.render(vfxInput,clockTime,1920,1080,exporting,pass.id===(studioVfxTargetId||'__scene__')&&pass.id!=='__free__'&&!studioSurfaceWindEnabled(pass.target));
@@ -62890,7 +63053,7 @@ SOFTWARE.
       zoomPhase:(time,speed)=>studioVfxZoomPhase(studioVfxRenderTarget||studioVfxTargetId||'__scene__',time,speed),
       cameraVignette:()=>studioVfxRenderTarget==='__scene__',
       THREE:three_module_exports,hasVfxObject:()=>objects.some(object=>object.id===studioVfxTargetId),vfxStatus:status,
-      removeEffect: removeStudioVfxEffect, duplicateEffect:duplicateStudioVfxEffect, lampPosition:studioLampPosition, placement: studioVfxPlacement, selectPlacement: selectVfxPlacement, followAnchor: studioFollowAnchor, followInfo: studioVfxFollowInfo, followPick: (effect) => {
+      removeEffect: removeStudioVfxEffect, duplicateEffect:duplicateStudioVfxEffect, lampPosition:studioLampPosition, placement: studioVfxPlacement, selectPlacement: selectVfxPlacement, keyPlacement: recordStudioVfxPlacement, followAnchor: studioFollowAnchor, followInfo: studioVfxFollowInfo, followPick: (effect) => {
       vfxState = vfxApi.capture();
       stashStudioVfxBank();
       beginFollowPin({ type: "vfx", ...effect, bankId: studioVfxTargetId });
@@ -63693,7 +63856,7 @@ SOFTWARE.
     queueStudioWindPaint(stroke);
   }
   window.addEventListener('pointerdown',event=>{
-    if(event.target!==renderer.domElement||event.button!==0||!studioWindEditing()||vfxWindStroke)return;
+    if(event.target!==renderer.domElement||event.button!==0||followPinPending||!studioWindEditing()||vfxWindStroke)return;
     event.preventDefault();event.stopImmediatePropagation();
 
     commitCameraEdit();stop();pauseTimeline();
@@ -65934,22 +66097,40 @@ function mergeStudioStaticGeometry(chosen){
   }
 
   function pathTiming(frame,path=selectedPath) {
-    let previousFrame=1,movingFrames=0,paused=false;
-    if(path)for(const keyFrame of studioSortedFrames(path.track.keyframes)){
+    let previousFrame=1,movingFrames=0,paused=true;
+    const duration=Math.max(1,(path?.travelFrames??endFrame)-1);
+    const keys=path?.track.keyframes;
+    const frames=keys?studioSortedFrames(keys):[];
+    let anchor=null;
+    for(const keyFrame of frames){
+      const value=keys.get(keyFrame).progress;
+      if(!Number.isFinite(value))continue;
+      const progress=MathUtils.clamp(value,0,1);
+      if(keyFrame<=frame)anchor={frame:keyFrame,progress};
+      else{
+        if(anchor){
+          const t=(frame-anchor.frame)/(keyFrame-anchor.frame);
+          const sampled=MathUtils.lerp(anchor.progress,progress,t);
+          return {progress:sampled,paused:anchor.progress===progress,cycles:0,movingFrames:sampled*duration};
+        }
+        break;
+      }
+    }
+    if(path)for(const keyFrame of frames){
       if(keyFrame>frame)break;
       if(!paused)movingFrames+=keyFrame-previousFrame;
       const key=path.track.keyframes.get(keyFrame);
-      if(Number.isFinite(key.movingFrames))movingFrames=key.movingFrames;
+      if(Number.isFinite(key.progress))movingFrames=MathUtils.clamp(key.progress,0,1)*duration;
+      else if(Number.isFinite(key.movingFrames))movingFrames=key.movingFrames;
       paused=key.paused;
       previousFrame=keyFrame;
     }
     if(!paused)movingFrames+=frame-previousFrame;
-    const travelFrames=path?.travelFrames??endFrame;
-    const traveled=Math.max(0,movingFrames)/Math.max(1,travelFrames-1);
+    const traveled=Math.max(0,movingFrames)/duration;
     if(path?.loop){
       // Caminho fechado: percurso cíclico. Aberto: ida e volta para evitar salto.
       const phase=MathUtils.euclideanModulo(traveled,path.closed?1:2);
-      return {progress:path.closed?phase:phase<=1?phase:2-phase,paused,cycles:Math.floor(traveled),movingFrames};
+      return {progress:path.closed?(paused&&traveled===1?1:phase):phase<=1?phase:2-phase,paused,cycles:Math.floor(traveled),movingFrames};
     }
     return {progress:MathUtils.clamp(traveled,0,1),paused,cycles:0,movingFrames};
   }
@@ -66252,43 +66433,54 @@ function mergeStudioStaticGeometry(chosen){
     const actors=pathActors().filter(actor=>!actor.followBone);
     return actors.includes(activeObject)?activeObject:actors.length===1?actors[0]:null;
   }
+  function pathActorSelection(){
+    return objects.find(object=>object.id===$('pathActorSelect').value);
+  }
   function syncPathMotionUI() {
     if($('panelPath').hidden)return;
-    const path=selectedPath,actors=pathActors(),selectedActor=activeObject;
-    const existing=selectedActor&&paths.find(candidate=>pathActors(candidate).includes(selectedActor));
+    const path=selectedPath,actors=pathActors(),select=$('pathActorSelect');
     const surface=objects.find(object=>object.id===path?.surfaceId);
+    const previous=select.value;
+    const candidates=objects.filter(object=>{
+      const data=object.root.userData;
+      return actors.includes(object)||(!data.studioFolder&&!data.studioGround&&!data.studioImagePlane?.videoBackground&&
+        !data.studioSequence?.videoBackground&&object!==surface);
+    });
+    const signature=JSON.stringify(candidates.map(({id,name})=>[id,name]));
+    if(select.dataset.objects!==signature){
+      select.replaceChildren(new Option('Selecione um objeto…',''),...candidates.map(object=>new Option(object.name,object.id)));
+      select.value=candidates.some(object=>object.id===previous)?previous:
+        candidates.includes(activeObject)?activeObject.id:'';
+      select.dataset.objects=signature;
+    }
+    select.disabled=!!pathDraft||!path?.route||!candidates.length;
+    const selectedActor=pathActorSelection();
+    const existing=selectedActor&&paths.find(candidate=>pathActors(candidate).includes(selectedActor));
     $('pathBind').disabled=!!pathDraft||!path?.route||!selectedActor||!!existing||selectedActor.followBone||selectedActor===surface||!!surface&&studioInside(surface.root,selectedActor.root);
     $('pathUnbind').disabled=!!pathDraft||!actors.includes(selectedActor);
     let message='Conclua um caminho para vincular um objeto.';
     if(actors.length)message=`Objetos vinculados · ${actors.map(actor=>actor.name).join(', ')}`;
-    else if(path?.route)message=existing?`${selectedActor.name} já está em ${existing.name}.`:'Selecione o objeto em edição e vincule-o ao caminho.';
+    else if(path?.route)message=existing?`${selectedActor.name} já está em ${existing.name}.`:'Escolha um objeto na lista para vinculá-lo ao caminho.';
     else if(path)message='O traçado precisa ser contínuo para mover um objeto.';
     $('pathActor').textContent=message;
     $('pathThirdPersonCamera').disabled=!studioPathCameraActor();
     studioCameraFollowRefreshState(true);
-    $('pathTravelFrames').value=path?.travelFrames??'';
     $('pathLoop').checked=!!path?.loop;
-    syncPathTimingUI(true);
+    syncPathTimingUI();
   }
-  function syncPathTimingUI(syncSlider=false) {
+  function syncPathTimingUI() {
     if($('panelPath').hidden)return;
-    const input=$('pathTravelFrames'),slider=$('pathSpeed');
     const editable=!pathDraft&&!!selectedPath?.route&&!exportState&&!studioSaving;
-    input.disabled=slider.disabled=$('pathLoop').disabled=!editable;
+    $('pathLoop').disabled=!editable;
     $('pathLoop').checked=!!selectedPath?.loop;
-    const travelFrames=selectedPath?.travelFrames??endFrame;
-    if(syncSlider||document.activeElement!==slider||!editable){
-      const position=Math.log(1e5/Math.max(2,travelFrames))/Math.log(5e4);
-      const value=String(Math.round(position*Number(slider.max)));
-      if(slider.value!==value)slider.value=value;
-    }
-    const valueText=`${travelFrames} quadros`;
-    if(slider.getAttribute('aria-valuetext')!==valueText)slider.setAttribute('aria-valuetext',valueText);
-    const placeholder=String(endFrame);
-    if(input.placeholder!==placeholder)input.placeholder=placeholder;
     const edit=editable&&pathActors().length>0;
     const frame=Math.round(currentFrame),inRange=frame<=endFrame;
     const {progress,paused}=pathTiming(Math.min(frame,endFrame));
+    const progressSlider=$('pathProgress');
+    progressSlider.disabled=$('pathProgressKey').disabled=!edit||!inRange;
+    const percent=Math.round(progress*100);
+    if(progressSlider.value!==String(percent))progressSlider.value=String(percent);
+    progressSlider.setAttribute('aria-valuetext',percent+'%');
     $('pathPause').disabled=!edit||!inRange;
     $('pathResume').disabled=!edit||!inRange;
     const movement=paused?'Parado':!selectedPath?.loop&&progress>=1?'Chegou ao fim':selectedPath?.loop?'Em loop':'Caminhando';
@@ -66309,24 +66501,47 @@ function mergeStudioStaticGeometry(chosen){
     pauseTimeline();
     const frame=Math.round(currentFrame);
     if(frame>endFrame)return status('Escolha um quadro dentro da duração da animação.');
-    path.track.keyframes.set(frame,{paused});
+    const existing=path.track.keyframes.get(frame);
+    path.track.keyframes.set(frame,{...existing,paused});
     showPathTimeline();
     applyPathMotion(frame);
     studioInvalidatePreview();
     status(`Keyframe ${paused?'Parar':'Caminhar'} gravado no quadro ${frame}.`);
   }
+  function recordPathProgress(value){
+    const path=selectedPath,frame=Math.round(currentFrame);
+    if(!path||$('pathProgress').disabled||exportState||studioSaving)return false;
+    if(timelinePlaying)pauseTimeline();
+    const progress=MathUtils.clamp(Number(value)/100,0,1);
+    path.track.keyframes.set(frame,{paused:true,progress});
+    applyPathMotion(frame);
+    syncPathTimingUI();
+    studioInvalidatePreview();
+    return true;
+  }
+  function savePathProgress(){
+    const value=$('pathProgress').value;
+    if(!recordPathProgress(value))return;
+    showPathTimeline();
+    status(value+'% do caminho gravado no quadro '+Math.round(currentFrame)+'.');
+  }
+  $('pathProgress').oninput=event=>recordPathProgress(event.target.value);
+  $('pathProgress').onchange=savePathProgress;
+  $('pathProgressKey').onclick=savePathProgress;
+  $('pathActorSelect').onchange=syncPathMotionUI;
   $('pathBind').onclick=()=>{
-    if($('pathBind').disabled||exportState||studioSaving)return;
+    const actor=pathActorSelection();
+    if(!actor||$('pathBind').disabled||exportState||studioSaving)return;
     pauseTimeline();stop();finishDrag(false);
-    selectedPath.actors.push(activeObject);
-    selectedPath.pivotBases.set(activeObject,{rotation:pathBaseRotation(activeObject.root).clone(),scale:activeObject.root.scale.clone()});
-    activeObject.root.userData.studioPathHeight??=0;
+    selectedPath.actors.push(actor);
+    selectedPath.pivotBases.set(actor,{rotation:pathBaseRotation(actor.root).clone(),scale:actor.root.scale.clone()});
+    actor.root.userData.studioPathHeight??=0;
     showPathTimeline();
     applyPathMotion(currentFrame);
     syncPathMotionUI();studioInvalidatePreview();
   };
   $('pathUnbind').onclick=()=>{
-    const actor=activeObject;
+    const actor=pathActorSelection();
     if(!pathActors().includes(actor)||$('pathUnbind').disabled||exportState||studioSaving)return;
     clearPathPose(actor.root);
     selectedPath.actors=selectedPath.actors.filter(linked=>linked!==actor);
@@ -66334,7 +66549,6 @@ function mergeStudioStaticGeometry(chosen){
     selectedPath.pivotBases.delete(actor);
     renderTimeline();syncPathMotionUI();studioInvalidatePreview();
   };
-  const pathTravelInput=$('pathTravelFrames'),pathSpeedSlider=$('pathSpeed');
   $('pathLoop').onchange=()=>{
     if(!selectedPath?.route||pathDraft||exportState||studioSaving)return;
     selectedPath.loop=$('pathLoop').checked;
@@ -66342,34 +66556,6 @@ function mergeStudioStaticGeometry(chosen){
     syncPathTimingUI();
     studioInvalidatePreview();
   };
-  pathSpeedSlider.oninput=()=>{
-    const path=selectedPath;
-    if(!path?.route||pathSpeedSlider.disabled||pathDraft||exportState||studioSaving)return;
-    const position=pathSpeedSlider.valueAsNumber/Number(pathSpeedSlider.max);
-    // A logarithmic scale makes both short and long travel times adjustable.
-    path.travelFrames=Math.round(1e5/Math.pow(5e4,position));
-    pathTravelInput.value=path.travelFrames;
-    syncPathTimingUI();
-    studioInvalidatePreview();
-  };
-  pathSpeedSlider.onblur=()=>syncPathTimingUI(true);
-  pathTravelInput.onchange=()=>{
-    const path=selectedPath;
-    if(!path?.route||pathTravelInput.disabled||pathDraft||exportState||studioSaving)return;
-    if(pathTravelInput.validity.badInput){
-      pathTravelInput.value=path.travelFrames??'';
-      return;
-    }
-    const value=pathTravelInput.valueAsNumber;
-    path.travelFrames=Number.isFinite(value)?MathUtils.clamp(Math.round(value),2,1e5):null;
-    pathTravelInput.value=path.travelFrames??'';
-    applyPathMotion(currentFrame);
-    syncPathTimingUI();
-    studioInvalidatePreview();
-  };
-  pathTravelInput.addEventListener('keydown',event=>{
-    if(event.key==='Enter'){event.preventDefault();pathTravelInput.blur();}
-  });
   $('pathPause').onclick=()=>recordPathKey(true);
   $('pathResume').onclick=()=>recordPathKey(false);
   $('pathVisibility').onclick=()=>{
@@ -66438,7 +66624,7 @@ function mergeStudioStaticGeometry(chosen){
       usedIds.add(path.id);
       for(const keyEntry of Array.isArray(entry.keys)?entry.keys:[]){
         const [frame,key]=Array.isArray(keyEntry)?keyEntry:[];
-        if(Number.isInteger(frame)&&frame>=1&&frame<=1e5&&typeof key?.paused==='boolean')path.track.keyframes.set(frame,{paused:key.paused,...Number.isFinite(key.movingFrames)?{movingFrames:key.movingFrames}:{}});
+        if(Number.isInteger(frame)&&frame>=1&&frame<=1e5&&typeof key?.paused==='boolean')path.track.keyframes.set(frame,{paused:key.paused,...Number.isFinite(key.movingFrames)?{movingFrames:key.movingFrames}:{},...Number.isFinite(key.progress)?{progress:MathUtils.clamp(key.progress,0,1)}:{}});
       }
       const bindings=Array.isArray(entry.bindings)?entry.bindings:entry.binding?[entry.binding]:[];
       for(const binding of bindings){
@@ -67049,8 +67235,9 @@ function mergeStudioStaticGeometry(chosen){
   }
   function studioApplyKeyboardPositions(frame,videoLinks,constrainedOnly=false){
     for(const owner of objects){
-      if(!owner.root.userData.studioKeyboardMotion)continue;
-      const constrained=!!(owner.followBone||pathPoses?.has(owner.root)||videoLinks?.get(owner.id)?.event.enabled);
+      // Legacy keyboard positions are absolute; the bone's saved offset owns linked movement.
+      if(!owner.root.userData.studioKeyboardMotion||owner.followBone)continue;
+      const constrained=!!(pathPoses?.has(owner.root)||videoLinks?.get(owner.id)?.event.enabled);
       if(constrainedOnly&&!constrained)continue;
       if(gizmoGesture?.object===owner.root||objectDrag?.object===owner)continue;
       const position=studioKeyboardPositionAt(owner,frame);
