@@ -1358,7 +1358,7 @@ main>nav button::before,main>nav button::after{display:none!important;content:no
       <p id="pathTiming" class="muted"></p>
     </div>
   </div>
-</section><section id="panelImages" hidden><div class="imagePanel"><h2>IMAGENS · CENÁRIO 2,5D</h2><label>Imagem em edição<select id="imageObjectSelect" aria-label="Plano de imagem"></select></label><button id="imageVideoBackground" type="button" aria-pressed="false" title="Preencher a área do vídeo, com recorte central se necessário">Usar como fundo do vídeo</button><div id="imageGridInfo" class="muted"></div><div class="imageButtons"><button id="imageSubdivide">Subdividir ×2</button><button id="imageUndo">Desfazer</button></div><button id="imageUnsubdivide" title="Reduzir as divisões pela metade">Desfazer subdivisão</button><button id="imageEditToggle">Editar malha</button><label>Selecionar<select id="imageSelectType"><option value="vertex">Vértices</option><option value="edge">Arestas</option><option value="face">Faces (espaços)</option></select></label><label>Arrastar no eixo<select id="imageDragAxis"><option value="free">Livre · plano da tela</option><option value="X">X · horizontal</option><option value="Y">Y · altura</option><option value="Z">Z · profundidade</option></select></label><div class="imageButtons"><button id="imageSelectAll">Selecionar tudo</button><button id="imageClearSelection">Limpar seleção</button></div><div id="imageSelectionInfo" class="muted"></div><label>Espelhar no eixo da cena<select id="imageMirrorAxis"><option value="X">X · direita ↔ esquerda</option><option value="Z">Z · frente ↔ trás</option><option value="Y">Y · cima ↔ baixo</option></select></label><label>Centro do espelhamento<select id="imageMirrorReference" aria-label="Imagem que marca o centro da construção"></select></label><button id="imageMirror" title="Refletir a cópia em relação ao centro escolhido">Criar cópia espelhada</button></div></section></aside></main>
+</section><section id="panelImages" hidden><div class="imagePanel"><h2>IMAGENS · CENÁRIO 2,5D</h2><button id="imageVideoBackground" type="button" aria-pressed="false" title="Preencher a área do vídeo, com recorte central se necessário">Usar como fundo do vídeo</button><div id="imageGridInfo" class="muted"></div><div class="imageButtons"><button id="imageSubdivide">Subdividir ×2</button><button id="imageUndo">Desfazer</button></div><button id="imageUnsubdivide" title="Reduzir as divisões pela metade">Desfazer subdivisão</button><button id="imageEditToggle">Editar malha</button><label>Selecionar<select id="imageSelectType"><option value="vertex">Vértices</option><option value="edge">Arestas</option><option value="face">Faces (espaços)</option></select></label><label>Arrastar no eixo<select id="imageDragAxis"><option value="free">Livre · plano da tela</option><option value="X">X · horizontal</option><option value="Y">Y · altura</option><option value="Z">Z · profundidade</option></select></label><div class="imageButtons"><button id="imageSelectAll">Selecionar tudo</button><button id="imageClearSelection">Limpar seleção</button></div><div id="imageSelectionInfo" class="muted"></div><label>Espelhar no eixo da cena<select id="imageMirrorAxis"><option value="X">X · direita ↔ esquerda</option><option value="Z">Z · frente ↔ trás</option><option value="Y">Y · cima ↔ baixo</option></select></label><label>Centro do espelhamento<select id="imageMirrorReference" aria-label="Imagem que marca o centro da construção"></select></label><button id="imageMirror" title="Refletir a cópia em relação ao centro escolhido">Criar cópia espelhada</button></div></section></aside></main>
 <section id="timeline" aria-label="Timeline geral"><div id="timeTools"><select id="objectSelect" aria-label="Escolher timeline de objeto, câmera, VFX ou céu" title="Seleciona o único alvo para gravar keyframes"><option value="">Nenhum objeto</option></select><button id="timeFirst" title="Primeiro frame">|◀</button><button id="timePrev" title="Keyframe anterior">◀</button><button id="timePlay" title="Reproduzir ou pausar (Espaço)">▶</button><button id="timeNext" title="Próximo keyframe">▶|</button><button id="timeLast" title="Ir ao final geral da animação" aria-label="Ir ao final geral da animação">▶| Fim</button><button id="timePlus24" title="Avançar exatamente 24 quadros" aria-label="Avançar 24 quadros">+24</button><button id="timeShiftMinus" title="Mover a timeline a partir do quadro atual um quadro à esquerda" aria-label="Mover a timeline a partir do quadro atual um quadro à esquerda">−</button><button id="timeShiftPlus" title="Mover a timeline a partir do quadro atual um quadro à direita" aria-label="Mover a timeline a partir do quadro atual um quadro à direita">+</button><button id="timeInsert" title="Gravar ou sobrescrever pose (I)">◆</button><button id="timeDelete" title="Excluir keyframe atual">×</button><button id="timeCopy" title="Copiar todos os canais do keyframe selecionado (Ctrl+C)">Copiar</button><button id="timePaste" title="Colar os canais copiados no frame atual (Ctrl+V)">Colar</button><label>Frame <input id="timeFrame" type="number" min="1" max="100000" value="1"></label><label>Fim (auto) <input id="timeEnd" type="number" min="1" max="100000" value="1" title="Defina um fim inicial; os keyframes podem estendê-lo automaticamente"></label><label>24 fps</label><select id="timeInterpolation" aria-label="Interpolação da animação inteira" title="Aplica à animação inteira, incluindo céu e câmera"><option value="linear">Linear</option><option value="smooth" selected>Suave</option><option value="constant">Constante</option></select><button id="cameraAuto360" title="Criar um giro automático de câmera em torno do objeto, somente entre os frames escolhidos">＋ Câmera 360°</button><label>Início<input id="cameraAuto360Start" aria-label="Keyframe inicial do giro de câmera" type="number" min="1" max="100000" step="1" value="1"></label><label>Fim<input id="cameraAuto360End" aria-label="Keyframe final do giro de câmera" type="number" min="2" max="100000" step="1" value="250"></label><label>Direção<select id="cameraAuto360Direction" aria-label="Direção do giro automático de câmera"><option value="right">Direita</option><option value="left">Esquerda</option><option value="up">Cima</option><option value="down">Baixo</option></select></label></div><div class="timeGrid"><div class="trackLabel" id="trackObject">Nenhum objeto</div><div id="timeScroll" tabindex="0" aria-label="Linha do tempo"><div id="timeContent"><div id="timeRuler"></div><div class="trackBand"></div><div id="timeKeys"></div><div id="studioMorphTimeline" aria-label="Transformações Morph"></div><div id="timeHead"><span>1</span></div></div></div></div><div class="studioAudioRow"><div class="studioAudioLabel"><div><b>Áudio</b><button id="studioAudioImport" title="Importar vários sons">＋</button><button id="studioAudioCut" title="Cortar áudio: ative e clique no ponto do clipe (S divide no cursor)" aria-label="Cortar áudio" aria-pressed="false">✂</button><button id="studioAudioDelete" title="Excluir trecho de áudio selecionado (Delete)" aria-label="Excluir trecho de áudio selecionado" disabled>×</button></div><select id="studioAudioSelect" aria-label="Escolher clipe de áudio"><option value="">Escolher som…</option></select></div><div id="studioAudioScroll" tabindex="0" aria-label="Timeline de áudio"><div id="studioAudioContent"><span id="studioAudioEmpty">＋ Importe sons · ✂ para dividir · selecione e Delete para apagar</span><div id="studioAudioHead"></div></div></div></div><input id="studioAudioFiles" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.webm" multiple hidden><div class="timeFoot">Keyframes somente no alvo selecionado · Áudio e vídeo com rolagem compartilhada · Scroll: rolar · Ctrl + scroll: zoom · Arraste os losangos para mover keys</div></section><footer><span id="status">Carregando motor 3D…</span></footer><input id="file" type="file" accept=".glb"><input id="characterFile" type="file" accept=".character"><input id="projectFile" type="file" accept=".project" hidden><div id="exportOverlay" hidden><div><h3>Exportando WebM · 1920 × 1080 · 24 fps</h3><progress id="exportProgress" max="1" value="0"></progress><p id="exportMessage"></p><button id="cancelExport">Cancelar</button></div></div><script>window.addEventListener('error',e=>{const el=document.getElementById('error');el.style.display='block';el.textContent='Falha: '+e.message+(e.filename?' · linha '+e.lineno+':'+e.colno:'');console.error('Alexandre Studio',e.error?.stack||e.message)});</script>
 <!-- ===== INÍCIO VFX 01 — MOTOR ISOLADO E INTERFACE DOS EFEITOS ===== -->
 <!-- Motor VFX com Shadow DOM independente. -->
@@ -45013,6 +45013,7 @@ void main() {
       dictionary(object.root.userData.studioTimelineLoop?.keys);
       dictionary(object.root.userData.studioTimelineLoop?.additions);
       dictionary(object.root.userData.studioKeyboardMotion);
+      dictionary(object.root.userData.studioImagePlane?.occlusionKeys);
     }
     for(const clip of studioMorphOrderedClips())add(clip.end);
     map(cameraTrack?.keyframes);map(skyTrack?.keyframes);map(sceneVfxTrack?.keyframes);
@@ -50307,7 +50308,7 @@ void main() {
     for(const root of studioMorphGLBMaterials.keys())if(!states.has(root))studioMorphRestoreGLB(root);
     for(const root of cinemaVolumeOverlays.keys())if(!states.has(root))cinemaVolumeDispose(root);
   }
-  function studioRenderMorphScene(time,exporting,timelineTime){
+  function studioRenderMorphScene(time,exporting,timelineTime,backdrop){
     const changed=[];
     function apply(mesh,uniforms){
       const t=uniforms.progress.value,invert=uniforms.invert.value>.5;
@@ -50323,7 +50324,7 @@ void main() {
     for(const record of studioMorphGLBMaterials.values())
       for(const {mesh} of record.parts)apply(mesh,record.uniforms);
     try{
-      const frame=renderStudioSceneFrame(time,exporting,timelineTime);
+      const frame=renderStudioSceneFrame(time,exporting,timelineTime,backdrop);
       return exporting?drawStudioScrollForeground(frame,timelineTime):frame;
     }
     finally{for(const [mesh,visible,shadow] of changed){mesh.visible=visible;mesh.castShadow=shadow;}}
@@ -53267,11 +53268,11 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     if (activeObject) Object.assign(activeObject, { root: model, bones, rest, customRig, mixer, clips, bound, selected });
   }
   var studioUnifiedTracks=new WeakMap();
-  const studioObjectKeyChannels=['shapes','sequence','videoFollow','bonePhysics','loop','additions','keyboard'];
+  const studioObjectKeyChannels=['shapes','sequence','videoFollow','bonePhysics','loop','additions','keyboard','imageMask'];
   function unifiedObjectTrack(object){
     if(!object)return null;if(!studioUnifiedTracks)studioUnifiedTracks=new WeakMap();
     let track=studioUnifiedTracks.get(object);if(track){track.name=object.name;track.root=object.root;return track}
-    const stores=()=>({pose:object.keyframes,shapes:getShapeTrack(object).keyframes,sequence:object.root.userData.studioSequence?getSequenceTrack(object).keyframes:null,videoFollow:studioVideoFollowTrack(object),bonePhysics:studioBonePhysicsTrack(object),loop:getStudioLoopTrack(object).keyframes,additions:studioLoopAdditionTrack(object).keys,keyboard:studioKeyboardTrack(object)});
+    const stores=()=>({pose:object.keyframes,shapes:getShapeTrack(object).keyframes,sequence:object.root.userData.studioSequence?getSequenceTrack(object).keyframes:null,videoFollow:studioVideoFollowTrack(object),bonePhysics:studioBonePhysicsTrack(object),loop:getStudioLoopTrack(object).keyframes,additions:studioLoopAdditionTrack(object).keys,keyboard:studioKeyboardTrack(object),imageMask:studioImageMaskTrack(object)});
     function frames(all){
       const result=new Set();
       for(const channel of Object.values(all))if(channel)for(const frame of channel.keys())result.add(+frame);
@@ -53306,6 +53307,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
         if(Object.hasOwn(key,'loop'))all.loop.set(frame,structuredClone(key.loop));
         if(key.additions&&Object.keys(key.additions).length)all.additions.set(frame,{...all.additions.get(frame),...structuredClone(key.additions)});
         if(key.keyboard)studioKeyboardTrack(object,true).set(frame,key.keyboard.slice());
+        if(typeof key.imageMask==='boolean')studioImageMaskTrack(object,true)?.set(frame,key.imageMask);
         return this;
       }
       delete(frame){frame=+frame;const all=stores();let changed=false;for(const store of Object.values(all))if(store)changed=store.delete(frame)||changed;return changed}
@@ -54059,6 +54061,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
     if(!timelinePlaying)syncStudioLoopUI();
     syncPathTimingUI();
     syncStudioBonePhysicsKeyState();
+    if(imageOcclusionPen&&!$('panelImages').hidden)syncStudioImageMaskKeyButtons();
   }
   var selectedTimeFrames = new Set(), selectedTimeTrack = null, timeSelectionAnchor = null;
   function timelineSelection(track = timelineTrack()) {
@@ -54166,6 +54169,10 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
       const cameraCut=timelineCamera&&key.camera?.cut===true;
       if(cameraCut){title+=' · Corte seco';label+=' · Corte seco';}
       if(timelineCamera&&key.camera?.automaticOrbit360){title+=' · Câmera 360°';label+=' · Câmera 360°';}
+      if(typeof key.imageMask==='boolean'){
+        const maskLabel=key.imageMask?'Máscara ativa':'Máscara desativada';
+        title+=' · '+maskLabel;label+=' · '+maskLabel;
+      }
       if(timelineVFX)title=track.name+' · Frame '+f+' · Arraste para mover';
       if(timelinePath)label=title=`${key.paused?'Parar':'Caminhar'} · Quadro ${f}`;
       const signature=[title,label,follow,followOff,physicsLabel].join('\n');
@@ -54523,6 +54530,7 @@ diffuseColor.rgb=mix(diffuseColor.rgb,skinTone,cover);
   };
   $("timePlay").onclick = () => {
     if (timelinePlaying) return pauseTimeline();
+    if(studioImageOcclusionDraft){studioImageOcclusionDraft=null;syncImagePanel();}
     if (!objects.length && !studioScrollBackgroundTexture && !studioScrollForegroundImage && !studioZoomImageTexture && !skyTrack.keyframes.size && !cameraTrack.keyframes.size && !sceneVfxTrack.keyframes.size && !studioAudioClips.length && !studioVfxBankEntries(false).some(([id,bank]) => bank.state?.enabled !== false && (studioVfxHasBaseEffect(bank.state) || (id!=='__scene__' && (bank.state?.config?.particles?.active || (bank.state?.config?.lights||[]).some(light=>light.active))))) ) return;
     audioContext().resume().catch(() => {
     });
@@ -61834,7 +61842,7 @@ void main(){
         scene.background=backdrop.texture;
         skyMesh.visible=false;
         if(backdrop.root)backdrop.root.visible=false;
-        return studioRenderMorphScene(clockTime,exporting,time);
+        return studioRenderMorphScene(clockTime,exporting,time,backdrop);
       }finally{
         if(backdrop.root)backdrop.root.visible=sourceVisible;
         skyMesh.visible=skyVisible;
@@ -61913,7 +61921,7 @@ void main(){
       }
     }
   }
-  function renderStudioSceneFrame(clockTime,exporting,timelineTime){
+  function renderStudioSceneFrame(clockTime,exporting,timelineTime,backdrop){
     if (!exporting && studioWeightVolumeActive()) {
       const control = studioWeightVolumeControl();
       if (control) return studioRenderWeightVolume(control);
@@ -61967,7 +61975,7 @@ void main(){
     syncStudioPlaybackTools();
     return studioDrawWithPlaneScrolls(planeScrolls,timelineTime,()=>studioRenderGeometryPreview(
       ()=>studioDrawWithSurfaceWindGeometry(fineWindMeshes,()=>studioRenderWithGhostWind(
-        ()=>studioDrawSceneVfxPasses(passes,clockTime,exporting))),exporting));
+        ()=>studioDrawSceneVfxPasses(passes,clockTime,exporting,backdrop))),exporting));
   }
   const studioInstancePreviewGeometry=new WeakMap(),studioInstancePreviewBuffers=new WeakMap();
   // Keep dense imported forests within a viewport budget in every preview mode.
@@ -62244,18 +62252,22 @@ SOFTWARE.
       for(const {mesh,preview,...state} of restore)Object.assign(mesh,state);
     }
   }
-  function studioDrawSceneVfxPasses(passes,clockTime,exporting){
+  function studioDrawSceneVfxPasses(passes,clockTime,exporting,backdrop){
     // Em maquinas lentas, nao renderizar varios passes VFX por quadro no Play.
     // A cena continua animada; ao pausar e ao exportar os efeitos voltam completos.
     const hasImageMotion=passes.some(({state,target,backdrop})=>
       backdrop||(state.config?.scrollActive!==false&&state.config?.scrollSpeed)||(target&&imagePlaneMesh(target)&&state.config?.zoomActive));
-    if(!exporting && timelinePlaying && studioFastPlayback && !hasImageMotion){
+    const imageMask=backdrop?.root?.userData.studioImagePlane;
+    const hasMask=!!imageMask?.occlusionPolygons?.length;
+    const maskActive=hasMask&&studioImageMaskEnabled(imageMask,currentFrame);
+    const cameraFinishing=passes.some(pass=>pass.id==='__scene__'&&!pass.backdrop&&pass.baseActive);
+    if(!exporting && timelinePlaying && studioFastPlayback && !hasImageMotion && !maskActive && !(hasMask&&cameraFinishing)){
       vfxComposite.hidden=true;
       renderer.render(scene,camera);
       return renderer.domElement;
     }
     // Native volumes are drawn once with scene depth; no texture/composite pass needed.
-    if(!passes.some(pass=>pass.baseActive||pass.layers.some(layer=>!layer.native))){vfxComposite.hidden=true;renderer.render(scene,camera);return renderer.domElement;}
+    if(!passes.some(pass=>pass.baseActive||pass.layers.some(layer=>!layer.native))){vfxComposite.hidden=true;renderer.render(scene,camera);return drawStudioImageOcclusion(renderer.domElement,backdrop,exporting);}
     const helpers=[rigView,faceGuides,objectGizmoHelper,vfxMoveHelper,followPinView,pathOverlay].map(node=>[node,node.visible]);
     const width=renderer.domElement.width,height=renderer.domElement.height;
     if(vfxComposite.width!==width||vfxComposite.height!==height){vfxComposite.width=width;vfxComposite.height=height;}
@@ -62271,7 +62283,20 @@ SOFTWARE.
       ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
       ctx.clearRect(0,0,width,height);
       const backgroundPass=passes.find(pass=>(pass.sky||pass.backdrop)&&pass.baseActive);
-      if(backgroundPass)ctx.drawImage(renderStudioSkyEffect(backgroundPass,clockTime,exporting),0,0,width,height);
+      let maskedBackground=null;
+      if(backgroundPass){
+        const pixels=renderStudioSkyEffect(backgroundPass,clockTime,exporting);
+        ctx.drawImage(pixels,0,0,width,height);
+        if(maskActive&&backgroundPass.backdrop){
+          maskedBackground=studioImageOcclusionBuffer;
+          if(maskedBackground.width!==width||maskedBackground.height!==height){
+            maskedBackground.width=width;maskedBackground.height=height;
+          }
+          const buffer=maskedBackground.getContext('2d');
+          buffer.globalCompositeOperation='copy';
+          buffer.drawImage(pixels,0,0,width,height);
+        }
+      }
       const clear=renderer.getClearColor(new Color()),alpha=renderer.getClearAlpha(),skyVisible=skyMesh.visible,background=scene.background;
       try{
         for(const [root]of hidden)root.visible=false;
@@ -62301,14 +62326,15 @@ SOFTWARE.
       layers.sort((a,b)=>b.frameTransform.depth-a.frameTransform.depth);
       for(const layer of layers)drawStudioVfxLayer(layer,clockTime,exporting);
       if(separateSpatial)compositeStudioSpatialVfx(ctx,width,height);
-      // Camera finishing sees the complete sum, including all object and camera emitters.
+      if(maskActive)drawStudioImageOcclusion(vfxComposite,backdrop,exporting,maskedBackground);
+      // Camera finishing sees the complete sum, including the occlusion and all emitters.
       for(const pass of passes.filter(p=>!p.target&&!p.sky&&!p.backdrop&&p.baseActive)){
         studioVfxRenderTarget=pass.id;vfxApi.setState(pass.state,false);
         captureStudioVfxInput(vfxComposite,exporting);
         const pixels=vfxApi.render(vfxInput,clockTime,1920,1080,exporting,pass.id===(studioVfxTargetId||'__scene__')&&pass.id!=='__free__'&&!studioSurfaceWindEnabled(pass.target));
         ctx.clearRect(0,0,width,height);ctx.drawImage(pixels,0,0,width,height);
       }
-    }catch(error){vfxComposite.hidden=true;status('Falha no VFX: '+error.message);renderer.render(scene,camera);return renderer.domElement;}
+    }catch(error){vfxComposite.hidden=true;status('Falha no VFX: '+error.message);renderer.render(scene,camera);return drawStudioImageOcclusion(renderer.domElement,backdrop,exporting);}
     finally{
       studioVfxLayerRendering=false;studioVfxRenderTarget=null;renderer.shadowMap.autoUpdate=shadowAuto;studioVfxVolumes.visible=spatialVisible;
       vfxApi.setState(vfxState,false);for(const [node,value]of helpers)node.visible=value;
@@ -66848,6 +66874,7 @@ function mergeStudioStaticGeometry(chosen){
     renderer.domElement.style.height=h+"px";
     studioScrollForegroundPreview.style.width=w+"px";
     studioScrollForegroundPreview.style.height=h+"px";
+    if(studioImageOcclusionDraft)syncStudioImageOcclusionTools(true);
     if (vfxComposite) {
       vfxComposite.style.width = w + "px";
       vfxComposite.style.height = h + "px";
@@ -67031,7 +67058,7 @@ function mergeStudioStaticGeometry(chosen){
     }
   }
   const studioMoveGizmoKeys=new Map([
-    ["KeyW",[0,0,1]],["KeyS",[0,0,-1]],["KeyA",[1,0,0]],["KeyD",[-1,0,0]],["KeyQ",[0,-1,0]],["KeyE",[0,1,0]]
+    ["KeyW",[0,0,-1]],["KeyS",[0,0,1]],["KeyA",[-1,0,0]],["KeyD",[1,0,0]],["KeyQ",[0,-1,0]],["KeyE",[0,1,0]]
   ]);
   const studioHeldGizmoKeys=new Set(),studioGizmoKeyDelta=new Vector3();
   function studioFinishGizmoKeys(cancel=false){
@@ -67561,12 +67588,91 @@ function mergeStudioStaticGeometry(chosen){
     }
     else if(imageEditEnabled){imageSetEdit(false);}
   }
+  const studioImageOcclusionScene=new Scene();
+  const studioImageOcclusionBuffer=document.createElement('canvas');
+  var studioImageOcclusionDraft=null;
+  function studioImageOcclusionPaths(polygons,texture){
+    const {offset,repeat}=texture,paths=[];
+    for(const points of polygons){
+      if(points.length<3)continue;
+      const xs=points.map(point=>point[0]);
+      const low=texture.wrapS===RepeatWrapping?Math.ceil(offset.x-Math.max(...xs)):0;
+      const high=texture.wrapS===RepeatWrapping?Math.floor(offset.x+repeat.x-Math.min(...xs)):0;
+      for(let copy=low;copy<=high;copy++)paths.push(points.map(([u,v])=>[(u+copy-offset.x)/repeat.x,1-(v-offset.y)/repeat.y]));
+    }
+    return paths;
+  }
+  var studioImageMaskTracks;
+  function studioImageMaskTrack(object,create=false){
+    const image=object?.root.userData.studioImagePlane;
+    if(!image||(!image.occlusionKeys&&!create))return null;
+    const saved=image.occlusionKeys??={};
+    studioImageMaskTracks??=new WeakMap();
+    let track=studioImageMaskTracks.get(saved);
+    if(track)return track;
+    class ImageMaskKeys extends Map{
+      set(frame,enabled){
+        if(typeof enabled!=='boolean')return this;
+        saved[frame]=enabled;
+        return super.set(frame,enabled);
+      }
+      delete(frame){delete saved[frame];return super.delete(frame);}
+    }
+    track=new ImageMaskKeys(Object.entries(saved).map(([frame,enabled])=>[Number(frame),enabled])
+      .filter(([frame,enabled])=>Number.isInteger(frame)&&frame>=1&&typeof enabled==='boolean'));
+    studioImageMaskTracks.set(saved,track);
+    return track;
+  }
+  function studioImageMaskEnabled(image,frame){
+    let latest=0,enabled=true;
+    for(const [key,value]of Object.entries(image?.occlusionKeys||{})){
+      const at=Number(key);
+      if(at>latest&&at<=frame&&typeof value==='boolean'){latest=at;enabled=value;}
+    }
+    return enabled;
+  }
+  function drawStudioImageOcclusion(frame,backdrop,exporting,backgroundPixels){
+    const image=backdrop?.root?.userData.studioImagePlane;
+    if(!studioImageMaskEnabled(image,currentFrame))return frame;
+    const polygons=image?.occlusionPolygons;
+    if(!polygons?.length)return frame;
+    const paths=studioImageOcclusionPaths(polygons,backdrop.texture);
+    if(!paths.length)return frame;
+    const {width,height}=frame,ctx=vfxCompositeContext;
+    if(frame!==vfxComposite){
+      if(vfxComposite.width!==width||vfxComposite.height!==height){
+        vfxComposite.width=width;vfxComposite.height=height;
+      }
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.globalAlpha=1;
+      ctx.globalCompositeOperation='copy';
+      ctx.drawImage(frame,0,0);
+    }
+    ctx.globalCompositeOperation='source-over';
+    if(!backgroundPixels){
+      studioImageOcclusionScene.background=backdrop.texture;
+      try{renderer.render(studioImageOcclusionScene,camera);}
+      finally{studioImageOcclusionScene.background=null;}
+      backgroundPixels=renderer.domElement;
+    }
+    ctx.save();
+    try{
+      // Clip and redraw each polygon so overlapping regions never cancel out.
+      for(const points of paths){
+        ctx.save();
+        ctx.beginPath();
+        points.forEach(([x,y],i)=>i?ctx.lineTo(x*width,y*height):ctx.moveTo(x*width,y*height));
+        ctx.closePath();
+        ctx.clip('evenodd');
+        ctx.drawImage(backgroundPixels,0,0,width,height);
+        ctx.restore();
+      }
+    }finally{ctx.restore();}
+    vfxComposite.hidden=exporting;
+    return vfxComposite;
+  }
   function syncImagePanel(){
-    if(!$('imageObjectSelect'))return;
-    const list=objects.filter(object=>object.root.userData.studioImagePlane),select=$('imageObjectSelect');
-    select.replaceChildren(...list.map(object=>new Option(object.name,object.id)));
-    if(!list.length)select.add(new Option('Importe uma imagem',''));
-    select.value=activeObject?.root.userData.studioImagePlane?activeObject.id:'';
+    const list=objects.filter(object=>object.root.userData.studioImagePlane);
     const mesh=imagePlaneMesh(),grid=mesh?imageGridInfo(mesh):null;
     const reference=$('imageMirrorReference'),previous=reference.value;
     const candidates=list.filter(object=>object!==activeObject&&!object.root.userData.studioImageMirror);
@@ -67580,6 +67686,7 @@ function mergeStudioStaticGeometry(chosen){
     const backgroundButton=$('imageVideoBackground');
     backgroundButton.disabled=!mesh?.material.map;
     syncStudioVideoBackgroundButton(backgroundButton,isBackground);
+    syncStudioImageOcclusionTools(isBackground);
     for(const id of ['imageEditToggle','imageSelectAll','imageClearSelection'])$(id).disabled=!mesh||isBackground;
     $('imageSubdivide').disabled=isBackground||!imageCanSubdivide(grid);
     $('imageUndo').disabled=isBackground||!mesh||!imageEditHistory.get(mesh)?.length;
@@ -67695,7 +67802,138 @@ function mergeStudioStaticGeometry(chosen){
     status('Cópia espelhada no eixo '+axis+' da cena, usando '+(reference?reference.name:'o centro da cena')+' como centro.');
   };
 
-  $('imageObjectSelect').onchange=event=>{imageSetEdit(false);selectObject(event.target.value,true);syncImagePanel();};
+  var imageOcclusionPen=document.createElement('button'),imageOcclusionFinish=document.createElement('button');
+  const imageOcclusionUndo=document.createElement('button');
+  const imageMaskOn=document.createElement('button'),imageMaskOff=document.createElement('button');
+  const imageMaskStatus=document.createElement('div');
+  imageMaskStatus.className='muted';
+  for(const [button,label] of [[imageOcclusionPen,'Caneta poligonal'],[imageOcclusionFinish,'Fechar área'],[imageOcclusionUndo,'Remover última área'],[imageMaskOn,'Ativar · Keyframe'],[imageMaskOff,'Desativar · Keyframe']]){
+    button.type='button';
+    button.textContent=label;
+  }
+  const imageOcclusionTools=document.createElement('div');
+  imageOcclusionTools.className='section';
+  const imageMaskHeading=document.createElement('h3');
+  imageMaskHeading.textContent='Máscara';
+  imageMaskHeading.style.margin='0';
+  const imageMaskDrawing=document.createElement('div'),imageMaskKeys=document.createElement('div');
+  for(const row of [imageMaskDrawing,imageMaskKeys]){
+    row.className='row';
+    row.style.flexWrap='wrap';
+  }
+  imageMaskDrawing.append(imageOcclusionPen,imageOcclusionFinish,imageOcclusionUndo);
+  imageMaskKeys.append(imageMaskOn,imageMaskOff);
+  imageOcclusionTools.append(imageMaskHeading,imageMaskDrawing,imageMaskKeys,imageMaskStatus);
+  $('imageVideoBackground').after(imageOcclusionTools);
+  function syncStudioImageMaskKeyButtons(){
+    const image=activeObject?.root.userData.studioImagePlane;
+    const available=!!(image?.videoBackground&&image.occlusionPolygons?.length);
+    imageMaskOn.disabled=imageMaskOff.disabled=!available||!!exportState||studioSaving;
+    imageMaskStatus.textContent=available?(studioImageMaskEnabled(image,currentFrame)?'Ativa · personagem atrás da área':'Desativada · personagem na frente da área'):'Desenhe uma área no fundo para animar a máscara.';
+  }
+  function recordStudioImageMaskKey(enabled){
+    const object=activeObject,image=object?.root.userData.studioImagePlane;
+    if(!image?.videoBackground||!image.occlusionPolygons?.length||exportState||studioSaving)return;
+    pauseTimeline();
+    const frame=Math.round(currentFrame);
+    studioImageMaskTrack(object,true).set(frame,enabled);
+    timelinePath=timelineVFX=timelineCamera=timelineSky=timelineGround=false;
+    refreshObjectSelect();
+    renderTimeline();
+    syncStudioImageMaskKeyButtons();
+    studioInvalidatePreview(false);
+    status((enabled?'Máscara ativada':'Máscara desativada')+' no quadro '+frame+'.');
+  }
+  imageMaskOn.onclick=()=>recordStudioImageMaskKey(true);
+  imageMaskOff.onclick=()=>recordStudioImageMaskKey(false);
+  const imageOcclusionOverlay=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  imageOcclusionOverlay.setAttribute('viewBox','0 0 1000 1000');
+  imageOcclusionOverlay.setAttribute('preserveAspectRatio','none');
+  Object.assign(imageOcclusionOverlay.style,{display:'none',position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',zIndex:'4',cursor:'crosshair',touchAction:'none'});
+  vp.append(imageOcclusionOverlay);
+  function syncStudioImageOcclusionTools(background){
+    if(!imageOcclusionPen)return;
+    if(studioImageOcclusionDraft&&(!background||studioImageOcclusionDraft.object!==activeObject||$('panelImages').hidden)){
+      studioImageOcclusionDraft=null;
+    }
+    const draft=studioImageOcclusionDraft;
+    imageOcclusionPen.disabled=!background;
+    imageOcclusionPen.textContent=draft?'Cancelar área':'Caneta poligonal';
+    imageOcclusionFinish.disabled=(draft?.points.length||0)<3;
+    imageOcclusionUndo.disabled=!background||!activeObject.root.userData.studioImagePlane.occlusionPolygons?.length;
+    imageOcclusionOverlay.style.display=draft?'block':'none';
+    syncStudioImageMaskKeyButtons();
+    if(!draft)return;
+    imageOcclusionOverlay.style.width=renderer.domElement.style.width;
+    imageOcclusionOverlay.style.height=renderer.domElement.style.height;
+    imageOcclusionOverlay.replaceChildren();
+    const project=([u,v])=>[(u-draft.x)/draft.width*1000,(1-(v-draft.y)/draft.height)*1000];
+    const line=document.createElementNS(imageOcclusionOverlay.namespaceURI,'polyline');
+    line.setAttribute('points',draft.points.map(point=>project(point).join(',')).join(' '));
+    line.setAttribute('stroke','#8ffaff');
+    line.setAttribute('stroke-width','2');
+    line.setAttribute('vector-effect','non-scaling-stroke');
+    line.setAttribute('fill',draft.points.length>=3?'#44ddff36':'none');
+    line.setAttribute('pointer-events','none');
+    imageOcclusionOverlay.append(line);
+    for(const point of draft.points){
+      const [x,y]=project(point),dot=document.createElementNS(imageOcclusionOverlay.namespaceURI,'circle');
+      dot.setAttribute('cx',x);dot.setAttribute('cy',y);dot.setAttribute('r','5');
+      dot.setAttribute('fill','#8ffaff');dot.setAttribute('pointer-events','none');
+      imageOcclusionOverlay.append(dot);
+    }
+  }
+  function finishStudioImageOcclusion(){
+    const draft=studioImageOcclusionDraft;
+    if(!draft||draft.points.length<3||exportState||studioSaving)return;
+    const image=draft.object.root.userData.studioImagePlane;
+    (image.occlusionPolygons??=[]).push(draft.points);
+    studioImageOcclusionDraft=null;
+    syncImagePanel();
+    studioInvalidatePreview(false);
+    status('Área marcada. O personagem passa atrás dela.');
+  }
+  imageOcclusionPen.onclick=()=>{
+    if(exportState||studioSaving)return;
+    if(studioImageOcclusionDraft){studioImageOcclusionDraft=null;syncImagePanel();return;}
+    pauseTimeline();
+    const backdrop=studioVideoBackground((currentFrame-1)/24);
+    if(!backdrop||backdrop.root!==activeObject?.root){status('Use a imagem selecionada como fundo do vídeo para demarcar uma área.');return;}
+    const {offset,repeat}=backdrop.texture;
+    studioImageOcclusionDraft={object:activeObject,points:[],x:offset.x,y:offset.y,width:repeat.x,height:repeat.y};
+    syncImagePanel();
+    status('Clique para marcar os vértices. Feche no primeiro ponto ou pressione Enter.');
+  };
+  imageOcclusionFinish.onclick=finishStudioImageOcclusion;
+  imageOcclusionUndo.onclick=()=>{
+    if(exportState||studioSaving)return;
+    activeObject?.root.userData.studioImagePlane?.occlusionPolygons?.pop();
+    syncImagePanel();studioInvalidatePreview(false);
+  };
+  imageOcclusionOverlay.addEventListener('pointerdown',event=>{
+    const draft=studioImageOcclusionDraft;
+    if(!draft||event.button!==0)return;
+    event.preventDefault();event.stopPropagation();
+    const rect=imageOcclusionOverlay.getBoundingClientRect();
+    const x=(event.clientX-rect.left)/rect.width,y=(event.clientY-rect.top)/rect.height;
+    const [first]=draft.points;
+    if(first&&draft.points.length>=3&&Math.hypot((x-(first[0]-draft.x)/draft.width)*rect.width,
+      (y-1+(first[1]-draft.y)/draft.height)*rect.height)<12){finishStudioImageOcclusion();return;}
+    draft.points.push([draft.x+x*draft.width,draft.y+(1-y)*draft.height]);
+    syncImagePanel();
+  });
+  window.addEventListener('keydown',event=>{
+    if(!studioImageOcclusionDraft||!['Escape','Enter','Backspace'].includes(event.key)||event.target.closest?.('input,select,textarea'))return;
+    event.preventDefault();event.stopImmediatePropagation();
+    if(event.key==='Enter')finishStudioImageOcclusion();
+    else{
+      if(event.key==='Escape')studioImageOcclusionDraft=null;
+      else studioImageOcclusionDraft.points.pop();
+      syncImagePanel();
+    }
+  },true);
+  new MutationObserver(()=>{if($('panelImages').hidden&&studioImageOcclusionDraft){studioImageOcclusionDraft=null;syncImagePanel();}})
+    .observe($('panelImages'),{attributes:true,attributeFilter:['hidden']});
   $('imageVideoBackground').onclick=()=>{
     const object=activeObject,mesh=imagePlaneMesh(object);
     if(!mesh?.material.map||exportState||studioSaving)return;
