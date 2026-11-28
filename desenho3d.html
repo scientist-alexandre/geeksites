@@ -1578,9 +1578,36 @@ if(!images[0]||!images[1])return [];
 prepareProjections();
 const cut=+$('cutoff').value,groups=[{i:0,color:[.45,1,.72],data:[],normals:[]},{i:images[2]?2:0,color:[1,.67,.36],data:[],normals:[]}];
 const center=im=>(im.left+im.right)/2,span=im=>viewProjection(im).spanX;
+// Remove isolated pixels and single-pixel tips attached directly to a wider contour.
+function cleanRoundMask(mask,width,height){
+ const clean=mask.slice();
+ const at=(x,y)=>x>=0&&x<width&&y>=0&&y<height&&mask[y*width+x];
+ const neighbors=(x,y)=>{
+  const hits=[];
+  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)
+   if((dx||dy)&&at(x+dx,y+dy))hits.push([x+dx,y+dy]);
+  return hits;
+ };
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+  if(!at(x,y))continue;
+  let count=0;
+  for(let dy=-1;dy<=1&&count<2;dy++)for(let dx=-1;dx<=1&&count<2;dx++)
+   if((dx||dy)&&at(x+dx,y+dy))count++;
+  if(!count){clean[y*width+x]=0;continue;}
+  if(count===1){
+   const [[nx,ny]]=neighbors(x,y);
+   if(neighbors(nx,ny).length>=4)clean[y*width+x]=0;
+  }
+ }
+ return clean;
+}
+const roundedMasks=new Map(images.filter(Boolean).map(im=>{
+ const mask=im.geometryMask||Uint8Array.from({length:im.width*im.height},(_,k)=>Number(im.pixels[k*4+3]>=cut));
+ return [im,cleanRoundMask(mask,im.width,im.height)];
+}));
 function silhouette(im){
  const map=viewProjection(im),scale=Math.min(1,Math.max(640,Number($('quality').value)*2)/Math.max(im.right-im.left,im.bottom-im.top)),w=Math.ceil((im.right-im.left)*scale)+4,h=Math.ceil((im.bottom-im.top)*scale)+4,mask=new Uint8Array(w*h),inside=new Float32Array(w*h),outside=new Float32Array(w*h);
- for(let y=0;y<h;y++)for(let x=0;x<w;x++){const px=Math.floor(im.left+(x-1.5)/scale),py=Math.floor(im.top+(y-1.5)/scale),k=y*w+x,hit=x>=2&&y>=2&&x<w-2&&y<h-2&&px>=0&&py>=0&&px<im.width&&py<im.height&&(im.geometryMask?im.geometryMask[py*im.width+px]:im.pixels[(py*im.width+px)*4+3]>=cut);mask[k]=hit?1:0;inside[k]=hit?1e6:0;outside[k]=hit?0:1e6;}
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const px=Math.floor(im.left+(x-1.5)/scale),py=Math.floor(im.top+(y-1.5)/scale),k=y*w+x,hit=x>=2&&y>=2&&x<w-2&&y<h-2&&px>=0&&py>=0&&px<im.width&&py<im.height&&roundedMasks.get(im)[py*im.width+px];mask[k]=hit?1:0;inside[k]=hit?1e6:0;outside[k]=hit?0:1e6;}
  function distance(d){const n=Math.max(w,h),f=new Float64Array(n),output=new Float64Array(n),v=new Int32Array(n),boundary=new Float64Array(n+1);
 function transform(length){let k=0;v[0]=0;boundary[0]=-Infinity;boundary[1]=Infinity;for(let q=1;q<length;q++){let crossing=((f[q]+q*q)-(f[v[k]]+v[k]*v[k]))/(2*(q-v[k]));while(crossing<=boundary[k]){k--;crossing=((f[q]+q*q)-(f[v[k]]+v[k]*v[k]))/(2*(q-v[k]));}v[++k]=q;boundary[k]=crossing;boundary[k+1]=Infinity;}k=0;for(let q=0;q<length;q++){while(boundary[k+1]<q)k++;output[q]=(q-v[k])*(q-v[k])+f[v[k]];}}
 for(let y=0;y<h;y++){for(let x=0;x<w;x++)f[x]=d[y*w+x];transform(w);for(let x=0;x<w;x++)d[y*w+x]=output[x];}for(let x=0;x<w;x++){for(let y=0;y<h;y++)f[y]=d[y*w+x];transform(h);for(let y=0;y<h;y++)d[y*w+x]=Math.sqrt(output[y]);}}
@@ -1609,9 +1636,9 @@ function blendRows(rowA,rowB,t){
  }
  return t<.5?a.map(run=>run.slice()):b.map(run=>run.slice());
 }
-function rowSectionsAtPixel(im,py){if(py<0||py>=im.height)return [];const m=viewProjection(im),key=images.indexOf(im)+':'+py;if(rowCache.has(key))return rowCache.get(key);const sections=[];let start=-1;for(let x=im.left;x<=im.right;x++){const hit=x<im.right&&(im.geometryMask?im.geometryMask[py*im.width+x]:im.pixels[(py*im.width+x)*4+3]>=cut);if(hit&&start<0)start=x;if(!hit&&start>=0){if(x-start>=2)sections.push([(start/im.width-m.centerU)*m.spanX,(x/im.width-m.centerU)*m.spanX]);start=-1;}}const coherent=coherentSections(sections);rowCache.set(key,coherent);return coherent;}
+function rowSectionsAtPixel(im,py){if(py<0||py>=im.height)return [];const m=viewProjection(im),key=images.indexOf(im)+':'+py;if(rowCache.has(key))return rowCache.get(key);const sections=[];let start=-1;for(let x=im.left;x<=im.right;x++){const hit=x<im.right&&roundedMasks.get(im)[py*im.width+x];if(hit&&start<0)start=x;if(!hit&&start>=0){if(x-start>=2)sections.push([(start/im.width-m.centerU)*m.spanX,(x/im.width-m.centerU)*m.spanX]);start=-1;}}const coherent=coherentSections(sections);rowCache.set(key,coherent);return coherent;}
 function rowSections(im,worldY){const m=viewProjection(im),fy=(m.shiftV-worldY/m.spanY)*im.height;if(fy<0||fy>im.height-1)return [];const py0=Math.floor(fy),py1=Math.min(im.height-1,py0+1),t=fy-py0,key=images.indexOf(im)+':'+py0+':'+py1+':'+t.toFixed(4);if(rowBlendCache.has(key))return rowBlendCache.get(key);const blended=blendRows(rowSectionsAtPixel(im,py0),rowSectionsAtPixel(im,py1),t);rowBlendCache.set(key,blended);return blended;}
-function columnSections(worldX){const im=images[0],m=viewProjection(im),px=Math.floor((m.centerU+worldX/m.spanX)*im.width);if(px<0||px>=im.width)return [];if(columnCache.has(px))return columnCache.get(px);const sections=[];let start=-1;for(let y=im.top;y<=im.bottom;y++){const hit=y<im.bottom&&im.geometryMask[y*im.width+px];if(hit&&start<0)start=y;if(!hit&&start>=0){sections.push([(m.shiftV-y/im.height)*m.spanY,(m.shiftV-start/im.height)*m.spanY]);start=-1;}}const coherent=coherentSections(sections.reverse());columnCache.set(px,coherent);return coherent;}
+function columnSections(worldX){const im=images[0],m=viewProjection(im),px=Math.floor((m.centerU+worldX/m.spanX)*im.width);if(px<0||px>=im.width)return [];if(columnCache.has(px))return columnCache.get(px);const sections=[];let start=-1;for(let y=im.top;y<=im.bottom;y++){const hit=y<im.bottom&&roundedMasks.get(im)[y*im.width+px];if(hit&&start<0)start=y;if(!hit&&start>=0){sections.push([(m.shiftV-y/im.height)*m.spanY,(m.shiftV-start/im.height)*m.spanY]);start=-1;}}const coherent=coherentSections(sections.reverse());columnCache.set(px,coherent);return coherent;}
 const nearest=(runs,x)=>runs.length?runs.reduce((a,b)=>Math.max(b[0]-x,x-b[1],0)<Math.max(a[0]-x,x-a[1],0)?b:a):null;
 const front=silhouette(images[0]),side=silhouette(images[1]),im=images[0],si=images[1],fm=viewProjection(im),sm=viewProjection(si),x0=(im.left/im.width-fm.centerU)*fm.spanX,x1=(im.right/im.width-fm.centerU)*fm.spanX,y0=(fm.shiftV-im.bottom/im.height)*fm.spanY,y1=(fm.shiftV-im.top/im.height)*fm.spanY,za=sideFacing*(si.left/si.width-sm.centerU)*sm.spanX,zb=sideFacing*(si.right/si.width-sm.centerU)*sm.spanX,z0=Math.min(za,zb),z1=Math.max(za,zb);
 // Perfis de curvatura: avalia as bordas em uma vizinhança, sem endireitar a silhueta.
@@ -1652,13 +1679,13 @@ const sectionMode=['round','angular'].includes($('sectionMode').value)?$('sectio
 // inconsistent views keep the silhouette reconstruction unchanged.
 function correspondingRegions(){
  if(!images[2])return null;
- const histograms=images.map(view=>{const hist=new Map();let total=0;for(let y=view.top;y<view.bottom;y+=2)for(let x=view.left;x<view.right;x+=2){const k=y*view.width+x;if(!view.geometryMask[k])continue;total++;const at=k*4,r=view.pixels[at],g=view.pixels[at+1],b=view.pixels[at+2];if(Math.max(r,g,b)<28)continue;const key=(r>>4)*256+(g>>4)*16+(b>>4);let v=hist.get(key);if(!v)hist.set(key,v=[0,0,0,0]);v[0]++;v[1]+=r;v[2]+=g;v[3]+=b;}return {hist,total};});
+ const histograms=images.map(view=>{const hist=new Map();let total=0;for(let y=view.top;y<view.bottom;y+=2)for(let x=view.left;x<view.right;x+=2){const k=y*view.width+x;if(!roundedMasks.get(view)[k])continue;total++;const at=k*4,r=view.pixels[at],g=view.pixels[at+1],b=view.pixels[at+2];if(Math.max(r,g,b)<28)continue;const key=(r>>4)*256+(g>>4)*16+(b>>4);let v=hist.get(key);if(!v)hist.set(key,v=[0,0,0,0]);v[0]++;v[1]+=r;v[2]+=g;v[3]+=b;}return {hist,total};});
  const palette=[];for(const v of [...histograms[0].hist.values()].sort((a,b)=>b[0]-a[0])){if(v[0]<histograms[0].total*.025)break;const color=v.slice(1).map(x=>x/v[0]);if(palette.every(c=>Math.hypot(...c.map((x,i)=>x-color[i]))>32))palette.push(color);if(palette.length===8)break;}
  if(palette.length<2)return null;
  function label(view,k){const at=k*4;let best=-1,distance=18*18;for(let i=0;i<palette.length;i++){const c=palette[i],d=(c[0]-view.pixels[at])**2+(c[1]-view.pixels[at+1])**2+(c[2]-view.pixels[at+2])**2;if(d<distance){distance=d;best=i;}}return best;}
- for(const view of images){let total=0,matched=0;for(let y=view.top;y<view.bottom;y+=2)for(let x=view.left;x<view.right;x+=2){const k=y*view.width+x;if(view.geometryMask[k]){total++;if(label(view,k)>=0)matched++;}}if(matched/Math.max(1,total)<.88)return null;}
+ for(const view of images){let total=0,matched=0;for(let y=view.top;y<view.bottom;y+=2)for(let x=view.left;x<view.right;x+=2){const k=y*view.width+x;if(roundedMasks.get(view)[k]){total++;if(label(view,k)>=0)matched++;}}if(matched/Math.max(1,total)<.88)return null;}
  const cache=images.map(()=>new Map());
- function ranges(index,wy){const view=images[index],m=viewProjection(view),py=Math.floor((m.shiftV-wy/m.spanY)*view.height);if(py<view.top||py>=view.bottom)return null;if(cache[index].has(py))return cache[index].get(py);const values=palette.map(()=>({left:Infinity,right:-Infinity,count:0,runs:[]}));let total=0,matched=0;for(let x=view.left;x<view.right;x++){const k=py*view.width+x;if(!view.geometryMask[k])continue;total++;const id=label(view,k);if(id<0)continue;matched++;const r=values[id];r.left=Math.min(r.left,x);r.right=x+1;r.count++;const last=r.runs[r.runs.length-1];if(last&&x-last[1]<=8){last[1]=x+1;last[2]++;}else r.runs.push([x,x+1,1]);}for(const r of values){const runs=r.runs.filter(run=>run[2]>=Math.max(3,r.count*.08));r.left=runs.length?runs[0][0]:Infinity;r.right=runs.length?runs[runs.length-1][1]:-Infinity;if(!runs.length)r.count=0;}const out={values,total,matched};cache[index].set(py,out);return out;}
+ function ranges(index,wy){const view=images[index],m=viewProjection(view),py=Math.floor((m.shiftV-wy/m.spanY)*view.height);if(py<view.top||py>=view.bottom)return null;if(cache[index].has(py))return cache[index].get(py);const values=palette.map(()=>({left:Infinity,right:-Infinity,count:0,runs:[]}));let total=0,matched=0;for(let x=view.left;x<view.right;x++){const k=py*view.width+x;if(!roundedMasks.get(view)[k])continue;total++;const id=label(view,k);if(id<0)continue;matched++;const r=values[id];r.left=Math.min(r.left,x);r.right=x+1;r.count++;const last=r.runs[r.runs.length-1];if(last&&x-last[1]<=8){last[1]=x+1;last[2]++;}else r.runs.push([x,x+1,1]);}for(const r of values){const runs=r.runs.filter(run=>run[2]>=Math.max(3,r.count*.08));r.left=runs.length?runs[0][0]:Infinity;r.right=runs.length?runs[runs.length-1][1]:-Infinity;if(!runs.length)r.count=0;}const out={values,total,matched};cache[index].set(py,out);return out;}
  const rows=new Array(ny).fill(null);let active=0;
  for(let y=0;y<ny;y++){const wy=min[1]+y*step,f=ranges(0,wy),side=ranges(1,wy),back=ranges(2,wy);if(!f||!side||!back||f.matched<.87*f.total)continue;const significant=f.values.map((r,i)=>r.count>=Math.max(3,f.total*.04)?i:-1).filter(i=>i>=0);if(significant.length<2)continue;const parts=[];let consistent=true;for(const id of significant){const a=f.values[id],b=side.values[id],c=back.values[id];if(b.count<Math.max(6,side.total*.1)||c.count<Math.max(6,back.total*.04)){consistent=false;break;}const bm=viewProjection(images[2]),bx0=-(c.right/images[2].width-bm.centerU)*bm.spanX,bx1=-(c.left/images[2].width-bm.centerU)*bm.spanX,ax0=(a.left/im.width-fm.centerU)*fm.spanX,ax1=(a.right/im.width-fm.centerU)*fm.spanX,overlap=Math.min(ax1,bx1)-Math.max(ax0,bx0);if(overlap<.65*Math.min(ax1-ax0,bx1-bx0)){consistent=false;break;}const p0=sideFacing*(b.left/si.width-sm.centerU)*sm.spanX,p1=sideFacing*(b.right/si.width-sm.centerU)*sm.spanX,margin=Math.max(step*1.2,3*fm.spanX/im.width);parts.push([ax0-margin,ax1+margin,Math.min(p0,p1)-margin,Math.max(p0,p1)+margin]);}if(consistent){rows[y]=parts;active++;}}
  if(active){const known=rows.slice(),reach=Math.max(2,Math.round(ny*.08));for(let y=0;y<ny;y++)if(!rows[y]){for(let d=1;d<=reach;d++){const nearby=known[y-d]||known[y+d];if(nearby){rows[y]=nearby.map(r=>r.slice());break;}}}}return active?{rows,palette,active}:null;
@@ -1671,8 +1698,29 @@ for(let y=0;y<ny;y++){const wy=min[1]+y*step,frontRuns=rowSections(im,wy),sideRu
  for(let x=0;x<nx;x++){const wx=min[0]+x*step,k=x+y*nx,section=nearest(frontRuns,wx),vertical=nearest(columnSections(wx),wy);frontD[k]=front.sample(wx,wy);if(section){frontCX[k]=(section[0]+section[1])/2;frontRX[k]=Math.max(step*.6,(section[1]-section[0])/2);}if(vertical){verticalR[k]=(vertical[1]-vertical[0])/2;verticalCY[k]=(vertical[1]+vertical[0])/2;}}
  for(let z=0;z<nz;z++){const wz=min[2]+z*step,k=z+y*nz,section=nearest(sideRuns,sideFacing*wz);sideD[k]=side.sample(sideFacing*wz,wy);if(section){sideCZ[k]=sideFacing*(section[0]+section[1])/2;sideRZ[k]=Math.max(step*.6,(section[1]-section[0])/2);}}
 }
+ function sectionBlend(value,low,high){
+  const t=Math.max(0,Math.min(1,(value-low)/(high-low)));
+  return t*t*(3-2*t);
+ }
 for(let z=0;z<nz;z++)for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){const wx=min[0]+x*step,wz=min[2]+z*step,f=x+y*nx,s=z+y*nz,power=rowPower[y];let value=Math.min(frontD[f],sideD[s]),rx=frontRX[f],rz=sideRZ[s];
- if(value>-step*2&&rx>0&&rz>0){const vr=verticalR[f],thin=power<4&&vr>0&&rx>vr*2.5;if(thin)rz=Math.min(rz,Math.max(step*.7,vr*1.1));else if(power<4&&rx<rz*.35)rz=Math.min(rz,Math.max(step*.7,rx*1.2));const a=thin?Math.abs((min[1]+y*step-verticalCY[f])/Math.max(step*.6,vr)):Math.abs((wx-frontCX[f])/rx),b=Math.abs((wz-sideCZ[s])/rz),radius=power>=31?Math.max(a,b):power===2?Math.hypot(a,b):Math.pow(Math.pow(a,power)+Math.pow(b,power),1/power),section=(1-radius)*Math.min(thin?Math.max(step*.6,vr):rx,rz);value=Math.min(value,section);}
+ if(value>-step*2&&rx>0&&rz>0){
+   const vr=verticalR[f],wy=min[1]+y*step;
+   const thicknessWeight=power<4&&vr>0?sectionBlend(rx/vr,2,3):0;
+   if(power<4){
+    // Amortece o limite de profundidade em torno da proporção antiga de 35%.
+    const depthWeight=1-sectionBlend(rx/rz,.25,.45);
+    const narrowDepth=Math.min(rz,Math.max(step*.7,rx*1.2));
+    const shallowDepth=Math.min(rz,Math.max(step*.7,vr*1.1));
+    const horizontalDepth=rz+(narrowDepth-rz)*depthWeight;
+    rz=horizontalDepth+(shallowDepth-horizontalDepth)*thicknessWeight;
+   }
+   const horizontal=Math.abs((wx-frontCX[f])/rx);
+   const vertical=thicknessWeight?Math.abs((wy-verticalCY[f])/Math.max(step*.6,vr)):horizontal;
+   const a=horizontal+(vertical-horizontal)*thicknessWeight,b=Math.abs((wz-sideCZ[s])/rz);
+   const radius=power>=31?Math.max(a,b):power===2?Math.hypot(a,b):Math.pow(Math.pow(a,power)+Math.pow(b,power),1/power);
+   const sectionRadius=rx+(Math.max(step*.6,vr)-rx)*thicknessWeight;
+   value=Math.min(value,(1-radius)*Math.min(sectionRadius,rz));
+  }
  if(value>-step*2&&regionCorrespondence?.rows[y]){let region=-Infinity;for(const r of regionCorrespondence.rows[y])region=Math.max(region,Math.min(wx-r[0],r[1]-wx,wz-r[2],r[3]-wz));value=Math.min(value,region);}
  field[x+y*nx+z*plane]=value;
 }
@@ -2694,6 +2742,46 @@ function scan360Volume(base, strength) {
   }
   fairSectionProfiles(xSections);
   fairSectionProfiles(zSections);
+  // Uma faixa larga perto de uma extremidade pode ter as duas bordas
+  // desenhadas em alturas diferentes. O recorte por fatia sozinho deixa
+  // esses deslocamentos aparecerem como bicos na projeção de cima.
+  const endFootprints=[];
+  if(strength>.8&&!back&&!otherSide){
+   const spanRows=ny-7;
+   const middle=(ny-1)*.5;
+   const sharedWidth=y=>xSections[y]?.length===1&&zSections[y]?.length===1
+    ?Math.min(2*xSections[y][0].r/maxWidth,2*zSections[y][0].r/maxDepth):0;
+   const median=values=>values.sort((a,b)=>a-b)[Math.floor(values.length*.5)];
+   for(const direction of [-1,1]){
+    let peak=-1,best=0;
+    for(let distance=0;distance<Math.ceil(spanRows*.30);distance++){
+     const y=direction<0?3+distance:ny-4-distance;
+     const width=sharedWidth(y);
+     if(width>best){peak=y;best=width;}
+    }
+    if(best<.78)continue;
+    const band=[peak];
+    let inner=peak;
+    for(const sign of [-1,1]){
+     for(let y=peak+sign;sharedWidth(y)>=best*.78;y+=sign){
+      band.push(y);
+      if(sign===-direction)inner=y;
+     }
+    }
+    if(band.length<4||band.length>spanRows*.32)continue;
+    const widest=band.filter(y=>sharedWidth(y)>=best*.90);
+    const section=rows=>({
+     c:median(widest.map(y=>rows[y][0].c)),
+     r:median(widest.map(y=>rows[y][0].r))
+    });
+    const x=section(xSections),z=section(zSections);
+    const middleRadius=rows=>rows[Math.round(middle)].reduce((radius,run)=>Math.max(radius,run.r),0);
+    if(middleRadius(xSections)>x.r*.67||middleRadius(zSections)>z.r*.67)continue;
+    if(Math.min(x.r,z.r)>=Math.max(x.r,z.r)*.90)x.r=z.r=Math.min(x.r,z.r);
+    endFootprints.push({x,z,inner,direction});
+   }
+  }
+  const footprintAt=Array.from({length:ny},(_,y)=>endFootprints.find(shape=>(y-shape.inner)*shape.direction>=-2));
   const globalH=Math.max(step,fy1-fy0),globalW=Math.max(step,bounds.x1-bounds.x0);
   // Calcular regiões longas e estreitas apenas pela morfologia do desenho.
   for(let x=0;x<nx;x++){
@@ -2703,9 +2791,22 @@ function scan360Volume(base, strength) {
    const wx=x0+x*step,m=(bounds.x0+bounds.x1)/2;
    const isOffCenter=Math.abs(wx-m)>globalW*.17;
    const slim=best[3]*2<globalH*.125;
-   let maxZ=0;
-   for(let z=0;z<nz;z++)if(zy[Math.max(0,Math.min(ny-1,Math.round(best[2])))*nz+z]>0)maxZ++;
-   rawEligible[x]=isOffCenter&&slim?1:0;
+   if(!isOffCenter||!slim)continue;
+   const centerRow=Math.round(best[2]);
+   const relativeOffset=Math.abs(wx-m)/globalW;
+   const depthMid=(bounds.z0+bounds.z1)*.5;
+   const depthOffset=relativeOffset*maxDepth*.96;
+   const padding=Math.max(2,Math.round((best[1]-best[0]+1)*.25));
+   const sideAt=(row,column)=>row>=0&&row<ny?zy[row*nz+column]:-step;
+   // Se a mesma extensão também aparece na lateral como uma faixa estreita,
+   // sua profundidade já está definida pela seção horizontal.
+   const sharedFlare=[depthMid-depthOffset,depthMid+depthOffset].some(wz=>{
+    const column=Math.max(0,Math.min(nz-1,Math.round((wz-z0)/step)));
+    return sideAt(centerRow,column)>0
+      && sideAt(best[0]-padding,column)<=0
+      && sideAt(best[1]+padding,column)<=0;
+   });
+   rawEligible[x]=sharedFlare?0:1;
    colMid[x]=best[2];colHalf[x]=best[3];
   }
   // Detecta partes finas e prolongadas apenas pela grade alpha, sem nomes
@@ -2780,9 +2881,10 @@ function scan360Volume(base, strength) {
        const radial=Math.sqrt(dx*dx+dz*dz);
        const ellipse=(1-radial)*Math.min(rx,rz);
        const aspect=Math.min(rx,rz)/Math.max(rx,rz);
-       // Curvatura forte em volumes compactos e gentil em projeções alongadas.
-       // Preserva o centro de CADA componente, sem buracos nas pernas.
-       const round=strength*Math.max(.35,Math.min(1,aspect*1.12+.25));
+       // A curvatura parcial respeita a proporção da seção. No máximo,
+       // a seção fica elíptica mesmo quando a largura e a profundidade diferem.
+       const aspectWeight=Math.max(.35,Math.min(1,aspect*1.12+.25));
+       const round=strength*(aspectWeight+(1-aspectWeight)*strength);
        val=Math.min(val,val*(1-round)+ellipse*round);
       }
      }
@@ -2842,6 +2944,9 @@ function scan360Volume(base, strength) {
    const moveLimit=step*1.6;
    for(let z=0;z<nz;z++)for(let y=0;y<ny;y++){
     const row=z*plane+y*nx;
+    const footprint=footprintAt[y];
+    const fade=footprint?Math.max(0,-(y-footprint.inner)*footprint.direction)/2:0;
+    const dz=footprint?(z0+z*step-footprint.z.c)/footprint.z.r:0;
     for(let x=0;x<nx;x++){
      const k=row+x,original=source[k];
      const soft=Math.max(original-moveLimit,Math.min(original+moveLimit,current[k]));
@@ -2853,7 +2958,14 @@ function scan360Volume(base, strength) {
      const frontLimit=(xy[y0i*nx+x]+2*xy[y*nx+x]+xy[y1i*nx+x])*.25;
      const sideLimit=(zy[y0i*nz+z]+2*zy[y*nz+z]+zy[y1i*nz+z])*.25;
      const silhouetteLimit=Math.min(frontLimit,sideLimit)+step*.8;
-     field[k]=Math.min(soft,silhouetteLimit);
+     let limit=silhouetteLimit;
+     if(footprint){
+      const dx=(x0+x*step-footprint.x.c)/footprint.x.r;
+      const radius=Math.min(footprint.x.r,footprint.z.r);
+      const allowance=(fade+(1-strength)*5)*radius;
+      limit=Math.min(limit,(1-Math.hypot(dx,dz))*radius+allowance);
+     }
+     field[k]=Math.min(soft,limit);
     }
    }
   }
@@ -2971,7 +3083,7 @@ function scan360Volume(base, strength) {
    result[g].projectionNormals=result[g].normals.slice();
   }
   result.viewProfile=base.viewProfile;
-  result.reconstruction={...base.reconstruction,analyticEllipsoid,slenderColumns:Array.from(xWeight).filter(v=>v>.15).length,scanner360:true,slicesInterpolated:true,voxelPerspectiveSweep:true,mode:'angular',step,voxelGrid:[nx,ny,nz],roof:base.reconstruction?.roof||null};
+  result.reconstruction={...base.reconstruction,analyticEllipsoid,slenderColumns:Array.from(xWeight).filter(v=>v>.15).length,roundedEndCount:endFootprints.length,scanner360:true,slicesInterpolated:true,voxelPerspectiveSweep:true,mode:'angular',step,voxelGrid:[nx,ny,nz],roof:base.reconstruction?.roof||null};
   return result;
 }
 
@@ -7309,20 +7421,45 @@ if(s.firstHitOnly===!0){let o=of(r.raycastFirst(ll,this.material,n,i),this,s);o&
   if(closest.distanceToSquared(center)<=radiusSq)faces.push(face);
  }
 }
-function qM(s){let e=WM(s);if(!e)return;if(et("paintTool").value==="pick"){let M=e.object,A=Array.isArray(M.material)?M.material[e.face.materialIndex]:M.material,w=A.color.clone();if(A.map?.image&&e.uv){let R=A.map,b=e.uv.clone();R.updateMatrix(),R.transformUv(b);let S=qo.get(A)||Um.get(R);S||(S=document.createElement("canvas"),S.width=R.image.width,S.height=R.image.height,S.getContext("2d",{willReadFrequently:!0}).drawImage(R.image,0,0),Um.set(R,S));let C=S.getContext("2d").getImageData(Math.max(0,Math.min(S.width-1,Math.floor(b.x*S.width))),Math.max(0,Math.min(S.height-1,Math.floor(b.y*S.height))),1,1).data;w.multiply(new we().setRGB(C[0]/255,C[1]/255,C[2]/255,mt))}et("paintColor").value="#"+w.getHexString(),et("paintColor").dispatchEvent(new Event("input",{bubbles:true})),et("toolBrush").click();return}let t=XM(e),n=e.object,i=n.geometry,r=qo.get(t),o=r.getContext("2d"),a=Qt.getBoundingClientRect(),c=s.clientX-a.left,l=s.clientY-a.top,h=Number(et("paintSize").value)/2,u=h*2*e.distance*Math.tan(Gn.degToRad(bn.fov/2))/Qt.clientHeight,f=n.matrixWorld.clone().invert(),d=e.point.clone().applyMatrix4(f),g=n.getWorldScale(new I),_=new _t(d,u*(1+(ri?Math.hypot(s.clientX-ri.x,s.clientY-ri.y)/Math.max(1,h):0))/Math.max(1e-5,Math.min(Math.abs(g.x),Math.abs(g.y),Math.abs(g.z)))),m=[],p=i.attributes.position,v=i.attributes.uv,y=i.index;
-{
- const cache=window.__proOriginalTextures||(window.__proOriginalTextures=new WeakMap());
- if(!cache.has(r)){
-  const original=document.createElement('canvas');original.width=r.width;original.height=r.height;
-  original.getContext('2d').drawImage(r,0,0);cache.set(r,original);
- }
-}
+function qM(s){let e=WM(s);if(!e)return;if(et("paintTool").value==="pick"){let M=e.object,A=Array.isArray(M.material)?M.material[e.face.materialIndex]:M.material,w=A.color.clone();if(A.map?.image&&e.uv){let R=A.map,b=e.uv.clone();R.updateMatrix(),R.transformUv(b);let S=qo.get(A)||Um.get(R);S||(S=document.createElement("canvas"),S.width=R.image.width,S.height=R.image.height,S.getContext("2d",{willReadFrequently:!0}).drawImage(R.image,0,0),Um.set(R,S));let C=S.getContext("2d").getImageData(Math.max(0,Math.min(S.width-1,Math.floor(b.x*S.width))),Math.max(0,Math.min(S.height-1,Math.floor(b.y*S.height))),1,1).data;w.multiply(new we().setRGB(C[0]/255,C[1]/255,C[2]/255,mt))}et("paintColor").value="#"+w.getHexString(),et("paintColor").dispatchEvent(new Event("input",{bubbles:true})),et("toolBrush").click();return}const hitMaterial=XM(e);let n=e.object,i=n.geometry,a=Qt.getBoundingClientRect(),c=s.clientX-a.left,l=s.clientY-a.top,h=Number(et("paintSize").value)/2,u=h*2*e.distance*Math.tan(Gn.degToRad(bn.fov/2))/Qt.clientHeight,f=n.matrixWorld.clone().invert(),d=e.point.clone().applyMatrix4(f),g=n.getWorldScale(new I),_=new _t(d,u*(1+(ri?Math.hypot(s.clientX-ri.x,s.clientY-ri.y)/Math.max(1,h):0))/Math.max(1e-5,Math.min(Math.abs(g.x),Math.abs(g.y),Math.abs(g.z)))),m=[],p=i.attributes.position,v=i.attributes.uv,y=i.index;
 const nearestPaintPoint=new I();
-// Generated walls are double-sided. Use the side actually picked by the brush.
-const wallPaint=t.name==='Laterais da extrusão';
-const faceSide=wallPaint&&e.face.normal.dot(bn.position.clone().applyMatrix4(f).sub(d))<0?-1:1;
-const paintFacing=wallPaint&&n.matrixWorld.determinant()<0?-faceSide:faceSide;
-i.boundsTree?i.boundsTree.shapecast({intersectsBounds:M=>M.intersectsSphere(_),intersectsTriangle:(M,A)=>(M.closestPointToPoint(d,nearestPaintPoint).distanceToSquared(d)<=_.radius*_.radius&&m.push(A),!1)}):drawingPaintNearbyTriangles(i,_,d,m),Ei.has(t)||Ei.set(t,new Map);let x=Ei.get(t);t.map.updateMatrix();for(let M of m){if(Array.isArray(n.material)){let j=i.groups.find(Fe=>M*3>=Fe.start&&M*3<Fe.start+Fe.count);if(n.material[j?.materialIndex||0]!==t)continue}let A=[0,1,2].map(j=>y?y.getX(M*3+j):M*3+j),w=A.map(j=>new I().fromBufferAttribute(p,j).applyMatrix4(n.matrixWorld));if(new Bt(...w).getNormal(new I).dot(bn.position.clone().sub(w[0]))*paintFacing<=0)continue;let b=w.map(j=>{let Fe=j.clone().project(bn);return new ge((Fe.x+1)*a.width/2,(1-Fe.y)*a.height/2)}),S=A.map(j=>{let Fe=new ge().fromBufferAttribute(v,j);return t.map.transformUv(Fe),new ge(Fe.x*r.width,Fe.y*r.height)}),[C,L,N]=b,[F,z,V]=S,K=L.x-C.x,W=L.y-C.y,ie=N.x-C.x,he=N.y-C.y,xe=K*he-ie*W;if(Math.abs(xe)<1e-6)continue;let ke=((z.x-F.x)*he-(V.x-F.x)*W)/xe,nt=((V.x-F.x)*K-(z.x-F.x)*ie)/xe,at=((z.y-F.y)*he-(V.y-F.y)*W)/xe,Ke=((V.y-F.y)*K-(z.y-F.y)*ie)/xe,Y=F.x-ke*C.x-nt*C.y,J=F.y-at*C.x-Ke*C.y,pe=Math.max(0,Math.floor((Math.min(...S.map(j=>j.x))-2)/128)*128),Pe=Math.min(r.width-1,Math.max(...S.map(j=>j.x))+2),Me=Math.max(0,Math.floor((Math.min(...S.map(j=>j.y))-2)/128)*128),qe=Math.min(r.height-1,Math.max(...S.map(j=>j.y))+2);if(assemblyEditorRoot){let sx=ri?ri.x-a.left:c,sy=ri?ri.y-a.top:l,uv0x=ke*sx+nt*sy+Y,uv0y=at*sx+Ke*sy+J,uv1x=ke*c+nt*l+Y,uv1y=at*c+Ke*l+J,padX=h*(Math.abs(ke)+Math.abs(nt))+2,padY=h*(Math.abs(at)+Math.abs(Ke))+2;pe=Math.max(pe,Math.floor((Math.min(uv0x,uv1x)-padX)/128)*128,0);Pe=Math.min(Pe,Math.max(uv0x,uv1x)+padX);Me=Math.max(Me,Math.floor((Math.min(uv0y,uv1y)-padY)/128)*128,0);qe=Math.min(qe,Math.max(uv0y,uv1y)+padY);}for(let j=Me;j<=qe;j+=128)for(let Fe=pe;Fe<=Pe;Fe+=128){let de=Fe+","+j;x.has(de)||x.set(de,{x:Fe,y:j,data:o.getImageData(Fe,j,Math.min(128,r.width-Fe),Math.min(128,r.height-j))})}let Et=Math.min(...S.map(j=>j.x)),D=Math.min(...S.map(j=>j.y)),ft=Math.max(...S.map(j=>j.x))-Et,Ue=Math.max(...S.map(j=>j.y))-D,Re=Math.abs(ft-5)<.15&&Math.abs(Ue-5)<.15&&Math.abs(Et%8-1.5)<.15&&Math.abs(D%8-1.5)<.15;if(o.save(),o.beginPath(),Re)o.rect(Math.floor(Et/8)*8,Math.floor(D/8)*8,8,8);else{let j=F.clone().add(z).add(V).multiplyScalar(.3333333333333333),Fe=Math.min(...[0,1,2].map(yt=>{let ct=S[yt],P=S[(yt+1)%3];return Math.abs((P.x-ct.x)*(j.y-ct.y)-(P.y-ct.y)*(j.x-ct.x))/Math.max(.001,ct.distanceTo(P))})),de=1+1.05/Math.max(.2,Fe),Le=S.map(yt=>yt.clone().sub(j).multiplyScalar(de).add(j));o.moveTo(Le[0].x,Le[0].y),o.lineTo(Le[1].x,Le[1].y),o.lineTo(Le[2].x,Le[2].y),o.closePath()}o.clip();
+// Match the side hit by the brush on double-sided surfaces.
+ const cameraSide=e.face.normal.dot(bn.position.clone().applyMatrix4(f).sub(d))<0?-1:1;
+ const winding=n.matrixWorld.determinant()<0?-1:1;
+ const materials=new Map();
+ const fromX=ri?ri.x-a.left:c,fromY=ri?ri.y-a.top:l;
+ const left=Math.min(fromX,c)-h-2,right=Math.max(fromX,c)+h+2;
+ const top=Math.min(fromY,l)-h-2,bottom=Math.max(fromY,l)+h+2;
+i.boundsTree?i.boundsTree.shapecast({intersectsBounds:M=>M.intersectsSphere(_),intersectsTriangle:(M,A)=>(M.closestPointToPoint(d,nearestPaintPoint).distanceToSquared(d)<=_.radius*_.radius&&m.push(A),!1)}):drawingPaintNearbyTriangles(i,_,d,m );
+ for(let M of m){
+ let materialIndex=e.face.materialIndex;
+ if(Array.isArray(n.material)){
+  const group=i.groups.find(group=>M*3>=group.start&&M*3<group.start+group.count);
+  if(!group)continue;
+  materialIndex=group.materialIndex;
+ }
+ const surface=Array.isArray(n.material)?n.material[materialIndex]:hitMaterial;
+ if(!surface?.visible||!surface.color)continue;
+const paintFacing=winding*(surface.side===kt?cameraSide:surface.side===1?-1:1);
+ let A=[0,1,2].map(j=>y?y.getX(M*3+j):M*3+j),w=A.map(j=>new I().fromBufferAttribute(p,j).applyMatrix4(n.matrixWorld));if(new Bt(...w).getNormal(new I).dot(bn.position.clone().sub(w[0]))*paintFacing<=0)continue;let b=w.map(j=>{let Fe=j.clone().project(bn);return new ge((Fe.x+1)*a.width/2,(1-Fe.y)*a.height/2)});
+ if(b.every(point=>point.x<left)||b.every(point=>point.x>right)||
+    b.every(point=>point.y<top)||b.every(point=>point.y>bottom))continue;
+ if(!materials.has(surface)){
+  const t=surface===hitMaterial?hitMaterial:XM({object:n,face:{materialIndex}});
+  const r=qo.get(t),o=r.getContext('2d');
+  const originals=window.__proOriginalTextures||(window.__proOriginalTextures=new WeakMap());
+  if(!originals.has(r)){
+   const original=document.createElement('canvas');
+   original.width=r.width;original.height=r.height;
+   original.getContext('2d').drawImage(r,0,0);
+   originals.set(r,original);
+  }
+  if(!Ei.has(t))Ei.set(t,new Map());
+  t.map.updateMatrix();
+  materials.set(surface,{t,r,o,x:Ei.get(t)});
+ }
+ const {t,r,o,x}=materials.get(surface);
+ let S=A.map(j=>{let Fe=new ge().fromBufferAttribute(v,j);return t.map.transformUv(Fe),new ge(Fe.x*r.width,Fe.y*r.height)}),[C,L,N]=b,[F,z,V]=S,K=L.x-C.x,W=L.y-C.y,ie=N.x-C.x,he=N.y-C.y,xe=K*he-ie*W;if(Math.abs(xe)<1e-6)continue;let ke=((z.x-F.x)*he-(V.x-F.x)*W)/xe,nt=((V.x-F.x)*K-(z.x-F.x)*ie)/xe,at=((z.y-F.y)*he-(V.y-F.y)*W)/xe,Ke=((V.y-F.y)*K-(z.y-F.y)*ie)/xe,Y=F.x-ke*C.x-nt*C.y,J=F.y-at*C.x-Ke*C.y,pe=Math.max(0,Math.floor((Math.min(...S.map(j=>j.x))-2)/128)*128),Pe=Math.min(r.width-1,Math.max(...S.map(j=>j.x))+2),Me=Math.max(0,Math.floor((Math.min(...S.map(j=>j.y))-2)/128)*128),qe=Math.min(r.height-1,Math.max(...S.map(j=>j.y))+2);if(assemblyEditorRoot){let sx=ri?ri.x-a.left:c,sy=ri?ri.y-a.top:l,uv0x=ke*sx+nt*sy+Y,uv0y=at*sx+Ke*sy+J,uv1x=ke*c+nt*l+Y,uv1y=at*c+Ke*l+J,padX=h*(Math.abs(ke)+Math.abs(nt))+2,padY=h*(Math.abs(at)+Math.abs(Ke))+2;pe=Math.max(pe,Math.floor((Math.min(uv0x,uv1x)-padX)/128)*128,0);Pe=Math.min(Pe,Math.max(uv0x,uv1x)+padX);Me=Math.max(Me,Math.floor((Math.min(uv0y,uv1y)-padY)/128)*128,0);qe=Math.min(qe,Math.max(uv0y,uv1y)+padY);}for(let j=Me;j<=qe;j+=128)for(let Fe=pe;Fe<=Pe;Fe+=128){let de=Fe+","+j;x.has(de)||x.set(de,{x:Fe,y:j,data:o.getImageData(Fe,j,Math.min(128,r.width-Fe),Math.min(128,r.height-j))})}let Et=Math.min(...S.map(j=>j.x)),D=Math.min(...S.map(j=>j.y)),ft=Math.max(...S.map(j=>j.x))-Et,Ue=Math.max(...S.map(j=>j.y))-D,Re=Math.abs(ft-5)<.15&&Math.abs(Ue-5)<.15&&Math.abs(Et%8-1.5)<.15&&Math.abs(D%8-1.5)<.15;if(o.save(),o.beginPath(),Re)o.rect(Math.floor(Et/8)*8,Math.floor(D/8)*8,8,8);else{let j=F.clone().add(z).add(V).multiplyScalar(.3333333333333333),Fe=Math.min(...[0,1,2].map(yt=>{let ct=S[yt],P=S[(yt+1)%3];return Math.abs((P.x-ct.x)*(j.y-ct.y)-(P.y-ct.y)*(j.x-ct.x))/Math.max(.001,ct.distanceTo(P))})),de=1+1.05/Math.max(.2,Fe),Le=S.map(yt=>yt.clone().sub(j).multiplyScalar(de).add(j));o.moveTo(Le[0].x,Le[0].y),o.lineTo(Le[1].x,Le[1].y),o.lineTo(Le[2].x,Le[2].y),o.closePath()}o.clip();
 const cloneSample=assemblyEditorRoot&&window.compositionCloneSample;
 if(cloneSample){
  o.setTransform(ke,at,nt,Ke,Y,J);
@@ -7336,18 +7473,24 @@ if(cloneSample){
  o.moveTo(c+h,l);o.arc(c,l,h,0,Math.PI*2);o.clip();
  // O pincel determina a largura do traço; o clone determina a região amostrada.
  const sampleScale=Math.max(.01,Number(et('paintSize').value)/Math.max(1,Number(et('proCloneSize').value)));
- o.translate(c,l);o.scale(sampleScale,sampleScale);o.translate(-c,-l);
- o.drawImage(cloneSample.image,cloneSample.x,cloneSample.y);
+ o.translate(cloneSample.destinationX,cloneSample.destinationY);
+ o.scale(sampleScale,sampleScale);
+ o.drawImage(cloneSample.image,-cloneSample.sourceX,-cloneSample.sourceY);
  o.restore();
  continue;
 }
-o.globalCompositeOperation=(window.compactEraserActive)?"destination-out":"source-over",o.setTransform(ke,at,nt,Ke,Y,J),o.strokeStyle=et("paintColor").value,o.lineWidth=h*2,o.lineCap="round",o.beginPath(),o.moveTo(ri?ri.x-a.left:c,ri?ri.y-a.top:l),o.lineTo(c,l),o.stroke(),o.fillStyle=et("paintColor").value,o.beginPath(),o.arc(c,l,h,0,Math.PI*2),o.fill(),(window.compactEraserActive&&window.__proOriginalTextures?.has(r)?(o.globalCompositeOperation="destination-over",o.setTransform(1,0,0,1,0,0),o.drawImage(window.__proOriginalTextures.get(r),0,0)):0),o.restore()}t.map.needsUpdate=!0,dl=!0,Cs=!0}var Xo=null;
+o.globalCompositeOperation=(window.compactEraserActive)?"destination-out":"source-over",o.setTransform(ke,at,nt,Ke,Y,J),o.strokeStyle=et("paintColor").value,o.lineWidth=h*2,o.lineCap="round",o.beginPath(),o.moveTo(ri?ri.x-a.left:c,ri?ri.y-a.top:l),o.lineTo(c,l),o.stroke(),o.fillStyle=et("paintColor").value,o.beginPath(),o.arc(c,l,h,0,Math.PI*2),o.fill(),(window.compactEraserActive&&window.__proOriginalTextures?.has(r)?(o.globalCompositeOperation="destination-over",o.setTransform(1,0,0,1,0,0),o.drawImage(window.__proOriginalTextures.get(r),0,0)):0),o.restore()}
+ for(const {t} of materials.values())t.map.needsUpdate=true;
+ if(materials.size)dl=Cs=true;
+}var Xo=null;
 function Gm(){
  if(!Xo)return;const event=Xo;Xo=null;if(!Ei)return;
  const start=ri||event,dx=event.clientX-start.x,dy=event.clientY-start.y;
  const size='paintSize';
  const distance=Math.hypot(dx,dy),spacing=Math.max(2,Number(et(size).value)*.2);
- const steps=Math.min(assemblyEditorRoot?3:16,Math.max(1,Math.ceil(distance/spacing)));
+ if(!distance)return;
+ const maxSteps=assemblyEditorRoot?Math.max(1,Math.min(3,Math.floor(8/Math.max(1,Vm)))):16;
+ const steps=Math.min(maxSteps,Math.max(1,Math.ceil(distance/spacing)));
  for(let step=1;step<=steps;step++){
   const point={clientX:start.x+dx*step/steps,clientY:start.y+dy*step/steps};
   Hm(point);ri={x:point.clientX,y:point.clientY};
@@ -8829,7 +8972,7 @@ async function loadCompactView(file,i){
  clone.addEventListener('click',()=>{
   if(window.clone3DMode){window.clone3DMode=false;window.clone3DOffset=null;}
   else{chooseTool('brush');window.compactEraserActive=false;window.clone3DMode=true;window.clone3DOffset=null;
-   if(!window.hasCompositionCloneSource?.())window.clone3DSource=null;
+   window.resetCompositionCloneSource?.();
    $('paintHint').textContent='Clone: clique no 3D para posicionar a bola de origem. Depois pinte em outra região.';
   }
   setSelected();renderCloneSize();
@@ -9137,7 +9280,7 @@ body.composition-active>.compactTopbar,body.composition-active>main{display:none
    <button type="button" id="compositionGrabSymmetry" aria-pressed="false" title="Espelhar Agarrar no eixo X local, pelo centro do objeto" disabled>Simetria X</button>
    <button type="button" id="compositionDrawBrush" aria-pressed="false" title="Desenhar relevo na malha. Segure Ctrl para rebaixar.">Desenhar</button>
    <button type="button" id="compositionInflateBrush" aria-pressed="false" title="Inflar a superfície. Segure Ctrl para desinflar.">Inflar</button>
-   <button type="button" id="compositionFlattenBrush" aria-pressed="false" title="Nivelar a região sob o pincel">Planar</button>
+   <button type="button" id="compositionFlattenBrush" aria-pressed="false" title="Remover saliências até o nível da superfície ao redor">Planar</button>
    <button type="button" id="compositionSmoothBrush" aria-pressed="false" title="Smooth: reduzir ondulações e marcas na superfície">Smooth</button>
    <button type="button" id="compositionSlideRelax" aria-pressed="false" title="Slide Relax: redistribuir vértices na superfície para aliviar o estiramento">Slide Relax</button>
    <button type="button" id="compositionSelect" aria-pressed="false">Extrudel</button>
@@ -9523,7 +9666,6 @@ self.onmessage=({data:{meshes,operations}})=>{
 
  document.getElementById('toolOrbit').click();
  let stroke=null,paintPointer=null,pendingPaint=null,cloneImage=null;
- let pendingPenPaint=[];
  let renderer,scene,objects,camera,controls,grid,keyLight,fillLight,selected,count=0,frame=0;
  const gridToggle=document.getElementById('compositionGridToggle');
  gridToggle.addEventListener('click',()=>{
@@ -9570,7 +9712,7 @@ self.onmessage=({data:{meshes,operations}})=>{
 
  function init(){
   if(renderer)return;
-  renderer=new E.Renderer({canvas,antialias:false,alpha:false,powerPreference:"default"});
+  renderer=new E.Renderer({canvas,antialias:false,alpha:true,powerPreference:"default"});
   canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();if(frame){cancelAnimationFrame(frame);frame=0;}status.textContent='Memória gráfica esgotada. Feche e reabra a edição 3D para recuperar.';},{passive:false});
  renderer.setClearColor(0x292d34,1);
   renderer.setPixelRatio(1);
@@ -12956,6 +13098,7 @@ return earcut;})();
   window.updateClone3DIndicator?.();
  }
 
+ window.resetCompositionCloneSource=resetClone;
  window.hasCompositionCloneSource=()=>!dialog.hidden&&Boolean(cloneImage&&window.clone3DSource);
 
  window.setCompositionCloneSource=event=>{
@@ -12963,8 +13106,42 @@ return earcut;})();
   const rect=canvas.getBoundingClientRect();
   const image=document.createElement('canvas');
   image.width=canvas.width;image.height=canvas.height;
-  renderCompositionScene();
-  image.getContext('2d').drawImage(canvas,0,0);
+  const surfaces=new Map(),meshes=new Map();
+  const unlit=material=>{
+   if(!material||!material.color)return material;
+   if(!surfaces.has(material)){
+    surfaces.set(material,new E.Material({
+     color:material.color,map:material.map,alphaMap:material.alphaMap,
+     alphaTest:material.alphaTest,opacity:material.opacity,transparent:material.transparent,
+     side:material.side,vertexColors:material.vertexColors,visible:material.visible,
+     toneMapped:false
+    }));
+   }
+   return surfaces.get(material);
+  };
+  const gridVisible=grid.visible,clearAlpha=renderer.getClearAlpha();
+  try{
+   flushPaint();
+   objects.traverseVisible(mesh=>{
+    if(!mesh.isMesh||!mesh.material)return;
+    meshes.set(mesh,mesh.material);
+    mesh.material=Array.isArray(mesh.material)?mesh.material.map(unlit):unlit(mesh.material);
+   });
+   grid.visible=false;
+   renderer.setClearAlpha(0);
+   renderCompositionScene();
+   const context=image.getContext('2d');
+   context.drawImage(canvas,0,0);
+   const x=Math.floor((event.clientX-rect.left)*image.width/rect.width);
+   const y=Math.floor((event.clientY-rect.top)*image.height/rect.height);
+   if(!context.getImageData(x,y,1,1).data[3])return false;
+  }finally{
+   for(const [mesh,material] of meshes)mesh.material=material;
+   for(const material of surfaces.values())material.dispose();
+   grid.visible=gridVisible;
+   renderer.setClearAlpha(clearAlpha);
+   requestRender();
+  }
   cloneImage=image;
   window.clone3DSource={x:event.clientX-rect.left,y:event.clientY-rect.top};
   status.textContent='Origem definida. Pinte no destino ou arraste a cruz para trocar a origem.';
@@ -12980,7 +13157,8 @@ return earcut;})();
   event.preventDefault();
   event.stopImmediatePropagation();
   if(window.clone3DMode&&!cloneImage){
-   window.setCompositionCloneSource(event);
+   if(!window.setCompositionCloneSource(event))
+    status.textContent='Toque em uma região visível do modelo para definir a origem do clone.';
    return;
   }
   const object=rootOf(hit.object);
@@ -12988,11 +13166,13 @@ return earcut;})();
   selectRoot(object);
   if(window.clone3DMode){
    const rect=canvas.getBoundingClientRect(),source=window.clone3DSource;
-   window.compositionCloneSample={image:cloneImage,x:event.clientX-rect.left-source.x,y:event.clientY-rect.top-source.y};
+   window.compositionCloneSample={
+    image:cloneImage,sourceX:source.x,sourceY:source.y,
+    destinationX:event.clientX-rect.left,destinationY:event.clientY-rect.top
+   };
   }
   painter.enter({canvas,renderer,scene,camera,orbit:controls,object,bindSurface:false,rememberPaint:rememberCompositionEdit});
   paintPointer=event.pointerId;
-  pendingPenPaint.length=0;
   controls.enabled=false;
   canvas.setPointerCapture(event.pointerId);
   try{
@@ -13007,23 +13187,17 @@ return earcut;})();
 
  function movePaint(event){
   if(event.pointerId!==paintPointer)return;
-  if(event.pointerType==='pen'){
-   const samples=typeof event.getCoalescedEvents==='function'?event.getCoalescedEvents():[];
-   for(const sample of samples.length?samples:[event]){
-    if(Number.isFinite(sample.clientX)&&Number.isFinite(sample.clientY))
-     pendingPenPaint.push({clientX:sample.clientX,clientY:sample.clientY});
-   }
-   if(pendingPenPaint.length>32)pendingPenPaint.splice(0,pendingPenPaint.length-32);
-  }else pendingPaint=event;
+  // O pintor interpola desde a última posição processada até a posição mais recente.
+  pendingPaint=event;
   requestRender();
  }
 
  function flushPaint(){
-  if(!pendingPaint&&!pendingPenPaint.length)return;
-  const samples=pendingPenPaint.length?pendingPenPaint.splice(0):[pendingPaint];
+  if(!pendingPaint)return;
+  const sample=pendingPaint;
   pendingPaint=null;
   try{
-   for(const sample of samples)painter.movePaint(sample);
+   painter.movePaint(sample);
   }catch(error){
    status.textContent='Falha ao pintar: '+error.message;
    finishPaint(null);
@@ -13032,10 +13206,9 @@ return earcut;})();
 
  function finishPaint(event){
   if(paintPointer===null||(event&&event.pointerId!==paintPointer))return;
-  if(event?.pointerType==='pen'&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY))
-   pendingPenPaint.push({clientX:event.clientX,clientY:event.clientY});
+  if(event?.type==='pointerup'&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY))
+   pendingPaint=event;
   flushPaint();
-  pendingPenPaint.length=0;
   if(paintPointer===null)return;
   const pointer=paintPointer;
   paintPointer=null;
@@ -13219,34 +13392,161 @@ return earcut;})();
   }
  }
 
- function displaceSurfaceBrush(entry,nodes,hit,radius,flatten,invert){
-  const {mesh,topology,referenceNormals,weights,next}=entry;
-  const point=new E.Vector(),normal=new E.Vector(),center=new E.Vector();
-  const matrix=mesh.matrixWorld,inverse=matrix.clone().invert();
-  const direction=new E.Vector(),worldNormal=new E.Vector();
-  let total=0;
-  for(const node of nodes){
-   const k=node*3,weight=weights[node];
-   normal.addScaledVector(point.fromArray(referenceNormals,k),weight);
-   if(flatten){
-    total+=weight;
-    center.addScaledVector(point.fromArray(topology.pts,k).applyMatrix4(matrix).sub(hit.point),weight);
+ function findFlattenPlane(hit,radius){
+  const mesh=hit.object,inverse=mesh.matrixWorld.clone().invert();
+  const center=hit.point.clone().project(camera);
+  const screenRadius=Number(brushSize.value);
+  const dx=2*screenRadius/canvas.clientWidth,dy=2*screenRadius/canvas.clientHeight;
+  const sampleRay=new E.Raycaster();
+  sampleRay.firstHitOnly=true;
+  const samples=[];
+  // A borda do pincel fornece as faces de referência fora do relevo.
+  for(let i=0;i<16;i++){
+   const angle=i*Math.PI/8,ring=i%2===0?1.12:.86;
+   const screen=new E.Vector2(center.x+dx*ring*Math.cos(angle),center.y+dy*ring*Math.sin(angle));
+   if(Math.abs(screen.x)>1||Math.abs(screen.y)>1)continue;
+   sampleRay.setFromCamera(screen,camera);
+   const sample=sampleRay.intersectObject(mesh,false)[0];
+   if(!sample?.face||sample.point.distanceTo(hit.point)>radius*2.5)continue;
+   const normal=sculptWorldNormal(sample.face.normal,inverse,new E.Vector());
+   if(normal.dot(sampleRay.ray.direction)>-.15)continue;
+   samples.push({point:sample.point,normal});
+  }
+  const tolerance=radius*.025;
+  let best=null,inliers=[];
+  for(const candidate of samples){
+   const offset=candidate.point.clone().sub(hit.point).dot(candidate.normal);
+   const support=samples.filter(sample=>sample.normal.dot(candidate.normal)>.96&&
+    Math.abs(candidate.normal.dot(sample.point.clone().sub(hit.point))-offset)<=tolerance);
+   if(support.length>inliers.length){best=candidate;inliers=support;}
+  }
+  if(inliers.length<Math.max(5,Math.ceil(samples.length*.5)))return null;
+  const offsets=inliers.map(sample=>sample.point.clone().sub(hit.point).dot(best.normal)).sort((a,b)=>a-b);
+  const origin=hit.point.clone().addScaledVector(best.normal,offsets[Math.floor(offsets.length*.5)]);
+  return {origin,normal:best.normal};
+ }
+
+ function flattenPatchTerms(x,y){
+  return [1,x,y,x*x,x*y,y*y];
+ }
+
+ function fitFlattenPatch(samples){
+  const size=6;
+  const system=Array.from({length:size},()=>new Float64Array(size+1));
+  for(const {terms,height,weight} of samples){
+   for(let i=0;i<size;i++){
+    const value=weight*terms[i];
+    for(let j=0;j<size;j++)system[i][j]+=value*terms[j];
+    system[i][size]+=value*height;
    }
   }
-  if(flatten)center.multiplyScalar(1/total).add(hit.point);
-  if(!normal.lengthSq())normal.copy(hit.face.normal);
-  sculptWorldNormal(normal,inverse,worldNormal);
-  const relief=radius*(invert?-.16:.16),limit=radius*.45;
+  // Uma regularização pequena impede que uma aba fina gere curvatura
+  // excessiva na direção onde há menos amostras.
+  for(let i=1;i<size;i++)system[i][i]+=samples.length*(i<3?.00005:.00015);
+  for(let i=0;i<size;i++){
+   let pivot=i;
+   for(let j=i+1;j<size;j++)if(Math.abs(system[j][i])>Math.abs(system[pivot][i]))pivot=j;
+   if(Math.abs(system[pivot][i])<1e-9)return null;
+   [system[i],system[pivot]]=[system[pivot],system[i]];
+   const row=system[i],divisor=row[i];
+   for(let k=i;k<=size;k++)row[k]/=divisor;
+   for(let j=0;j<size;j++){
+    if(j===i)continue;
+    const factor=system[j][i];
+    for(let k=i;k<=size;k++)system[j][k]-=factor*row[k];
+   }
+  }
+  return system.map(row=>row[size]);
+ }
+
+ function flattenPatchValue(terms,coefficients){
+  return terms.reduce((height,term,i)=>height+term*coefficients[i],0);
+ }
+
+ function findCurvedFlattenSurface(hit,entry,radius){
+  const {mesh,topology,adj,referenceNormals}=entry;
+  const matrix=mesh.matrixWorld,inverse=matrix.clone().invert();
+  const normal=sculptWorldNormal(hit.normal||hit.face.normal,inverse,new E.Vector());
+  const queue=new Set([topology.nodeOf[hit.face.a],topology.nodeOf[hit.face.b],topology.nodeOf[hit.face.c]]);
+  const point=new E.Vector(),nodeNormal=new E.Vector();
+  const samples=[];
+  const sampledCells=new Set();
+  // A vizinhança conectada inclui a borda da silhueta mesmo quando
+  // os raios na tela passam ao lado da malha.
+  for(const node of queue){
+   const k=node*3;
+   point.fromArray(topology.pts,k).applyMatrix4(matrix).sub(hit.point).multiplyScalar(1/radius);
+   const distance=point.length();
+   if(distance>1.65)continue;
+   for(let edge=adj.nStart[node];edge<adj.nStart[node+1];edge++)queue.add(adj.nList[edge]);
+   if(distance<.52)continue;
+   sculptWorldNormal(nodeNormal.fromArray(referenceNormals,k),inverse,nodeNormal);
+   if(nodeNormal.dot(normal)<.40)continue;
+   const cell=[point.x,point.y,point.z].map(value=>Math.floor(value/.10)).join(',');
+   if(sampledCells.has(cell))continue;
+   const weight=1/((.5+distance)*(1+3*point.dot(normal)**2));
+   sampledCells.add(cell);
+   samples.push({point:point.clone(),weight});
+  }
+  if(samples.length<12||!normal.lengthSq())return null;
+  const axis=new E.Vector(Math.abs(normal.x)<.8?1:0,Math.abs(normal.x)<.8?0:1,0);
+  const u=new E.Vector().crossVectors(normal,axis).normalize(),v=new E.Vector().crossVectors(normal,u);
+  const support=[];
+  for(const sample of samples){
+   const x=sample.point.dot(u),y=sample.point.dot(v);
+   if(Math.hypot(x,y)<.46)continue;
+   support.push({terms:flattenPatchTerms(x,y),height:sample.point.dot(normal),weight:sample.weight});
+  }
+  if(support.length<12)return null;
+  const median=values=>values.sort((a,b)=>a-b)[Math.floor(values.length*.5)];
+  let coefficients=fitFlattenPatch(support);
+  if(!coefficients)return null;
+  const residuals=support.map(sample=>sample.height-flattenPatchValue(sample.terms,coefficients));
+  const midpoint=median(residuals.slice());
+  const spread=median(residuals.map(value=>Math.abs(value-midpoint)));
+  const tolerance=Math.min(.14,Math.max(.025,spread*2.8));
+  const inliers=support.filter((_,i)=>Math.abs(residuals[i]-midpoint)<=tolerance);
+  if(inliers.length<Math.max(12,support.length*.62))return null;
+  coefficients=fitFlattenPatch(inliers);
+  if(!coefficients||Math.abs(coefficients[0])>1.1||Math.max(...coefficients.slice(1).map(Math.abs))>3.2)return null;
+  return {origin:hit.point.clone(),normal,u,v,coefficients,radius};
+ }
+
+ function flattenHeight(surface,delta){
+  const height=delta.dot(surface.normal);
+  if(!surface.coefficients)return height;
+  const x=delta.dot(surface.u)/surface.radius,y=delta.dot(surface.v)/surface.radius;
+  const offset=flattenPatchValue(flattenPatchTerms(x,y),surface.coefficients)*surface.radius;
+  return height-offset;
+ }
+
+ function flattenSurfaceBrush(entry,nodes,surface,radius){
+  const {mesh,topology,weights,next}=entry;
+  const matrix=mesh.matrixWorld,inverse=matrix.clone().invert();
+  const point=new E.Vector(),delta=new E.Vector();
   for(const node of nodes){
    const k=node*3;
    point.fromArray(topology.pts,k).applyMatrix4(matrix);
-   let displacement=relief;
-   if(flatten){
-    // Aproxima cada ponto do plano médio local, dos dois lados.
-    const distance=direction.copy(center).sub(point).dot(worldNormal);
-    displacement=.9*Math.max(-limit,Math.min(limit,distance));
-   }
-   point.addScaledVector(worldNormal,displacement*weights[node]).applyMatrix4(inverse).toArray(next,k);
+   const height=flattenHeight(surface,delta.copy(point).sub(surface.origin));
+   const depth=Math.min(height,radius*.65)*weights[node];
+   point.addScaledVector(surface.normal,-depth).applyMatrix4(inverse).toArray(next,k);
+  }
+ }
+
+ function displaceSurfaceBrush(entry,nodes,hit,radius,invert){
+  const {mesh,topology,referenceNormals,weights,next}=entry;
+  const point=new E.Vector(),normal=new E.Vector();
+  const matrix=mesh.matrixWorld,inverse=matrix.clone().invert();
+  for(const node of nodes){
+   normal.addScaledVector(point.fromArray(referenceNormals,node*3),weights[node]);
+  }
+  if(!normal.lengthSq())normal.copy(hit.face.normal);
+  const worldNormal=sculptWorldNormal(normal,inverse,new E.Vector());
+  const relief=radius*(invert?-.16:.16);
+  for(const node of nodes){
+   const k=node*3;
+   point.fromArray(topology.pts,k).applyMatrix4(matrix)
+    .addScaledVector(worldNormal,relief*weights[node]).applyMatrix4(inverse).toArray(next,k);
   }
  }
 
@@ -13266,13 +13566,35 @@ return earcut;})();
   const pressure=event.pointerType==='pen'&&event.pressure>0?event.pressure:1;
   const force=Number(strength.value)/100*pressure;
   const mode=stroke.surfaceMode,displace=mode==='draw'||mode==='flatten'||mode==='inflate';
+  let plane=null,inverse=null;
+  const delta=new E.Vector();
+  if(mode==='flatten'){
+   if(entry.flattenSurface===undefined)entry.flattenSurface=findFlattenPlane(hit,radius)||
+    findCurvedFlattenSurface(hit,entry,radius);
+   plane=entry.flattenSurface;
+   if(!plane){
+    status.textContent='Aumente o pincel para incluir mais superfície ao redor da saliência.';
+    return;
+   }
+   status.textContent='Planar remove o relevo acima da superfície de referência.';
+   inverse=mesh.matrixWorld.clone().invert();
+  }
   for(const node of queue){
    const k=node*3;
-   const distance=world.fromArray(pts,k).applyMatrix4(mesh.matrixWorld).distanceTo(hit.point);
-   if(distance>=radius||normal.fromArray(referenceNormals,k).dot(hit.face.normal)<.08)continue;
+   world.fromArray(pts,k).applyMatrix4(mesh.matrixWorld);
+   let height=0,distance=world.distanceTo(hit.point);
+   if(plane){
+    height=flattenHeight(plane,delta.copy(world).sub(plane.origin));
+    if(height< -radius*.025||distance>radius*2.5)continue;
+    delta.copy(world).sub(hit.point);
+    distance=delta.addScaledVector(plane.normal,-delta.dot(plane.normal)).length();
+   }
+   if(distance>=radius||(!plane&&normal.fromArray(referenceNormals,k).dot(hit.face.normal)<.08))continue;
    for(let edge=adj.nStart[node];edge<adj.nStart[node+1];edge++)queue.add(adj.nList[edge]);
    if(adj.frozen[node]||(!displace&&adj.boundary[node]))continue;
-   const t=1-distance/radius;
+   if(plane&&(height<=radius*(plane.coefficients?.005:.0001)||
+    sculptWorldNormal(local.fromArray(referenceNormals,k),inverse,normal).dot(plane.normal)<-.12))continue;
+   const t=plane?Math.min(1,(1-distance/radius)/.35):1-distance/radius;
    weights[node]=t*t*(3-2*t)*force;
    if(weights[node]>0)nodes.push(node);
   }
@@ -13280,8 +13602,10 @@ return earcut;})();
   const mean=new E.Vector();
   if(mode==='inflate'){
    inflateSurfaceBrush(entry,nodes,radius,event.ctrlKey);
+  }else if(plane){
+   flattenSurfaceBrush(entry,nodes,plane,radius);
   }else if(displace){
-   displaceSurfaceBrush(entry,nodes,hit,radius,mode==='flatten',event.ctrlKey);
+   displaceSurfaceBrush(entry,nodes,hit,radius,event.ctrlKey);
   }else if(mode==='relax'){
    const triangle=new E.Triangle(),target=new E.Vector(),closest=new E.Vector();
    for(const node of nodes){
@@ -13700,7 +14024,7 @@ return earcut;})();
   const instructions={
    draw:'Arraste para criar relevo. Segure Ctrl para rebaixar.',
    inflate:'Passe o pincel para inflar a malha. Segure Ctrl para desinflar.',
-   flatten:'Passe o pincel sobre a região que deseja nivelar.',
+   flatten:'Cubra a saliência e parte da superfície ao redor com o pincel.',
    smooth:'Passe o Smooth sobre as ondulações.',
    relax:'Passe o Slide Relax sobre a região esticada.'
   };
