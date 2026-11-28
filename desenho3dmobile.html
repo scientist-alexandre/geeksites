@@ -140,42 +140,22 @@ body:has(dialog[open]) #proLeftDock,body:has(dialog[open]) #proColorPanel{displa
 @media(max-height:530px){#proLeftDock{gap:2px;padding:4px 3px;width:53px}#proLeftDock .proDockTool{min-height:38px;padding:3px 1px}#proLeftDock .proDockSeparator{margin:1px 0}#proSliderTrack{height:69px}#proSizeSlider{height:65px}#proLeftDock .proMiniTool{height:25px;min-height:25px}#proColorPanel{max-height:calc(100dvh - 62px);overflow:auto}}
 </style>
 <style id="drawing3d-mobile-style">
- .drawing3dTitle{font-weight:650;white-space:nowrap;margin-right:8px}
- #progress:empty{display:none}
- @media(max-width:550px){
-  .compactTopbar{
-   height:90px;display:grid;grid-template-columns:minmax(0,1fr) auto auto;
-   grid-template-rows:42px 42px;gap:0 3px;padding:0 8px;align-content:center;
-  }
-  .drawing3dTitle{grid-area:1/1;margin:0}
-  .compactTopbar .compactMenu{grid-area:1/2}
-  .compactTopbar .compactMenu>summary{gap:5px;padding:0 8px}
-  .compactTopbar .compactPanel{position:fixed;top:46px;left:8px}
-  .compactTopbar #exportGLBVisible{grid-area:1/3}
-  .compactTopbar .bendControl{grid-area:2/1/3/3;padding-left:0}
-  .compactTopbar .bendControl input[type=range]{width:clamp(65px,25vw,130px)}
-  .compactTopbar .proTopActions{grid-area:2/3;justify-self:end}
-  body>main{height:calc(100dvh - 90px)!important}
-  #proLeftDock,#proCloneSliderBox{top:calc(90px + (100dvh - 90px)/2)}
-  .compactTopbar #proColorPanel{top:96px;max-height:calc(100dvh - 104px);overflow:auto}
- }
-</style>
-<style id="mobile-only-3d-layout">
-@media(min-width:551px){.compactTopbar .drawing3dTitle{font-weight:650;margin-right:8px}}
-@media(max-width:550px){
- .compactTopbar{grid-template-columns:minmax(0,1fr) auto auto!important;grid-template-rows:42px 42px!important;height:90px!important}
- .compactTopbar .drawing3dTitle{grid-area:1/1!important}
- .compactTopbar #uploadMenu{grid-area:1/2!important}
- .compactTopbar #exportGLBVisible{grid-area:1/3!important;margin-left:0!important}
- .compactTopbar .bendControl{grid-area:2/1/3/3!important;min-width:0!important}
- .compactTopbar .bendControl input[type=range]{width:clamp(65px,25vw,130px)!important}
- .compactTopbar .proTopActions{grid-area:2/3!important;justify-self:end!important}
+#progress:empty{display:none}
+@media(max-width:620px){
+ .compactTopbar{height:90px;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:42px 42px;gap:0 6px;padding:0 8px;align-content:center}
+ .compactTopbar #uploadMenu{grid-area:1/1;justify-self:start}
+ .compactTopbar #uploadMenu>summary{gap:5px;padding:0 8px}
+ .compactTopbar .compactPanel{position:fixed;top:46px;left:8px}
+ .compactTopbar #exportGLBVisible{grid-area:1/2;justify-self:end;margin-left:0!important}
+ .compactTopbar .bendControl{grid-area:2/1;min-width:0;padding-left:0}
+ .compactTopbar .bendControl input[type=range]{width:clamp(42px,24vw,130px);min-width:0}
+ .compactTopbar .proTopActions{grid-area:2/2;justify-self:end;padding-left:0}
  body>main{height:calc(100dvh - 90px)!important}
- #proLeftDock,#proCloneSliderBox{top:calc(90px + (100dvh - 90px)/2)!important}
+ #proLeftDock,#proCloneSliderBox{top:calc(90px + (100dvh - 90px)/2)}
+ .compactTopbar #proColorPanel{top:96px;max-height:calc(100dvh - 104px);overflow:auto}
 }
 </style>
 <header class="compactTopbar" aria-label="Controles do modelo">
- <span class="drawing3dTitle">Página Desenho 3D Mobile</span>
 <details class="compactMenu" id="uploadMenu"><summary><svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 5H18M2 10H18M2 15H18"/></svg><span>Uploads</span></summary>
 <div class="compactPanel">
 <div class="fileRow"><span class="fileInfo"><span class="fileTitle">Frente</span><span class="fileChosen" id="compactName0"></span></span><label class="filePick"><span class="fileAction">Escolher</span><input type="file" accept="image/png,image/webp,image/jpeg" aria-label="Imagem de frente" data-compact-file="0"></label></div>
@@ -184,7 +164,7 @@ body:has(dialog[open]) #proLeftDock,body:has(dialog[open]) #proColorPanel{displa
 <div class="fileRow"><span class="fileInfo"><span class="fileTitle">Costas</span><span class="fileChosen" id="compactName3"></span></span><label class="filePick"><span class="fileAction">Escolher</span><input type="file" accept="image/png,image/webp,image/jpeg" aria-label="Imagem de costas" data-compact-file="3"></label></div>
 </div></details>
 <label class="bendControl">Curvar <input id="bend" type="range" min="0" max="360" value="0" step="1" aria-label="Curvar seção quadrada de 0 a 360 graus"><output id="bendValue">0°</output></label>
-<button type="button" id="exportGLBVisible" title="Exportar modelo GLB" onclick="document.getElementById('export3d').click()" style="margin-left:auto;min-height:34px;padding:6px 12px;border-radius:8px;border:1px solid #5c6778;background:#34445b;color:white;font:600 12px system-ui;white-space:nowrap">Exportar GLB</button>
+<button type="button" id="exportGLBVisible" title="Exportar modelo GLB" onclick="document.getElementById('export3d').click()" style="margin-left:auto;min-height:34px;padding:6px 12px;border-radius:8px;border:1px solid #5c6778;background:#34445b;color:white;font:600 12px system-ui;white-space:nowrap">Baixar GLB</button>
 <div class="proTopActions" aria-label="Ferramentas de cor">
  <button id="proDropper" class="proTopBtn" type="button" aria-label="Conta-gotas: capturar cor do modelo" title="Conta-gotas · clique e depois toque na cor do modelo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C9 7 5.5 10.5 5.5 14a6.5 6.5 0 0 0 13 0C18.5 10.5 15 7 12 2Z"/><circle cx="12" cy="14" r="2.3"/><path d="M12 9.5v2.2M12 16.3v2.2M7.5 14h2.2M14.3 14h2.2"/></svg></button>
  <button id="proColorButton" class="proTopBtn proSwatchButton" type="button" aria-label="Abrir seletor de cores" aria-expanded="false" aria-controls="proColorPanel" title="Selecionar cor"><span id="proColorSwatch"></span></button>
@@ -1590,7 +1570,7 @@ function drawingPageArrays(page,raw){
 
 const vertex=`attribute vec3 restPosition;uniform float hasRest;attribute vec4 paintColor;varying vec4 painted;attribute vec3 p;attribute vec3 normal;attribute vec3 projectionNormal;varying vec3 finishNormal;varying vec3 viewNormal;attribute vec2 uv;varying float light;varying vec3 worldPosition;varying vec3 worldNormal;uniform float lighting;uniform vec2 rotation;uniform vec2 framing;uniform float aspect;uniform float zoom;uniform vec2 pan;varying vec2 v;void main(){painted=paintColor;float a=cos(rotation.x),b=sin(rotation.x),c=cos(rotation.y),d=sin(rotation.y);mat3 ry=mat3(c,0.,-d,0.,1.,0.,d,0.,c);mat3 rx=mat3(1.,0.,0.,0.,a,b,0.,-b,a);worldPosition=mix(p,restPosition,hasRest);worldNormal=projectionNormal;finishNormal=normal;vec3 q=rx*ry*((p-vec3(0.,framing.x,0.))*framing.y);vec3 nn=rx*ry*normal;viewNormal=nn;light=mix(1.,.7+.3*max(dot(nn,normalize(vec3(-.4,.8,1.))),0.),lighting);q.xy+=pan;q.z-=zoom;v=uv;gl_Position=vec4(q.x*1.9/aspect,q.y*1.9,-1.002*q.z-.1001,-q.z);}`;
 function makeProgram(fragment){const p=gl.createProgram();for(const [type,source] of [[gl.VERTEX_SHADER,vertex],[gl.FRAGMENT_SHADER,fragment]]){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));gl.attachShader(p,s)}gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p}
-if(gl){program=makeProgram("precision highp float;\nvarying vec4 painted;\nvarying float light;\nvarying vec3 viewNormal;\nuniform float lighting;\nvarying vec2 v;\nvarying vec3 worldPosition;\nvarying vec3 worldNormal;\nvarying vec3 finishNormal;\nuniform float finishAmount;\nuniform sampler2D image;\nuniform sampler2D frontTex;\nuniform sampler2D sideTex;\nuniform sampler2D oppositeSideTex;\nuniform sampler2D backTex;\nuniform sampler2D viewProfile;\nuniform vec2 frontMap;\nuniform vec2 sideMap;\nuniform vec2 oppositeSideMap;\nuniform vec2 backMap;\nuniform vec2 frontVMap;\nuniform vec2 sideVMap;\nuniform vec2 oppositeSideVMap;\nuniform vec2 backVMap;\nuniform vec4 viewBounds;\nuniform float sideFacing;\nuniform float hasOppositeSide;\nuniform float backTextureFlip;\nuniform float opacity;\nuniform float cutoff;\nuniform float colors;\nuniform float clayPreview;\nuniform float surface;\nuniform vec3 tint;\nuniform float capActive;\nuniform vec4 capBox;\nuniform vec4 capHeights;\nuniform vec2 capSlopes;\nuniform vec4 capTextureRect;\nvoid main(){\n vec4 c=texture2D(image,v);\n if(surface<.5&&c.a<cutoff)discard;\n if(surface>.5&&colors>.5){\n  vec2 fuv=vec2(frontMap.x+worldPosition.x/frontMap.y,frontVMap.x-worldPosition.y/frontVMap.y);\n  vec2 buv=vec2(backMap.x+mix(-worldPosition.x,worldPosition.x,backTextureFlip)/backMap.y,backVMap.x-worldPosition.y/backVMap.y);\n  vec2 suv=vec2(sideMap.x+sideFacing*worldPosition.z/sideMap.y,sideVMap.x-worldPosition.y/sideVMap.y);\n  float profileV=clamp((worldPosition.y-viewBounds.z)/max(.001,viewBounds.w-viewBounds.z),0.,1.);vec4 profile=texture2D(viewProfile,vec2(.25,profileV));vec4 shapeProfile=texture2D(viewProfile,vec2(.75,profileV));float angularity=shapeProfile.r;\n  float range=max(.001,viewBounds.y-viewBounds.x);\n  float center=viewBounds.x+dot(profile.rg,vec2(65280.,255.))/65535.*range;\n  float radius=max(.008,dot(profile.ba,vec2(65280.,255.))/65535.*range);\n  float localZ=(worldPosition.z-center)/radius;\n  float frontWeight=smoothstep(-.12,.12,localZ);\n  vec3 normal=normalize(worldNormal);\n  float sideWeight=mix(1.-smoothstep(.08,.32,abs(localZ)),1.,angularity)*smoothstep(.45,.85,abs(normal.x));\n  if(angularity>.9&&capActive<.5){vec2 facing=pow(abs(normal.xz),vec2(4.));sideWeight=facing.x/max(.00001,facing.x+facing.y);frontWeight=smoothstep(-.08,.08,normal.z);}\n  vec2 ou=vec2(oppositeSideMap.x-sideFacing*worldPosition.z/oppositeSideMap.y,oppositeSideVMap.x-worldPosition.y/oppositeSideVMap.y);\n  vec4 f=texture2D(frontTex,fuv),b=texture2D(backTex,buv),s=texture2D(sideTex,suv);\n  if(hasOppositeSide>.5 && normal.x*sideFacing < -.22){s=texture2D(oppositeSideTex,ou);}if(shapeProfile.g>.5&&abs(normal.x)>.6){vec2 inset=vec2(sign(normal.x)*.004,0.);vec4 cf=texture2D(frontTex,fuv-inset),cb=texture2D(backTex,buv+inset);if(min(cf.a,cb.a)>.8&&max(max(cf.r,cf.g),cf.b)>.2&&distance(cf.rgb,cb.rgb)<.08&&distance(cf.rgb,s.rgb)>.12){sideWeight=0.;f.rgb=cf.rgb;b.rgb=cb.rgb;}}\n  // Uma vista só contribui onde o desenho realmente tem pixels.\n  vec3 coverage=smoothstep(vec3(.05),vec3(.75),vec3(f.a,s.a,b.a));\n  coverage*=vec3(step(0.,fuv.x)*step(fuv.x,1.)*step(0.,fuv.y)*step(fuv.y,1.),step(0.,suv.x)*step(suv.x,1.)*step(0.,suv.y)*step(suv.y,1.),step(0.,buv.x)*step(buv.x,1.)*step(0.,buv.y)*step(buv.y,1.));\n  vec3 preferred=vec3(frontWeight*(1.-sideWeight),sideWeight,(1.-frontWeight)*(1.-sideWeight));\n  vec3 weights=preferred*coverage;\n  float total=dot(weights,vec3(1.));\n  if(total<.001){weights=coverage*(preferred+vec3(.05));total=dot(weights,vec3(1.));}\n  if(total>.001)c.rgb=(f.rgb*weights.x+s.rgb*weights.y+b.rgb*weights.z)/total;\n  else c.rgb=f.rgb*preferred.x+s.rgb*preferred.y+b.rgb*preferred.z;\n\n if(capActive>.5&&worldPosition.y>capHeights.x&&normal.y>.2){float centerZ=(capBox.z+capBox.w)*.5,halfZ=(capBox.w-capBox.z)*.5;float mainTop=capHeights.x+(capHeights.y-capHeights.x)*(1.-abs(worldPosition.z-centerZ)/halfZ);float gableTop=capHeights.z+(worldPosition.x<capHeights.w?capSlopes.x:capSlopes.y)*(worldPosition.x-capHeights.w);float top=max(mainTop,gableTop);if(abs(worldPosition.y-top)<.04&&capTextureRect.z>0.){float gable=step(mainTop,gableTop);float along=mix(worldPosition.x,worldPosition.z,gable);float vertical=mix(capHeights.y,capHeights.z,gable)-worldPosition.y;vec2 repeatUV=fract(vec2(along/max(.001,capTextureRect.z*frontMap.y),vertical/max(.001,capTextureRect.w*frontVMap.y)));vec2 projected=capTextureRect.xy+repeatUV*capTextureRect.zw;c.rgb=texture2D(frontTex,projected).rgb;}}\n\n }\n float paintCoverage=clamp(painted.a,0.,1.);vec3 paintRGB=clamp(painted.rgb/max(painted.a,.00001),0.,1.);vec3 baseColor=mix(mix(tint,c.rgb,colors),vec3(.65),clayPreview);float shade=mix(1.,.7+.3*max(dot(normalize(viewNormal),normalize(vec3(-.4,.8,1.))),0.),lighting)*mix(1.,.8+.2*max(dot(normalize(finishNormal),normalize(vec3(-.4,.8,1.))),0.),finishAmount);vec3 finalColor=mix(baseColor,paintRGB,paintCoverage*(1.-clayPreview))*shade;gl_FragColor=vec4(finalColor,opacity);\n}\n");lineProgram=makeProgram('precision mediump float;uniform vec4 color;void main(){gl_FragColor=color;}');buffer=gl.createBuffer();lineBuffer=gl.createBuffer();gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)}else{$('status').textContent='WebGL indisponível. Use um navegador com aceleração gráfica.'}
+if(gl){program=makeProgram("precision highp float;\nvarying vec4 painted;\nvarying float light;\nvarying vec3 viewNormal;\nuniform float lighting;\nvarying vec2 v;\nvarying vec3 worldPosition;\nvarying vec3 worldNormal;\nvarying vec3 finishNormal;\nuniform float finishAmount;\nuniform sampler2D image;\nuniform sampler2D frontTex;\nuniform sampler2D sideTex;\nuniform sampler2D oppositeSideTex;\nuniform sampler2D backTex;\nuniform sampler2D viewProfile;\nuniform vec2 frontMap;\nuniform vec2 sideMap;\nuniform vec2 oppositeSideMap;\nuniform vec2 backMap;\nuniform vec2 frontVMap;\nuniform vec2 sideVMap;\nuniform vec2 oppositeSideVMap;\nuniform vec2 backVMap;\nuniform vec4 viewBounds;\nuniform float sideFacing;\nuniform float hasOppositeSide;\nuniform float backTextureFlip;\nuniform float opacity;\nuniform float cutoff;\nuniform float colors;\nuniform float clayPreview;\nuniform float surface;\nuniform vec3 tint;\nuniform float capActive;\nuniform vec4 capBox;\nuniform vec4 capHeights;\nuniform vec2 capSlopes;\nuniform vec4 capTextureRect;\nvoid main(){\n vec4 c=texture2D(image,v);\n if(surface<.5&&c.a<cutoff)discard;\n if(surface>.5&&colors>.5){\n  vec2 fuv=vec2(frontMap.x+worldPosition.x/frontMap.y,frontVMap.x-worldPosition.y/frontVMap.y);\n  vec2 buv=vec2(backMap.x+mix(-worldPosition.x,worldPosition.x,backTextureFlip)/backMap.y,backVMap.x-worldPosition.y/backVMap.y);\n  vec2 suv=vec2(sideMap.x+sideFacing*worldPosition.z/sideMap.y,sideVMap.x-worldPosition.y/sideVMap.y);\n  float profileV=clamp((worldPosition.y-viewBounds.z)/max(.001,viewBounds.w-viewBounds.z),0.,1.);vec4 profile=texture2D(viewProfile,vec2(.25,profileV));vec4 shapeProfile=texture2D(viewProfile,vec2(.75,profileV));float angularity=shapeProfile.r;\n  float range=max(.001,viewBounds.y-viewBounds.x);\n  float center=viewBounds.x+dot(profile.rg,vec2(65280.,255.))/65535.*range;\n  float radius=max(.008,dot(profile.ba,vec2(65280.,255.))/65535.*range);\n  float localZ=(worldPosition.z-center)/radius;\n  // A pintura frontal fica presa às coordenadas de repouso (worldPosition).\n  // Mistura apenas na faixa lateral: regiões frontais não devem sofrer\n  // sobreposição de projeções que desloca/duplica os olhos e suaviza traços.\n  vec3 normal=normalize(worldNormal);\n  float frontWeight=smoothstep(-.20,.20,localZ);\n  float sideWeight=smoothstep(.62,.94,abs(normal.x))*(1.-smoothstep(.12,.48,abs(localZ)));\n  if(angularity>.9&&capActive<.5){\n   vec2 facing=pow(abs(normal.xz),vec2(12.));\n   float lateral=facing.x/max(.00001,facing.x+facing.y);\n   sideWeight=lateral*(1.-smoothstep(.14,.46,abs(localZ)));\n   frontWeight=smoothstep(-.12,.12,localZ);\n  }\n  vec2 ou=vec2(oppositeSideMap.x-sideFacing*worldPosition.z/oppositeSideMap.y,oppositeSideVMap.x-worldPosition.y/oppositeSideVMap.y);\n  vec4 f=texture2D(frontTex,fuv),b=texture2D(backTex,buv),s=texture2D(sideTex,suv);\n  if(hasOppositeSide>.5 && normal.x*sideFacing < -.22){s=texture2D(oppositeSideTex,ou);}if(shapeProfile.g>.5&&abs(normal.x)>.6){vec2 inset=vec2(sign(normal.x)*.004,0.);vec4 cf=texture2D(frontTex,fuv-inset),cb=texture2D(backTex,buv+inset);if(min(cf.a,cb.a)>.8&&max(max(cf.r,cf.g),cf.b)>.2&&distance(cf.rgb,cb.rgb)<.08&&distance(cf.rgb,s.rgb)>.12){sideWeight=0.;f.rgb=cf.rgb;b.rgb=cb.rgb;}}\n  // Uma vista só contribui onde o desenho realmente tem pixels.\n  vec3 coverage=smoothstep(vec3(.02),vec3(.55),vec3(f.a,s.a,b.a));\n  coverage*=vec3(step(0.,fuv.x)*step(fuv.x,1.)*step(0.,fuv.y)*step(fuv.y,1.),step(0.,suv.x)*step(suv.x,1.)*step(0.,suv.y)*step(suv.y,1.),step(0.,buv.x)*step(buv.x,1.)*step(0.,buv.y)*step(buv.y,1.));\n  vec3 preferred=vec3(frontWeight*(1.-sideWeight),sideWeight,(1.-frontWeight)*(1.-sideWeight));\n  // Trava a vista dominante antes da mistura: não misturar pixels do\n  // olho frontal com pixels distantes da vista lateral em uma mesma face.\n  if(localZ>.32&&normal.z>-.12&&coverage.x>.1)preferred=vec3(1.,0.,0.);\n  if(localZ<-.32&&normal.z<.12&&coverage.z>.1)preferred=vec3(0.,0.,1.);\n  vec3 weights=preferred*coverage;\n  float total=dot(weights,vec3(1.));\n  if(total<.001){weights=coverage*(preferred+vec3(.05));total=dot(weights,vec3(1.));}\n  if(total>.001)c.rgb=(f.rgb*weights.x+s.rgb*weights.y+b.rgb*weights.z)/total;\n  else c.rgb=f.rgb*preferred.x+s.rgb*preferred.y+b.rgb*preferred.z;\n\n if(capActive>.5&&worldPosition.y>capHeights.x&&normal.y>.2){float centerZ=(capBox.z+capBox.w)*.5,halfZ=(capBox.w-capBox.z)*.5;float mainTop=capHeights.x+(capHeights.y-capHeights.x)*(1.-abs(worldPosition.z-centerZ)/halfZ);float gableTop=capHeights.z+(worldPosition.x<capHeights.w?capSlopes.x:capSlopes.y)*(worldPosition.x-capHeights.w);float top=max(mainTop,gableTop);if(abs(worldPosition.y-top)<.04&&capTextureRect.z>0.){float gable=step(mainTop,gableTop);float along=mix(worldPosition.x,worldPosition.z,gable);float vertical=mix(capHeights.y,capHeights.z,gable)-worldPosition.y;vec2 repeatUV=fract(vec2(along/max(.001,capTextureRect.z*frontMap.y),vertical/max(.001,capTextureRect.w*frontVMap.y)));vec2 projected=capTextureRect.xy+repeatUV*capTextureRect.zw;c.rgb=texture2D(frontTex,projected).rgb;}}\n\n }\n float paintCoverage=clamp(painted.a,0.,1.);vec3 paintRGB=clamp(painted.rgb/max(painted.a,.00001),0.,1.);vec3 baseColor=mix(mix(tint,c.rgb,colors),vec3(.65),clayPreview);float shade=mix(1.,.7+.3*max(dot(normalize(viewNormal),normalize(vec3(-.4,.8,1.))),0.),lighting)*mix(1.,.8+.2*max(dot(normalize(finishNormal),normalize(vec3(-.4,.8,1.))),0.),finishAmount);vec3 finalColor=mix(baseColor,paintRGB,paintCoverage*(1.-clayPreview))*shade;gl_FragColor=vec4(finalColor,opacity);\n}\n");lineProgram=makeProgram('precision mediump float;uniform vec4 color;void main(){gl_FragColor=color;}');buffer=gl.createBuffer();lineBuffer=gl.createBuffer();gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)}else{$('status').textContent='WebGL indisponível. Use um navegador com aceleração gráfica.'}
 // Local u avança da esquerda para a direita quando cada parede é vista por fora.
 function walls(){const w=+$('width').value/100,d=+$('depth').value/100;
 // Mantém a escala do arquivo. Somente a posição do plano usa a distância medida.
@@ -1610,9 +1590,36 @@ if(!images[0]||!images[1])return [];
 prepareProjections();
 const cut=+$('cutoff').value,groups=[{i:0,color:[.45,1,.72],data:[],normals:[]},{i:images[2]?2:0,color:[1,.67,.36],data:[],normals:[]}];
 const center=im=>(im.left+im.right)/2,span=im=>viewProjection(im).spanX;
+// Remove isolated pixels and single-pixel tips attached directly to a wider contour.
+function cleanRoundMask(mask,width,height){
+ const clean=mask.slice();
+ const at=(x,y)=>x>=0&&x<width&&y>=0&&y<height&&mask[y*width+x];
+ const neighbors=(x,y)=>{
+  const hits=[];
+  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)
+   if((dx||dy)&&at(x+dx,y+dy))hits.push([x+dx,y+dy]);
+  return hits;
+ };
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+  if(!at(x,y))continue;
+  let count=0;
+  for(let dy=-1;dy<=1&&count<2;dy++)for(let dx=-1;dx<=1&&count<2;dx++)
+   if((dx||dy)&&at(x+dx,y+dy))count++;
+  if(!count){clean[y*width+x]=0;continue;}
+  if(count===1){
+   const [[nx,ny]]=neighbors(x,y);
+   if(neighbors(nx,ny).length>=4)clean[y*width+x]=0;
+  }
+ }
+ return clean;
+}
+const roundedMasks=new Map(images.filter(Boolean).map(im=>{
+ const mask=im.geometryMask||Uint8Array.from({length:im.width*im.height},(_,k)=>Number(im.pixels[k*4+3]>=cut));
+ return [im,cleanRoundMask(mask,im.width,im.height)];
+}));
 function silhouette(im){
  const map=viewProjection(im),scale=Math.min(1,Math.max(640,Number($('quality').value)*2)/Math.max(im.right-im.left,im.bottom-im.top)),w=Math.ceil((im.right-im.left)*scale)+4,h=Math.ceil((im.bottom-im.top)*scale)+4,mask=new Uint8Array(w*h),inside=new Float32Array(w*h),outside=new Float32Array(w*h);
- for(let y=0;y<h;y++)for(let x=0;x<w;x++){const px=Math.floor(im.left+(x-1.5)/scale),py=Math.floor(im.top+(y-1.5)/scale),k=y*w+x,hit=x>=2&&y>=2&&x<w-2&&y<h-2&&px>=0&&py>=0&&px<im.width&&py<im.height&&(im.geometryMask?im.geometryMask[py*im.width+px]:im.pixels[(py*im.width+px)*4+3]>=cut);mask[k]=hit?1:0;inside[k]=hit?1e6:0;outside[k]=hit?0:1e6;}
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const px=Math.floor(im.left+(x-1.5)/scale),py=Math.floor(im.top+(y-1.5)/scale),k=y*w+x,hit=x>=2&&y>=2&&x<w-2&&y<h-2&&px>=0&&py>=0&&px<im.width&&py<im.height&&roundedMasks.get(im)[py*im.width+px];mask[k]=hit?1:0;inside[k]=hit?1e6:0;outside[k]=hit?0:1e6;}
  function distance(d){const n=Math.max(w,h),f=new Float64Array(n),output=new Float64Array(n),v=new Int32Array(n),boundary=new Float64Array(n+1);
 function transform(length){let k=0;v[0]=0;boundary[0]=-Infinity;boundary[1]=Infinity;for(let q=1;q<length;q++){let crossing=((f[q]+q*q)-(f[v[k]]+v[k]*v[k]))/(2*(q-v[k]));while(crossing<=boundary[k]){k--;crossing=((f[q]+q*q)-(f[v[k]]+v[k]*v[k]))/(2*(q-v[k]));}v[++k]=q;boundary[k]=crossing;boundary[k+1]=Infinity;}k=0;for(let q=0;q<length;q++){while(boundary[k+1]<q)k++;output[q]=(q-v[k])*(q-v[k])+f[v[k]];}}
 for(let y=0;y<h;y++){for(let x=0;x<w;x++)f[x]=d[y*w+x];transform(w);for(let x=0;x<w;x++)d[y*w+x]=output[x];}for(let x=0;x<w;x++){for(let y=0;y<h;y++)f[y]=d[y*w+x];transform(h);for(let y=0;y<h;y++)d[y*w+x]=Math.sqrt(output[y]);}}
@@ -1641,9 +1648,9 @@ function blendRows(rowA,rowB,t){
  }
  return t<.5?a.map(run=>run.slice()):b.map(run=>run.slice());
 }
-function rowSectionsAtPixel(im,py){if(py<0||py>=im.height)return [];const m=viewProjection(im),key=images.indexOf(im)+':'+py;if(rowCache.has(key))return rowCache.get(key);const sections=[];let start=-1;for(let x=im.left;x<=im.right;x++){const hit=x<im.right&&(im.geometryMask?im.geometryMask[py*im.width+x]:im.pixels[(py*im.width+x)*4+3]>=cut);if(hit&&start<0)start=x;if(!hit&&start>=0){if(x-start>=2)sections.push([(start/im.width-m.centerU)*m.spanX,(x/im.width-m.centerU)*m.spanX]);start=-1;}}const coherent=coherentSections(sections);rowCache.set(key,coherent);return coherent;}
+function rowSectionsAtPixel(im,py){if(py<0||py>=im.height)return [];const m=viewProjection(im),key=images.indexOf(im)+':'+py;if(rowCache.has(key))return rowCache.get(key);const sections=[];let start=-1;for(let x=im.left;x<=im.right;x++){const hit=x<im.right&&roundedMasks.get(im)[py*im.width+x];if(hit&&start<0)start=x;if(!hit&&start>=0){if(x-start>=2)sections.push([(start/im.width-m.centerU)*m.spanX,(x/im.width-m.centerU)*m.spanX]);start=-1;}}const coherent=coherentSections(sections);rowCache.set(key,coherent);return coherent;}
 function rowSections(im,worldY){const m=viewProjection(im),fy=(m.shiftV-worldY/m.spanY)*im.height;if(fy<0||fy>im.height-1)return [];const py0=Math.floor(fy),py1=Math.min(im.height-1,py0+1),t=fy-py0,key=images.indexOf(im)+':'+py0+':'+py1+':'+t.toFixed(4);if(rowBlendCache.has(key))return rowBlendCache.get(key);const blended=blendRows(rowSectionsAtPixel(im,py0),rowSectionsAtPixel(im,py1),t);rowBlendCache.set(key,blended);return blended;}
-function columnSections(worldX){const im=images[0],m=viewProjection(im),px=Math.floor((m.centerU+worldX/m.spanX)*im.width);if(px<0||px>=im.width)return [];if(columnCache.has(px))return columnCache.get(px);const sections=[];let start=-1;for(let y=im.top;y<=im.bottom;y++){const hit=y<im.bottom&&im.geometryMask[y*im.width+px];if(hit&&start<0)start=y;if(!hit&&start>=0){sections.push([(m.shiftV-y/im.height)*m.spanY,(m.shiftV-start/im.height)*m.spanY]);start=-1;}}const coherent=coherentSections(sections.reverse());columnCache.set(px,coherent);return coherent;}
+function columnSections(worldX){const im=images[0],m=viewProjection(im),px=Math.floor((m.centerU+worldX/m.spanX)*im.width);if(px<0||px>=im.width)return [];if(columnCache.has(px))return columnCache.get(px);const sections=[];let start=-1;for(let y=im.top;y<=im.bottom;y++){const hit=y<im.bottom&&roundedMasks.get(im)[y*im.width+px];if(hit&&start<0)start=y;if(!hit&&start>=0){sections.push([(m.shiftV-y/im.height)*m.spanY,(m.shiftV-start/im.height)*m.spanY]);start=-1;}}const coherent=coherentSections(sections.reverse());columnCache.set(px,coherent);return coherent;}
 const nearest=(runs,x)=>runs.length?runs.reduce((a,b)=>Math.max(b[0]-x,x-b[1],0)<Math.max(a[0]-x,x-a[1],0)?b:a):null;
 const front=silhouette(images[0]),side=silhouette(images[1]),im=images[0],si=images[1],fm=viewProjection(im),sm=viewProjection(si),x0=(im.left/im.width-fm.centerU)*fm.spanX,x1=(im.right/im.width-fm.centerU)*fm.spanX,y0=(fm.shiftV-im.bottom/im.height)*fm.spanY,y1=(fm.shiftV-im.top/im.height)*fm.spanY,za=sideFacing*(si.left/si.width-sm.centerU)*sm.spanX,zb=sideFacing*(si.right/si.width-sm.centerU)*sm.spanX,z0=Math.min(za,zb),z1=Math.max(za,zb);
 // Perfis de curvatura: avalia as bordas em uma vizinhança, sem endireitar a silhueta.
@@ -1684,13 +1691,13 @@ const sectionMode=['round','angular'].includes($('sectionMode').value)?$('sectio
 // inconsistent views keep the silhouette reconstruction unchanged.
 function correspondingRegions(){
  if(!images[2])return null;
- const histograms=images.map(view=>{const hist=new Map();let total=0;for(let y=view.top;y<view.bottom;y+=2)for(let x=view.left;x<view.right;x+=2){const k=y*view.width+x;if(!view.geometryMask[k])continue;total++;const at=k*4,r=view.pixels[at],g=view.pixels[at+1],b=view.pixels[at+2];if(Math.max(r,g,b)<28)continue;const key=(r>>4)*256+(g>>4)*16+(b>>4);let v=hist.get(key);if(!v)hist.set(key,v=[0,0,0,0]);v[0]++;v[1]+=r;v[2]+=g;v[3]+=b;}return {hist,total};});
+ const histograms=images.map(view=>{const hist=new Map();let total=0;for(let y=view.top;y<view.bottom;y+=2)for(let x=view.left;x<view.right;x+=2){const k=y*view.width+x;if(!roundedMasks.get(view)[k])continue;total++;const at=k*4,r=view.pixels[at],g=view.pixels[at+1],b=view.pixels[at+2];if(Math.max(r,g,b)<28)continue;const key=(r>>4)*256+(g>>4)*16+(b>>4);let v=hist.get(key);if(!v)hist.set(key,v=[0,0,0,0]);v[0]++;v[1]+=r;v[2]+=g;v[3]+=b;}return {hist,total};});
  const palette=[];for(const v of [...histograms[0].hist.values()].sort((a,b)=>b[0]-a[0])){if(v[0]<histograms[0].total*.025)break;const color=v.slice(1).map(x=>x/v[0]);if(palette.every(c=>Math.hypot(...c.map((x,i)=>x-color[i]))>32))palette.push(color);if(palette.length===8)break;}
  if(palette.length<2)return null;
  function label(view,k){const at=k*4;let best=-1,distance=18*18;for(let i=0;i<palette.length;i++){const c=palette[i],d=(c[0]-view.pixels[at])**2+(c[1]-view.pixels[at+1])**2+(c[2]-view.pixels[at+2])**2;if(d<distance){distance=d;best=i;}}return best;}
- for(const view of images){let total=0,matched=0;for(let y=view.top;y<view.bottom;y+=2)for(let x=view.left;x<view.right;x+=2){const k=y*view.width+x;if(view.geometryMask[k]){total++;if(label(view,k)>=0)matched++;}}if(matched/Math.max(1,total)<.88)return null;}
+ for(const view of images){let total=0,matched=0;for(let y=view.top;y<view.bottom;y+=2)for(let x=view.left;x<view.right;x+=2){const k=y*view.width+x;if(roundedMasks.get(view)[k]){total++;if(label(view,k)>=0)matched++;}}if(matched/Math.max(1,total)<.88)return null;}
  const cache=images.map(()=>new Map());
- function ranges(index,wy){const view=images[index],m=viewProjection(view),py=Math.floor((m.shiftV-wy/m.spanY)*view.height);if(py<view.top||py>=view.bottom)return null;if(cache[index].has(py))return cache[index].get(py);const values=palette.map(()=>({left:Infinity,right:-Infinity,count:0,runs:[]}));let total=0,matched=0;for(let x=view.left;x<view.right;x++){const k=py*view.width+x;if(!view.geometryMask[k])continue;total++;const id=label(view,k);if(id<0)continue;matched++;const r=values[id];r.left=Math.min(r.left,x);r.right=x+1;r.count++;const last=r.runs[r.runs.length-1];if(last&&x-last[1]<=8){last[1]=x+1;last[2]++;}else r.runs.push([x,x+1,1]);}for(const r of values){const runs=r.runs.filter(run=>run[2]>=Math.max(3,r.count*.08));r.left=runs.length?runs[0][0]:Infinity;r.right=runs.length?runs[runs.length-1][1]:-Infinity;if(!runs.length)r.count=0;}const out={values,total,matched};cache[index].set(py,out);return out;}
+ function ranges(index,wy){const view=images[index],m=viewProjection(view),py=Math.floor((m.shiftV-wy/m.spanY)*view.height);if(py<view.top||py>=view.bottom)return null;if(cache[index].has(py))return cache[index].get(py);const values=palette.map(()=>({left:Infinity,right:-Infinity,count:0,runs:[]}));let total=0,matched=0;for(let x=view.left;x<view.right;x++){const k=py*view.width+x;if(!roundedMasks.get(view)[k])continue;total++;const id=label(view,k);if(id<0)continue;matched++;const r=values[id];r.left=Math.min(r.left,x);r.right=x+1;r.count++;const last=r.runs[r.runs.length-1];if(last&&x-last[1]<=8){last[1]=x+1;last[2]++;}else r.runs.push([x,x+1,1]);}for(const r of values){const runs=r.runs.filter(run=>run[2]>=Math.max(3,r.count*.08));r.left=runs.length?runs[0][0]:Infinity;r.right=runs.length?runs[runs.length-1][1]:-Infinity;if(!runs.length)r.count=0;}const out={values,total,matched};cache[index].set(py,out);return out;}
  const rows=new Array(ny).fill(null);let active=0;
  for(let y=0;y<ny;y++){const wy=min[1]+y*step,f=ranges(0,wy),side=ranges(1,wy),back=ranges(2,wy);if(!f||!side||!back||f.matched<.87*f.total)continue;const significant=f.values.map((r,i)=>r.count>=Math.max(3,f.total*.04)?i:-1).filter(i=>i>=0);if(significant.length<2)continue;const parts=[];let consistent=true;for(const id of significant){const a=f.values[id],b=side.values[id],c=back.values[id];if(b.count<Math.max(6,side.total*.1)||c.count<Math.max(6,back.total*.04)){consistent=false;break;}const bm=viewProjection(images[2]),bx0=-(c.right/images[2].width-bm.centerU)*bm.spanX,bx1=-(c.left/images[2].width-bm.centerU)*bm.spanX,ax0=(a.left/im.width-fm.centerU)*fm.spanX,ax1=(a.right/im.width-fm.centerU)*fm.spanX,overlap=Math.min(ax1,bx1)-Math.max(ax0,bx0);if(overlap<.65*Math.min(ax1-ax0,bx1-bx0)){consistent=false;break;}const p0=sideFacing*(b.left/si.width-sm.centerU)*sm.spanX,p1=sideFacing*(b.right/si.width-sm.centerU)*sm.spanX,margin=Math.max(step*1.2,3*fm.spanX/im.width);parts.push([ax0-margin,ax1+margin,Math.min(p0,p1)-margin,Math.max(p0,p1)+margin]);}if(consistent){rows[y]=parts;active++;}}
  if(active){const known=rows.slice(),reach=Math.max(2,Math.round(ny*.08));for(let y=0;y<ny;y++)if(!rows[y]){for(let d=1;d<=reach;d++){const nearby=known[y-d]||known[y+d];if(nearby){rows[y]=nearby.map(r=>r.slice());break;}}}}return active?{rows,palette,active}:null;
@@ -1703,8 +1710,29 @@ for(let y=0;y<ny;y++){const wy=min[1]+y*step,frontRuns=rowSections(im,wy),sideRu
  for(let x=0;x<nx;x++){const wx=min[0]+x*step,k=x+y*nx,section=nearest(frontRuns,wx),vertical=nearest(columnSections(wx),wy);frontD[k]=front.sample(wx,wy);if(section){frontCX[k]=(section[0]+section[1])/2;frontRX[k]=Math.max(step*.6,(section[1]-section[0])/2);}if(vertical){verticalR[k]=(vertical[1]-vertical[0])/2;verticalCY[k]=(vertical[1]+vertical[0])/2;}}
  for(let z=0;z<nz;z++){const wz=min[2]+z*step,k=z+y*nz,section=nearest(sideRuns,sideFacing*wz);sideD[k]=side.sample(sideFacing*wz,wy);if(section){sideCZ[k]=sideFacing*(section[0]+section[1])/2;sideRZ[k]=Math.max(step*.6,(section[1]-section[0])/2);}}
 }
+ function sectionBlend(value,low,high){
+  const t=Math.max(0,Math.min(1,(value-low)/(high-low)));
+  return t*t*(3-2*t);
+ }
 for(let z=0;z<nz;z++)for(let y=0;y<ny;y++)for(let x=0;x<nx;x++){const wx=min[0]+x*step,wz=min[2]+z*step,f=x+y*nx,s=z+y*nz,power=rowPower[y];let value=Math.min(frontD[f],sideD[s]),rx=frontRX[f],rz=sideRZ[s];
- if(value>-step*2&&rx>0&&rz>0){const vr=verticalR[f],thin=power<4&&vr>0&&rx>vr*2.5;if(thin)rz=Math.min(rz,Math.max(step*.7,vr*1.1));else if(power<4&&rx<rz*.35)rz=Math.min(rz,Math.max(step*.7,rx*1.2));const a=thin?Math.abs((min[1]+y*step-verticalCY[f])/Math.max(step*.6,vr)):Math.abs((wx-frontCX[f])/rx),b=Math.abs((wz-sideCZ[s])/rz),radius=power>=31?Math.max(a,b):power===2?Math.hypot(a,b):Math.pow(Math.pow(a,power)+Math.pow(b,power),1/power),section=(1-radius)*Math.min(thin?Math.max(step*.6,vr):rx,rz);value=Math.min(value,section);}
+ if(value>-step*2&&rx>0&&rz>0){
+   const vr=verticalR[f],wy=min[1]+y*step;
+   const thicknessWeight=power<4&&vr>0?sectionBlend(rx/vr,2,3):0;
+   if(power<4){
+    // Amortece o limite de profundidade em torno da proporção antiga de 35%.
+    const depthWeight=1-sectionBlend(rx/rz,.25,.45);
+    const narrowDepth=Math.min(rz,Math.max(step*.7,rx*1.2));
+    const shallowDepth=Math.min(rz,Math.max(step*.7,vr*1.1));
+    const horizontalDepth=rz+(narrowDepth-rz)*depthWeight;
+    rz=horizontalDepth+(shallowDepth-horizontalDepth)*thicknessWeight;
+   }
+   const horizontal=Math.abs((wx-frontCX[f])/rx);
+   const vertical=thicknessWeight?Math.abs((wy-verticalCY[f])/Math.max(step*.6,vr)):horizontal;
+   const a=horizontal+(vertical-horizontal)*thicknessWeight,b=Math.abs((wz-sideCZ[s])/rz);
+   const radius=power>=31?Math.max(a,b):power===2?Math.hypot(a,b):Math.pow(Math.pow(a,power)+Math.pow(b,power),1/power);
+   const sectionRadius=rx+(Math.max(step*.6,vr)-rx)*thicknessWeight;
+   value=Math.min(value,(1-radius)*Math.min(sectionRadius,rz));
+  }
  if(value>-step*2&&regionCorrespondence?.rows[y]){let region=-Infinity;for(const r of regionCorrespondence.rows[y])region=Math.max(region,Math.min(wx-r[0],r[1]-wx,wz-r[2],r[3]-wz));value=Math.min(value,region);}
  field[x+y*nx+z*plane]=value;
 }
@@ -2726,6 +2754,46 @@ function scan360Volume(base, strength) {
   }
   fairSectionProfiles(xSections);
   fairSectionProfiles(zSections);
+  // Uma faixa larga perto de uma extremidade pode ter as duas bordas
+  // desenhadas em alturas diferentes. O recorte por fatia sozinho deixa
+  // esses deslocamentos aparecerem como bicos na projeção de cima.
+  const endFootprints=[];
+  if(strength>.8&&!back&&!otherSide){
+   const spanRows=ny-7;
+   const middle=(ny-1)*.5;
+   const sharedWidth=y=>xSections[y]?.length===1&&zSections[y]?.length===1
+    ?Math.min(2*xSections[y][0].r/maxWidth,2*zSections[y][0].r/maxDepth):0;
+   const median=values=>values.sort((a,b)=>a-b)[Math.floor(values.length*.5)];
+   for(const direction of [-1,1]){
+    let peak=-1,best=0;
+    for(let distance=0;distance<Math.ceil(spanRows*.30);distance++){
+     const y=direction<0?3+distance:ny-4-distance;
+     const width=sharedWidth(y);
+     if(width>best){peak=y;best=width;}
+    }
+    if(best<.78)continue;
+    const band=[peak];
+    let inner=peak;
+    for(const sign of [-1,1]){
+     for(let y=peak+sign;sharedWidth(y)>=best*.78;y+=sign){
+      band.push(y);
+      if(sign===-direction)inner=y;
+     }
+    }
+    if(band.length<4||band.length>spanRows*.32)continue;
+    const widest=band.filter(y=>sharedWidth(y)>=best*.90);
+    const section=rows=>({
+     c:median(widest.map(y=>rows[y][0].c)),
+     r:median(widest.map(y=>rows[y][0].r))
+    });
+    const x=section(xSections),z=section(zSections);
+    const middleRadius=rows=>rows[Math.round(middle)].reduce((radius,run)=>Math.max(radius,run.r),0);
+    if(middleRadius(xSections)>x.r*.67||middleRadius(zSections)>z.r*.67)continue;
+    if(Math.min(x.r,z.r)>=Math.max(x.r,z.r)*.90)x.r=z.r=Math.min(x.r,z.r);
+    endFootprints.push({x,z,inner,direction});
+   }
+  }
+  const footprintAt=Array.from({length:ny},(_,y)=>endFootprints.find(shape=>(y-shape.inner)*shape.direction>=-2));
   const globalH=Math.max(step,fy1-fy0),globalW=Math.max(step,bounds.x1-bounds.x0);
   // Calcular regiões longas e estreitas apenas pela morfologia do desenho.
   for(let x=0;x<nx;x++){
@@ -2735,9 +2803,22 @@ function scan360Volume(base, strength) {
    const wx=x0+x*step,m=(bounds.x0+bounds.x1)/2;
    const isOffCenter=Math.abs(wx-m)>globalW*.17;
    const slim=best[3]*2<globalH*.125;
-   let maxZ=0;
-   for(let z=0;z<nz;z++)if(zy[Math.max(0,Math.min(ny-1,Math.round(best[2])))*nz+z]>0)maxZ++;
-   rawEligible[x]=isOffCenter&&slim?1:0;
+   if(!isOffCenter||!slim)continue;
+   const centerRow=Math.round(best[2]);
+   const relativeOffset=Math.abs(wx-m)/globalW;
+   const depthMid=(bounds.z0+bounds.z1)*.5;
+   const depthOffset=relativeOffset*maxDepth*.96;
+   const padding=Math.max(2,Math.round((best[1]-best[0]+1)*.25));
+   const sideAt=(row,column)=>row>=0&&row<ny?zy[row*nz+column]:-step;
+   // Se a mesma extensão também aparece na lateral como uma faixa estreita,
+   // sua profundidade já está definida pela seção horizontal.
+   const sharedFlare=[depthMid-depthOffset,depthMid+depthOffset].some(wz=>{
+    const column=Math.max(0,Math.min(nz-1,Math.round((wz-z0)/step)));
+    return sideAt(centerRow,column)>0
+      && sideAt(best[0]-padding,column)<=0
+      && sideAt(best[1]+padding,column)<=0;
+   });
+   rawEligible[x]=sharedFlare?0:1;
    colMid[x]=best[2];colHalf[x]=best[3];
   }
   // Detecta partes finas e prolongadas apenas pela grade alpha, sem nomes
@@ -2812,9 +2893,10 @@ function scan360Volume(base, strength) {
        const radial=Math.sqrt(dx*dx+dz*dz);
        const ellipse=(1-radial)*Math.min(rx,rz);
        const aspect=Math.min(rx,rz)/Math.max(rx,rz);
-       // Curvatura forte em volumes compactos e gentil em projeções alongadas.
-       // Preserva o centro de CADA componente, sem buracos nas pernas.
-       const round=strength*Math.max(.35,Math.min(1,aspect*1.12+.25));
+       // A curvatura parcial respeita a proporção da seção. No máximo,
+       // a seção fica elíptica mesmo quando a largura e a profundidade diferem.
+       const aspectWeight=Math.max(.35,Math.min(1,aspect*1.12+.25));
+       const round=strength*(aspectWeight+(1-aspectWeight)*strength);
        val=Math.min(val,val*(1-round)+ellipse*round);
       }
      }
@@ -2874,6 +2956,9 @@ function scan360Volume(base, strength) {
    const moveLimit=step*1.6;
    for(let z=0;z<nz;z++)for(let y=0;y<ny;y++){
     const row=z*plane+y*nx;
+    const footprint=footprintAt[y];
+    const fade=footprint?Math.max(0,-(y-footprint.inner)*footprint.direction)/2:0;
+    const dz=footprint?(z0+z*step-footprint.z.c)/footprint.z.r:0;
     for(let x=0;x<nx;x++){
      const k=row+x,original=source[k];
      const soft=Math.max(original-moveLimit,Math.min(original+moveLimit,current[k]));
@@ -2885,7 +2970,14 @@ function scan360Volume(base, strength) {
      const frontLimit=(xy[y0i*nx+x]+2*xy[y*nx+x]+xy[y1i*nx+x])*.25;
      const sideLimit=(zy[y0i*nz+z]+2*zy[y*nz+z]+zy[y1i*nz+z])*.25;
      const silhouetteLimit=Math.min(frontLimit,sideLimit)+step*.8;
-     field[k]=Math.min(soft,silhouetteLimit);
+     let limit=silhouetteLimit;
+     if(footprint){
+      const dx=(x0+x*step-footprint.x.c)/footprint.x.r;
+      const radius=Math.min(footprint.x.r,footprint.z.r);
+      const allowance=(fade+(1-strength)*5)*radius;
+      limit=Math.min(limit,(1-Math.hypot(dx,dz))*radius+allowance);
+     }
+     field[k]=Math.min(soft,limit);
     }
    }
   }
@@ -3003,7 +3095,7 @@ function scan360Volume(base, strength) {
    result[g].projectionNormals=result[g].normals.slice();
   }
   result.viewProfile=base.viewProfile;
-  result.reconstruction={...base.reconstruction,analyticEllipsoid,slenderColumns:Array.from(xWeight).filter(v=>v>.15).length,scanner360:true,slicesInterpolated:true,voxelPerspectiveSweep:true,mode:'angular',step,voxelGrid:[nx,ny,nz],roof:base.reconstruction?.roof||null};
+  result.reconstruction={...base.reconstruction,analyticEllipsoid,slenderColumns:Array.from(xWeight).filter(v=>v>.15).length,roundedEndCount:endFootprints.length,scanner360:true,slicesInterpolated:true,voxelPerspectiveSweep:true,mode:'angular',step,voxelGrid:[nx,ny,nz],roof:base.reconstruction?.roof||null};
   return result;
 }
 
@@ -3194,7 +3286,7 @@ let loadingDrawingViews=false;
 function requestReconstruction(){if(loadingDrawingViews||!images[0]||!images[1]||window.importedGLBActive)return;const key=modelKey();if(workerBusy||key===volumeKey||key===failedJob)return;activeJob=key;workerBusy=true;buildError='';$('progress').textContent='Reconstruindo o modelo…';try{if(!reconstructionWorker)startReconstructionWorker();const job={key,controls:{cutoff:committedAlpha,quality:$('quality').value,sectionMode:$('sectionMode').value,upperSurface:$('upperSurface').value,curve:Number($('bend').value)/360},sideFacing:sideOrientation()};if(workerVersion!==imageVersion){job.images=images.map(im=>im?({width:im.width,height:im.height,left:im.left,right:im.right,top:im.top,bottom:im.bottom,pixels:im.pixels}):null);workerVersion=imageVersion;}reconstructionWorker.postMessage(job);}catch(error){workerBusy=false;failedJob=key;buildError=error.message;$('progress').textContent='Erro: '+error.message;}}
 async function waitForReconstruction(){commitAlpha();const start=performance.now();requestReconstruction();while(volumeKey!==modelKey()){if(buildError)throw Error(buildError);if(performance.now()-start>120000)throw Error('A reconstrução está demorando. Tente a qualidade Leve.');await new Promise(resolve=>setTimeout(resolve,25));requestReconstruction();}}
 function fitCamera(){if(!volumeMesh?.bounds||!images[0])return;const im=images[0],focus=1-(im.top+im.bottom)/im.height,h=2*(im.bottom-im.top)/im.height,w=2*(im.right-im.left)/im.height,d=images[1]?viewWorldWidth(images[1]):w,scale=2/Math.max(h,w,d,.01),aspect=Math.max(.1,canvas.clientWidth/Math.max(1,canvas.clientHeight)),cy=Math.cos(angleY),sy=Math.sin(angleY),cx=Math.cos(angleX),sx=Math.sin(angleX),{lower,upper}=volumeMesh.bounds;let distance=1.7;for(let i=0;i<8;i++){const x=(i&1?upper[0]:lower[0])*scale,y=((i&2?upper[1]:lower[1])-focus)*scale,z=(i&4?upper[2]:lower[2])*scale,rx=cy*x+sy*z,rz=-sy*x+cy*z,ry=cx*y-sx*rz,depth=sx*y+cx*rz;distance=Math.max(distance,depth+1.9*Math.abs(rx)/(aspect*.80),depth+1.9*Math.abs(ry)/.78);}zoom=Math.max(1.7,distance*1.015);panX=panY=0;}
-function render(){if(window.importedGLBActive){setTimeout(()=>requestAnimationFrame(render),document.hidden?500:150);return;}if(!gl)return;if(document.hidden){setTimeout(()=>requestAnimationFrame(render),500);return;}const d=1,w=Math.round(canvas.clientWidth*d),h=Math.round(canvas.clientHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;if(!cameraMoved)fitCamera();}requestReconstruction();const frame=[w,h,angleX,angleY,zoom,panX,panY,meshVersion,paintVersion,$('opacity').value,$('colors').checked,$('clayPreview').checked].join('|');if(frame===lastFrame){setTimeout(()=>requestAnimationFrame(render),document.hidden?400:120);return;}lastFrame=frame;gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.CULL_FACE);gl.disable(gl.DEPTH_TEST);if($('volume').checked){drawVolume();requestAnimationFrame(render);return;}let planes=walls();
+function render(){if(window.importedGLBActive){setTimeout(()=>requestAnimationFrame(render),document.hidden?500:150);return;}if(!gl)return;if(document.hidden){setTimeout(()=>requestAnimationFrame(render),500);return;}const d=Math.min(2,Math.max(1,window.devicePixelRatio||1)),w=Math.round(canvas.clientWidth*d),h=Math.round(canvas.clientHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;if(!cameraMoved)fitCamera();}requestReconstruction();const frame=[w,h,angleX,angleY,zoom,panX,panY,meshVersion,paintVersion,$('opacity').value,$('colors').checked,$('clayPreview').checked].join('|');if(frame===lastFrame){setTimeout(()=>requestAnimationFrame(render),document.hidden?400:120);return;}lastFrame=frame;gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.CULL_FACE);gl.disable(gl.DEPTH_TEST);if($('volume').checked){drawVolume();requestAnimationFrame(render);return;}let planes=walls();
 // Paredes transparentes desenhadas do fundo para a frente, sem faces de topo ou base.
 const cameraZ=p=>Math.sin(angleX)*p[1]+Math.cos(angleX)*(-Math.sin(angleY)*p[0]+Math.cos(angleY)*p[2]);planes.sort((a,b)=>cameraZ(a.center)-cameraZ(b.center));
 for(const wall of planes){if(!textures[wall.i])continue;let data=[];for(const [u,v] of [[0,0],[0,1],[1,1],[0,0],[1,1],[1,0]])data.push(...wall.point(u,v),wall.flip?1-u:u,v);uniforms(program);position(program,buffer,data,true);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,textures[wall.i]);gl.uniform1i(cachedUniformLocation(program,'image'),0);gl.uniform1f(cachedUniformLocation(program,'opacity'),+$('opacity').value/100);gl.uniform1f(cachedUniformLocation(program,'cutoff'),+$('cutoff').value/255);gl.uniform1f(cachedUniformLocation(program,'colors'),$('colors').checked?1:0);gl.uniform3fv(cachedUniformLocation(program,'tint'),wall.color.slice(0,3));gl.drawArrays(gl.TRIANGLES,0,6)}
@@ -3437,6 +3529,24 @@ function applyPaintCommand(command){
 }
 function replayPaintStrokes(){for(const stroke of paintStrokes)for(const command of stroke)applyPaintCommand(command);}
 
+// Palm rejection only while a pen operates a brush or sculpting tool.
+let drawingPenPointer=null;
+const blockDrawingPalm=e=>{
+ if(e.pointerType!=='touch'||drawingPenPointer===null)return false;
+ e.preventDefault();e.stopImmediatePropagation();return true;
+};
+canvas.addEventListener('pointerdown',e=>{
+ if(blockDrawingPalm(e))return;
+ if(e.pointerType==='pen'&&(e.button===0||(e.button===-1&&(e.buttons&1)))&&
+    ['brush','grab','smooth'].includes($('paintTool').value))drawingPenPointer=e.pointerId;
+},true);
+canvas.addEventListener('pointermove',blockDrawingPalm,true);
+for(const type of ['pointerup','pointercancel','lostpointercapture']){
+ canvas.addEventListener(type,e=>{
+  if(e.pointerType==='pen'&&e.pointerId===drawingPenPointer)drawingPenPointer=null;
+  else blockDrawingPalm(e);
+ },true);
+}
 const orbitDown=canvas.onpointerdown,orbitMove=canvas.onpointermove,orbitUp=canvas.onpointerup;
 canvas.onpointerdown=e=>{
  if(window.clone3DMode&&e.button===0&&!e.shiftKey&&!window.clone3DSource){
@@ -9002,11 +9112,11 @@ body:has(dialog[open]) #proBrushOutline{display:none!important}
  :is(.compactTopbar,#compositionBar) .proTopActions{gap:3px;padding-left:0}
 }
 @media(max-width:550px){
- .compactTopbar{height:90px;display:grid;grid-template-columns:auto auto auto minmax(0,1fr);grid-template-rows:42px 42px;justify-items:start;gap:0 3px}
- .compactTopbar .bendControl{grid-row:2;grid-column:1/3;padding-left:0}
+ .compactTopbar:has(#sendToComposition){height:90px;display:grid;grid-template-columns:auto auto auto minmax(0,1fr);grid-template-rows:42px 42px;justify-items:start;gap:0 3px}
+ .compactTopbar:has(#sendToComposition) .bendControl{grid-row:2;grid-column:1/3;padding-left:0}
  #sendToComposition{grid-row:2;grid-column:3/-1}
- .compactTopbar #exportGLBVisible{justify-self:end}
- :is(.compactTopbar,#compositionBar) .proTopActions{grid-row:2;grid-column:4;justify-self:end}
+ .compactTopbar:has(#sendToComposition) #exportGLBVisible{justify-self:end}
+ :is(.compactTopbar:has(#sendToComposition),#compositionBar) .proTopActions{grid-row:2;grid-column:4;justify-self:end}
  body>main{height:calc(100dvh - 90px)!important}
 }
 @media(max-width:380px){#sendToComposition{font-size:11px;padding-inline:5px}:is(.compactTopbar,#compositionBar) .proTopBtn{width:31px;min-width:31px}}
@@ -9412,6 +9522,7 @@ self.onmessage=({data:{meshes,operations}})=>{
 (()=>{
  const tab=document.getElementById('compactCompositionTab');
  const send=document.getElementById('sendToComposition');
+ if(!tab&&!send)return;
  const dialog=document.getElementById('compositionDialog');
  const canvas=document.getElementById('compositionCanvas');
  const list=document.getElementById('compositionList');
